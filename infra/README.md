@@ -14,7 +14,8 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
 
 - **A GCP project on your personal account**, with billing on. Keep the work account and work organisation out of it (PRD §10, employment contract).
 - **A private GitHub repository** for this code, on your personal account.
-- **A Cloudflare Turnstile site** for your domain: you need its site key and secret key.
+- **The checkon.ca domain** at your registrar, and the **info@checkon.ca mailbox** with its SMTP details.
+- **A Cloudflare Turnstile site** for checkon.ca: you need its site key and secret key.
 - **A personal Anthropic API key**, on terms with no training on inputs (Technical Design §7).
 - `gcloud` and `terraform` installed.
 
@@ -54,7 +55,19 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-TURNSTILE-SECRET" | gcloud secrets versions add posting-checker-turnstile-secret-key --data-file=-
    ```
 
-5. Set `public_url` in `terraform.tfvars` to the `service_url` output (or your domain), then apply again. The app uses it for the origin check.
+   For contact-form emails, also add your SMTP password (for Gmail, an app password) and set `contact_email` and the `smtp_*` values in `terraform.tfvars`. Without them, messages are still saved in the `contact_message` table.
+
+   ```bash
+   printf %s "YOUR-SMTP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
+   ```
+
+5. Point checkon.ca at the service. Cloud Run's built-in domain mapping isn't offered in every region, so check whether `northamerica-northeast2` has it:
+
+   ```bash
+   gcloud beta run domain-mappings create --service posting-checker --domain checkon.ca --region northamerica-northeast2
+   ```
+
+   If the region doesn't support it, put a global HTTPS load balancer with a serverless network endpoint group in front instead (about $19 a month, the load balancer line in Technical Design §13). Either way, add the DNS records Google shows you at your registrar. Then set `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply again; the app uses it for the origin check.
 
    ```bash
    terraform apply
@@ -69,6 +82,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `terraform output -raw workload_identity_provider` |
    | `GCP_DEPLOYER_SERVICE_ACCOUNT` | `terraform output -raw deployer_service_account` |
    | `TURNSTILE_SITE_KEY` | the site key from Cloudflare |
+   | `CONTACT_EMAIL` | `info@checkon.ca` |
 
    Then create an environment named `production`. Add yourself as a required reviewer if you want to approve each deploy.
 

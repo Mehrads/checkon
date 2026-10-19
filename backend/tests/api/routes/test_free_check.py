@@ -91,3 +91,32 @@ def test_feedback_keeps_no_posting_text_without_consent(client: TestClient, db: 
     assert client.post(f"{API}/feedback", json=body).status_code == 201
     row = db.exec(select(Feedback).where(Feedback.check_id == check_id)).one()
     assert (row.rating, row.reason, row.posting_text, row.review_status) == ("down", "wrong_rule", None, "new")
+
+
+def test_contact_message_is_saved(client: TestClient, db: Session) -> None:
+    from app.models import ContactMessage
+
+    email = f"{secrets.token_hex(4)}@agency.example"
+    body = {"name": "Dana", "email": email, "company": "Agency Inc.", "interest": "agency", "message": "Pricing for 12 clients?"}
+    assert client.post(f"{API}/contact", json=body).status_code == 201
+    row = db.exec(select(ContactMessage).where(ContactMessage.email == email)).one()
+    assert (row.interest, row.company) == ("agency", "Agency Inc.")
+
+
+def test_contact_message_is_emailed_to_the_owner(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    sent: list[dict] = []
+    monkeypatch.setattr(settings, "CONTACT_EMAIL", "owner@example.com")
+    monkeypatch.setattr(settings, "SMTP_HOST", "localhost")
+    monkeypatch.setattr(settings, "EMAILS_FROM_EMAIL", "info@example.com")
+    monkeypatch.setattr("app.utils.send_email", lambda **kwargs: sent.append(kwargs))
+    body = {"name": "Sam <b>", "email": "sam@example.com", "interest": "custom", "message": "We use BambooHR.\nCan you connect it?"}
+    assert client.post(f"{API}/contact", json=body).status_code == 201
+    [email] = sent
+    assert email["email_to"] == "owner@example.com"
+    assert email["subject"] == "CheckON: Custom setup enquiry from Sam <b>"
+    assert "Sam &lt;b&gt;" in email["html_content"] and "BambooHR.<br>Can you" in email["html_content"]
+
+
+def test_contact_needs_a_valid_email(client: TestClient) -> None:
+    body = {"name": "Dana", "email": "nope", "interest": "starter", "message": "Hi"}
+    assert client.post(f"{API}/contact", json=body).status_code == 422

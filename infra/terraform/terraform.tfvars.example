@@ -3,5 +3,14 @@ project_id            = "your-gcp-project-id"
 github_repository     = "your-github-user/your-repo"
 first_superuser_email = "you@example.com"
 
-# After the first apply, set this to the service_url output (or your domain) and apply again.
+# Contact form notices: where messages go, and the mailbox that sends them.
+# smtp_host is your email provider's SMTP server for info@checkon.ca.
+contact_email = "info@checkon.ca"
+emails_from   = "info@checkon.ca"
+smtp_user     = "info@checkon.ca"
+# smtp_host   = "smtp.your-email-provider.example"
+
+# Leave empty for the first apply; once checkon.ca points at the service (infra/README.md, step 5),
+# set it and apply again.
 public_url = ""
+# public_url = "https://checkon.ca"

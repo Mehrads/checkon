@@ -1,14 +1,9 @@
 import {
   Archive,
   BadgeCheck,
-  Bot,
-  Building2,
-  CalendarClock,
   Check,
   ClipboardPaste,
-  DollarSign,
   FileCheck2,
-  Globe2,
   ListChecks,
   type LucideIcon,
   PenLine,
@@ -16,34 +11,37 @@ import {
   Users,
 } from "lucide-react"
 import type { ReactNode } from "react"
-import { RequestForm } from "@/components/Check/Research"
+
 import { Appearance } from "@/components/Common/Appearance"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import {
+  CONTACT_EMAIL,
+  ContactForm,
+  type Interest,
+  useContact,
+} from "./Contact"
 
 const NAV = [
   { href: "#how", label: "How it works" },
-  { href: "#rules", label: "What we check" },
   { href: "#teams", label: "For teams" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
+  { href: "#contact", label: "Contact" },
 ]
 
 export function Brand() {
   return (
     <a
       href="#check"
-      className="flex items-center gap-2 font-semibold tracking-tight"
+      className="flex items-center gap-2 text-lg font-semibold tracking-tight"
     >
       <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <FileCheck2 className="size-4.5" aria-hidden="true" />
       </span>
       <span>
-        Posting<span className="text-primary">Check</span>
-        <span className="ml-1.5 hidden text-xs font-normal text-muted-foreground sm:inline">
-          Ontario
-        </span>
+        Check<span className="text-primary">ON</span>
       </span>
     </a>
   )
@@ -81,9 +79,9 @@ export function SiteHeader() {
 
 export function HeroIntro() {
   const points = [
-    "Pay range, vacancy statement and AI disclosure, checked line by line",
-    "Canadian-experience wording rewritten to ask for the skill instead",
-    "A rewrite you approve, then edit and copy into your ATS",
+    "One click, no sign-up",
+    "A compliant rewrite you approve, change by change",
+    "Edit, format and copy it straight into your ATS",
   ]
   return (
     <div className="min-w-0 space-y-6">
@@ -92,16 +90,15 @@ export function HeroIntro() {
         className="gap-1.5 rounded-full px-3 py-1 text-left text-xs font-medium whitespace-normal"
       >
         <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-        Ontario's job posting rules, in force since January 1, 2026
+        Ontario job posting compliance
       </Badge>
       <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        Job postings that follow the rules,{" "}
-        <span className="text-primary">and get more applicants.</span>
+        Ontario compliance check for your job postings,{" "}
+        <span className="text-primary">in one click.</span>
       </h1>
       <p className="max-w-xl text-lg text-muted-foreground">
-        64% of Canadian job seekers have skipped a posting with no salary. Paste
-        yours: we check it against Ontario's rules and rewrite what's missing,
-        before you publish.
+        Paste a posting and CheckON shows what doesn't comply, then rewrites it
+        for you before you publish.
       </p>
       <ul className="space-y-2.5">
         {points.map((point) => (
@@ -114,9 +111,6 @@ export function HeroIntro() {
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted-foreground">
-        Job seeker figure: Employment Hero survey, January 2026.
-      </p>
     </div>
   )
 }
@@ -182,13 +176,13 @@ export function HowItWorks() {
     },
     {
       icon: ListChecks,
-      title: "See every rule checked",
-      text: "Each verdict points at the sentence it's about, with the rule it comes from.",
+      title: "Check it in one click",
+      text: "See what complies and what doesn't, pointing at the exact sentence.",
     },
     {
       icon: BadgeCheck,
       title: "Approve the fixes",
-      text: "Only what the rules require changes. You keep or drop each change.",
+      text: "Only what compliance requires changes. You keep or drop each change.",
     },
     {
       icon: PenLine,
@@ -223,157 +217,112 @@ export function HowItWorks() {
   )
 }
 
-export function WhatWeCheck() {
-  return (
-    <Section
-      id="rules"
-      eyebrow="What we check"
-      title="Every rule a public posting has to meet"
-      lead="The rules apply to employers with 25 or more employees in Ontario, for publicly advertised jobs in Ontario. We look up the employer named in your posting; if we can't find it, we assume the rules apply."
-      muted
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Tile icon={DollarSign} title="Expected pay">
-          A salary or pay range, no more than $50,000 a year wide, unless the
-          pay is above $200,000.
-        </Tile>
-        <Tile icon={Building2} title="Vacancy statement">
-          Whether the posting is for an existing vacancy. We add the statement
-          once you tell us.
-        </Tile>
-        <Tile icon={Bot} title="AI disclosure">
-          A statement when AI helps screen, assess or select applicants,
-          including ATS ranking.
-        </Tile>
-        <Tile icon={Globe2} title="No Canadian experience">
-          No requirement for Canadian experience. We keep the skill and drop
-          where it was gained.
-        </Tile>
-      </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div className="flex gap-4 rounded-xl border border-dashed p-5">
-          <CalendarClock
-            className="size-5 shrink-0 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              45-day follow-up.
-            </span>{" "}
-            Reminders to tell interviewed applicants about your decision. Coming
-            with HR-system connections.
-          </p>
-        </div>
-        <div className="flex gap-4 rounded-xl border border-dashed p-5">
-          <Archive
-            className="size-5 shrink-0 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">3-year records.</span>{" "}
-            A dated archive of every approved posting. Coming with accounts.
-          </p>
-        </div>
-      </div>
-    </Section>
-  )
-}
-
 export function ForTeams() {
+  const { contactAbout } = useContact()
   return (
     <Section
       id="teams"
       eyebrow="For agencies and HR teams"
       title="Check every posting where you already write it"
-      lead="Recruiting agencies post for many clients with different rules and screening tools. HR teams post from their HR system. We're building for both; tell us your setup and we'll start with yours."
+      lead="Recruiting agencies post for many clients. HR teams post from their HR system. Tell us how you work and we'll set CheckON up for you."
+      muted
     >
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-        <div className="grid gap-4">
-          <Tile icon={Users} title="A profile per client">
-            Headcount, AI tools and preferred wording saved per client, so each
-            posting is checked against the right facts.
-          </Tile>
-          <Tile icon={Plug} title="Runs in your HR system">
-            A browser extension for any job form, and connections to HR systems,
-            starting with BambooHR.
-          </Tile>
-          <Tile icon={Archive} title="Proof for your clients">
-            A dated record of every approved posting and the rules it met.
-          </Tile>
-        </div>
-        <div id="setup" className="scroll-mt-20">
-          <RequestForm startOpen />
-        </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Tile icon={Users} title="A profile per client">
+          Settings saved for each client, so every posting is checked against
+          the right facts.
+        </Tile>
+        <Tile icon={Plug} title="Runs in your HR system">
+          A browser extension for any job form, and connections to HR systems,
+          starting with BambooHR.
+        </Tile>
+        <Tile icon={Archive} title="Proof for your clients">
+          A dated record of every approved posting.
+        </Tile>
       </div>
+      <Button
+        className="mt-6"
+        variant="outline"
+        onClick={() => contactAbout("custom")}
+      >
+        Talk to us about your setup
+      </Button>
     </Section>
   )
 }
 
+interface Plan {
+  name: string
+  price: string
+  period?: string
+  note: string
+  features: string[]
+  cta: { label: string; interest?: Interest }
+  highlight?: boolean
+}
+
+const PLANS: Plan[] = [
+  {
+    name: "Free",
+    price: "$0",
+    note: "Available now",
+    features: [
+      "1 check a week",
+      "No sign-up",
+      "Compliant rewrite you approve",
+      "Edit and copy the result",
+    ],
+    cta: { label: "Check a posting" },
+    highlight: true,
+  },
+  {
+    name: "Starter",
+    price: "$79",
+    period: "/month",
+    note: "Contact us to get started",
+    features: [
+      "50 checks a month",
+      "Company profile and history",
+      "Browser extension",
+    ],
+    cta: { label: "Contact us", interest: "starter" },
+  },
+  {
+    name: "Agency",
+    price: "$249",
+    period: "/month",
+    note: "Contact us to get started",
+    features: [
+      "300 checks a month",
+      "A workspace per client",
+      "Archive of approved postings",
+    ],
+    cta: { label: "Contact us", interest: "agency" },
+  },
+  {
+    name: "Custom setup",
+    price: "Quote",
+    note: "Priced for your setup",
+    features: [
+      "Connect your HR system",
+      "Your wording and approvals",
+      "Tested on your own postings",
+    ],
+    cta: { label: "Contact us for a quote", interest: "custom" },
+  },
+]
+
 export function Pricing() {
-  const plans = [
-    {
-      name: "Free check",
-      price: "$0",
-      period: "",
-      note: "Available now",
-      features: [
-        "1 check a week, no sign-up",
-        "Verdict for every rule",
-        "Rewrite you approve",
-        "Edit and copy the result",
-      ],
-      cta: { label: "Check a posting", href: "#check" },
-      highlight: true,
-    },
-    {
-      name: "Starter",
-      price: "$79",
-      period: "/month",
-      note: "Coming soon",
-      features: [
-        "50 checks a month",
-        "Company profile and history",
-        "Pay range suggestions with sources",
-        "Browser extension",
-      ],
-      cta: { label: "Get early access", href: "#setup" },
-    },
-    {
-      name: "Agency",
-      price: "$249",
-      period: "/month",
-      note: "Coming soon",
-      features: [
-        "300 checks a month",
-        "A workspace per client",
-        "3-year archive",
-        "Everything in Starter",
-      ],
-      cta: { label: "Get early access", href: "#setup" },
-    },
-    {
-      name: "Custom setup",
-      price: "From $1,000",
-      period: "",
-      note: "One-time, plus a plan",
-      features: [
-        "Connect your HR system",
-        "Your wording and approvals",
-        "Tested on 10 of your postings",
-      ],
-      cta: { label: "Tell us your setup", href: "#setup" },
-    },
-  ]
+  const { contactAbout } = useContact()
   return (
     <Section
       id="pricing"
       eyebrow="Pricing"
-      title="Start free. Pay when it's part of your workflow."
+      title="Start free. Upgrade when it's part of your workflow."
       lead="Prices in Canadian dollars."
-      muted
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {plans.map((plan) => (
+        {PLANS.map((plan) => (
           <div
             key={plan.name}
             className={cn(
@@ -386,9 +335,11 @@ export function Pricing() {
               <span className="text-3xl font-semibold tracking-tight">
                 {plan.price}
               </span>
-              <span className="text-sm text-muted-foreground">
-                {plan.period}
-              </span>
+              {plan.period && (
+                <span className="text-sm text-muted-foreground">
+                  {plan.period}
+                </span>
+              )}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{plan.note}</p>
             <ul className="mt-5 flex-1 space-y-2 text-sm">
@@ -402,13 +353,21 @@ export function Pricing() {
                 </li>
               ))}
             </ul>
-            <Button
-              asChild
-              variant={plan.highlight ? "default" : "outline"}
-              className="mt-6"
-            >
-              <a href={plan.cta.href}>{plan.cta.label}</a>
-            </Button>
+            {plan.cta.interest ? (
+              <Button
+                variant="outline"
+                className="mt-6"
+                onClick={() =>
+                  plan.cta.interest && contactAbout(plan.cta.interest)
+                }
+              >
+                {plan.cta.label}
+              </Button>
+            ) : (
+              <Button asChild className="mt-6">
+                <a href="#check">{plan.cta.label}</a>
+              </Button>
+            )}
           </div>
         ))}
       </div>
@@ -419,15 +378,11 @@ export function Pricing() {
 const QUESTIONS = [
   {
     q: "Is this legal advice?",
-    a: "No. It applies Ontario's job posting rules from the Employment Standards Act, 2000 and O. Reg. 476/24, and each result names the rule it used. For advice on your situation, talk to an employment lawyer.",
+    a: "No. CheckON checks your posting against Ontario's job posting requirements and shows where each finding comes from. For advice on your situation, talk to an employment lawyer.",
   },
   {
-    q: "Who has to follow these rules?",
-    a: "Employers with 25 or more employees in Ontario, for public postings that advertise a specific job in Ontario, posted on or after January 1, 2026. Internal postings and general “we're hiring” campaigns are exempt.",
-  },
-  {
-    q: "How do you know how many employees we have?",
-    a: "We search the web for the employer named in your posting. If we find it has fewer than 25 employees, the rules don't apply. If we can't find it, we assume they do.",
+    q: "Who is it for?",
+    a: "Ontario employers and the recruiting agencies that post for them. If the requirements don't apply to a posting, CheckON tells you.",
   },
   {
     q: "Do you keep my posting?",
@@ -435,17 +390,17 @@ const QUESTIONS = [
   },
   {
     q: "What does the rewrite change?",
-    a: "Only what the rules require: it adds missing statements, offers narrower pay ranges for you to choose from, and rewrites Canadian-experience requirements. Everything else stays exactly as you wrote it, and you approve each change.",
+    a: "Only what compliance requires. Everything else stays exactly as you wrote it, and you approve each change before it's applied.",
   },
   {
-    q: "Why one free check a week?",
-    a: "Each check runs on AI models we pay for. Plans for teams and agencies are coming; tell us what you need and we'll set you up early.",
+    q: "How do I get more checks or a custom setup?",
+    a: "Contact us below. Starter and Agency plans and custom setups are arranged directly with us for now.",
   },
 ]
 
 export function Faq() {
   return (
-    <Section id="faq" eyebrow="FAQ" title="Questions people ask">
+    <Section id="faq" eyebrow="FAQ" title="Questions people ask" muted>
       <div className="divide-y rounded-xl border bg-card shadow-sm">
         {QUESTIONS.map((item) => (
           <details key={item.q} className="group px-5 py-4">
@@ -466,16 +421,42 @@ export function Faq() {
   )
 }
 
+export function ContactSection() {
+  return (
+    <Section
+      id="contact"
+      eyebrow="Contact"
+      title="Talk to us"
+      lead="Questions, a plan for your team, or a custom setup for your HR system: send us a message and we'll reply by email."
+    >
+      <div className="max-w-2xl">
+        <ContactForm />
+      </div>
+    </Section>
+  )
+}
+
 export function SiteFooter() {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <Brand />
-        <p>
-          Not legal advice. Covers Ontario's job posting rules in force since
-          January 1, 2026.
+        <p>Ontario job posting compliance. Not legal advice.</p>
+        <p className="flex items-center gap-4">
+          {CONTACT_EMAIL ? (
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="hover:text-foreground"
+            >
+              {CONTACT_EMAIL}
+            </a>
+          ) : (
+            <a href="#contact" className="hover:text-foreground">
+              Contact
+            </a>
+          )}
+          <span>© {new Date().getFullYear()} CheckON · checkon.ca</span>
         </p>
-        <p>© {new Date().getFullYear()}</p>
       </div>
     </footer>
   )

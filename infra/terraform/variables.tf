@@ -37,6 +37,34 @@ variable "postgres_version" {
   default     = "POSTGRES_17"
 }
 
+variable "contact_email" {
+  description = "Where contact-form messages are emailed. Leave empty to only save them."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_host" {
+  description = "SMTP server for the contact notices, for example smtp.gmail.com or your email provider's."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_port" {
+  type    = number
+  default = 587
+}
+
+variable "smtp_user" {
+  type    = string
+  default = ""
+}
+
+variable "emails_from" {
+  description = "Sender address for the contact notices."
+  type        = string
+  default     = ""
+}
+
 variable "free_checks_per_week" {
   type    = number
   default = 1

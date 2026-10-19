@@ -1,5 +1,6 @@
 """The free paste check (Technical Design §11): inspect, refine, answer questions, accept patches,
-plus the research hooks: one question per result, a custom-solution request form and feedback.
+plus the research hooks (one question per result, a custom-solution request form, feedback)
+and the site's contact form.
 """
 
 from datetime import date, datetime
@@ -8,8 +9,11 @@ from functools import cache
 from typing import Annotated, Any, Literal
 from zoneinfo import ZoneInfo
 
+import html
+import logging
+
 import anthropic
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, EmailStr, Field
 
 from app.api.check_store import CheckState, CheckStore
@@ -33,7 +37,7 @@ from app.compliance.models import Context, Question, Report, Verdict
 from app.compliance.refiner import Patch, Refinement, finalize, refine
 from app.compliance.rulepack import RulePack, load_pack
 from app.core.config import settings
-from app.models import CustomRequest, Feedback, Message, ResearchAnswer
+from app.models import ContactMessage, CustomRequest, Feedback, Message, ResearchAnswer
 
 MAX_POSTING_CHARS = 8000
 TORONTO = ZoneInfo("America/Toronto")
@@ -307,3 +311,46 @@ def send_feedback(body: FeedbackIn, session: SessionDep, store: StoreDep) -> Mes
     session.add(Feedback(**body.model_dump(exclude={"share_posting"}), versions=versions, posting_text=posting))
     session.commit()
     return Message(message="Thanks for the feedback.")
+
+
+# Contact form
+
+logger = logging.getLogger(__name__)
+
+INTERESTS = {"starter": "Starter plan", "agency": "Agency plan", "custom": "Custom setup", "other": "Something else"}
+
+
+class ContactIn(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    email: EmailStr = Field(max_length=255)
+    company: str | None = Field(default=None, max_length=255)
+    interest: Literal["starter", "agency", "custom", "other"]
+    message: str = Field(min_length=1, max_length=2000)
+    check_id: str | None = Field(default=None, max_length=64)
+
+
+def _notify(contact: ContactMessage) -> None:
+    from app.utils import send_email  # the template's SMTP helper
+
+    rows = [("From", f"{contact.name} <{contact.email}>"), ("Company", contact.company or "-"),
+            ("Interested in", INTERESTS[contact.interest]), ("Message", contact.message)]  # fmt: skip
+    body = "".join(f"<p><strong>{label}:</strong> {html.escape(value)}</p>" for label, value in rows)
+    try:
+        send_email(
+            email_to=str(settings.CONTACT_EMAIL),
+            subject=f"CheckON: {INTERESTS[contact.interest]} enquiry from {contact.name}",
+            html_content=body.replace("\n", "<br>"),
+        )
+    except Exception:  # the message is saved either way
+        logger.exception("Could not email contact message %s", contact.id)
+
+
+@router.post("/contact", status_code=201)
+def contact(body: ContactIn, session: SessionDep, background: BackgroundTasks) -> Message:
+    message = ContactMessage(**body.model_dump())
+    session.add(message)
+    session.commit()
+    session.refresh(message)
+    if settings.CONTACT_EMAIL and settings.emails_enabled:
+        background.add_task(_notify, message)
+    return Message(message="Thanks! We'll get back to you by email.")

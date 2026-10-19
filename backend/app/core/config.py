@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     # Claude API key for the Inspector and Refiner; without it the check endpoints return 503.
     ANTHROPIC_API_KEY: str | None = None
 
+    # Where contact-form messages are emailed (needs the SMTP settings above); they are always saved.
+    CONTACT_EMAIL: EmailStr | None = None
+
     # Free check limits (04-V1-Scope.md, section 4). Turnstile is skipped in development when unset.
     TURNSTILE_SECRET_KEY: str | None = None
     FREE_CHECKS_PER_WEEK: int = 1

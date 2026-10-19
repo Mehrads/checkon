@@ -177,3 +177,17 @@ class Feedback(SQLModel, table=True):
     versions: dict[str, str] = Field(default_factory=dict, sa_column=Column(JSON))
     posting_text: str | None = Field(default=None, sa_column=Column(Text))  # only with consent
     review_status: str = Field(default="new", max_length=16)
+
+
+class ContactMessage(SQLModel, table=True):
+    """A message from the site's contact form: plans, custom setups, questions."""
+
+    __tablename__ = "contact_message"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    name: str = Field(max_length=255)
+    email: str = Field(max_length=255)
+    company: str | None = Field(default=None, max_length=255)
+    interest: str = Field(max_length=32)  # starter, agency, custom or other
+    message: str = Field(max_length=2000)
+    check_id: str | None = Field(default=None, max_length=64)

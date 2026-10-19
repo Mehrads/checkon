@@ -7,12 +7,17 @@ locals {
 
   # Plain settings shared by the service and the migration job
   plain_env = {
-    PROJECT_NAME                   = "Ontario Job Posting Checker"
+    PROJECT_NAME                   = "CheckON"
     FRONTEND_HOST                  = var.public_url != "" ? var.public_url : "https://${local.name}.invalid"
     FIRST_SUPERUSER                = var.first_superuser_email
     TRUSTED_PROXY_HOPS             = "1"
     FREE_CHECKS_PER_WEEK           = tostring(var.free_checks_per_week)
     FREE_CHECK_DAILY_SPEND_CAP_USD = var.free_check_daily_spend_cap_usd
+    CONTACT_EMAIL                  = var.contact_email
+    SMTP_HOST                      = var.smtp_host
+    SMTP_PORT                      = tostring(var.smtp_port)
+    SMTP_USER                      = var.smtp_user
+    EMAILS_FROM_EMAIL              = var.emails_from
   }
 
   # Settings read from Secret Manager
@@ -22,6 +27,7 @@ locals {
     FIRST_SUPERUSER_PASSWORD = google_secret_manager_secret.generated["first-superuser-password"].secret_id
     ANTHROPIC_API_KEY        = google_secret_manager_secret.manual["anthropic-api-key"].secret_id
     TURNSTILE_SECRET_KEY     = google_secret_manager_secret.manual["turnstile-secret-key"].secret_id
+    SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
   }
 }
 
@@ -140,7 +146,7 @@ resource "google_secret_manager_secret_version" "generated" {
 }
 
 resource "google_secret_manager_secret" "manual" {
-  for_each  = toset(["anthropic-api-key", "turnstile-secret-key"])
+  for_each  = toset(["anthropic-api-key", "turnstile-secret-key", "smtp-password"])
   secret_id = "${local.name}-${each.value}"
   replication {
     user_managed {

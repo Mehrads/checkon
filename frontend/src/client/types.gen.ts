@@ -133,6 +133,36 @@ export type CheckOut = {
 };
 
 /**
+ * ContactIn
+ */
+export type ContactIn = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Company
+     */
+    company?: string | null;
+    /**
+     * Interest
+     */
+    interest: 'starter' | 'agency' | 'custom' | 'other';
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Check Id
+     */
+    check_id?: string | null;
+};
+
+/**
  * CustomRequestIn
  */
 export type CustomRequestIn = {
@@ -955,6 +985,31 @@ export type checksSendFeedbackResponses = {
 };
 
 export type checksSendFeedbackResponse = checksSendFeedbackResponses[keyof checksSendFeedbackResponses];
+
+export type checksContactData = {
+    body: ContactIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/contact';
+};
+
+export type checksContactErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type checksContactError = checksContactErrors[keyof checksContactErrors];
+
+export type checksContactResponses = {
+    /**
+     * Successful Response
+     */
+    201: Message;
+};
+
+export type checksContactResponse = checksContactResponses[keyof checksContactResponses];
 
 export type loginLoginAccessTokenData = {
     body: Body_login_login_access_token;
