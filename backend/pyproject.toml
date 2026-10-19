@@ -5,6 +5,7 @@ description = "Ontario job posting compliance checker: rule engine, Inspector an
 requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.9",
+    "pysbd>=0.3.4",
     "pyyaml>=6.0",
 ]
 
@@ -16,3 +17,5 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# pysbd 0.3.4 has unescaped regex strings; the warnings are harmless.
+filterwarnings = ["ignore:invalid escape sequence:SyntaxWarning"]
