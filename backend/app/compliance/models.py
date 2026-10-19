@@ -77,6 +77,7 @@ class Requirement(_Model):
     text: str
     span: Span
     cex_label: Literal["violation", "borderline", "ok"]
+    reason: str | None = None
 
 
 class Facts(_Model):

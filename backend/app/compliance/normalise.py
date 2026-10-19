@@ -7,10 +7,14 @@ v1 takes plain text; HTML input arrives with the extension (phase 3).
 
 import re
 import unicodedata
+import warnings
 from functools import cache
 
-import pysbd
 from pydantic import BaseModel, ConfigDict
+
+with warnings.catch_warnings():  # pysbd 0.3.4 has unescaped regex strings; the warnings are harmless
+    warnings.simplefilter("ignore", SyntaxWarning)
+    import pysbd
 
 from app.compliance.models import Span, TextFact
 

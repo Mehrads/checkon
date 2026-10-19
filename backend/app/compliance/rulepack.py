@@ -30,6 +30,7 @@ class Rule(BaseModel):
     fix: dict[str, str] | None = None
     messages: dict[str, str] = {}
     questions: dict[str, str] = {}
+    examples: list[dict[str, str]] = []  # labelled sentences for the classifier prompt
     tests: list[str] = []
 
     def in_force(self, on: date) -> bool:

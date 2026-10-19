@@ -1,6 +1,6 @@
 # Backend
 
-Compliance core for the Ontario job posting checker. Steps 1–2 of `../04-V1-Scope.md`: the rule pack, the rule engine, the normaliser and the money parser, with no LLM.
+Compliance core for the Ontario job posting checker. Steps 1–3 of `../04-V1-Scope.md`: the rule pack, the rule engine, the normaliser, the money parser and the Inspector.
 
 - `rulepacks/CA-ON/rules.yaml`: the rules, with citations, effective dates, params, messages and questions.
 - `rulepacks/CA-ON/tests/`: table-driven rule cases (Technical Design §8, layer 1).
@@ -8,9 +8,19 @@ Compliance core for the Ontario job posting checker. Steps 1–2 of `../04-V1-Sc
 - `app/compliance/engine.py`: applicability gate, content rules, report.
 - `app/compliance/normalise.py`: pasted text to normalised text, with an offset map back to the original, sections and sentences.
 - `app/compliance/money.py`: the deterministic pay parser, the second reading checked against the LLM.
+- `app/compliance/inspector.py`: text in, report out. Calls `extraction.py` (facts, span checks, pay cross-check) and `classification.py` (labels, keyword safety net) through `llm.py`.
+- `prompts/`: the extraction and classification prompts. Their hash is the `prompts` version in every report.
 
-Run the tests:
+Run the tests (the live API test is skipped):
 
 ```bash
 uv run pytest
 ```
+
+Run one real inspection against the Claude API (Haiku 5.5, well under a cent):
+
+```bash
+RUN_LIVE_LLM=1 uv run pytest tests/test_live.py -v
+```
+
+It needs `ANTHROPIC_API_KEY` set in your shell.

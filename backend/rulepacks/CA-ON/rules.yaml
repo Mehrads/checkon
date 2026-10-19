@@ -134,6 +134,13 @@ rules:
       fail: "The posting doesn't say whether it is for an existing vacancy."
       vague: "The vacancy statement is vague. Say plainly whether the job is an existing vacancy."
     questions: {}
+    # Classifier labels: existing, not_existing, vague, none (not a vacancy statement).
+    examples:
+      - {text: "This posting is for an existing vacancy.", label: existing, reason: "States the job is an existing vacancy."}
+      - {text: "This role is currently open.", label: existing, reason: "Says the position is open now."}
+      - {text: "We are building a talent pool for future openings; this posting is not for an existing vacancy.", label: not_existing, reason: "States there is no existing vacancy."}
+      - {text: "We may hire for this role in the future.", label: vague, reason: "Doesn't say whether a vacancy exists now."}
+      - {text: "Apply by November 30.", label: none, reason: "A deadline, not a vacancy statement."}
     tests: [tests/vacancy.yaml]
 
   - id: ON-AI-01
@@ -157,6 +164,13 @@ rules:
       needs_input: "Whether the posting needs an AI disclosure depends on your hiring tools."
     questions:
       uses_ai_in_hiring: "Do you use AI to screen, assess or select applicants for this job? This includes ATS auto-ranking, resume scoring and chat screening."
+    # Classifier labels: uses_ai, no_ai, none (not about AI in hiring).
+    examples:
+      - {text: "We use AI tools to screen applications.", label: uses_ai, reason: "Discloses AI used to screen applicants."}
+      - {text: "Applications are ranked with the help of artificial intelligence.", label: uses_ai, reason: "Discloses AI used to assess applicants."}
+      - {text: "We do not use AI to screen, assess or select applicants.", label: no_ai, reason: "States AI is not used in hiring."}
+      - {text: "Experience with AI tools such as ChatGPT is an asset.", label: none, reason: "A job skill, not how applicants are screened."}
+      - {text: "Our product uses machine learning to forecast demand.", label: none, reason: "About the product, not hiring."}
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
@@ -176,6 +190,18 @@ rules:
       fail: "The posting requires Canadian experience. Ask for the skill, not where it was gained."
       warning: "Some wording may read as a Canadian experience requirement. Consider rewording it."
     questions: {}
+    # Classifier labels: violation, borderline, ok. Borderline examples are interpretation (Technical Design §2).
+    examples:
+      - {text: "3 years of Canadian accounting experience", label: violation, reason: "Requires experience gained in Canada."}
+      - {text: "Must have worked in Canada", label: violation, reason: "A rephrased Canadian experience requirement."}
+      - {text: "Local work experience required", label: violation, reason: "'Local' restates a Canadian experience requirement."}
+      - {text: "Familiarity with the Canadian workplace", label: violation, reason: "A coded substitute for Canadian experience."}
+      - {text: "Ontario payroll experience is an asset", label: borderline, reason: "Experience tied to Ontario; our reading treats it as borderline."}
+      - {text: "Knowledge of Canadian tax regulations", label: borderline, reason: "Knowledge of Canadian rules, which may be read as Canadian experience."}
+      - {text: "P.Eng. licence required", label: ok, reason: "A licence, not experience."}
+      - {text: "CPA designation", label: ok, reason: "A certification, not experience."}
+      - {text: "Legally eligible to work in Canada", label: ok, reason: "Work authorization, not experience."}
+      - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
     tests: [tests/cex.yaml]
 
   # Process rules: not checked from posting text (reminder and archive services, later phases).

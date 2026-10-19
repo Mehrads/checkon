@@ -66,6 +66,25 @@ _BEFORE_WINDOW = 60
 _AFTER_WINDOW = 40
 
 
+_PER_UNIT = {PayUnit.HOUR: "an hour", PayUnit.WEEK: "a week", PayUnit.MONTH: "a month", PayUnit.YEAR: "a year"}
+
+
+def _money(amount: Decimal) -> str:
+    return f"${amount:,.0f}" if amount == amount.to_integral_value() else f"${amount:,.2f}"
+
+
+def format_pay(low: Decimal | None, high: Decimal | None, unit: PayUnit | None) -> str:
+    """Pay as a reader would write it: "$28–$34 an hour", "$70,000+ a year", "up to $90,000 a year"."""
+    per = _PER_UNIT[unit] if unit else "(period not stated)"
+    if low is not None and high is not None:
+        amount = _money(low) if low == high else f"{_money(low)}–{_money(high)}"
+    elif low is not None:
+        amount = f"{_money(low)}+"
+    else:
+        amount = f"up to {_money(high)}"
+    return f"{amount} {per}"
+
+
 class PayReading(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 

@@ -10,6 +10,7 @@ from decimal import Decimal
 from typing import Any
 
 from app.compliance.models import Context, Facts, PayKind, PayMention, PayUnit, Span, Verdict
+from app.compliance.money import format_pay
 
 
 @dataclass(frozen=True)
@@ -84,9 +85,6 @@ def public_posting(facts: Facts, ctx: Context, params: dict[str, Any]) -> Outcom
 
 # Pay
 
-_PER_UNIT = {PayUnit.HOUR: "an hour", PayUnit.WEEK: "a week", PayUnit.MONTH: "a month", PayUnit.YEAR: "a year"}
-
-
 def _hours(ctx: Context, params: dict[str, Any]) -> Decimal:
     return ctx.hours_per_week if ctx.hours_per_week is not None else params["default_hours_per_week"]
 
@@ -104,19 +102,8 @@ def annualise(amount: Decimal, unit: PayUnit, hours_per_week: Decimal, params: d
             return amount
 
 
-def _money(amount: Decimal) -> str:
-    return f"${amount:,.0f}" if amount == amount.to_integral_value() else f"${amount:,.2f}"
-
-
 def describe(pay: PayMention) -> str:
-    per = _PER_UNIT[pay.unit]
-    if pay.min is not None and pay.max is not None:
-        if pay.min == pay.max:
-            return f"{_money(pay.min)} {per}"
-        return f"{_money(pay.min)}–{_money(pay.max)} {per}"
-    if pay.min is not None:
-        return f"{_money(pay.min)}+ {per}"
-    return f"up to {_money(pay.max)} {per}"
+    return format_pay(pay.min, pay.max, pay.unit)
 
 
 def _top_annual(pay: PayMention, ctx: Context, params: dict[str, Any]) -> Decimal:
@@ -130,7 +117,8 @@ def _exempt(wages: list[PayMention], ctx: Context, params: dict[str, Any]) -> bo
         return False
     if not wages:
         return True
-    return any(_top_annual(pay, ctx, params) > params["exemption_threshold_annual"] for pay in wages)
+    readable = [pay for pay in wages if pay.parsers_agree]
+    return any(_top_annual(pay, ctx, params) > params["exemption_threshold_annual"] for pay in readable)
 
 
 def _disagreement(pay: PayMention) -> Outcome:
