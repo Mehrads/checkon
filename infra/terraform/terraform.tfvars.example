@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (gitignored) and fill in.
+project_id            = "your-gcp-project-id"
+github_repository     = "your-github-user/your-repo"
+first_superuser_email = "you@example.com"
+
+# After the first apply, set this to the service_url output (or your domain) and apply again.
+public_url = ""

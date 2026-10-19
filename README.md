@@ -45,6 +45,10 @@ For frontend work with hot reload, run `bun run dev` in `frontend/` and open htt
 - **Spend cap:** `FREE_CHECK_DAILY_SPEND_CAP_USD`, measured from the token counts the API reports.
 - **Behind a proxy (Cloud Run):** start the server with `--forwarded-allow-ips` set, or every visitor shares the proxy's IP.
 
+## Deploy
+
+The GCP setup (Terraform, GitHub Actions and the runbook) is in `infra/README.md`.
+
 ## Tests
 
 ```bash

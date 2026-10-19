@@ -11,6 +11,7 @@ from collections import defaultdict, deque
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Protocol
+from urllib.parse import urlsplit
 
 import httpx
 from fastapi import HTTPException, Request, Response
@@ -33,7 +34,12 @@ def refused(status: int, reason: str, message: str) -> HTTPException:
 
 
 def client_ip(request: Request) -> str:
-    # Behind Cloud Run, the server must trust the proxy's X-Forwarded-For (uvicorn --forwarded-allow-ips).
+    hops = settings.TRUSTED_PROXY_HOPS
+    forwarded = request.headers.get("x-forwarded-for")
+    if hops > 0 and forwarded:
+        entries = [entry.strip() for entry in forwarded.split(",") if entry.strip()]
+        if entries:
+            return entries[-hops] if len(entries) >= hops else entries[0]
     return request.client.host if request.client else "unknown"
 
 
@@ -52,9 +58,10 @@ def same_origin(request: Request) -> None:
     origin = request.headers.get("origin")
     if origin is None:
         return
-    allowed = {settings.FRONTEND_HOST.rstrip("/"), str(request.base_url).rstrip("/")}
-    if origin.rstrip("/") not in allowed:
-        raise refused(403, "origin", "Requests must come from the checker's own page.")
+    # Compare hosts, not schemes: behind Cloud Run the app itself sees plain HTTP.
+    if urlsplit(origin).netloc in {urlsplit(settings.FRONTEND_HOST).netloc, request.headers.get("host")}:
+        return
+    raise refused(403, "origin", "Requests must come from the checker's own page.")
 
 
 class RateLimiter:

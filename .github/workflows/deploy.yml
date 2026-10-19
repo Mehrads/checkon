@@ -1,0 +1,64 @@
+name: Deploy
+
+# Every push to main: test, build the image, migrate the database, then deploy to Cloud Run.
+# Repository variables (Settings > Secrets and variables > Actions > Variables), from `terraform output`:
+#   GCP_PROJECT_ID, GCP_REGION, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_DEPLOYER_SERVICE_ACCOUNT,
+#   TURNSTILE_SITE_KEY (public, from the Cloudflare dashboard)
+# No secrets live in GitHub: sign-in uses Workload Identity Federation, app secrets live in Secret Manager.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write # to sign in to GCP without a key
+    env:
+      REGION: ${{ vars.GCP_REGION }}
+      IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/posting-checker/app:${{ github.sha }}
+      TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push the image
+        run: |
+          if [ -z "$TURNSTILE_SITE_KEY" ]; then
+            echo "Set the TURNSTILE_SITE_KEY repository variable first." >&2
+            exit 1
+          fi
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          docker build -f backend/Dockerfile --build-arg VITE_TURNSTILE_SITE_KEY="$TURNSTILE_SITE_KEY" -t "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Migrate the database
+        run: |
+          gcloud run jobs update posting-checker-migrate --region "$REGION" --image "$IMAGE"
+          gcloud run jobs execute posting-checker-migrate --region "$REGION" --wait
+
+      - name: Deploy
+        run: gcloud run deploy posting-checker --region "$REGION" --image "$IMAGE"

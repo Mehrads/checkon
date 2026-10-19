@@ -37,3 +37,9 @@ frontend/blob-report/
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+
+# Terraform (state holds generated secrets: keep it in a locked-down bucket, never in git)
+infra/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+infra/terraform/terraform.tfvars

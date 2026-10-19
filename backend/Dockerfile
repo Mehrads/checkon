@@ -12,6 +12,8 @@ RUN bun install
 COPY ./frontend /app/frontend
 
 ARG VITE_API_URL=
+# Turnstile site key for the free check, passed by the deploy workflow
+ARG VITE_TURNSTILE_SITE_KEY=
 
 RUN bun run build
 
@@ -66,4 +68,5 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 WORKDIR /app/backend/
 
-CMD ["fastapi", "run", "--workers", "4"]
+# One worker: checks in progress and the rate limit are held in memory (see infra/README.md)
+CMD ["fastapi", "run", "--workers", "1"]

@@ -1,0 +1,48 @@
+variable "project_id" {
+  description = "GCP project that hosts the checker."
+  type        = string
+}
+
+variable "region" {
+  description = "Toronto, so customer data stays in Canada (Technical Design §12)."
+  type        = string
+  default     = "northamerica-northeast2"
+}
+
+variable "github_repository" {
+  description = "owner/name of the GitHub repository allowed to deploy, for example mehrad/posting-checker."
+  type        = string
+}
+
+variable "public_url" {
+  description = "The site's public URL (FRONTEND_HOST). Leave empty on the first apply, then set it to the service URL or your domain."
+  type        = string
+  default     = ""
+}
+
+variable "first_superuser_email" {
+  description = "Admin account the template creates on the first migration (accounts arrive in phase 3)."
+  type        = string
+}
+
+variable "image" {
+  description = "Image for the first apply only; GitHub Actions deploys every later image."
+  type        = string
+  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+}
+
+variable "postgres_version" {
+  description = "Cloud SQL Postgres version. Local development runs Postgres 18; use it here once Cloud SQL offers it."
+  type        = string
+  default     = "POSTGRES_17"
+}
+
+variable "free_checks_per_week" {
+  type    = number
+  default = 1
+}
+
+variable "free_check_daily_spend_cap_usd" {
+  type    = string
+  default = "5"
+}

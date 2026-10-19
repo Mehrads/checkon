@@ -231,3 +231,25 @@ def test_other_sites_cannot_call_the_api(client: TestClient, llm: FakeLLM) -> No
     response = client.post(f"{API}/inspect", json={"text": POSTING}, headers={"Origin": "https://evil.example"})
     assert response.status_code == 403
     assert response.json()["detail"]["reason"] == "origin"
+
+
+def test_client_ip_reads_the_proxy_hop_not_the_client_supplied_header(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    from app.api.free_check import client_ip
+    from app.core.config import settings
+
+    def request(forwarded: str | None) -> Request:
+        headers = [(b"x-forwarded-for", forwarded.encode())] if forwarded else []
+        return Request({"type": "http", "headers": headers, "client": ("10.0.0.1", 1234)})
+
+    assert client_ip(request("1.2.3.4")) == "10.0.0.1"  # proxies not trusted by default
+    monkeypatch.setattr(settings, "TRUSTED_PROXY_HOPS", 1)
+    assert client_ip(request("6.6.6.6, 203.0.113.5")) == "203.0.113.5"  # the spoofed first entry is ignored
+    assert client_ip(request(None)) == "10.0.0.1"
+
+
+def test_same_host_origin_is_allowed_over_http_behind_a_proxy(client: TestClient, llm: FakeLLM) -> None:
+    # Cloud Run serves HTTPS to the browser but plain HTTP to the app; the hosts still match.
+    response = client.post(f"{API}/refine", json={"check_id": "nope"}, headers={"Origin": "https://testserver"})
+    assert response.status_code == 404  # past the origin check

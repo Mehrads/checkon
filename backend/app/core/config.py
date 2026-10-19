@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     FREE_CHECKS_PER_WEEK: int = 1
     FREE_CHECK_DAILY_SPEND_CAP_USD: Decimal = Decimal("5")
     FREE_CHECK_REQUESTS_PER_MINUTE: int = 30
+    # Proxies in front of the app that append to X-Forwarded-For (Cloud Run: 1). The client IP is
+    # read that many entries from the right, so a client can't spoof it by sending its own header.
+    TRUSTED_PROXY_HOPS: int = 0
     DATABASE_URL: PostgresDsn
 
     @field_validator("DATABASE_URL", mode="before")
