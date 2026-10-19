@@ -1,0 +1,26 @@
+# ON-CEX-01. Labels come from the classifier; these cases test what the rule does with them.
+cases:
+  - name: requires Canadian experience
+    facts:
+      requirements:
+        - {text: "2+ years of Canadian payroll experience", span: [300, 339], cex_label: violation}
+    expect: {ON-CEX-01: fail, status: not_compliant}
+
+  - name: Ontario experience is borderline
+    facts:
+      requirements:
+        - {text: "Ontario payroll experience is an asset", span: [300, 338], cex_label: borderline}
+    expect: {ON-CEX-01: warning, status: compliant}
+
+  - name: a Canadian licence is not experience
+    facts:
+      requirements:
+        - {text: "P.Eng. designation required", span: [300, 327], cex_label: ok}
+    expect: {ON-CEX-01: pass}
+
+  - name: a violation outranks a borderline sentence
+    facts:
+      requirements:
+        - {text: "Ontario payroll experience is an asset", span: [300, 338], cex_label: borderline}
+        - {text: "Must have worked in Canada", span: [340, 366], cex_label: violation}
+    expect: {ON-CEX-01: fail}

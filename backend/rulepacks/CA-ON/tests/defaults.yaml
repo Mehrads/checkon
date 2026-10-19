@@ -1,0 +1,16 @@
+# Base case for every rule test: a compliant posting at a covered employer that doesn't use AI.
+# Each case overrides only the facts and context it tests (shallow merge per key).
+posting_date: 2026-10-19
+facts:
+  specific_position: true
+  internal_only: false
+  work_in_ontario: true
+  pay:
+    - {min: 60000, max: 80000, unit: year, span: [100, 120]}
+  vacancy_statement: {present: true, polarity: existing, span: [200, 240]}
+  ai_disclosure: {present: false}
+  requirements:
+    - {text: "3 years of accounting experience", span: [300, 332], cex_label: ok}
+context:
+  meets_headcount_threshold: true
+  uses_ai_in_hiring: false

@@ -1,0 +1,120 @@
+# ON-PAY-01 and ON-PAY-02. The first seven cases are the Layer 1 table in Technical Design §8.
+cases:
+  - name: width at the cap
+    facts:
+      pay: [{min: 60000, max: 110000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-02: pass}
+
+  - name: width over the cap
+    facts:
+      pay: [{min: 60000, max: 110001, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-02: fail, status: not_compliant}
+
+  - name: top of range exactly 200,000 still needs disclosure
+    facts:
+      pay: [{min: 160000, max: 200000, unit: year, span: [100, 120]}]
+    context: {pay_exemption_confirmed: true}
+    expect: {ON-PAY-01: pass, ON-PAY-02: pass}
+
+  - name: top of range over 200,000 is exempt when the employer confirms
+    facts:
+      pay: [{min: 170000, max: 210000, unit: year, span: [100, 120]}]
+    context: {pay_exemption_confirmed: true}
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable}
+
+  - name: hourly range, wide, 40 hours a week
+    facts:
+      pay: [{min: 25, max: 50, unit: hour, span: [100, 120]}]
+    context: {hours_per_week: 40}
+    expect: {ON-PAY-02: fail}
+
+  - name: hourly range near the cap, hours unknown
+    facts:
+      pay: [{min: 25, max: 48, unit: hour, span: [100, 120]}]
+    expect: {ON-PAY-02: needs_input, status: needs_input}
+
+  - name: open-ended minimum
+    facts:
+      pay: [{min: 70000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-02: fail}
+
+  - name: open-ended maximum
+    facts:
+      pay: [{max: 90000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-02: fail}
+
+  - name: no pay at all
+    facts:
+      pay: []
+    expect: {ON-PAY-01: fail, ON-PAY-02: not_applicable, status: not_compliant}
+
+  - name: no pay, employer confirms pay above 200,000
+    facts:
+      pay: []
+    context: {pay_exemption_confirmed: true}
+    expect: {ON-PAY-01: not_applicable}
+
+  - name: bonus only is not wages
+    facts:
+      pay: [{min: 5000, max: 5000, unit: year, kind: bonus, span: [100, 120]}]
+    expect: {ON-PAY-01: fail}
+
+  - name: commission only is a warning
+    facts:
+      pay: [{min: 40000, max: 60000, unit: year, kind: commission, span: [100, 120]}]
+    expect: {ON-PAY-01: warning, ON-PAY-02: not_applicable, status: compliant}
+
+  - name: parsers disagree on the pay
+    facts:
+      pay: [{min: 60000, max: 80000, unit: year, span: [100, 120], parsers_agree: false, alternate_reading: "$60–$80 an hour"}]
+    expect: {ON-PAY-01: needs_input, ON-PAY-02: needs_input, status: needs_input}
+
+  - name: single pay figure
+    facts:
+      pay: [{min: 75000, max: 75000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: pass, ON-PAY-02: pass}
+
+  - name: hourly range far under the cap, hours unknown
+    facts:
+      pay: [{min: 20, max: 25, unit: hour, span: [100, 120]}]
+    expect: {ON-PAY-02: pass}
+
+  - name: hourly range far over the cap, hours unknown
+    facts:
+      pay: [{min: 20, max: 50, unit: hour, span: [100, 120]}]
+    expect: {ON-PAY-02: fail}
+
+  - name: hourly range under the cap at 37.5 hours a week
+    facts:
+      pay: [{min: 25, max: 50, unit: hour, span: [100, 120]}]
+    context: {hours_per_week: 37.5}
+    expect: {ON-PAY-02: pass}
+
+  - name: monthly range over the cap
+    facts:
+      pay: [{min: 5000, max: 9500, unit: month, span: [100, 120]}]
+    expect: {ON-PAY-02: fail}
+
+  - name: wide range above 200,000, exemption not yet confirmed
+    facts:
+      pay: [{min: 150000, max: 250000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: pass, ON-PAY-02: needs_input}
+
+  - name: wide range above 200,000, employer says pay is not above it
+    facts:
+      pay: [{min: 150000, max: 250000, unit: year, span: [100, 120]}]
+    context: {pay_exemption_confirmed: false}
+    expect: {ON-PAY-02: fail}
+
+  - name: confirmed exemption does not apply when pay is under 200,000
+    facts:
+      pay: [{min: 100000, max: 160000, unit: year, span: [100, 120]}]
+    context: {pay_exemption_confirmed: true}
+    expect: {ON-PAY-01: pass, ON-PAY-02: fail}
+
+  - name: two ranges, one too wide
+    facts:
+      pay:
+        - {min: 60000, max: 80000, unit: year, span: [100, 120]}
+        - {min: 60000, max: 120000, unit: year, span: [130, 150]}
+    expect: {ON-PAY-02: fail}

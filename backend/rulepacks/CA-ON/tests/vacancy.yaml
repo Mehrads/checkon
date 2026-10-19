@@ -1,0 +1,19 @@
+# ON-VAC-01.
+cases:
+  - name: states an existing vacancy
+    expect: {ON-VAC-01: pass, status: compliant}
+
+  - name: states it is not an existing vacancy
+    facts:
+      vacancy_statement: {present: true, polarity: not_existing, span: [200, 240]}
+    expect: {ON-VAC-01: pass}
+
+  - name: no vacancy statement
+    facts:
+      vacancy_statement: {present: false}
+    expect: {ON-VAC-01: fail, status: not_compliant}
+
+  - name: vague statement is a warning, not a fail
+    facts:
+      vacancy_statement: {present: true, polarity: vague, span: [200, 240]}
+    expect: {ON-VAC-01: warning, status: compliant}

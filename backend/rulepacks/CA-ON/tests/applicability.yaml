@@ -1,0 +1,65 @@
+# ON-APPL-01 and ON-APPL-02. The first and fourth cases are from the Layer 1 table in Technical Design §8.
+cases:
+  - name: fewer than 25 employees
+    context: {headcount: 18}
+    expect:
+      ON-APPL-01: not_applicable
+      ON-PAY-01: not_applicable
+      ON-PAY-02: not_applicable
+      ON-VAC-01: not_applicable
+      ON-AI-01: not_applicable
+      ON-CEX-01: not_applicable
+      status: not_applicable
+
+  - name: exactly 25 employees
+    context: {headcount: 25}
+    expect: {ON-APPL-01: pass, status: compliant}
+
+  - name: headcount unknown
+    context: {meets_headcount_threshold: null}
+    expect: {ON-APPL-01: needs_input, status: needs_input}
+
+  - name: help-wanted sign with no specific position
+    facts: {specific_position: false}
+    expect:
+      ON-APPL-02: not_applicable
+      ON-PAY-01: not_applicable
+      ON-PAY-02: not_applicable
+      ON-VAC-01: not_applicable
+      ON-AI-01: not_applicable
+      ON-CEX-01: not_applicable
+      status: not_applicable
+
+  - name: internal posting
+    facts: {internal_only: true}
+    expect: {ON-APPL-02: not_applicable, status: not_applicable}
+
+  - name: answer overrides an internal-only signal in the text
+    facts: {internal_only: true}
+    context: {internal_only: false}
+    expect: {ON-APPL-02: pass, status: compliant}
+
+  - name: work outside Ontario
+    facts: {work_in_ontario: false}
+    expect: {ON-APPL-02: not_applicable, status: not_applicable}
+
+  - name: exclusion wins over an unknown fact
+    facts: {internal_only: true, work_in_ontario: null}
+    expect: {ON-APPL-02: not_applicable}
+
+  - name: work location unknown
+    facts: {work_in_ontario: null}
+    expect: {ON-APPL-02: needs_input, status: needs_input}
+
+  - name: specific position unknown
+    facts: {specific_position: null}
+    expect: {ON-APPL-02: needs_input, status: needs_input}
+
+  - name: headcount unknown still shows content failures
+    facts: {pay: []}
+    context: {meets_headcount_threshold: null}
+    expect: {ON-PAY-01: fail, status: needs_input}
+
+  - name: posted before the rules took effect
+    posting_date: 2025-12-31
+    expect: {status: not_applicable}
