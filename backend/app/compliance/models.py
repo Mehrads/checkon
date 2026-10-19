@@ -112,6 +112,8 @@ class Context(_Model):
 
     headcount: int | None = None
     meets_headcount_threshold: bool | None = None
+    headcount_basis: Literal["search", "assumed"] | None = None  # None: the employer said so
+    headcount_evidence: str | None = None  # what the search found, with its source
     specific_position: bool | None = None
     internal_only: bool | None = None
     work_in_ontario: bool | None = None

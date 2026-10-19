@@ -36,8 +36,15 @@ REWRITE_SETTINGS = ModelSettings(
 )
 
 
+# Employer-size lookups (inspector.py): Haiku 5.5 with the basic web search tool. Thinking stays on at low
+# effort because with thinking off and a JSON format the model can skip a tool call it needs.
+SEARCH_SETTINGS = ModelSettings(max_tokens=4000, effort="low", thinking={"type": "adaptive"})
+
+
 class StructuredLLM(Protocol):
-    def parse(self, *, system: str, user: str, schema: type[T], settings: ModelSettings) -> T: ...
+    def parse(
+        self, *, system: str, user: str, schema: type[T], settings: ModelSettings, tools: list[dict[str, Any]] | None = None
+    ) -> T: ...
 
 
 # USD per million input / output tokens (Technical Design §13). Unknown models are priced as Sonnet.
@@ -45,6 +52,7 @@ PRICES_PER_MTOK = {
     "claude-haiku-5-5": (Decimal("0.10"), Decimal("0.50")),
     "claude-sonnet-5-5": (Decimal("2"), Decimal("10")),
 }
+WEB_SEARCH_USD = Decimal("0.01")  # $10 per 1,000 searches, on top of the result tokens
 
 
 @dataclass
@@ -53,9 +61,10 @@ class SpendMeter:
 
     usd: Decimal = Decimal(0)
 
-    def add(self, model: str, input_tokens: int, output_tokens: int) -> None:
+    def add(self, model: str, input_tokens: int, output_tokens: int, searches: int = 0) -> None:
         price_in, price_out = PRICES_PER_MTOK.get(model, PRICES_PER_MTOK["claude-sonnet-5-5"])
         self.usd += (price_in * input_tokens + price_out * output_tokens) / Decimal(1_000_000)
+        self.usd += WEB_SEARCH_USD * searches
 
 
 class AnthropicLLM:
@@ -63,7 +72,9 @@ class AnthropicLLM:
         self.client = client or anthropic.Anthropic()
         self.meter = meter
 
-    def parse(self, *, system: str, user: str, schema: type[T], settings: ModelSettings) -> T:
+    def parse(
+        self, *, system: str, user: str, schema: type[T], settings: ModelSettings, tools: list[dict[str, Any]] | None = None
+    ) -> T:
         problem = "no attempt made"
         for _ in range(2):
             request: dict[str, Any] = {
@@ -75,6 +86,8 @@ class AnthropicLLM:
                 "output_config": {"effort": settings.effort},
                 "output_format": schema,
             }
+            if tools:  # server tools only (web search); results are untrusted data like the posting
+                request["tools"] = tools
             try:
                 if settings.fallbacks:
                     response = self.client.beta.messages.parse(
@@ -89,11 +102,17 @@ class AnthropicLLM:
                 raise LLMError(f"API error: {error}") from error
             usage = getattr(response, "usage", None)
             if self.meter is not None and usage is not None:
-                self.meter.add(getattr(response, "model", None) or settings.model, usage.input_tokens, usage.output_tokens)
+                server = getattr(usage, "server_tool_use", None)
+                searches = (getattr(server, "web_search_requests", None) or 0) if server else 0
+                model = getattr(response, "model", None) or settings.model
+                self.meter.add(model, usage.input_tokens, usage.output_tokens, searches)
             if response.stop_reason == "refusal":
                 raise LLMError("the model declined the request")
             if response.stop_reason == "max_tokens":
                 problem = "output was cut off at max_tokens"
+                continue
+            if response.stop_reason == "pause_turn":  # the server's tool loop ran out of iterations
+                problem = "the search did not finish"
                 continue
             if response.parsed_output is None:
                 problem = "no structured output in the response"

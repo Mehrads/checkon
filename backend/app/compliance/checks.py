@@ -58,7 +58,12 @@ def employer_size(facts: Facts, ctx: Context, params: dict[str, Any]) -> Outcome
         meets = ctx.meets_headcount_threshold
     if meets is None:
         return Outcome(Verdict.NEEDS_INPUT, question="meets_headcount_threshold")
-    return Outcome(Verdict.PASS if meets else Verdict.NOT_APPLICABLE)
+    verdict = Verdict.PASS if meets else Verdict.NOT_APPLICABLE
+    if ctx.headcount_basis == "assumed":
+        return Outcome(verdict, key=f"assumed_{verdict.value}")
+    if ctx.headcount_basis == "search":
+        return Outcome(verdict, key=f"search_{verdict.value}", values={"evidence": ctx.headcount_evidence or ""})
+    return Outcome(verdict)
 
 
 @check("public_posting")

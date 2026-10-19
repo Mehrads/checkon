@@ -22,8 +22,8 @@ It is also the research instrument from the Research guide: every result asks on
 
 ## 2. User flow
 
-1. **Paste:** the posting (up to 8,000 characters) and one question on the same form: "Does your company have 25 or more employees in Ontario?" (Yes / No / Not sure). An invisible CAPTCHA runs in the background.
-2. **Gate:** headcount comes from that answer; public posting, specific position and Ontario location come from the text. Anything unclear becomes a `needs_input` question. If the gate fails, the page says the rules don't apply and why.
+1. **Paste:** the posting (up to 8,000 characters). An invisible CAPTCHA runs in the background.
+2. **Gate:** headcount is never asked. A web search looks up the employer named in the posting; the rules apply unless it clearly shows fewer than 25 employees, and are assumed to apply when the employer isn't named or nothing is found. Public posting, specific position and Ontario location come from the text. Anything unclear becomes a `needs_input` question. If the gate fails, the page says the rules don't apply and why.
 3. **Verdicts:** one result per rule, with the failing sentence highlighted and the rule's citation.
 4. **Questions:** one-click answers for facts the tool can't know: existing vacancy, AI use in hiring, hours per week for an hourly range.
 5. **Rewrite:** one patch per failing rule, labelled with its rule. Missing pay becomes the placeholder `[Pay range: add before publishing]`.
@@ -74,7 +74,7 @@ It is also the research instrument from the Research guide: every result asks on
 | Free-check limits | Full set in Tech §11 | Turnstile with a signed single-use token, weekly quota per cookie and per IP in Postgres, 8,000-character cap, origin check, per-IP rate limit, daily spend cap | PRD §9 already accepts some abuse; add the rest when the logs show it is needed |
 | Result cache and quotas | Redis (Tech §11, §12) | Postgres tables | The lean stack has no Redis |
 | One-posting check | Separate decision-model call (Tech §11) | A field in the extraction output; non-postings and multiple postings are refused before refine | One call instead of two |
-| Applicability, headcount | Company profile, asked once (PRD §4) | Asked on the paste form every check | No accounts in v1 |
+| Applicability, headcount | Company profile, asked once (PRD §4) | Web search on the employer named in the posting; never asked; assumed to apply when nothing is found | Your call: no question on the form. Search figures are worldwide, rarely Ontario-only, so verdicts rest on an estimate |
 | Rule-source monitoring | Weekly automated job (Tech §10) | Manual weekly check | The automated diff can follow; the rule pack is versioned either way |
 
 ## 5. Build order

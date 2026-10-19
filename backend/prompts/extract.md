@@ -9,6 +9,7 @@ Fill every field:
 - input_kind: "one_posting" if the text is a single job posting, "multiple_postings" if it contains two or more separate job postings, "not_a_posting" if it isn't a job posting.
 - contains_french: true if any sentence or heading is written in French.
 - title: the job title, copied from the text, or null.
+- employer: the name of the company that is hiring, copied from the text, or null if the posting doesn't name it (for example "our client, a leading manufacturer"). A recruiting agency's own name is not the employer when it is hiring for a client.
 - locations: each work location, copied from the text (for example "Mississauga, ON" or "Remote (Canada)").
 - work_in_ontario: true if the work is performed in Ontario, false if it is performed outside Ontario, null if the text doesn't make it clear. A remote job with no Ontario location is null.
 - internal_only: true if the text says the posting is open only to current employees, false if it reads as an ad for outside applicants, null if it could be either.

@@ -35,6 +35,10 @@ rules:
       pass: "Your company has {min_employees} or more employees in Ontario, so the job posting rules apply."
       not_applicable: "The job posting rules don't apply: they cover employers with {min_employees} or more employees in Ontario on the day the job is posted."
       needs_input: "The rules apply only if your company has {min_employees} or more employees in Ontario."
+      search_pass: "{evidence}. We treat the employer as having {min_employees} or more employees in Ontario, so the job posting rules apply."
+      search_not_applicable: "{evidence}. That is fewer than {min_employees} employees, so the job posting rules don't apply."
+      assumed_pass: "We couldn't confirm the employer's size, so we assume it has {min_employees} or more employees in Ontario and the job posting rules apply."
+      assumed_not_applicable: "We couldn't confirm the employer's size."
     questions:
       meets_headcount_threshold: "Does your company have {min_employees} or more employees in Ontario?"
     tests: [tests/applicability.yaml]

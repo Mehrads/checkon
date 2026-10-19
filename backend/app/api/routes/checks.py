@@ -87,6 +87,7 @@ LimitsDep = Annotated[Limits, Depends(get_limits)]
 
 class InspectIn(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_POSTING_CHARS)
+    # Left empty by the free check, which looks the employer up; set it when the profile knows.
     meets_headcount_threshold: bool | None = None
     turnstile_token: str | None = Field(default=None, max_length=4096)
 
@@ -189,7 +190,7 @@ def inspect_posting(
     finally:
         limits.add_spend(_spent(llm))
     limits.record_use(cookie, ip)
-    return _out(store.add(CheckState(posting_date=today, ctx=ctx, inspection=inspection)))
+    return _out(store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection)))
 
 
 @router.post("/refine", response_model=CheckOut)

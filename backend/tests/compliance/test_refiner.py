@@ -43,7 +43,7 @@ def extraction(text: str, **changes: Any) -> dict[str, Any]:
         pay = [{"sentence": sid(text, "Salary"), "quote": "$60,000 - $80,000 per year", "min": 60000, "max": 80000,
                 "unit": "year", "kind": "wage"}]  # fmt: skip
     base = {
-        "input_kind": "one_posting", "contains_french": False, "title": "Payroll Specialist",
+        "input_kind": "one_posting", "contains_french": False, "title": "Payroll Specialist", "employer": None,
         "locations": ["Mississauga, ON"], "work_in_ontario": True, "internal_only": False, "specific_position": True,
         "pay": pay, "vacancy_sentences": [], "ai_sentences": [], "requirement_sentences": [],
     }  # fmt: skip

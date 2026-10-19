@@ -44,7 +44,7 @@ def extraction(**changes: Any) -> dict[str, Any]:
     base = {
         "input_kind": "one_posting",
         "contains_french": False,
-        "title": "Payroll Specialist",
+        "title": "Payroll Specialist", "employer": None,
         "locations": ["Mississauga, ON"],
         "work_in_ontario": True,
         "internal_only": False,

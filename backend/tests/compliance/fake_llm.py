@@ -13,6 +13,7 @@ class Call:
     system: str
     user: str
     schema: type
+    tools: list[dict[str, Any]] | None = None
 
 
 @dataclass
@@ -24,8 +25,10 @@ class FakeLLM:
         self.answers.setdefault(schema, []).extend(answers)
         return self
 
-    def parse(self, *, system: str, user: str, schema: type, settings: ModelSettings) -> Any:
-        self.calls.append(Call(system, user, schema))
+    def parse(
+        self, *, system: str, user: str, schema: type, settings: ModelSettings, tools: list[dict[str, Any]] | None = None
+    ) -> Any:
+        self.calls.append(Call(system, user, schema, tools))
         queue = self.answers.get(schema, [])
         if not queue:
             raise AssertionError(f"no answer queued for {schema.__name__}")

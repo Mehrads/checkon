@@ -54,7 +54,7 @@ Out of scope: employers under 25 employees (not covered by the rules) and large 
 
 ## 4. Rules covered in v1 (Ontario)
 
-**Applicability gate (asked once per company, then remembered; the v1 free check asks headcount on every check):** 25+ employees in Ontario on the posting date, external public posting, and work performed in Ontario. If the gate fails, the tool says the rules don't apply and why. Once the gate passes, every verdict is definitive.
+**Applicability gate (asked once per company, then remembered; the v1 free check never asks headcount: it searches the web for the employer named in the posting and assumes the rules apply when it finds nothing):** 25+ employees in Ontario on the posting date, external public posting, and work performed in Ontario. If the gate fails, the tool says the rules don't apply and why. Once the gate passes, every verdict is definitive.
 
 | \#  | Rule                                                                                                     | Check method                           | How the tool fixes it                                                        |
 |-----|----------------------------------------------------------------------------------------------------------|----------------------------------------|------------------------------------------------------------------------------|

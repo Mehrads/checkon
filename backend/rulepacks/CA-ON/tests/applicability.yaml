@@ -63,3 +63,15 @@ cases:
   - name: posted before the rules took effect
     posting_date: 2025-12-31
     expect: {status: not_applicable}
+
+  - name: size found by search, rules apply
+    context: {meets_headcount_threshold: true, headcount_basis: search, headcount_evidence: "Acme: about 2,000 employees worldwide (acme.com)"}
+    expect: {ON-APPL-01: pass, status: compliant}
+
+  - name: size found by search, too small
+    context: {meets_headcount_threshold: false, headcount_basis: search, headcount_evidence: "Acme: 12 employees (acme.com)"}
+    expect: {ON-APPL-01: not_applicable, ON-PAY-01: not_applicable, status: not_applicable}
+
+  - name: size not found, rules assumed to apply
+    context: {meets_headcount_threshold: true, headcount_basis: assumed}
+    expect: {ON-APPL-01: pass, status: compliant}

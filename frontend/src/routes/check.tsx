@@ -18,11 +18,9 @@ import { Questions } from "@/components/Check/Questions"
 import { RequestForm, ResearchQuestionCard } from "@/components/Check/Research"
 import { Appearance } from "@/components/Common/Appearance"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { useTurnstile } from "@/hooks/useTurnstile"
-import { cn } from "@/lib/utils"
 
 const MAX_CHARS = 8000
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
@@ -46,15 +44,8 @@ function errorMessage(error: Error): string {
   return "Something went wrong. Try again."
 }
 
-const HEADCOUNT_OPTIONS = [
-  { label: "Yes", value: true },
-  { label: "No", value: false },
-  { label: "Not sure", value: null },
-] as const
-
 function CheckPage() {
   const [text, setText] = useState("")
-  const [headcount, setHeadcount] = useState<boolean | null>(true)
   const [check, setCheck] = useState<CheckOut | null>(null)
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
@@ -81,7 +72,6 @@ function CheckPage() {
         await ChecksService.inspectPosting({
           body: {
             text,
-            meets_headcount_threshold: headcount,
             turnstile_token: turnstile.token,
           },
         })
@@ -158,26 +148,6 @@ function CheckPage() {
               {text.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}{" "}
               characters
             </p>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm">
-                Does your company have 25 or more employees in Ontario?
-              </p>
-              <div className="flex gap-2">
-                {HEADCOUNT_OPTIONS.map((option) => (
-                  <Button
-                    key={option.label}
-                    size="sm"
-                    variant="outline"
-                    className={cn(
-                      headcount === option.value && "border-primary bg-accent",
-                    )}
-                    onClick={() => setHeadcount(option.value)}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
             <LoadingButton
               loading={inspect.isPending}
               disabled={

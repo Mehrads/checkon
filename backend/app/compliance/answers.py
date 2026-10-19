@@ -33,7 +33,10 @@ class Answers(BaseModel):
 def apply_answers(
     inspection: Inspection, ctx: Context, answers: Answers, pack: RulePack, posting_date: date
 ) -> tuple[Inspection, Context]:
-    ctx = ctx.model_copy(update=answers.model_dump(exclude_none=True, exclude={"pay_reading"}))
+    update = answers.model_dump(exclude_none=True, exclude={"pay_reading"})
+    if answers.meets_headcount_threshold is not None:  # the employer's own answer replaces any search result
+        update |= {"headcount_basis": None, "headcount_evidence": None}
+    ctx = ctx.model_copy(update=update)
     facts = inspection.facts
     if answers.pay_reading is not None:
         pay = []
@@ -50,4 +53,4 @@ def apply_answers(
     report = evaluate(facts, ctx, pack, posting_date)
     versions = {**inspection.report.versions, **report.versions, "profile_hash": content_hash(ctx.model_dump_json())}
     report = report.model_copy(update={"versions": versions})
-    return replace(inspection, facts=facts, report=report), ctx
+    return replace(inspection, context=ctx, facts=facts, report=report), ctx

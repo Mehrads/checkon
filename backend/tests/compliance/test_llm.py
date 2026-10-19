@@ -84,3 +84,23 @@ def test_meter_prices_reported_tokens() -> None:
     assert meter.usd == Decimal("0.00136")  # 6,100 x $0.10/M + 1,500 x $0.50/M
     meter.add("claude-sonnet-5-5", 1500, 150)
     assert meter.usd == Decimal("0.00136") + Decimal("0.0045")
+
+
+def test_meter_adds_web_search_fees() -> None:
+    from decimal import Decimal
+
+    from app.compliance.llm import SpendMeter
+
+    usage = SimpleNamespace(input_tokens=20000, output_tokens=300, server_tool_use=SimpleNamespace(web_search_requests=2))
+    messages = FakeMessages(SimpleNamespace(stop_reason="end_turn", parsed_output=Answer(label="ok"), usage=usage,
+                                            model="claude-haiku-5-5"))  # fmt: skip
+    meter = SpendMeter()
+    call(AnthropicLLM(client=SimpleNamespace(messages=messages), meter=meter))
+    assert meter.usd == Decimal("0.00215") + Decimal("0.02")  # tokens, then 2 searches at $0.01
+
+
+def test_unfinished_search_loop_is_retried_then_fails_closed() -> None:
+    llm, messages = llm_with(response("pause_turn"), response("pause_turn"))
+    with pytest.raises(LLMError, match="did not finish"):
+        call(llm)
+    assert len(messages.requests) == 2

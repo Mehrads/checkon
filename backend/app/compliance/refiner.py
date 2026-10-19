@@ -334,7 +334,10 @@ def reinspect(c: _Context, patches: list[Patch]) -> tuple[Inspection, _Applied]:
     ]
     facts = build_facts(doc, base.extraction, labels, pay, title, locations, c.wording.placeholder)
     report = versioned(evaluate(facts, c.ctx, c.pack, c.posting_date), c.ctx, doc, c.classify_settings)
-    return Inspection(document=doc, extraction=base.extraction, labels=labels, facts=facts, report=report), applied
+    inspection = Inspection(
+        document=doc, context=c.ctx, extraction=base.extraction, labels=labels, facts=facts, report=report
+    )
+    return inspection, applied
 
 
 def _overlaps(a: Span, b: Span) -> bool:

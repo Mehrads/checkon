@@ -34,6 +34,7 @@ class Extraction(BaseModel):
     input_kind: Literal["one_posting", "multiple_postings", "not_a_posting"]
     contains_french: bool
     title: str | None
+    employer: str | None
     locations: list[str]
     work_in_ontario: bool | None
     internal_only: bool | None
@@ -48,6 +49,7 @@ class Extraction(BaseModel):
 class Verified:
     extraction: Extraction
     title: TextFact | None = None
+    employer: TextFact | None = None
     locations: list[TextFact] = field(default_factory=list)
     pay: list[PayMention] = field(default_factory=list)
     vacancy_ids: list[int] = field(default_factory=list)
@@ -128,6 +130,12 @@ def verify(doc: NormalisedText, extraction: Extraction, readings: list[PayReadin
             out.title = TextFact(value=doc.text[span[0] : span[1]], span=span)
         else:
             out.problems.append(f'The title "{extraction.title}" is not in the posting word for word.')
+    if extraction.employer:
+        span = _locate(doc, extraction.employer)
+        if span:
+            out.employer = TextFact(value=doc.text[span[0] : span[1]], span=span)
+        else:
+            out.problems.append(f'The employer "{extraction.employer}" is not in the posting word for word.')
     for location in extraction.locations:
         span = _locate(doc, location)
         if span:
