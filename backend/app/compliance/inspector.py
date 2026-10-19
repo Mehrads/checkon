@@ -9,12 +9,22 @@ from datetime import date
 
 from app.compliance.classification import Classification, classify, safety_net
 from app.compliance.engine import evaluate
-from app.compliance.extraction import PROMPTS_DIR, Extraction, Verified, extract, verify
+from app.compliance.extraction import PROMPTS_DIR, Extraction, extract, verify
 from app.compliance.llm import ModelSettings, StructuredLLM
-from app.compliance.models import AIDisclosure, Context, Facts, Report, Requirement, VacancyStatement
+from app.compliance.models import (
+    AIDisclosure,
+    Context,
+    Facts,
+    PayMention,
+    Report,
+    Requirement,
+    TextFact,
+    VacancyStatement,
+)
 from app.compliance.money import parse_pay
 from app.compliance.normalise import NormalisedText, normalise
 from app.compliance.rulepack import RulePack
+from app.compliance.wording import load_wording
 
 REFUSALS = {
     "empty": "Paste a job posting to check it.",
@@ -34,8 +44,18 @@ class InputRefused(Exception):
 
 
 @dataclass(frozen=True)
+class SentenceLabels:
+    cex: str | None = None
+    cex_reason: str | None = None
+    vacancy: str | None = None
+    ai: str | None = None
+
+
+@dataclass(frozen=True)
 class Inspection:
     document: NormalisedText
+    extraction: Extraction
+    labels: dict[int, SentenceLabels]  # by sentence id; sentences with no labels are absent
     facts: Facts
     report: Report
 
@@ -45,7 +65,8 @@ def _hash(text: str) -> str:
 
 
 def prompt_version() -> str:
-    return _hash("".join((PROMPTS_DIR / name).read_text(encoding="utf-8") for name in ("extract.md", "classify.md")))
+    names = ("extract.md", "classify.md", "rewrite.md")
+    return _hash("".join((PROMPTS_DIR / name).read_text(encoding="utf-8") for name in names))
 
 
 def _check_input(extraction: Extraction) -> None:
@@ -55,58 +76,77 @@ def _check_input(extraction: Extraction) -> None:
         raise InputRefused("french")
 
 
-def _vacancy(doc: NormalisedText, labels: list) -> VacancyStatement:
+def labels_by_sentence(result: Classification, wanted: dict[str, list[int]]) -> dict[int, SentenceLabels]:
+    """First label per wanted sentence and task; labels for sentences nobody asked about are ignored."""
+    found: dict[int, dict[str, str]] = {}
+    for task, key in (("canadian_experience", "cex"), ("vacancy", "vacancy"), ("ai", "ai")):
+        for label in getattr(result, task):
+            if label.sentence in wanted[task]:
+                entry = found.setdefault(label.sentence, {})
+                if key not in entry:
+                    entry[key] = label.label
+                    if key == "cex":
+                        entry["cex_reason"] = label.reason
+    return {sentence: SentenceLabels(**entry) for sentence, entry in found.items()}
+
+
+def _vacancy(doc: NormalisedText, labels: dict[int, SentenceLabels]) -> VacancyStatement:
     spans = {s.id: s.span for s in doc.sentences}
-    definite = [label for label in labels if label.label in ("existing", "not_existing")]
-    if definite and len({label.label for label in definite}) == 1:
-        return VacancyStatement(present=True, polarity=definite[0].label, span=spans[definite[0].sentence])
-    unclear = definite or [label for label in labels if label.label == "vague"]
-    if unclear:  # conflicting or vague statements
-        return VacancyStatement(present=True, polarity="vague", span=spans[unclear[0].sentence])
+    found = [(i, labels[i].vacancy) for i in sorted(labels) if labels[i].vacancy not in (None, "none")]
+    definite = [(i, label) for i, label in found if label in ("existing", "not_existing")]
+    if definite and len({label for _, label in definite}) == 1:
+        return VacancyStatement(present=True, polarity=definite[0][1], span=spans[definite[0][0]])
+    if found:  # conflicting or vague statements
+        return VacancyStatement(present=True, polarity="vague", span=spans[(definite or found)[0][0]])
     return VacancyStatement()
 
 
-def _ai(doc: NormalisedText, labels: list) -> AIDisclosure:
+def _ai(doc: NormalisedText, labels: dict[int, SentenceLabels]) -> AIDisclosure:
     spans = {s.id: s.span for s in doc.sentences}
     for polarity in ("uses_ai", "no_ai"):
-        if found := [label for label in labels if label.label == polarity]:
-            return AIDisclosure(present=True, polarity=polarity, span=spans[found[0].sentence])
+        if found := [i for i in sorted(labels) if labels[i].ai == polarity]:
+            return AIDisclosure(present=True, polarity=polarity, span=spans[found[0]])
     return AIDisclosure()
 
 
-def _facts(
-    doc: NormalisedText, verified: Verified, labels: Classification, wanted: dict[str, list[int]]
+def build_facts(
+    doc: NormalisedText,
+    extraction: Extraction,
+    labels: dict[int, SentenceLabels],
+    pay: list[PayMention],
+    title: TextFact | None,
+    locations: list[TextFact],
+    placeholder: str,
 ) -> Facts:
-    sentences = {s.id: s for s in doc.sentences}
-
-    def requested(task: str) -> list:
-        first: dict[int, object] = {}
-        for label in getattr(labels, task):
-            if label.sentence in wanted[task]:
-                first.setdefault(label.sentence, label)
-        return [first[i] for i in wanted[task] if i in first]
-
     requirements = [
-        Requirement(
-            text=sentences[label.sentence].text,
-            span=sentences[label.sentence].span,
-            cex_label=label.label,
-            reason=label.reason,
-        )
-        for label in requested("canadian_experience")
+        Requirement(text=s.text, span=s.span, cex_label=labels[s.id].cex, reason=labels[s.id].cex_reason)
+        for s in doc.sentences
+        if s.id in labels and labels[s.id].cex
     ]
-    extraction = verified.extraction
+    start = doc.text.find(placeholder)
     return Facts(
-        title=verified.title,
-        locations=verified.locations,
-        pay=verified.pay,
-        vacancy_statement=_vacancy(doc, requested("vacancy")),
-        ai_disclosure=_ai(doc, requested("ai")),
+        title=title,
+        locations=locations,
+        pay=pay,
+        vacancy_statement=_vacancy(doc, labels),
+        ai_disclosure=_ai(doc, labels),
         requirements=requirements,
         specific_position=extraction.specific_position,
         internal_only=extraction.internal_only,
         work_in_ontario=extraction.work_in_ontario,
+        pay_placeholder=(start, start + len(placeholder)) if start >= 0 else None,
     )
+
+
+def versioned(report: Report, ctx: Context, doc: NormalisedText, settings: ModelSettings) -> Report:
+    versions = {
+        **report.versions,
+        "model": settings.model,
+        "prompts": prompt_version(),
+        "profile_hash": _hash(ctx.model_dump_json()),
+        "text_hash": _hash(doc.text),
+    }
+    return report.model_copy(update={"versions": versions})
 
 
 def inspect(
@@ -135,15 +175,8 @@ def inspect(
         "vacancy": verified.vacancy_ids,
         "ai": verified.ai_ids,
     }
-    labels = classify(doc, wanted, pack, llm, settings)
-    facts = _facts(doc, verified, labels, wanted)
-
-    report = evaluate(facts, ctx, pack, posting_date)
-    versions = {
-        **report.versions,
-        "model": settings.model,
-        "prompts": prompt_version(),
-        "profile_hash": _hash(ctx.model_dump_json()),
-        "text_hash": _hash(doc.text),
-    }
-    return Inspection(document=doc, facts=facts, report=report.model_copy(update={"versions": versions}))
+    labels = labels_by_sentence(classify(doc, wanted, pack, llm, settings), wanted)
+    placeholder = load_wording(pack.jurisdiction).placeholder
+    facts = build_facts(doc, extraction, labels, verified.pay, verified.title, verified.locations, placeholder)
+    report = versioned(evaluate(facts, ctx, pack, posting_date), ctx, doc, settings)
+    return Inspection(document=doc, extraction=extraction, labels=labels, facts=facts, report=report)

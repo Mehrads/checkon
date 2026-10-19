@@ -92,6 +92,7 @@ class Facts(_Model):
     specific_position: bool | None = None
     internal_only: bool | None = None
     work_in_ontario: bool | None = None
+    pay_placeholder: Span | None = None  # the wording-library placeholder, where pay is still to be added
 
 
 class Context(_Model):
@@ -106,6 +107,7 @@ class Context(_Model):
     internal_only: bool | None = None
     work_in_ontario: bool | None = None
     uses_ai_in_hiring: bool | None = None
+    existing_vacancy: bool | None = None
     hours_per_week: Decimal | None = None
     pay_exemption_confirmed: bool | None = None
 

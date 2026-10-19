@@ -21,13 +21,16 @@ def run_rule(rule: Rule, facts: Facts, ctx: Context) -> RuleResult:
     question = None
     if outcome.question:
         question = Question(id=outcome.question, text=rule.questions[outcome.question].format(**values))
+    fix = None
+    if rule.fix and outcome.verdict in (Verdict.FAIL, Verdict.WARNING):
+        fix = {key: text.format(**values) for key, text in rule.fix.items()}
     return RuleResult(
         rule=rule.id,
         verdict=outcome.verdict,
         message=rule.messages[outcome.key or outcome.verdict.value].format(**values),
         evidence=outcome.evidence,
         question=question,
-        fix=rule.fix if outcome.verdict in (Verdict.FAIL, Verdict.WARNING) else None,
+        fix=fix,
         citation=rule.citation,
         interpretation=rule.interpretation,
     )

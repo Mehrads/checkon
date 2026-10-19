@@ -49,7 +49,7 @@ def safety_net(doc: NormalisedText) -> set[int]:
     return {s.id for s in doc.sentences if SAFETY_NET.search(s.text)}
 
 
-def _rule_block(rule: Rule) -> str:
+def rule_block(rule: Rule) -> str:
     labels = list(dict.fromkeys(example["label"] for example in rule.examples))
     lines = [f"Rule {rule.id}: {rule.citation}", f"Labels: {', '.join(labels)}", "Examples:"]
     lines += [f'- "{e["text"]}" -> {e["label"]}: {e["reason"]}' for e in rule.examples]
@@ -60,7 +60,7 @@ def system_prompt(pack: RulePack) -> str:
     prompt = (PROMPTS_DIR / "classify.md").read_text(encoding="utf-8")
     rules = {rule.id: rule for rule in pack.rules}
     for rule_id in TASKS.values():
-        prompt = prompt.replace("{{" + rule_id + "}}", _rule_block(rules[rule_id]))
+        prompt = prompt.replace("{{" + rule_id + "}}", rule_block(rules[rule_id]))
     return prompt
 
 

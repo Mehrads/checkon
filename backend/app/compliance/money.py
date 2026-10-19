@@ -192,6 +192,34 @@ def _single(text: str, token: _Token) -> PayReading:
     return _reading(text, start, end, low, high, token.currency or "CAD")
 
 
+def restate_range(text: str, low: Decimal, high: Decimal) -> str | None:
+    """The same range text with new numbers, in its own style: "$60k-80k" stays in k, "$25/hr" gains cents."""
+    matches = list(_AMOUNT.finditer(text))
+    if len(matches) < 2:
+        return None
+    a, b = matches[0], matches[1]
+    raw_a, raw_b = (Decimal(m.group("num").replace(",", "")) for m in (a, b))
+    a_in_k = a.group("k") is not None or (b.group("k") is not None and raw_a * 1000 <= raw_b * 1000)
+    b_in_k = b.group("k") is not None
+
+    def styled(value: Decimal, match: re.Match[str], in_k: bool) -> str:
+        num = match.group("num")
+        if in_k:
+            value = value / 1000
+        decimals = len(num.split(".")[1]) if "." in num else 0
+        if value != value.to_integral_value():
+            decimals = max(decimals, 2)
+        return f"{value:,.{decimals}f}" if "," in num else f"{value:.{decimals}f}"
+
+    return (
+        text[: a.start("num")]
+        + styled(low, a, a_in_k)
+        + text[a.end("num") : b.start("num")]
+        + styled(high, b, b_in_k)
+        + text[b.end("num") :]
+    )
+
+
 def parse_pay(text: str) -> list[PayReading]:
     tokens = [_token(match) for match in _AMOUNT.finditer(text)]
     readings: list[PayReading] = []

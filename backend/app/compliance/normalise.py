@@ -91,6 +91,11 @@ def _fold(original: str) -> list[tuple[str, int]]:
     return chars
 
 
+def fold(text: str) -> str:
+    """The character folds normalise() applies, for a short text such as a rewritten sentence."""
+    return "".join(ch for ch, _ in _fold(text))
+
+
 def _tidy(chars: list[tuple[str, int]]) -> list[tuple[str, int]]:
     """Collapse runs of spaces, trim each line, keep at most one blank line, trim the ends."""
     out: list[tuple[str, int]] = []

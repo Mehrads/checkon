@@ -141,6 +141,10 @@ def pay_disclosed(facts: Facts, ctx: Context, params: dict[str, Any]) -> Outcome
         return _disagreement(unreadable[0])
     if wages:
         return Outcome(Verdict.PASS, evidence=[pay.span for pay in wages])
+    if facts.pay_placeholder:
+        return Outcome(
+            Verdict.NEEDS_INPUT, key="placeholder", evidence=[facts.pay_placeholder], question="expected_pay"
+        )
     commission = [pay for pay in facts.pay if pay.kind == PayKind.COMMISSION]
     if commission:
         return Outcome(

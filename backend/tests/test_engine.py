@@ -78,8 +78,16 @@ def test_every_violating_sentence_is_evidence() -> None:
 
 def test_fix_hint_only_on_fail_or_warning() -> None:
     rep = report({"vacancy_statement": {"present": False}})
-    assert result(rep, "ON-VAC-01").fix == {"type": "insert", "writer": "wording_library"}
+    fix = result(rep, "ON-VAC-01").fix
+    assert fix is not None
+    assert (fix["type"], fix["writer"]) == ("insert", "wording_library")
     assert result(rep, "ON-PAY-01").fix is None
+
+
+def test_fix_guidance_is_rendered_with_params() -> None:
+    rep = report({"pay": [{"min": 60000, "max": 120000, "unit": "year", "span": [100, 120]}]})
+    guidance = result(rep, "ON-PAY-02").fix["guidance"]
+    assert guidance == "Give a minimum and a maximum no more than $50,000 a year apart."
 
 
 def test_gate_reason_is_the_report_message() -> None:

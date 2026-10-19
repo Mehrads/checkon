@@ -75,7 +75,7 @@ rules:
       commission_only_verdict: warning
     interpretation: true  # commission-only roles
     reviewed_by: null
-    fix: {type: insert_or_replace, writer: template}
+    fix: {type: insert_or_replace, writer: template, guidance: "Add the expected pay or a pay range for this job."}
     messages:
       pass: "The posting includes the expected pay."
       fail: "The posting doesn't include the expected pay or a pay range."
@@ -83,8 +83,10 @@ rules:
       commission_only: "The posting gives commission only. Whether that counts as expected pay is not settled; adding a base or expected earnings range is safer."
       exempt: "Pay disclosure isn't required: the expected pay is above ${exemption_threshold_annual} a year."
       parsers_disagree: "We couldn't read the pay reliably."
+      placeholder: "The posting has a placeholder for pay. Add the expected pay or pay range before publishing."
     questions:
       pay_reading: "We read the pay as {reading} or as {alternate}. Which is right?"
+      expected_pay: "What is the expected pay or pay range for this job?"
     tests: [tests/pay.yaml]
 
   - id: ON-PAY-02
@@ -100,7 +102,7 @@ rules:
       near_cap_margin: 0.10
     interpretation: true  # hours for hourly ranges; open-ended ranges
     reviewed_by: null
-    fix: {type: replace_span, writer: code}
+    fix: {type: replace_span, writer: code, guidance: "Give a minimum and a maximum no more than ${max_annual_width} a year apart."}
     messages:
       pass: "The pay range is ${width} a year wide, within the ${max_annual_width} limit."
       single_figure: "The posting gives a single pay figure, so the range limit doesn't apply."
@@ -128,12 +130,13 @@ rules:
     params: {}
     interpretation: true  # a vague statement is a warning
     reviewed_by: null
-    fix: {type: insert, writer: wording_library}
+    fix: {type: insert, writer: wording_library, guidance: "Add a sentence saying whether this posting is for an existing vacancy."}
     messages:
       pass: "The posting says whether it is for an existing vacancy."
       fail: "The posting doesn't say whether it is for an existing vacancy."
       vague: "The vacancy statement is vague. Say plainly whether the job is an existing vacancy."
-    questions: {}
+    questions:
+      existing_vacancy: "Is this posting for an existing vacancy?"
     # Classifier labels: existing, not_existing, vague, none (not a vacancy statement).
     examples:
       - {text: "This posting is for an existing vacancy.", label: existing, reason: "States the job is an existing vacancy."}
@@ -154,7 +157,7 @@ rules:
     params: {}
     interpretation: true  # rule-only knockout questions
     reviewed_by: null
-    fix: {type: insert, writer: wording_library}
+    fix: {type: insert, writer: wording_library, guidance: "Say in the posting that you use AI to screen, assess or select applicants, or remove the statement if you don't."}
     messages:
       pass: "The posting discloses the use of AI to screen, assess or select applicants."
       not_needed: "No AI disclosure is needed: you don't use AI to screen, assess or select applicants."
@@ -184,7 +187,7 @@ rules:
     params: {}
     interpretation: true  # "Ontario experience" and similar wording are borderline
     reviewed_by: null
-    fix: {type: replace_span, writer: llm}
+    fix: {type: replace_span, writer: llm, guidance: "Ask for the skill, knowledge or licence itself, and remove any condition on where experience was gained."}
     messages:
       pass: "No Canadian experience requirement found."
       fail: "The posting requires Canadian experience. Ask for the skill, not where it was gained."

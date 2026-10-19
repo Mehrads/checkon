@@ -1,0 +1,37 @@
+# Approved wording library for statements the Refiner inserts (Technical Design §5).
+# The LLM never writes these; code picks the entry from the employer's answer and inserts it.
+# DRAFT: every entry needs an employment lawyer's sign-off (reviewed_by, reviewed_on) before launch.
+# labels: how the classifier would label the inserted sentence, so re-inspection needs no LLM call.
+
+version: 1.0.0
+reviewed_by: null
+reviewed_on: null
+
+entries:
+  vacancy_existing:
+    rule: ON-VAC-01
+    labels: {vacancy: existing}
+    variants:
+      formal: "This posting is for an existing vacancy."
+      plain: "This job is an existing vacancy."
+
+  vacancy_not_existing:
+    rule: ON-VAC-01
+    labels: {vacancy: not_existing}
+    variants:
+      formal: "This posting is not for an existing vacancy."
+      plain: "This job is not an existing vacancy."
+
+  ai_disclosure:
+    rule: ON-AI-01
+    labels: {ai: uses_ai}
+    variants:
+      formal: "We use artificial intelligence to screen, assess or select applicants for this position."
+      plain: "We use AI tools to help screen, assess or select applicants."
+
+  pay_placeholder:
+    rule: ON-PAY-01
+    labels: {}
+    variants:
+      formal: "[Pay range: add before publishing]"
+      plain: "[Pay range: add before publishing]"

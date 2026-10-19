@@ -5,8 +5,8 @@ Settings follow section 7: pinned model, no sampling parameters (Haiku 5.5 and S
 thinking off, explicit effort, no tools.
 """
 
-from dataclasses import dataclass
-from typing import Protocol, TypeVar
+from dataclasses import dataclass, field
+from typing import Any, Protocol, TypeVar
 
 import anthropic
 import pydantic
@@ -23,6 +23,16 @@ class ModelSettings:
     model: str = "claude-haiku-5-5"
     effort: str = "medium"
     max_tokens: int = 8000
+    # Thinking off: Haiku 5.5 takes "disabled" (effort high or below); Sonnet 5.5 takes "between_tools".
+    thinking: dict[str, Any] = field(default_factory=lambda: {"type": "disabled"})
+    # Server-side refusal fallback (beta); Haiku 5.5 has none, so only Sonnet calls turn it on.
+    fallbacks: bool = False
+
+
+# Sentence rewrites (Technical Design §13, recommended setup).
+REWRITE_SETTINGS = ModelSettings(
+    model="claude-sonnet-5-5", max_tokens=2000, thinking={"type": "between_tools"}, fallbacks=True
+)
 
 
 class StructuredLLM(Protocol):
@@ -36,17 +46,22 @@ class AnthropicLLM:
     def parse(self, *, system: str, user: str, schema: type[T], settings: ModelSettings) -> T:
         problem = "no attempt made"
         for _ in range(2):
+            request: dict[str, Any] = {
+                "model": settings.model,
+                "max_tokens": settings.max_tokens,
+                "system": system,
+                "messages": [{"role": "user", "content": user}],
+                "thinking": settings.thinking,
+                "output_config": {"effort": settings.effort},
+                "output_format": schema,
+            }
             try:
-                response = self.client.messages.parse(
-                    model=settings.model,
-                    max_tokens=settings.max_tokens,
-                    system=system,
-                    messages=[{"role": "user", "content": user}],
-                    # Haiku 5.5 accepts disabled thinking at effort high or below.
-                    thinking={"type": "disabled"},
-                    output_config={"effort": settings.effort},
-                    output_format=schema,
-                )
+                if settings.fallbacks:
+                    response = self.client.beta.messages.parse(
+                        **request, betas=["server-side-fallback-2026-07-01"], fallbacks="default"
+                    )
+                else:
+                    response = self.client.messages.parse(**request)
             except (pydantic.ValidationError, ValueError) as error:
                 problem = f"output failed the schema: {error}"
                 continue
