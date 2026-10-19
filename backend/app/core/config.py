@@ -1,4 +1,5 @@
 import warnings
+from decimal import Decimal
 from typing import Literal, Self
 
 from pydantic import (
@@ -30,6 +31,12 @@ class Settings(BaseSettings):
     SENTRY_DSN: HttpUrl | None = None
     # Claude API key for the Inspector and Refiner; without it the check endpoints return 503.
     ANTHROPIC_API_KEY: str | None = None
+
+    # Free check limits (04-V1-Scope.md, section 4). Turnstile is skipped in development when unset.
+    TURNSTILE_SECRET_KEY: str | None = None
+    FREE_CHECKS_PER_WEEK: int = 1
+    FREE_CHECK_DAILY_SPEND_CAP_USD: Decimal = Decimal("5")
+    FREE_CHECK_REQUESTS_PER_MINUTE: int = 30
     DATABASE_URL: PostgresDsn
 
     @field_validator("DATABASE_URL", mode="before")

@@ -9,19 +9,25 @@ import {
   ChecksService,
   type FinalOut,
 } from "@/client"
+import { LooksWrong } from "@/components/Check/Feedback"
 import { FinalText } from "@/components/Check/FinalText"
 import { Findings } from "@/components/Check/Findings"
 import { type Choices, defaultChoices, Fixes } from "@/components/Check/Fixes"
 import { STATUS_TEXT } from "@/components/Check/labels"
 import { Questions } from "@/components/Check/Questions"
+import { RequestForm, ResearchQuestionCard } from "@/components/Check/Research"
 import { Appearance } from "@/components/Common/Appearance"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { useTurnstile } from "@/hooks/useTurnstile"
 import { cn } from "@/lib/utils"
 
 const MAX_CHARS = 8000
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
+  | string
+  | undefined
 
 export const Route = createFileRoute("/check")({
   component: CheckPage,
@@ -60,6 +66,7 @@ function CheckPage() {
     if (data.refinement) setChoices(defaultChoices(data.refinement))
   }
   const fail = (err: Error) => setError(errorMessage(err))
+  const turnstile = useTurnstile(TURNSTILE_SITE_KEY)
 
   const refine = useMutation({
     mutationFn: async (checkId: string) =>
@@ -72,9 +79,14 @@ function CheckPage() {
     mutationFn: async () =>
       (
         await ChecksService.inspectPosting({
-          body: { text, meets_headcount_threshold: headcount },
+          body: {
+            text,
+            meets_headcount_threshold: headcount,
+            turnstile_token: turnstile.token,
+          },
         })
       ).data,
+    onSettled: () => turnstile.reset(), // each token is good for one check
     onMutate: () => {
       setError(null)
       setCheck(null)
@@ -168,12 +180,25 @@ function CheckPage() {
             </div>
             <LoadingButton
               loading={inspect.isPending}
-              disabled={!text.trim() || busy}
+              disabled={
+                !text.trim() || busy || (turnstile.enabled && !turnstile.token)
+              }
               onClick={() => inspect.mutate()}
               className="self-start"
             >
               Check posting
             </LoadingButton>
+            <div ref={turnstile.ref} />
+            {turnstile.failed && (
+              <p className="text-sm text-destructive">
+                We couldn't load the check that confirms you're a person. Reload
+                the page and try again.
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              One free check per week. We don't keep your posting unless you
+              choose to share it with us.
+            </p>
           </CardContent>
         </Card>
 
@@ -192,12 +217,17 @@ function CheckPage() {
                 <AlertDescription>{check.report.message}</AlertDescription>
               )}
             </Alert>
+            <LooksWrong key={check.check_id} checkId={check.check_id} />
             <Questions
               questions={check.questions}
               pending={answer.isPending}
               onAnswer={(answers) => answer.mutate(answers)}
             />
-            <Findings report={check.report} text={check.text} />
+            <Findings
+              checkId={check.check_id}
+              report={check.report}
+              text={check.text}
+            />
             {refine.isPending && (
               <p className="text-sm text-muted-foreground">
                 Writing suggested fixes…
@@ -205,6 +235,7 @@ function CheckPage() {
             )}
             {check.refinement && (
               <Fixes
+                checkId={check.check_id}
                 refinement={check.refinement}
                 choices={choices}
                 onChange={setChoices}
@@ -213,6 +244,15 @@ function CheckPage() {
               />
             )}
             {final && <FinalText final={final} />}
+            <ResearchQuestionCard
+              key={`research-${check.check_id}`}
+              checkId={check.check_id}
+              question={check.research_question}
+            />
+            <RequestForm
+              key={`request-${check.check_id}`}
+              checkId={check.check_id}
+            />
           </>
         )}
 

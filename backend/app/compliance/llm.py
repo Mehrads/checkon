@@ -6,6 +6,7 @@ thinking off, explicit effort, no tools.
 """
 
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Any, Protocol, TypeVar
 
 import anthropic
@@ -39,9 +40,28 @@ class StructuredLLM(Protocol):
     def parse(self, *, system: str, user: str, schema: type[T], settings: ModelSettings) -> T: ...
 
 
+# USD per million input / output tokens (Technical Design §13). Unknown models are priced as Sonnet.
+PRICES_PER_MTOK = {
+    "claude-haiku-5-5": (Decimal("0.10"), Decimal("0.50")),
+    "claude-sonnet-5-5": (Decimal("2"), Decimal("10")),
+}
+
+
+@dataclass
+class SpendMeter:
+    """Adds up what the calls of one request cost, from the token counts the API reports."""
+
+    usd: Decimal = Decimal(0)
+
+    def add(self, model: str, input_tokens: int, output_tokens: int) -> None:
+        price_in, price_out = PRICES_PER_MTOK.get(model, PRICES_PER_MTOK["claude-sonnet-5-5"])
+        self.usd += (price_in * input_tokens + price_out * output_tokens) / Decimal(1_000_000)
+
+
 class AnthropicLLM:
-    def __init__(self, client: anthropic.Anthropic | None = None) -> None:
+    def __init__(self, client: anthropic.Anthropic | None = None, meter: SpendMeter | None = None) -> None:
         self.client = client or anthropic.Anthropic()
+        self.meter = meter
 
     def parse(self, *, system: str, user: str, schema: type[T], settings: ModelSettings) -> T:
         problem = "no attempt made"
@@ -67,6 +87,9 @@ class AnthropicLLM:
                 continue
             except anthropic.APIError as error:  # the SDK has already retried 429s and 5xx
                 raise LLMError(f"API error: {error}") from error
+            usage = getattr(response, "usage", None)
+            if self.meter is not None and usage is not None:
+                self.meter.add(getattr(response, "model", None) or settings.model, usage.input_tokens, usage.output_tokens)
             if response.stop_reason == "refusal":
                 raise LLMError("the model declined the request")
             if response.stop_reason == "max_tokens":

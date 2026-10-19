@@ -1,7 +1,9 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from decimal import Decimal
 
 from pydantic import EmailStr
+from sqlalchemy import JSON, Column, Text
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -124,3 +126,54 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+# Free check (v1): usage, spend and research. Keys are HMACs, never raw IPs or cookies,
+# and posting text is stored only when the person opts in (Technical Design §11).
+
+
+class FreeCheckUse(SQLModel, table=True):
+    __tablename__ = "free_check_use"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    key_hash: str = Field(index=True, max_length=64)  # HMAC of "cookie:<id>" or "ip:<address>"
+    used_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+
+
+class FreeCheckSpend(SQLModel, table=True):
+    __tablename__ = "free_check_spend"
+    day: date = Field(primary_key=True)  # Toronto date
+    usd: Decimal = Field(default=Decimal(0), max_digits=12, decimal_places=6)
+
+
+class ResearchAnswer(SQLModel, table=True):
+    __tablename__ = "research_answer"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    check_id: str | None = Field(default=None, max_length=64)
+    question_id: str = Field(max_length=64)
+    answer: str = Field(max_length=255)
+
+
+class CustomRequest(SQLModel, table=True):
+    __tablename__ = "custom_request"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    check_id: str | None = Field(default=None, max_length=64)
+    hr_system: str = Field(max_length=255)
+    postings_per_month: str = Field(max_length=64)
+    wants: str = Field(max_length=2000)
+    email: str = Field(max_length=255)
+
+
+class Feedback(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    check_id: str | None = Field(default=None, max_length=64)
+    target_kind: str = Field(max_length=16)  # finding, patch or check
+    target_id: str = Field(max_length=64)  # rule id, patch id, or "check"
+    rating: str = Field(max_length=16)  # up, down or looks_wrong
+    reason: str | None = Field(default=None, max_length=64)
+    comment: str | None = Field(default=None, max_length=2000)
+    versions: dict[str, str] = Field(default_factory=dict, sa_column=Column(JSON))
+    posting_text: str | None = Field(default=None, sa_column=Column(Text))  # only with consent
+    review_status: str = Field(default="new", max_length=16)

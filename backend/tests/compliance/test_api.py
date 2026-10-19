@@ -1,12 +1,14 @@
 """The free-check endpoints, end to end with a scripted LLM (no database needed)."""
 
 from collections.abc import Generator
-from datetime import date
+from datetime import UTC, date, datetime
+from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.routes.checks import get_llm, get_posting_date
+from app.api.free_check import rate_limited
+from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_verifier
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.compliance.refiner import _Rewrite
@@ -17,11 +19,55 @@ from tests.compliance.test_inspector import POSTING, extraction, labels
 API = "/api/v1"
 
 
+class MemoryLimits:
+    """The free-check limits without Postgres: same rules, kept in a dict."""
+
+    def __init__(self, per_week: int = 1, budget: Decimal = Decimal(5)) -> None:
+        self.uses: list[tuple[str, str]] = []
+        self.per_week = per_week
+        self.budget = budget
+        self.spent = Decimal(0)
+
+    def next_free_check(self, cookie: str, ip: str) -> datetime | None:
+        hits = [use for use in self.uses if cookie == use[0] or ip == use[1]]
+        return datetime(2026, 10, 26, 12, tzinfo=UTC) if len(hits) >= self.per_week else None
+
+    def record_use(self, cookie: str, ip: str) -> None:
+        self.uses.append((cookie, ip))
+
+    def budget_left(self) -> bool:
+        return self.spent < self.budget
+
+    def add_spend(self, usd: Decimal) -> None:
+        self.spent += usd
+
+
+class Turnstile:
+    def __init__(self, passes: bool = True) -> None:
+        self.passes = passes
+
+    def verify(self, token: str | None, ip: str) -> bool:
+        return self.passes
+
+
 @pytest.fixture
-def llm() -> Generator[FakeLLM]:
+def limits() -> MemoryLimits:
+    return MemoryLimits(per_week=100)  # most tests run several checks
+
+
+@pytest.fixture
+def turnstile() -> Turnstile:
+    return Turnstile()
+
+
+@pytest.fixture
+def llm(limits: MemoryLimits, turnstile: Turnstile) -> Generator[FakeLLM]:
     fake = FakeLLM()
     app.dependency_overrides[get_llm] = lambda: fake
     app.dependency_overrides[get_posting_date] = lambda: date(2026, 10, 19)
+    app.dependency_overrides[get_limits] = lambda: limits
+    app.dependency_overrides[get_verifier] = lambda: turnstile
+    app.dependency_overrides[rate_limited] = lambda: None
     yield fake
     app.dependency_overrides.clear()
 
@@ -122,3 +168,66 @@ def test_missing_api_key_is_service_unavailable(client: TestClient, monkeypatch:
     monkeypatch.setattr(settings, "ANTHROPIC_API_KEY", None)
     response = client.post(f"{API}/inspect", json={"text": POSTING})
     assert response.status_code == 503
+
+
+# Free-check limits
+
+
+def test_second_check_in_a_week_is_refused(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
+    limits.per_week = 1
+    first = inspect(client, llm)
+    assert first["research_question"]["options"]
+    response = client.post(f"{API}/inspect", json={"text": POSTING})
+    assert response.status_code == 429
+    assert response.json()["detail"] == {
+        "reason": "quota",
+        "message": "You've used this week's free check. Your next free check is available on October 26.",
+    }
+    assert len(limits.uses) == 1
+
+
+def test_visitor_cookie_is_set_and_reused(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
+    inspect(client, llm)
+    cookie = client.cookies.get("free_check_id")
+    assert cookie
+    inspect(client, llm)
+    assert [use[0] for use in limits.uses] == [cookie, cookie]
+
+
+def test_refused_input_uses_no_credit(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
+    llm.queue(Extraction, extraction(input_kind="not_a_posting"))
+    assert client.post(f"{API}/inspect", json={"text": POSTING}).status_code == 422
+    assert limits.uses == []
+
+
+def test_failed_turnstile_is_refused_before_any_model_call(
+    client: TestClient, llm: FakeLLM, turnstile: Turnstile
+) -> None:
+    turnstile.passes = False
+    response = client.post(f"{API}/inspect", json={"text": POSTING, "turnstile_token": "bad"})
+    assert response.status_code == 403
+    assert response.json()["detail"]["reason"] == "verification"
+    assert llm.calls == []
+
+
+def test_daily_spend_cap_pauses_free_checks(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
+    limits.spent = limits.budget
+    response = client.post(f"{API}/inspect", json={"text": POSTING})
+    assert response.status_code == 503
+    assert response.json()["detail"]["reason"] == "paused"
+    assert llm.calls == []
+
+
+def test_metered_spend_is_recorded(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
+    from app.compliance.llm import SpendMeter
+
+    llm.meter = SpendMeter()  # type: ignore[attr-defined]
+    llm.meter.add("claude-haiku-5-5", 10_000, 2_000)  # what the calls would report
+    inspect(client, llm)
+    assert limits.spent == Decimal("0.002")
+
+
+def test_other_sites_cannot_call_the_api(client: TestClient, llm: FakeLLM) -> None:
+    response = client.post(f"{API}/inspect", json={"text": POSTING}, headers={"Origin": "https://evil.example"})
+    assert response.status_code == 403
+    assert response.json()["detail"]["reason"] == "origin"

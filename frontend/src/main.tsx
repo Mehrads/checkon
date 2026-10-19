@@ -16,6 +16,7 @@ import { routeTree } from "./routeTree.gen"
 
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL ?? "",
+  withCredentials: true,
   auth: () => localStorage.getItem("access_token") || "",
 })
 

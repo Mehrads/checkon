@@ -129,6 +129,33 @@ export type CheckOut = {
      * Questions
      */
     questions: Array<Question>;
+    research_question: ResearchQuestion;
+};
+
+/**
+ * CustomRequestIn
+ */
+export type CustomRequestIn = {
+    /**
+     * Check Id
+     */
+    check_id?: string | null;
+    /**
+     * Hr System
+     */
+    hr_system: string;
+    /**
+     * Postings Per Month
+     */
+    postings_per_month: string;
+    /**
+     * Wants
+     */
+    wants: string;
+    /**
+     * Email
+     */
+    email: string;
 };
 
 /**
@@ -175,6 +202,40 @@ export type Dropped = {
 };
 
 /**
+ * FeedbackIn
+ */
+export type FeedbackIn = {
+    /**
+     * Check Id
+     */
+    check_id: string;
+    /**
+     * Target Kind
+     */
+    target_kind: 'finding' | 'patch' | 'check';
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Rating
+     */
+    rating: 'up' | 'down' | 'looks_wrong';
+    /**
+     * Reason
+     */
+    reason?: 'wrong_rule' | 'missed_issue' | 'bad_wording' | 'other' | null;
+    /**
+     * Comment
+     */
+    comment?: string | null;
+    /**
+     * Share Posting
+     */
+    share_posting?: boolean;
+};
+
+/**
  * FinalOut
  */
 export type FinalOut = {
@@ -211,6 +272,10 @@ export type InspectIn = {
      * Meets Headcount Threshold
      */
     meets_headcount_threshold?: boolean | null;
+    /**
+     * Turnstile Token
+     */
+    turnstile_token?: string | null;
 };
 
 /**
@@ -447,6 +512,42 @@ export type Report = {
     versions: {
         [key: string]: string;
     };
+};
+
+/**
+ * ResearchAnswerIn
+ */
+export type ResearchAnswerIn = {
+    /**
+     * Check Id
+     */
+    check_id: string;
+    /**
+     * Question Id
+     */
+    question_id: string;
+    /**
+     * Answer
+     */
+    answer: string;
+};
+
+/**
+ * ResearchQuestion
+ */
+export type ResearchQuestion = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Options
+     */
+    options: Array<string>;
 };
 
 /**
@@ -779,6 +880,81 @@ export type checksAcceptPatchesResponses = {
 };
 
 export type checksAcceptPatchesResponse = checksAcceptPatchesResponses[keyof checksAcceptPatchesResponses];
+
+export type checksAnswerResearchData = {
+    body: ResearchAnswerIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/research/answer';
+};
+
+export type checksAnswerResearchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type checksAnswerResearchError = checksAnswerResearchErrors[keyof checksAnswerResearchErrors];
+
+export type checksAnswerResearchResponses = {
+    /**
+     * Successful Response
+     */
+    201: Message;
+};
+
+export type checksAnswerResearchResponse = checksAnswerResearchResponses[keyof checksAnswerResearchResponses];
+
+export type checksRequestCustomSolutionData = {
+    body: CustomRequestIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/requests';
+};
+
+export type checksRequestCustomSolutionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type checksRequestCustomSolutionError = checksRequestCustomSolutionErrors[keyof checksRequestCustomSolutionErrors];
+
+export type checksRequestCustomSolutionResponses = {
+    /**
+     * Successful Response
+     */
+    201: Message;
+};
+
+export type checksRequestCustomSolutionResponse = checksRequestCustomSolutionResponses[keyof checksRequestCustomSolutionResponses];
+
+export type checksSendFeedbackData = {
+    body: FeedbackIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/feedback';
+};
+
+export type checksSendFeedbackErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type checksSendFeedbackError = checksSendFeedbackErrors[keyof checksSendFeedbackErrors];
+
+export type checksSendFeedbackResponses = {
+    /**
+     * Successful Response
+     */
+    201: Message;
+};
+
+export type checksSendFeedbackResponse = checksSendFeedbackResponses[keyof checksSendFeedbackResponses];
 
 export type loginLoginAccessTokenData = {
     body: Body_login_login_access_token;

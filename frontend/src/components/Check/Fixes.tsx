@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { cn } from "@/lib/utils"
+import { FeedbackButtons } from "./Feedback"
 import { ruleName, WRITER_TEXT } from "./labels"
 
 export type Choices = Record<string, Decision>
@@ -19,6 +20,7 @@ export function defaultChoices(refinement: Refinement): Choices {
 }
 
 interface FixesProps {
+  checkId: string
   refinement: Refinement
   choices: Choices
   onChange: (choices: Choices) => void
@@ -27,6 +29,7 @@ interface FixesProps {
 }
 
 export function Fixes({
+  checkId,
   refinement,
   choices,
   onChange,
@@ -77,6 +80,13 @@ export function Fixes({
                 {!patch.default && options.length === 0 && (
                   <Badge variant="outline">Suggestion</Badge>
                 )}
+                <div className="ml-auto">
+                  <FeedbackButtons
+                    checkId={checkId}
+                    kind="patch"
+                    target={patch.id}
+                  />
+                </div>
               </div>
               <div className="mt-3 flex flex-col gap-1 text-sm">
                 {patch.before && (

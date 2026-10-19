@@ -68,3 +68,19 @@ def test_refusal_fails_closed_without_retry() -> None:
     with pytest.raises(LLMError, match="declined"):
         call(llm)
     assert len(messages.requests) == 1
+
+
+def test_meter_prices_reported_tokens() -> None:
+    from decimal import Decimal
+
+    from app.compliance.llm import SpendMeter
+
+    usage = SimpleNamespace(input_tokens=6100, output_tokens=1500)
+    messages = FakeMessages(SimpleNamespace(stop_reason="end_turn", parsed_output=Answer(label="ok"), usage=usage,
+                                            model="claude-haiku-5-5"))  # fmt: skip
+    meter = SpendMeter()
+    llm = AnthropicLLM(client=SimpleNamespace(messages=messages), meter=meter)
+    call(llm)
+    assert meter.usd == Decimal("0.00136")  # 6,100 x $0.10/M + 1,500 x $0.50/M
+    meter.add("claude-sonnet-5-5", 1500, 150)
+    assert meter.usd == Decimal("0.00136") + Decimal("0.0045")
