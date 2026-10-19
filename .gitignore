@@ -5,10 +5,13 @@ __pycache__/
 build/
 dist/
 
-# Environments and secrets
+# Environments and secrets (.env.example is the committed template)
 .venv/
 .env
 .env.*
+!.env.example
+# The frontend's .env holds only local URLs (as in the template)
+!frontend/.env
 
 # Tool caches
 .pytest_cache/
@@ -16,6 +19,21 @@ dist/
 .ruff_cache/
 .coverage
 htmlcov/
+backend/coverage/
 
-# macOS
+# Frontend (from the Full Stack FastAPI Template)
+node_modules/
+backend/app/frontend/
+frontend/dist/
+frontend/openapi.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+frontend/test-results/
+frontend/blob-report/
+
+# Editors and macOS
+.vscode/*
+!.vscode/extensions.json
 .DS_Store

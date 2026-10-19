@@ -1,6 +1,9 @@
 # Backend
 
-Compliance core for the Ontario job posting checker. Steps 1–4 of `../04-V1-Scope.md`: the rule pack, the rule engine, the normaliser, the money parser, the Inspector and the Refiner.
+FastAPI backend from the Full Stack FastAPI Template, plus the compliance core. Steps 1–5 of `../04-V1-Scope.md`: the rule pack, the rule engine, the normaliser, the money parser, the Inspector, the Refiner and the free-check API.
+
+- `app/api/routes/checks.py`: `POST /api/v1/inspect`, `/refine`, `/answers`, `/patches/accept`. Checks live in memory for an hour (`app/api/check_store.py`).
+- `app/compliance/answers.py`: answers to questions re-run the rules in code, with no LLM call.
 
 - `rulepacks/CA-ON/rules.yaml`: the rules, with citations, effective dates, params, messages and questions.
 - `rulepacks/CA-ON/tests/`: table-driven rule cases (Technical Design §8, layer 1).
@@ -13,7 +16,7 @@ Compliance core for the Ontario job posting checker. Steps 1–4 of `../04-V1-Sc
 - `rulepacks/CA-ON/wording.yaml`: the wording library (draft, needs lawyer sign-off).
 - `prompts/`: the extraction, classification and rewrite prompts. Their hash is the `prompts` version in every report.
 
-Run the tests (the live API test is skipped):
+Run the tests (the live API tests are skipped; `tests/api` and `tests/crud` need Postgres, see `../README.md`):
 
 ```bash
 uv run pytest

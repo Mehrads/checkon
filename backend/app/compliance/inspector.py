@@ -60,13 +60,13 @@ class Inspection:
     report: Report
 
 
-def _hash(text: str) -> str:
+def content_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
 def prompt_version() -> str:
     names = ("extract.md", "classify.md", "rewrite.md")
-    return _hash("".join((PROMPTS_DIR / name).read_text(encoding="utf-8") for name in names))
+    return content_hash("".join((PROMPTS_DIR / name).read_text(encoding="utf-8") for name in names))
 
 
 def _check_input(extraction: Extraction) -> None:
@@ -143,8 +143,8 @@ def versioned(report: Report, ctx: Context, doc: NormalisedText, settings: Model
         **report.versions,
         "model": settings.model,
         "prompts": prompt_version(),
-        "profile_hash": _hash(ctx.model_dump_json()),
-        "text_hash": _hash(doc.text),
+        "profile_hash": content_hash(ctx.model_dump_json()),
+        "text_hash": content_hash(doc.text),
     }
     return report.model_copy(update={"versions": versions})
 

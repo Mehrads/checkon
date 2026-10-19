@@ -272,6 +272,7 @@ class _Context:
     classify_settings: ModelSettings
     rewrite_settings: ModelSettings
     label_cache: dict[str, SentenceLabels] = field(default_factory=dict)
+    rewrites: dict[str, str] = field(default_factory=dict)  # sentence -> verified rewrite
 
 
 def reinspect(c: _Context, patches: list[Patch]) -> tuple[Inspection, _Applied]:
@@ -425,6 +426,8 @@ def acceptance(c: _Context, patches: list[Patch], after: Inspection, applied: _A
 
 
 def _rewrite(c: _Context, sentence: str, feedback: list[str] | None = None) -> str | None:
+    if not feedback and sentence in c.rewrites:  # verified for this check before
+        return c.rewrites[sentence]
     rules = {rule.id: rule for rule in c.pack.rules}
     system = (PROMPTS_DIR / "rewrite.md").read_text(encoding="utf-8").replace("{{ON-CEX-01}}", rule_block(rules["ON-CEX-01"]))
     user = f"<sentence>{sentence}</sentence>"
@@ -482,9 +485,13 @@ def refine(
     variant: Variant = "formal",
     classify_settings: ModelSettings = ModelSettings(),
     rewrite_settings: ModelSettings = REWRITE_SETTINGS,
+    label_cache: dict[str, SentenceLabels] | None = None,
+    rewrites: dict[str, str] | None = None,
 ) -> Refinement:
+    """Pass the same label_cache and rewrites dicts on every call for one check to avoid repeat LLM calls."""
     wording = load_wording(pack.jurisdiction)
-    c = _Context(base, ctx, posting_date, pack, wording, llm, classify_settings, rewrite_settings)
+    c = _Context(base, ctx, posting_date, pack, wording, llm, classify_settings, rewrite_settings,
+                 label_cache if label_cache is not None else {}, rewrites if rewrites is not None else {})  # fmt: skip
     plan = _plan(base, ctx, pack, wording, variant)
     guidance = {r.rule: (r.fix or {}).get("guidance", r.message) for r in base.report.results}
 
@@ -530,11 +537,35 @@ def refine(
         p.model_copy(update={"verified": True, "original_span": _to_original(base.document, p)})
         for p in sorted(patches, key=lambda p: int(p.id[1:]))
     ]
-    applied_by_default = [p for p in patches if p.default and p.after is not None]
-    final, _ = reinspect(c, applied_by_default)
-    original = base.document.original
+    c.rewrites.update({p.before: p.after for p in patches if p.writer == "llm" and p.after})
+    text, report = _finish(c, [p for p in patches if p.default and p.after is not None])
+    return Refinement(patches=patches, questions=plan.questions, dropped=plan.dropped, text=text, report=report)
+
+
+def _finish(c: _Context, chosen: list[Patch]) -> tuple[str, Report]:
+    """The pasted text with the chosen patches applied, and the verdicts on it."""
+    final, _ = reinspect(c, chosen)
+    original = c.base.document.original
     # Right to left; inserts at the same place go in last-planned first, so they read in plan order.
-    for p in sorted(applied_by_default, key=lambda p: (p.original_span, int(p.id[1:])), reverse=True):
+    for p in sorted(chosen, key=lambda p: (p.original_span, int(p.id[1:])), reverse=True):
         start, end = p.original_span
         original = original[:start] + (p.after or "") + original[end:]
-    return Refinement(patches=patches, questions=plan.questions, dropped=plan.dropped, text=original, report=final.report)
+    return original, final.report
+
+
+def finalize(
+    base: Inspection,
+    ctx: Context,
+    posting_date: date,
+    pack: RulePack,
+    llm: StructuredLLM,
+    chosen: list[Patch],
+    *,
+    classify_settings: ModelSettings = ModelSettings(),
+    label_cache: dict[str, SentenceLabels] | None = None,
+) -> tuple[str, Report]:
+    """Apply the patches the user accepted (with any option they picked); the status is recomputed on that text."""
+    wording = load_wording(pack.jurisdiction)
+    c = _Context(base, ctx, posting_date, pack, wording, llm, classify_settings, REWRITE_SETTINGS,
+                 label_cache if label_cache is not None else {})  # fmt: skip
+    return _finish(c, chosen)

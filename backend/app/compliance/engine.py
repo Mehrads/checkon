@@ -9,6 +9,10 @@ from app.compliance.models import Context, Facts, Question, Report, RuleResult, 
 from app.compliance.rulepack import Rule, RulePack
 
 
+# How each question is answered; every other question is yes or no.
+QUESTION_KINDS = {"hours_per_week": "number", "pay_reading": "choice", "expected_pay": "none"}
+
+
 def _format(value: Any) -> str:
     if isinstance(value, Decimal):
         return f"{value:,.0f}" if value == value.to_integral_value() else f"{value:,.2f}"
@@ -20,7 +24,10 @@ def run_rule(rule: Rule, facts: Facts, ctx: Context) -> RuleResult:
     values = {key: _format(value) for key, value in {**rule.params, **outcome.values}.items()}
     question = None
     if outcome.question:
-        question = Question(id=outcome.question, text=rule.questions[outcome.question].format(**values))
+        kind = QUESTION_KINDS.get(outcome.question, "yes_no")
+        options = [values[key] for key in ("reading", "alternate") if key in values] if kind == "choice" else []
+        text = rule.questions[outcome.question].format(**values)
+        question = Question(id=outcome.question, text=text, kind=kind, options=options)
     fix = None
     if rule.fix and outcome.verdict in (Verdict.FAIL, Verdict.WARNING):
         fix = {key: text.format(**values) for key, text in rule.fix.items()}

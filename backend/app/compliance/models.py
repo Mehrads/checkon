@@ -48,6 +48,14 @@ class TextFact(_Model):
     span: Span
 
 
+class PayAlternative(_Model):
+    """The deterministic parser's reading of the same pay, kept when the two readings disagree."""
+
+    min: Decimal | None = None
+    max: Decimal | None = None
+    unit: PayUnit | None = None
+
+
 class PayMention(_Model):
     """One pay figure or range. min == max is a single figure; a missing side is open-ended."""
 
@@ -59,6 +67,7 @@ class PayMention(_Model):
     span: Span
     parsers_agree: bool = True
     alternate_reading: str | None = None
+    alternate: PayAlternative | None = None
 
 
 class VacancyStatement(_Model):
@@ -115,6 +124,8 @@ class Context(_Model):
 class Question(_Model):
     id: str
     text: str
+    kind: Literal["yes_no", "number", "choice", "none"] = "yes_no"  # "none": not answerable in the check
+    options: list[str] = []  # for kind "choice"; the answer is the option's index
 
 
 class RuleResult(_Model):

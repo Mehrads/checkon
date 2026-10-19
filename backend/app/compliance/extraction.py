@@ -14,7 +14,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from app.compliance.llm import ModelSettings, StructuredLLM
-from app.compliance.models import PayKind, PayMention, PayUnit, Span, TextFact
+from app.compliance.models import PayAlternative, PayKind, PayMention, PayUnit, Span, TextFact
 from app.compliance.money import PayReading, format_pay
 from app.compliance.normalise import NormalisedText
 
@@ -168,6 +168,9 @@ def verify(doc: NormalisedText, extraction: Extraction, readings: list[PayReadin
                 span=span,
                 parsers_agree=agree,
                 alternate_reading=alternate,
+                alternate=PayAlternative(min=reading.min, max=reading.max, unit=reading.unit)
+                if reading is not None and not agree
+                else None,
             )
         )
     for i, reading in enumerate(readings):
