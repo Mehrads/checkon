@@ -98,10 +98,10 @@ checkon.ca is registered at Wix (Domains > checkon.ca > Manage DNS Records). The
 | --- | --- |
 | `MX` to Google, SPF `TXT` (`include:_spf.google.com`), Google site verification `TXT` | In place |
 | DMARC: `TXT` on `_dmarc.checkon.ca`, `v=DMARC1; p=none; rua=mailto:info@checkon.ca` | Added 2026-10-19. Monitor-only: nothing is blocked, daily reports go to info@checkon.ca |
-| DKIM: `TXT` on `google._domainkey.checkon.ca` | Missing, step 1 below |
+| DKIM: `TXT` on `google._domainkey.checkon.ca` | Added 2026-10-19. Turn it on in Google Admin, step 1 below |
 | Website: `A` on `checkon.ca`, `CNAME` on `www` | Still Wix parking, replaced in [First deploy](#first-deploy) step 5 |
 
-1. **DKIM.** In Google Admin, signed in as info@checkon.ca: Apps > Google Workspace > Gmail > Authenticate email > Generate new record (2048-bit, prefix `google`). Add the `TXT` record it shows in Wix, wait for it to resolve, then click Start authentication.
+1. **DKIM.** The record is in Wix and resolves. In Google Admin, signed in as info@checkon.ca: Apps > Google Workspace > Gmail > Authenticate email, then click Start authentication. If you ever generate a new key there, replace the `TXT` value in Wix to match.
 2. **2-Step Verification** for info@checkon.ca (myaccount.google.com > Security). Gmail only gives app passwords once it is on.
 3. **App password** for info@checkon.ca (myaccount.google.com > Security > App passwords, name it `checkon-contact-form`). Store it with the `posting-checker-smtp-password` command in [First deploy](#first-deploy) step 4. Don't paste it anywhere else.
 4. **Tighten DMARC** once a few weeks of reports show only Google sending for checkon.ca: change `p=none` to `p=quarantine`.

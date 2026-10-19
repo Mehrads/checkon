@@ -24,6 +24,8 @@ jobs:
 
   deploy:
     needs: test
+    # Skipped until GCP is set up (infra/README.md, step 6), so pushes before then only run the tests.
+    if: vars.GCP_PROJECT_ID != ''
     runs-on: ubuntu-latest
     environment: production
     permissions:
