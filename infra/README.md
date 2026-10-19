@@ -14,7 +14,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
 
 - **A GCP project on your personal account**, with billing on. Keep the work account and work organisation out of it (PRD §10, employment contract).
 - **A private GitHub repository** for this code, on your personal account.
-- **The checkon.ca domain** at your registrar, and the **info@checkon.ca mailbox** with its SMTP details.
+- **The checkon.ca domain** at Wix, and the **info@checkon.ca** Google Workspace mailbox (see [Email and DNS](#email-and-dns)).
 - **A Cloudflare Turnstile site** for checkon.ca: you need its site key and secret key.
 - **A personal Anthropic API key**, on terms with no training on inputs (Technical Design §7).
 - `gcloud` and `terraform` installed.
@@ -55,10 +55,10 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-TURNSTILE-SECRET" | gcloud secrets versions add posting-checker-turnstile-secret-key --data-file=-
    ```
 
-   For contact-form emails, also add your SMTP password (for Gmail, an app password) and set `contact_email` and the `smtp_*` values in `terraform.tfvars`. Without them, messages are still saved in the `contact_message` table.
+   For contact-form emails, also add the app password for info@checkon.ca ([Email and DNS](#email-and-dns), step 3). `terraform.tfvars.example` already has the Gmail SMTP settings. Without the password, messages are still saved in the `contact_message` table.
 
    ```bash
-   printf %s "YOUR-SMTP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
+   printf %s "YOUR-APP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
    ```
 
 5. Point checkon.ca at the service. Cloud Run's built-in domain mapping isn't offered in every region, so check whether `northamerica-northeast2` has it:
@@ -67,7 +67,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    gcloud beta run domain-mappings create --service posting-checker --domain checkon.ca --region northamerica-northeast2
    ```
 
-   If the region doesn't support it, put a global HTTPS load balancer with a serverless network endpoint group in front instead (about $19 a month, the load balancer line in Technical Design §13). Either way, add the DNS records Google shows you at your registrar. Then set `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply again; the app uses it for the origin check.
+   If the region doesn't support it, put a global HTTPS load balancer with a serverless network endpoint group in front instead (about $19 a month, the load balancer line in Technical Design §13). Either way, add the DNS records Google shows you in Wix: replace the three Wix `A` records on `checkon.ca` and the `www` `CNAME` (they point at Wix's parking page). Leave the `MX` and `TXT` records alone; they carry the email. Then set `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply again; the app uses it for the origin check.
 
    ```bash
    terraform apply
@@ -89,6 +89,28 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
 7. Push to `main`. The Deploy workflow tests, builds the image, runs the migrations as a Cloud Run job, then deploys.
 
 8. Smoke-test the live site: run one real check, then a second one to see the weekly limit. In the Cloud Run logs, confirm requests show real visitor IPs. If they all show one Google address, adjust `TRUSTED_PROXY_HOPS`.
+
+## Email and DNS
+
+checkon.ca is registered at Wix (Domains > checkon.ca > Manage DNS Records). The mailboxes are Google Workspace Starter, bought through Wix.
+
+| Record | State |
+| --- | --- |
+| `MX` to Google, SPF `TXT` (`include:_spf.google.com`), Google site verification `TXT` | In place |
+| DMARC: `TXT` on `_dmarc.checkon.ca`, `v=DMARC1; p=none; rua=mailto:info@checkon.ca` | Added 2026-10-19. Monitor-only: nothing is blocked, daily reports go to info@checkon.ca |
+| DKIM: `TXT` on `google._domainkey.checkon.ca` | Missing, step 1 below |
+| Website: `A` on `checkon.ca`, `CNAME` on `www` | Still Wix parking, replaced in [First deploy](#first-deploy) step 5 |
+
+1. **DKIM.** In Google Admin, signed in as info@checkon.ca: Apps > Google Workspace > Gmail > Authenticate email > Generate new record (2048-bit, prefix `google`). Add the `TXT` record it shows in Wix, wait for it to resolve, then click Start authentication.
+2. **2-Step Verification** for info@checkon.ca (myaccount.google.com > Security). Gmail only gives app passwords once it is on.
+3. **App password** for info@checkon.ca (myaccount.google.com > Security > App passwords, name it `checkon-contact-form`). Store it with the `posting-checker-smtp-password` command in [First deploy](#first-deploy) step 4. Don't paste it anywhere else.
+4. **Tighten DMARC** once a few weeks of reports show only Google sending for checkon.ca: change `p=none` to `p=quarantine`.
+
+Check any record from a terminal. This asks Google's public DNS over HTTPS, so a local resolver can't hide the answer (plain `dig` on this Mac returned empty answers for records that exist):
+
+```bash
+curl -s "https://dns.google/resolve?name=_dmarc.checkon.ca&type=TXT"
+```
 
 ## Before launch (v1 "done when")
 

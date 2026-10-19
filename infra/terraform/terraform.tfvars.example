@@ -4,11 +4,12 @@ github_repository     = "your-github-user/your-repo"
 first_superuser_email = "you@example.com"
 
 # Contact form notices: where messages go, and the mailbox that sends them.
-# smtp_host is your email provider's SMTP server for info@checkon.ca.
+# info@checkon.ca is a Google Workspace mailbox; the password is an app password in Secret Manager
+# (infra/README.md, step 4). smtp_port defaults to 587 with STARTTLS, which is what Gmail expects.
 contact_email = "info@checkon.ca"
 emails_from   = "info@checkon.ca"
 smtp_user     = "info@checkon.ca"
-# smtp_host   = "smtp.your-email-provider.example"
+smtp_host     = "smtp.gmail.com"
 
 # Leave empty for the first apply; once checkon.ca points at the service (infra/README.md, step 5),
 # set it and apply again.
