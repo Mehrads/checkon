@@ -67,8 +67,14 @@ export function ResearchQuestionCard({
 const EMPTY = { hr_system: "", postings_per_month: "", wants: "", email: "" }
 
 /** "Want this to run automatically on your HR system?" opens a short request form. */
-export function RequestForm({ checkId }: { checkId: string }) {
-  const [open, setOpen] = useState(false)
+export function RequestForm({
+  checkId,
+  startOpen = false,
+}: {
+  checkId?: string
+  startOpen?: boolean
+}) {
+  const [open, setOpen] = useState(startOpen)
   const [form, setForm] = useState(EMPTY)
   const send = useMutation({
     mutationFn: (body: CustomRequestIn) =>
