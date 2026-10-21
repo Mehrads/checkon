@@ -1,0 +1,5 @@
+/* The website's theme and components, so the side panel looks like checkon.ca. */
+@import "../../frontend/src/index.css";
+
+@source "../../frontend/src/components";
+@source "./";

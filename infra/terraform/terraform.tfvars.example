@@ -16,3 +16,6 @@ domain     = ""
 public_url = ""
 # domain     = "checkon.ca"
 # public_url = "https://checkon.ca"
+
+# Browser extension IDs allowed to call the free check (extension/README.md).
+# extension_ids = ["lfepfedddcabkigmmhbhacdllgljpdbe"]

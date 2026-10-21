@@ -111,6 +111,10 @@ GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token --account=YOUR-PERSO
 
 To restore an earlier state, list the versions with `gcloud storage ls -a gs://compliance-512120-tfstate/posting-checker/`, then copy the one you want over `default.tfstate`.
 
+## Browser extension
+
+The free check also runs in a Chrome and Edge side panel (`extension/`). The API only accepts extensions listed in `extension_ids` in `terraform.tfvars`: the unpacked build's fixed ID (`lfepfedddcabkigmmhbhacdllgljpdbe`), then the Chrome Web Store and Edge IDs once the listings exist. Add an ID and run `terraform apply`; it updates the service's `EXTENSION_IDS` setting in place. Building, loading and publishing are in `extension/README.md`.
+
 ## Email and DNS
 
 checkon.ca is registered at Wix (Domains > checkon.ca > Manage DNS Records). The mailboxes are Google Workspace Starter, bought through Wix.

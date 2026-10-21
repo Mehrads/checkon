@@ -1,0 +1,15 @@
+{
+  "name": "extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "build:unpacked": "tsc -p tsconfig.json && vite build --mode unpacked",
+    "package": "bun run build && rm -f checkon-extension.zip && cd dist && zip -qr ../checkon-extension.zip .",
+    "lint": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true ./"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.1.40"
+  }
+}

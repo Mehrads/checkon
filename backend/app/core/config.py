@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     # Proxies in front of the app that append to X-Forwarded-For (Cloud Run: 1). The client IP is
     # read that many entries from the right, so a client can't spoof it by sending its own header.
     TRUSTED_PROXY_HOPS: int = 0
+    # Browser extensions allowed to call the free check, by ID, comma-separated (extension/README.md).
+    EXTENSION_IDS: str = ""
     DATABASE_URL: PostgresDsn
 
     @field_validator("DATABASE_URL", mode="before")

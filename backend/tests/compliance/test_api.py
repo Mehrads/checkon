@@ -227,6 +227,21 @@ def test_other_sites_cannot_call_the_api(client: TestClient, llm: FakeLLM) -> No
     assert response.json()["detail"]["reason"] == "origin"
 
 
+def test_only_allowed_extensions_can_call_the_api(
+    client: TestClient, llm: FakeLLM, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "EXTENSION_IDS", "lfepfedddcabkigmmhbhacdllgljpdbe, other")
+    allowed = client.post(f"{API}/refine", json={"check_id": "nope"}, headers={"Origin": "chrome-extension://lfepfedddcabkigmmhbhacdllgljpdbe"})
+    assert allowed.status_code == 404  # past the origin check
+    edge = client.post(f"{API}/refine", json={"check_id": "nope"}, headers={"Origin": "extension://other"})
+    assert edge.status_code == 404
+    stranger = client.post(f"{API}/refine", json={"check_id": "nope"}, headers={"Origin": "chrome-extension://someoneelse"})
+    assert stranger.status_code == 403
+    assert stranger.json()["detail"]["reason"] == "origin"
+
+
 def test_client_ip_reads_the_proxy_hop_not_the_client_supplied_header(monkeypatch: pytest.MonkeyPatch) -> None:
     from starlette.requests import Request
 

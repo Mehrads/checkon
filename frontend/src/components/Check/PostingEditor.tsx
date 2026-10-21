@@ -123,9 +123,17 @@ async function copyToClipboard(html: string, text: string, rich: boolean) {
 }
 
 /** The updated posting as a document: edit and format it, then copy it into your ATS or careers page. */
-export function PostingEditor({ final }: { final: FinalOut }) {
+export function PostingEditor({
+  final,
+  onInsert,
+}: {
+  final: FinalOut
+  /** The browser extension: write the edited posting back into the page's job form. */
+  onInsert?: (html: string, text: string) => Promise<boolean>
+}) {
   const initial = useMemo(() => textToHtml(final.text), [final.text])
   const [copied, setCopied] = useState<"rich" | "plain" | null>(null)
+  const [inserted, setInserted] = useState<boolean | null>(null)
   const editor = useEditor(
     {
       extensions: [
@@ -168,6 +176,16 @@ export function PostingEditor({ final }: { final: FinalOut }) {
     track("copy", { format: rich ? "formatted" : "plain" })
   }
 
+  const insert = async () => {
+    if (!editor || !onInsert) return
+    const ok = await onInsert(
+      editor.getHTML(),
+      docToPlainText(editor.getJSON()),
+    ).catch(() => false)
+    setInserted(ok)
+    if (ok) setTimeout(() => setInserted(null), 2000)
+  }
+
   return (
     <section
       aria-labelledby="updated-posting"
@@ -186,7 +204,17 @@ export function PostingEditor({ final }: { final: FinalOut }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => copy(true)} disabled={!editor}>
+          {onInsert && (
+            <Button onClick={insert} disabled={!editor}>
+              {inserted ? <Check /> : null}
+              {inserted ? "Inserted" : "Insert into page"}
+            </Button>
+          )}
+          <Button
+            variant={onInsert ? "outline" : "default"}
+            onClick={() => copy(true)}
+            disabled={!editor}
+          >
             {copied === "rich" ? <Check /> : <Copy />}
             {copied === "rich" ? "Copied" : "Copy formatted"}
           </Button>
@@ -198,6 +226,12 @@ export function PostingEditor({ final }: { final: FinalOut }) {
             {copied === "plain" ? "Copied" : "Copy plain text"}
           </Button>
         </div>
+        {inserted === false && (
+          <p className="w-full text-sm text-destructive">
+            We couldn't write into that field. Use Copy formatted and paste it
+            instead.
+          </p>
+        )}
       </header>
 
       <div

@@ -20,6 +20,12 @@ variable "public_url" {
   default     = ""
 }
 
+variable "extension_ids" {
+  description = "Browser extension IDs allowed to call the free check: the unpacked build's fixed ID, then the Chrome Web Store and Edge IDs (extension/README.md)."
+  type        = list(string)
+  default     = []
+}
+
 variable "domain" {
   description = "Public domain, for example checkon.ca. Setting it adds the load balancer in lb.tf (infra/README.md, step 5)."
   type        = string

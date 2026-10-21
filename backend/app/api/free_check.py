@@ -59,6 +59,11 @@ def same_origin(request: Request) -> None:
     # Compare hosts, not schemes: behind Cloud Run the app itself sees plain HTTP.
     if urlsplit(origin).netloc in {urlsplit(settings.FRONTEND_HOST).netloc, request.headers.get("host")}:
         return
+    # Our browser extension's side panel, by extension ID.
+    parts = urlsplit(origin)
+    allowed = {item.strip() for item in settings.EXTENSION_IDS.split(",") if item.strip()}
+    if parts.scheme in ("chrome-extension", "extension") and parts.netloc in allowed:
+        return
     raise refused(403, "origin", "Requests must come from the checker's own page.")
 
 

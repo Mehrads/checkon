@@ -56,7 +56,6 @@ It is also the research instrument from the Research guide: every result asks on
 | Application form checks | Phase 3, with accounts |
 | Accounts, company profile, history, overrides, edit-and-recheck of a patch | Phase 3 |
 | Pay suggestions | Phase 3 |
-| Browser extension | Phase 3 |
 | Archive, BambooHR, 45-day reminders | Phase 4 and later |
 | French and bilingual postings | Later, by demand |
 | Jev decision-model cascade | Only if measured cost needs it |
@@ -76,6 +75,8 @@ It is also the research instrument from the Research guide: every result asks on
 | One-posting check | Separate decision-model call (Tech §11) | A field in the extraction output; non-postings and multiple postings are refused before refine | One call instead of two |
 | Applicability, headcount | Company profile, asked once (PRD §4) | Web search on the employer named in the posting; never asked; assumed to apply when nothing is found | Your call: no question on the form. Search figures are worldwide, rarely Ontario-only, so verdicts rest on an estimate |
 | Rule-source monitoring | Weekly automated job (Tech §10) | Manual weekly check | The automated diff can follow; the rule pack is versioned either way |
+| Browser extension | Phase 3, paid plans, sign-up required (PRD §5, §9) | Free, now: a Chrome and Edge side panel with the same access as the web check (one check a week per browser and IP, no sign-up). It reads the posting from the page and writes the approved text back. Closed source and a thin client: rules, prompts and rule data stay on the server | Your call (2026-10-21): checks wherever postings are written, without waiting for accounts |
+| Native integrations | Standard connectors and setup packages (PRD §5, §8) | Custom work per client only: a connector to that client's HR system, built on our API, quoted as Custom setup | Your call (2026-10-21): build connectors only when a paying client needs one |
 
 ## 5. Build order
 

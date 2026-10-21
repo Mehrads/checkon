@@ -14,6 +14,7 @@ locals {
     FREE_CHECKS_PER_WEEK           = tostring(var.free_checks_per_week)
     FREE_CHECK_DAILY_SPEND_CAP_USD = var.free_check_daily_spend_cap_usd
     CONTACT_EMAIL                  = var.contact_email
+    EXTENSION_IDS                  = join(",", var.extension_ids)
     SMTP_HOST                      = var.smtp_host
     SMTP_PORT                      = tostring(var.smtp_port)
     SMTP_USER                      = var.smtp_user

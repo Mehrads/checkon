@@ -227,8 +227,8 @@ export function ForTeams() {
           the right facts.
         </Tile>
         <Tile icon={Plug} title="Runs in your HR system">
-          A browser extension for any job form, and connections to HR systems,
-          starting with BambooHR.
+          A free browser extension for any job form, and a connection to your
+          own HR system, built for your setup.
         </Tile>
         <Tile icon={Archive} title="Proof for your clients">
           A dated record of every approved posting.
@@ -265,6 +265,7 @@ const PLANS: Plan[] = [
       "No sign-up",
       "Compliant rewrite you approve",
       "Edit and copy the result",
+      "Browser extension, coming soon",
     ],
     cta: { label: "Check a posting" },
     highlight: true,
@@ -277,7 +278,7 @@ const PLANS: Plan[] = [
     features: [
       "50 checks a month",
       "Company profile and history",
-      "Browser extension",
+      "Pay range suggestions",
     ],
     cta: { label: "Contact us", interest: "starter" },
   },

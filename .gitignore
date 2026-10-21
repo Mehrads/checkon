@@ -43,3 +43,6 @@ infra/terraform/.terraform/
 *.tfstate
 *.tfstate.*
 infra/terraform/terraform.tfvars
+
+# Browser extension package (built with `bun run --filter extension package`)
+extension/checkon-extension.zip
