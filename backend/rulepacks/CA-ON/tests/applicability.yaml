@@ -1,4 +1,5 @@
 # ON-APPL-01 and ON-APPL-02. The first and fourth cases are from the Layer 1 table in Technical Design §8.
+# The threshold is "fewer than 25" (O. Reg. 476/24, s. 1), so 25 employees are covered.
 cases:
   - name: fewer than 25 employees
     context: {headcount: 18}
@@ -11,8 +12,16 @@ cases:
       ON-CEX-01: not_applicable
       status: not_applicable
 
+  - name: 24 employees
+    context: {headcount: 24}
+    expect: {ON-APPL-01: not_applicable, status: not_applicable}
+
   - name: exactly 25 employees
     context: {headcount: 25}
+    expect: {ON-APPL-01: pass, status: compliant}
+
+  - name: 26 employees
+    context: {headcount: 26}
     expect: {ON-APPL-01: pass, status: compliant}
 
   - name: headcount unknown
@@ -30,6 +39,22 @@ cases:
       ON-CEX-01: not_applicable
       status: not_applicable
 
+  - name: general recruitment campaign, "we are always looking for talent"
+    facts: {specific_position: false, vacancy_statement: {present: false}}
+    expect: {ON-APPL-02: not_applicable, ON-VAC-01: not_applicable, status: not_applicable}
+
+  - name: talent pool for a specific role is a public posting with no existing vacancy
+    facts:
+      specific_position: true
+      vacancy_statement: {present: true, polarity: not_existing, span: [200, 240]}
+    expect: {ON-APPL-02: pass, ON-VAC-01: pass, status: compliant}
+
+  - name: talent pool for a specific role that doesn't say there is no vacancy
+    facts:
+      specific_position: true
+      vacancy_statement: {present: false}
+    expect: {ON-APPL-02: pass, ON-VAC-01: fail, status: not_compliant}
+
   - name: internal posting
     facts: {internal_only: true}
     expect: {ON-APPL-02: not_applicable, status: not_applicable}
@@ -42,6 +67,19 @@ cases:
   - name: work outside Ontario
     facts: {work_in_ontario: false}
     expect: {ON-APPL-02: not_applicable, status: not_applicable}
+
+  - name: hybrid role based in Ontario
+    facts: {work_in_ontario: true}
+    expect: {ON-APPL-02: pass, status: compliant}
+
+  - name: remote role with no Ontario location named
+    facts: {work_in_ontario: null}
+    expect: {ON-APPL-02: needs_input, status: needs_input}
+
+  - name: remote role the employer places in Ontario
+    facts: {work_in_ontario: null}
+    context: {work_in_ontario: true}
+    expect: {ON-APPL-02: pass, status: compliant}
 
   - name: exclusion wins over an unknown fact
     facts: {internal_only: true, work_in_ontario: null}
@@ -63,6 +101,10 @@ cases:
   - name: posted before the rules took effect
     posting_date: 2025-12-31
     expect: {status: not_applicable}
+
+  - name: posted on the day the rules took effect
+    posting_date: 2026-01-01
+    expect: {status: compliant}
 
   - name: size found by search, rules apply
     context: {meets_headcount_threshold: true, headcount_basis: search, headcount_evidence: "Acme: about 2,000 employees worldwide (acme.com)"}

@@ -22,4 +22,4 @@ When a sentence doesn't plainly say whether a vacancy exists now, label it vague
 
 {{ON-AI-01}}
 
-Label uses_ai only when the sentence says AI or automated tools are used on applicants.
+Label uses_ai only when the sentence says that artificial intelligence (AI, machine learning or a similar system) is used on applicants. A sentence that mentions only an automated system, software or an applicant tracking system, without saying it uses AI, is none: it does not disclose artificial intelligence.

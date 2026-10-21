@@ -1,12 +1,14 @@
 # Ontario job posting rules (Technical Design §2 and §6).
-# Sources: Employment Standards Act, 2000, Part III.1 (job postings) and O. Reg. 476/24.
-# Section numbers are not filled in yet: verify each one on e-Laws before release.
+# Sources: Employment Standards Act, 2000, Part III.1 (ss. 8.1–8.7) and s. 15 (7.1), (7.1.1); O. Reg. 476/24;
+# the Ministry of Labour's guide chapter "Requirements related to publicly advertised job postings".
+# Section numbers were checked against e-Laws on 2026-10-21 (ESA consolidated to October 16, 2026, last amendment
+# 2025, c. 13, Sched. 2; O. Reg. 476/24 unamended). See docs/law-review-2026-10.md.
 # Rules with interpretation: true need an employment lawyer's sign-off (reviewed_by, reviewed_on).
 # effective_to is the last day a rule is in force; null means it is still in force.
 # Messages and questions are str.format templates. Numbers render as 50,000, so write the $ in the text.
 
 jurisdiction: CA-ON
-version: 1.0.0
+version: 1.1.0
 
 # Shared by every rule; a rule's own params override these.
 params:
@@ -19,11 +21,11 @@ messages:
 
 rules:
   - id: ON-APPL-01
-    version: 1.0.0
+    version: 1.1.0
     kind: applicability
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1; O. Reg. 476/24: employers with fewer than 25 employees"
+    citation: "O. Reg. 476/24, s. 1: Part III.1 of the ESA does not apply to an employer that employs fewer than 25 employees on the day the posting is posted"
     source_url: https://www.ontario.ca/laws/regulation/240476
     check: employer_size
     params:
@@ -40,15 +42,15 @@ rules:
       assumed_pass: "We couldn't confirm the employer's size, so we assume it has {min_employees} or more employees in Ontario and the job posting rules apply."
       assumed_not_applicable: "We couldn't confirm the employer's size."
     questions:
-      meets_headcount_threshold: "Does your company have {min_employees} or more employees in Ontario?"
+      meets_headcount_threshold: "Does your company have {min_employees} or more employees in Ontario on the day the job is posted? Count every employee, including part-time and casual staff and anyone on leave."
     tests: [tests/applicability.yaml]
 
   - id: ON-APPL-02
-    version: 1.0.0
+    version: 1.1.0
     kind: applicability
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1; O. Reg. 476/24: publicly advertised job postings and their exclusions"
+    citation: "O. Reg. 476/24, s. 2 (1): a publicly advertised job posting is an external posting advertised to the general public, excluding a general recruitment campaign or help wanted sign with no specific position, a posting restricted to existing employees, and work performed outside Ontario"
     source_url: https://www.ontario.ca/laws/regulation/240476
     check: public_posting
     params: {}
@@ -68,23 +70,23 @@ rules:
     tests: [tests/applicability.yaml]
 
   - id: ON-PAY-01
-    version: 1.0.0
+    version: 1.1.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: expected compensation or range of expected compensation; O. Reg. 476/24: exemption above $200,000"
-    source_url: https://www.ontario.ca/laws/regulation/240476
+    citation: "ESA 2000, s. 8.2 (1): include the expected compensation or the range of expected compensation; O. Reg. 476/24, s. 2 (2): compensation means wages; s. 3: not required above $200,000 a year"
+    source_url: https://www.ontario.ca/laws/statute/00e41
     check: pay_disclosed
     params:
-      commission_only_verdict: warning
-    interpretation: true  # commission-only roles
+      commission_only_verdict: pass  # commission is wages (ESA 2000, s. 1 (1)); the lawyer may still prefer a warning
+    interpretation: true  # commission stated without a figure; pay packages with several parts
     reviewed_by: null
     fix: {type: insert_or_replace, writer: template, guidance: "Add the expected pay or a pay range for this job."}
     messages:
       pass: "The posting includes the expected pay."
       fail: "The posting doesn't include the expected pay or a pay range."
-      no_wages: "The posting mentions bonus, equity or benefits but not wages. Expected pay means wages."
-      commission_only: "The posting gives commission only. Whether that counts as expected pay is not settled; adding a base or expected earnings range is safer."
+      no_wages: "The posting mentions bonus, equity or benefits but not wages. Expected compensation means wages: a salary, an hourly rate, commission or a bonus tied to hours, production or efficiency."
+      commission_only: "The posting gives the expected commission. Commission counts as wages, so this is expected pay."
       exempt: "Pay disclosure isn't required: the expected pay is above ${exemption_threshold_annual} a year."
       parsers_disagree: "We couldn't read the pay reliably."
       placeholder: "The posting has a placeholder for pay. Add the expected pay or pay range before publishing."
@@ -94,11 +96,11 @@ rules:
     tests: [tests/pay.yaml]
 
   - id: ON-PAY-02
-    version: 1.0.0
+    version: 1.1.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
-    citation: "O. Reg. 476/24: limit on the range of expected compensation"
+    citation: "ESA 2000, s. 8.2 (3); O. Reg. 476/24, s. 4: a range of expected compensation shall not exceed an amount equivalent to $50,000 a year; s. 3: not required above $200,000 a year"
     source_url: https://www.ontario.ca/laws/regulation/240476
     check: pay_range_width
     params:
@@ -115,7 +117,7 @@ rules:
       fail: "The pay range is ${width} a year wide; the limit is ${max_annual_width}."
       open_ended: "Open-ended pay ({reading}) is not a range. Give both a minimum and a maximum."
       hours_unknown: "At {default_hours_per_week} hours a week, this hourly range is ${width} a year wide, close to the ${max_annual_width} limit. The answer depends on the hours."
-      confirm_exemption: "The pay range is ${width} a year wide, over the ${max_annual_width} limit, unless the expected pay is above ${exemption_threshold_annual} a year."
+      confirm_exemption: "At {default_hours_per_week} hours a week, this hourly range is ${width} a year wide, over the ${max_annual_width} limit, unless the expected pay is above ${exemption_threshold_annual} a year."
       parsers_disagree: "We couldn't read the pay range reliably."
     questions:
       hours_per_week: "How many hours a week does this job involve?"
@@ -124,12 +126,12 @@ rules:
     tests: [tests/pay.yaml]
 
   - id: ON-VAC-01
-    version: 1.0.0
+    version: 1.1.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: statement on whether the posting is for an existing vacancy"
-    source_url: https://www.ontario.ca/laws/regulation/240476
+    citation: "ESA 2000, s. 8.5 (1) (a): include a statement disclosing whether the posting is for an existing vacancy or not"
+    source_url: https://www.ontario.ca/laws/statute/00e41
     check: vacancy_statement
     params: {}
     interpretation: true  # a vague statement is a warning
@@ -140,26 +142,27 @@ rules:
       fail: "The posting doesn't say whether it is for an existing vacancy."
       vague: "The vacancy statement is vague. Say plainly whether the job is an existing vacancy."
     questions:
-      existing_vacancy: "Is this posting for an existing vacancy?"
+      existing_vacancy: "Is this posting for an existing vacancy, that is, a position that is imminently available for a qualified candidate to fill?"
     # Classifier labels: existing, not_existing, vague, none (not a vacancy statement).
     examples:
       - {text: "This posting is for an existing vacancy.", label: existing, reason: "States the job is an existing vacancy."}
       - {text: "This role is currently open.", label: existing, reason: "Says the position is open now."}
       - {text: "We are building a talent pool for future openings; this posting is not for an existing vacancy.", label: not_existing, reason: "States there is no existing vacancy."}
       - {text: "We may hire for this role in the future.", label: vague, reason: "Doesn't say whether a vacancy exists now."}
+      - {text: "We accept applications for this role on an ongoing basis.", label: vague, reason: "Doesn't say whether a vacancy exists now."}
       - {text: "Apply by November 30.", label: none, reason: "A deadline, not a vacancy statement."}
     tests: [tests/vacancy.yaml]
 
   - id: ON-AI-01
-    version: 1.0.0
+    version: 1.1.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: disclosure of artificial intelligence used to screen, assess or select applicants; O. Reg. 476/24: definition of artificial intelligence"
-    source_url: https://www.ontario.ca/laws/regulation/240476
+    citation: "ESA 2000, s. 8.4 (1): an employer who uses artificial intelligence to screen, assess or select applicants must include a statement disclosing it; O. Reg. 476/24, s. 2 (1): definition of artificial intelligence"
+    source_url: https://www.ontario.ca/laws/statute/00e41
     check: ai_disclosure
     params: {}
-    interpretation: true  # rule-only knockout questions
+    interpretation: true  # rule-only knockout questions; what counts as a disclosure
     reviewed_by: null
     fix: {type: insert, writer: wording_library, guidance: "Say in the posting that you use AI to screen, assess or select applicants, or remove the statement if you don't."}
     messages:
@@ -170,26 +173,30 @@ rules:
       inaccurate: "The posting says AI is used, but you told us it isn't. Remove the statement or check your hiring tools."
       needs_input: "Whether the posting needs an AI disclosure depends on your hiring tools."
     questions:
-      uses_ai_in_hiring: "Do you use AI to screen, assess or select applicants for this job? This includes ATS auto-ranking, resume scoring and chat screening."
+      uses_ai_in_hiring: "Do you, or a recruiter acting for you, use AI to screen, assess or select applicants for this job? This includes ATS auto-ranking, resume scoring and chat screening."
     # Classifier labels: uses_ai, no_ai, none (not about AI in hiring).
     examples:
       - {text: "We use AI tools to screen applications.", label: uses_ai, reason: "Discloses AI used to screen applicants."}
       - {text: "Applications are ranked with the help of artificial intelligence.", label: uses_ai, reason: "Discloses AI used to assess applicants."}
+      - {text: "Screening is AI-assisted.", label: uses_ai, reason: "Says AI is used on applicants."}
+      - {text: "We use machine learning to shortlist candidates.", label: uses_ai, reason: "Machine learning is an artificial intelligence system."}
       - {text: "We do not use AI to screen, assess or select applicants.", label: no_ai, reason: "States AI is not used in hiring."}
+      - {text: "Applications are first screened by an automated system.", label: none, reason: "Says automated, not artificial intelligence; it doesn't disclose AI."}
+      - {text: "Our applicant tracking system sorts applications automatically.", label: none, reason: "Software that doesn't say it uses AI is not an AI disclosure."}
       - {text: "Experience with AI tools such as ChatGPT is an asset.", label: none, reason: "A job skill, not how applicants are screened."}
       - {text: "Our product uses machine learning to forecast demand.", label: none, reason: "About the product, not hiring."}
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
-    version: 1.0.0
+    version: 1.1.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: no requirement related to Canadian experience in a publicly advertised job posting or its application form"
-    source_url: https://www.ontario.ca/laws/regulation/240476
+    citation: "ESA 2000, s. 8.3 (1): no requirements related to Canadian experience in a publicly advertised job posting or any associated application form"
+    source_url: https://www.ontario.ca/laws/statute/00e41
     check: canadian_experience
     params: {}
-    interpretation: true  # "Ontario experience" and similar wording are borderline
+    interpretation: true  # "Ontario experience", "preferred" and knowledge-of-Canadian-rules wording are borderline
     reviewed_by: null
     fix: {type: replace_span, writer: llm, guidance: "Ask for the skill, knowledge or licence itself, and remove any condition on where experience was gained."}
     messages:
@@ -198,38 +205,43 @@ rules:
       warning: "Some wording may read as a Canadian experience requirement. Consider rewording it."
     questions: {}
     # Classifier labels: violation, borderline, ok. Borderline examples are interpretation (Technical Design §2).
+    # The Ministry's guide lists work experience, education credentials and an established professional network
+    # or client base as Canadian experience, and excludes professional licensing or registration requirements.
     examples:
       - {text: "3 years of Canadian accounting experience", label: violation, reason: "Requires experience gained in Canada."}
       - {text: "Must have worked in Canada", label: violation, reason: "A rephrased Canadian experience requirement."}
       - {text: "Local work experience required", label: violation, reason: "'Local' restates a Canadian experience requirement."}
       - {text: "Familiarity with the Canadian workplace", label: violation, reason: "A coded substitute for Canadian experience."}
+      - {text: "Bachelor's degree from a Canadian university", label: violation, reason: "A Canadian education credential; the guide counts education credentials as Canadian experience."}
+      - {text: "An established network of clients in Canada", label: violation, reason: "The guide counts an established Canadian professional network or client base as Canadian experience."}
       - {text: "Ontario payroll experience is an asset", label: borderline, reason: "Experience tied to Ontario; our reading treats it as borderline."}
       - {text: "Knowledge of Canadian tax regulations", label: borderline, reason: "Knowledge of Canadian rules, which may be read as Canadian experience."}
       - {text: "P.Eng. licence required", label: ok, reason: "A licence, not experience."}
       - {text: "CPA designation", label: ok, reason: "A certification, not experience."}
+      - {text: "Registered with the College of Nurses of Ontario", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
       - {text: "Legally eligible to work in Canada", label: ok, reason: "Work authorization, not experience."}
       - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
     tests: [tests/cex.yaml]
 
   # Process rules: not checked from posting text (reminder and archive services, later phases).
   - id: ON-INT-01
-    version: 1.0.0
+    version: 1.1.0
     kind: process
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: tell each interviewed applicant within 45 days of their last interview whether a hiring decision has been made"
+    citation: "ESA 2000, s. 8.6; O. Reg. 476/24, s. 5: within 45 days after the interview (or the last interview), tell each interviewed applicant whether a hiring decision has been made, in person, in writing or using technology"
     source_url: https://www.ontario.ca/laws/regulation/240476
     check: null
     interpretation: false
     reviewed_by: null
 
   - id: ON-REC-01
-    version: 1.0.0
+    version: 1.1.0
     kind: process
     effective_from: 2026-01-01
     effective_to: null
-    citation: "ESA 2000, Part III.1: keep each posting, its application form and the information given to interviewed applicants for 3 years"
-    source_url: https://www.ontario.ca/laws/regulation/240476
+    citation: "ESA 2000, s. 15 (7.1) and (7.1.1): keep a copy of every publicly advertised job posting and any associated application form for three years after public access to the posting is removed, and the information given to each interviewed applicant for three years after it was provided"
+    source_url: https://www.ontario.ca/laws/statute/00e41
     check: null
     interpretation: false
     reviewed_by: null

@@ -1,4 +1,5 @@
-# ON-AI-01.
+# ON-AI-01. ESA 2000, s. 8.4 (1): a disclosure is required only when the employer uses AI on applicants.
+# What counts as a disclosure ("AI-assisted" yes, "automated system" no) is a classifier label, tested live.
 cases:
   - name: uses AI and discloses it
     facts:
@@ -9,6 +10,12 @@ cases:
   - name: uses AI without a disclosure
     context: {uses_ai_in_hiring: true}
     expect: {ON-AI-01: fail, status: not_compliant}
+
+  - name: uses AI, posting mentions only an automated system (labelled none, so no disclosure)
+    facts:
+      ai_disclosure: {present: false}
+    context: {uses_ai_in_hiring: true}
+    expect: {ON-AI-01: fail}
 
   - name: uses AI but the posting says it doesn't
     facts:
@@ -24,6 +31,11 @@ cases:
   - name: no AI and no disclosure
     expect: {ON-AI-01: pass}
 
+  - name: no AI and the posting says so
+    facts:
+      ai_disclosure: {present: true, polarity: no_ai, span: [400, 470]}
+    expect: {ON-AI-01: pass}
+
   - name: AI use unknown and no disclosure
     context: {uses_ai_in_hiring: null}
     expect: {ON-AI-01: needs_input, status: needs_input}
@@ -33,3 +45,9 @@ cases:
       ai_disclosure: {present: true, polarity: uses_ai, span: [400, 470]}
     context: {uses_ai_in_hiring: null}
     expect: {ON-AI-01: pass}
+
+  - name: AI use unknown and the posting says AI isn't used still asks
+    facts:
+      ai_disclosure: {present: true, polarity: no_ai, span: [400, 470]}
+    context: {uses_ai_in_hiring: null}
+    expect: {ON-AI-01: needs_input}

@@ -1,4 +1,4 @@
-# ON-VAC-01.
+# ON-VAC-01. ESA 2000, s. 8.5 (1) (a): a statement disclosing whether the posting is for an existing vacancy or not.
 cases:
   - name: states an existing vacancy
     expect: {ON-VAC-01: pass, status: compliant}
@@ -17,3 +17,9 @@ cases:
     facts:
       vacancy_statement: {present: true, polarity: vague, span: [200, 240]}
     expect: {ON-VAC-01: warning, status: compliant}
+
+  - name: the employer's answer alone does not satisfy the rule; the posting must say it
+    facts:
+      vacancy_statement: {present: false}
+    context: {existing_vacancy: true}
+    expect: {ON-VAC-01: fail}

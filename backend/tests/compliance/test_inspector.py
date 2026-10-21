@@ -263,5 +263,6 @@ def test_classifier_prompt_carries_rule_citations_and_examples() -> None:
     run(llm)
     system = llm.calls_for(Classification)[0].system
     assert "{{" not in system
-    assert "Rule ON-CEX-01: ESA 2000, Part III.1" in system
+    assert "Rule ON-CEX-01: ESA 2000, s. 8.3 (1)" in system
+    assert "it does not disclose artificial intelligence" in system  # the AI task's guidance
     assert '"Legally eligible to work in Canada" -> ok' in system

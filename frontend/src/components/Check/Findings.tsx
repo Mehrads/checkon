@@ -45,6 +45,7 @@ function Finding({
           </span>
         </div>
         <p className="text-sm text-muted-foreground">{result.message}</p>
+        <p className="text-xs text-muted-foreground/80">{result.citation}</p>
         {quotes.map(([start, end]) => (
           <blockquote
             key={`${start}-${end}`}

@@ -116,14 +116,26 @@ def _top_annual(pay: PayMention, ctx: Context, params: dict[str, Any]) -> Decima
     return annualise(top, pay.unit, _hours(ctx, params), params)
 
 
+def _above_threshold(pay: PayMention, ctx: Context, params: dict[str, Any]) -> bool:
+    return _top_annual(pay, ctx, params) > params["exemption_threshold_annual"]
+
+
 def _exempt(wages: list[PayMention], ctx: Context, params: dict[str, Any]) -> bool:
-    """Exempt above the threshold, and only when the employer confirms it (strictly above)."""
-    if ctx.pay_exemption_confirmed is not True:
-        return False
-    if not wages:
-        return True
+    """O. Reg. 476/24, s. 3: expected pay, or the top of the range, equivalent to more than the threshold a year.
+
+    The posted pay shows it on its own when it is stated by the year, month or week, or by the hour with the
+    hours known. Otherwise the employer's answer decides: hourly pay with unknown hours, or no pay in the text.
+    """
     readable = [pay for pay in wages if pay.parsers_agree]
-    return any(_top_annual(pay, ctx, params) > params["exemption_threshold_annual"] for pay in readable)
+    if ctx.pay_exemption_confirmed is False:
+        return False
+    if ctx.pay_exemption_confirmed is True:
+        return not wages or any(_above_threshold(pay, ctx, params) for pay in readable)
+    return any(
+        _above_threshold(pay, ctx, params)
+        for pay in readable
+        if pay.unit != PayUnit.HOUR or ctx.hours_per_week is not None
+    )
 
 
 def _disagreement(pay: PayMention) -> Outcome:
@@ -178,8 +190,8 @@ def _range_width(pay: PayMention, ctx: Context, params: dict[str, Any]) -> Outco
         )
     if width <= cap:
         return Outcome(Verdict.PASS, values=values, evidence=[pay.span])
-    above_threshold = _top_annual(pay, ctx, params) > params["exemption_threshold_annual"]
-    if above_threshold and ctx.pay_exemption_confirmed is None:
+    # Only hourly pay with unknown hours reaches here with a top above the threshold (see _exempt).
+    if _above_threshold(pay, ctx, params) and ctx.pay_exemption_confirmed is None:
         return Outcome(
             Verdict.NEEDS_INPUT,
             key="confirm_exemption",

@@ -10,7 +10,27 @@ PACK_DIR = RULEPACKS_DIR / "CA-ON"
 
 
 def test_pack_label() -> None:
-    assert PACK.label == "CA-ON@1.0.0"
+    assert PACK.label == "CA-ON@1.1.0"
+
+
+def test_every_rule_cites_a_section() -> None:
+    """Citations name the section (law review, docs/law-review-2026-10.md), not just the Part."""
+    for rule in PACK.rules:
+        assert "s. " in rule.citation, f"{rule.id}: {rule.citation}"
+        assert rule.source_url.startswith("https://www.ontario.ca/laws/"), rule.id
+
+
+def test_classifier_examples_use_the_labels_the_classifier_accepts() -> None:
+    from app.compliance.classification import TASKS, AILabel, CexLabel, VacancyLabel
+
+    schemas = {"canadian_experience": CexLabel, "vacancy": VacancyLabel, "ai": AILabel}
+    for task, rule_id in TASKS.items():
+        rule = next(rule for rule in PACK.rules if rule.id == rule_id)
+        allowed = set(schemas[task].model_fields["label"].annotation.__args__)
+        assert rule.examples, rule_id
+        for example in rule.examples:
+            assert example["label"] in allowed, f"{rule_id}: {example}"
+            assert example["text"] and example["reason"], f"{rule_id}: {example}"
 
 
 def test_checked_rules_resolve_to_a_check() -> None:

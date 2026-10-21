@@ -46,14 +46,14 @@ def test_needs_input_carries_the_question() -> None:
     question = result(rep, "ON-AI-01").question
     assert question is not None
     assert question.id == "uses_ai_in_hiring"
-    assert question.text.startswith("Do you use AI to screen, assess or select applicants")
+    assert question.text.startswith("Do you, or a recruiter acting for you, use AI to screen, assess or select applicants")
 
 
 def test_headcount_question_uses_the_threshold_from_the_pack() -> None:
     rep = report(context={"meets_headcount_threshold": None})
     question = result(rep, "ON-APPL-01").question
     assert question is not None
-    assert question.text == "Does your company have 25 or more employees in Ontario?"
+    assert question.text.startswith("Does your company have 25 or more employees in Ontario on the day the job is posted?")
 
 
 def test_hours_question_for_near_cap_hourly_range() -> None:
@@ -98,7 +98,7 @@ def test_gate_reason_is_the_report_message() -> None:
 
 
 def test_report_records_the_rule_pack_version() -> None:
-    assert report().versions == {"rule_pack": "CA-ON@1.0.0"}
+    assert report().versions == {"rule_pack": "CA-ON@1.1.0"}
 
 
 def test_process_rules_are_not_in_the_report() -> None:
