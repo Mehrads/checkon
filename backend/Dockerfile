@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package.json bun.lock /app/
 COPY frontend/package.json /app/frontend/
+# The root package.json lists the extension as a workspace; bun needs its package.json to install.
+COPY extension/package.json /app/extension/
 
 WORKDIR /app/frontend
 
