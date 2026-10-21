@@ -15,7 +15,6 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
 - **A GCP project on your personal account**, with billing on. Keep the work account and work organisation out of it (PRD §10, employment contract).
 - **A private GitHub repository** for this code, on your personal account.
 - **The checkon.ca domain** at Wix, and the **info@checkon.ca** Google Workspace mailbox (see [Email and DNS](#email-and-dns)).
-- **A Cloudflare Turnstile site** for checkon.ca: you need its site key and secret key.
 - **A personal Anthropic API key**, on terms with no training on inputs (Technical Design §7).
 - `gcloud` and `terraform` installed.
 
@@ -45,14 +44,10 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    terraform init && terraform apply
    ```
 
-4. Add the two secrets Terraform doesn't hold. They start as `replace-me`:
+4. Add the Anthropic key, which Terraform doesn't hold. It starts as `replace-me`:
 
    ```bash
    printf %s "YOUR-ANTHROPIC-KEY" | gcloud secrets versions add posting-checker-anthropic-api-key --data-file=-
-   ```
-
-   ```bash
-   printf %s "YOUR-TURNSTILE-SECRET" | gcloud secrets versions add posting-checker-turnstile-secret-key --data-file=-
    ```
 
    For contact-form emails, also add the app password for info@checkon.ca ([Email and DNS](#email-and-dns), step 3). `terraform.tfvars.example` already has the Gmail SMTP settings. Without the password, messages are still saved in the `contact_message` table.
@@ -81,7 +76,6 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    | `GCP_REGION` | `northamerica-northeast2` |
    | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `terraform output -raw workload_identity_provider` |
    | `GCP_DEPLOYER_SERVICE_ACCOUNT` | `terraform output -raw deployer_service_account` |
-   | `TURNSTILE_SITE_KEY` | the site key from Cloudflare |
    | `CONTACT_EMAIL` | `info@checkon.ca` |
 
    Then create an environment named `production`. Add yourself as a required reviewer if you want to approve each deploy.
@@ -117,12 +111,12 @@ curl -s "https://dns.google/resolve?name=_dmarc.checkon.ca&type=TXT"
 - The release gates in Technical Design §8 pass on the English golden set.
 - The lawyer has signed off every rule marked `interpretation` and the wording library. Record it in `backend/rulepacks/CA-ON/rules.yaml` and `wording.yaml` (`reviewed_by`, `reviewed_on`), then update `test_interpretation_rules_are_not_signed_off_yet`.
 - The live API tests pass with your key (`RUN_LIVE_LLM=1`, see `backend/README.md`).
-- Real Turnstile keys are in place; the test keys in `.env.example` and `frontend/.env` are for local work only.
 
 ## Known limits of this setup
 
+- **No CAPTCHA.** Turnstile was dropped on 2026-10-20. A script can use up the day's spend cap, which pauses free checks until midnight Toronto time; add a bot check if the logs show that happening.
 - **One instance, one worker.** Checks in progress and the rate limit live in the app's memory, so Cloud Run is capped at one instance. To scale, move the check store to Postgres first.
-- **The checker refuses everything until both manual secrets are set.** With `replace-me`, Turnstile fails and the model calls fail.
+- **The checker refuses everything until the Anthropic key is set.** With `replace-me`, the model calls fail.
 - **Organisation policies can block public access.** If your project sits in an organisation that forbids `allUsers`, the public invoker binding fails.
 - **Postgres version mismatch.** Cloud SQL runs Postgres 17 by default; local development runs 18. Switch `postgres_version` when Cloud SQL offers 18.
 - **Deletion protection is on** for the database and the service. Turn it off in Terraform before `terraform destroy`.

@@ -26,7 +26,6 @@ locals {
     SECRET_KEY               = google_secret_manager_secret.generated["secret-key"].secret_id
     FIRST_SUPERUSER_PASSWORD = google_secret_manager_secret.generated["first-superuser-password"].secret_id
     ANTHROPIC_API_KEY        = google_secret_manager_secret.manual["anthropic-api-key"].secret_id
-    TURNSTILE_SECRET_KEY     = google_secret_manager_secret.manual["turnstile-secret-key"].secret_id
     SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
   }
 }
@@ -146,7 +145,7 @@ resource "google_secret_manager_secret_version" "generated" {
 }
 
 resource "google_secret_manager_secret" "manual" {
-  for_each  = toset(["anthropic-api-key", "turnstile-secret-key", "smtp-password"])
+  for_each  = toset(["anthropic-api-key", "smtp-password"])
   secret_id = "${local.name}-${each.value}"
   replication {
     user_managed {

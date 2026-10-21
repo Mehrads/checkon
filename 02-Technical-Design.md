@@ -446,7 +446,7 @@ Note: the template's frontend uses TypeScript. Keep it: it is the same React, an
 | Money parsing | price-parser, plus our own range and period grammar | The deterministic second parser (section 4) |
 | Diffs and patch apply | diff-match-patch | Acceptance test 3 |
 | Tracing, cost, evaluation runs, feedback | Langfuse | Self-hosted on GCP (below) |
-| Bot protection | Cloudflare Turnstile | Invisible CAPTCHA for the free check |
+| Bot protection | None in v1 | Turnstile was dropped on 2026-10-20 (04-V1-Scope.md); revisit if abuse shows up in the logs |
 | Device fingerprint | FingerprintJS | Check the licence first |
 
 **What the competitors tell us:** pay-only checking is already available, and US-focused tools have started at about $29/month. Our difference is the full Ontario rule set (vacancy, AI, Canadian experience), application forms, French and bilingual postings, and verified fixes rather than flags.

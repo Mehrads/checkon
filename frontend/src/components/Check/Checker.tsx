@@ -11,7 +11,6 @@ import {
 } from "@/client"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
-import { useTurnstile } from "@/hooks/useTurnstile"
 import { Findings } from "./Findings"
 import { type Choices, defaultChoices, Fixes } from "./Fixes"
 import { PostingEditor } from "./PostingEditor"
@@ -20,9 +19,6 @@ import { ResearchQuestionCard } from "./Research"
 import { Summary } from "./Summary"
 
 const MAX_CHARS = 8000
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
-  | string
-  | undefined
 
 function errorMessage(error: Error): string {
   if (error instanceof AxiosError) {
@@ -43,7 +39,6 @@ export function Checker({ intro }: { intro: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const results = useRef<HTMLDivElement>(null)
   const editor = useRef<HTMLDivElement>(null)
-  const turnstile = useTurnstile(TURNSTILE_SITE_KEY)
 
   const show = (data: CheckOut) => {
     setCheck(data)
@@ -61,17 +56,12 @@ export function Checker({ intro }: { intro: ReactNode }) {
 
   const inspect = useMutation({
     mutationFn: async () =>
-      (
-        await ChecksService.inspectPosting({
-          body: { text, turnstile_token: turnstile.token },
-        })
-      ).data,
+      (await ChecksService.inspectPosting({ body: { text } })).data,
     onMutate: () => {
       setError(null)
       setCheck(null)
       setFinal(null)
     },
-    onSettled: () => turnstile.reset(), // each token is good for one check
     onSuccess: (data) => {
       show(data)
       if (data.report.status !== "not_applicable") refine.mutate(data.check_id)
@@ -115,7 +105,6 @@ export function Checker({ intro }: { intro: ReactNode }) {
   }, [final])
 
   const busy = inspect.isPending || refine.isPending || answer.isPending
-  const waitingForTurnstile = turnstile.enabled && !turnstile.token
 
   return (
     <>
@@ -143,19 +132,12 @@ export function Checker({ intro }: { intro: ReactNode }) {
               <LoadingButton
                 size="lg"
                 loading={inspect.isPending}
-                disabled={!text.trim() || busy || waitingForTurnstile}
+                disabled={!text.trim() || busy}
                 onClick={() => inspect.mutate()}
               >
                 Check my posting <ArrowRight />
               </LoadingButton>
             </div>
-            <div ref={turnstile.ref} />
-            {turnstile.failed && (
-              <p className="mt-2 text-sm text-destructive">
-                We couldn't load the check that confirms you're a person. Reload
-                the page and try again.
-              </p>
-            )}
             <p className="mt-4 flex items-start gap-2 border-t pt-4 text-xs text-muted-foreground">
               <ShieldCheck
                 className="mt-px size-4 shrink-0 text-primary"

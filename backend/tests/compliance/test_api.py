@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_verifier
+from app.api.routes.checks import get_limits, get_llm, get_posting_date
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.compliance.refiner import _Rewrite
@@ -42,31 +42,17 @@ class MemoryLimits:
         self.spent += usd
 
 
-class Turnstile:
-    def __init__(self, passes: bool = True) -> None:
-        self.passes = passes
-
-    def verify(self, token: str | None, ip: str) -> bool:
-        return self.passes
-
-
 @pytest.fixture
 def limits() -> MemoryLimits:
     return MemoryLimits(per_week=100)  # most tests run several checks
 
 
 @pytest.fixture
-def turnstile() -> Turnstile:
-    return Turnstile()
-
-
-@pytest.fixture
-def llm(limits: MemoryLimits, turnstile: Turnstile) -> Generator[FakeLLM]:
+def llm(limits: MemoryLimits) -> Generator[FakeLLM]:
     fake = FakeLLM()
     app.dependency_overrides[get_llm] = lambda: fake
     app.dependency_overrides[get_posting_date] = lambda: date(2026, 10, 19)
     app.dependency_overrides[get_limits] = lambda: limits
-    app.dependency_overrides[get_verifier] = lambda: turnstile
     app.dependency_overrides[rate_limited] = lambda: None
     yield fake
     app.dependency_overrides.clear()
@@ -198,16 +184,6 @@ def test_refused_input_uses_no_credit(client: TestClient, llm: FakeLLM, limits: 
     llm.queue(Extraction, extraction(input_kind="not_a_posting"))
     assert client.post(f"{API}/inspect", json={"text": POSTING}).status_code == 422
     assert limits.uses == []
-
-
-def test_failed_turnstile_is_refused_before_any_model_call(
-    client: TestClient, llm: FakeLLM, turnstile: Turnstile
-) -> None:
-    turnstile.passes = False
-    response = client.post(f"{API}/inspect", json={"text": POSTING, "turnstile_token": "bad"})
-    assert response.status_code == 403
-    assert response.json()["detail"]["reason"] == "verification"
-    assert llm.calls == []
 
 
 def test_daily_spend_cap_pauses_free_checks(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:

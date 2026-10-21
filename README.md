@@ -40,7 +40,7 @@ For frontend work with hot reload, run `bun run dev` in `frontend/` and open htt
 
 ## Free check limits
 
-- **Turnstile:** `.env.example` and `frontend/.env` hold Cloudflare's test keys, which always pass. Set real keys (`TURNSTILE_SECRET_KEY` and `VITE_TURNSTILE_SITE_KEY`) before launch. Outside development, a missing secret key turns the check off.
+- **No CAPTCHA:** v1 has no bot check (decided 2026-10-20). The quota, rate limit and spend cap bound what a script can cost; the worst case is free checks pausing for the rest of the day.
 - **Quota:** `FREE_CHECKS_PER_WEEK` per visitor cookie and per IP, stored in Postgres as HMACs. Rejected inputs don't use a check.
 - **Spend cap:** `FREE_CHECK_DAILY_SPEND_CAP_USD`, measured from the token counts the API reports.
 - **Behind a proxy (Cloud Run):** start the server with `--forwarded-allow-ips` set, or every visitor shares the proxy's IP.

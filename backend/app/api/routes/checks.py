@@ -21,8 +21,6 @@ from app.api.deps import SessionDep
 from app.api.free_check import (
     Limits,
     PostgresLimits,
-    TurnstileVerifier,
-    Verifier,
     client_ip,
     rate_limited,
     refused,
@@ -71,10 +69,6 @@ def get_posting_date() -> date:
     return datetime.now(TORONTO).date()
 
 
-def get_verifier() -> Verifier:
-    return TurnstileVerifier(settings.TURNSTILE_SECRET_KEY, required=settings.FASTAPI_ENV != "development")
-
-
 def get_limits(session: SessionDep, today: Annotated[date, Depends(get_posting_date)]) -> Limits:
     return PostgresLimits(
         session, today, settings.FREE_CHECKS_PER_WEEK, settings.FREE_CHECK_DAILY_SPEND_CAP_USD, settings.SECRET_KEY
@@ -85,7 +79,6 @@ StoreDep = Annotated[CheckStore, Depends(get_store)]
 LLMDep = Annotated[StructuredLLM, Depends(get_llm)]
 PackDep = Annotated[RulePack, Depends(get_pack)]
 DateDep = Annotated[date, Depends(get_posting_date)]
-VerifierDep = Annotated[Verifier, Depends(get_verifier)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
 
 
@@ -93,7 +86,6 @@ class InspectIn(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_POSTING_CHARS)
     # Left empty by the free check, which looks the employer up; set it when the profile knows.
     meets_headcount_threshold: bool | None = None
-    turnstile_token: str | None = Field(default=None, max_length=4096)
 
 
 class CheckIn(BaseModel):
@@ -174,11 +166,9 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, store: StoreDep, llm: LLMDep, pack: PackDep,
-    today: DateDep, verifier: VerifierDep, limits: LimitsDep,
+    today: DateDep, limits: LimitsDep,
 ) -> Any:  # fmt: skip
     ip, cookie = client_ip(request), visitor_cookie(request, response)
-    if not verifier.verify(body.turnstile_token, ip):
-        raise refused(403, "verification", "We couldn't confirm you're a person. Reload the page and try again.")
     if (next_check := limits.next_free_check(cookie, ip)) is not None:
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
         raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")

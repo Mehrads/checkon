@@ -1,5 +1,5 @@
-"""Limits on the free check (04-V1-Scope.md, section 4): Turnstile, a weekly quota per cookie and per IP,
-a per-IP rate limit, an origin check and a daily spend cap. Every limit is enforced on the server.
+"""Limits on the free check (04-V1-Scope.md, section 4): a weekly quota per cookie and per IP, a per-IP
+rate limit, an origin check and a daily spend cap. Every limit is enforced on the server.
 """
 
 import hashlib
@@ -13,7 +13,6 @@ from decimal import Decimal
 from typing import Protocol
 from urllib.parse import urlsplit
 
-import httpx
 from fastapi import HTTPException, Request, Response
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import Session, col, delete, select
@@ -23,7 +22,6 @@ from app.models import FreeCheckSpend, FreeCheckUse, get_datetime_utc
 
 COOKIE = "free_check_id"
 WEEK = timedelta(days=7)
-TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 
 
 def refused(status: int, reason: str, message: str) -> HTTPException:
@@ -54,7 +52,7 @@ def visitor_cookie(request: Request, response: Response) -> str:
 
 
 def same_origin(request: Request) -> None:
-    """Browsers send Origin on POST; refuse other sites' pages. Turnstile is the real guard against scripts."""
+    """Browsers send Origin on POST; refuse other sites' pages. Scripts can fake it; the quota and spend cap bound them."""
     origin = request.headers.get("origin")
     if origin is None:
         return
@@ -90,32 +88,6 @@ _limiter = RateLimiter(settings.FREE_CHECK_REQUESTS_PER_MINUTE)
 def rate_limited(request: Request) -> None:
     if not _limiter.allow(client_ip(request)):
         raise refused(429, "rate_limit", "Too many requests. Wait a minute and try again.")
-
-
-# Turnstile (Cloudflare's invisible CAPTCHA)
-
-
-class Verifier(Protocol):
-    def verify(self, token: str | None, ip: str) -> bool: ...
-
-
-class TurnstileVerifier:
-    def __init__(self, secret: str | None, required: bool) -> None:
-        self.secret = secret
-        self.required = required
-
-    def verify(self, token: str | None, ip: str) -> bool:
-        if not self.secret:
-            if self.required:
-                raise refused(503, "not_configured", "The checker isn't configured: TURNSTILE_SECRET_KEY is not set.")
-            return True  # development without Turnstile
-        if not token:
-            return False
-        try:
-            reply = httpx.post(TURNSTILE_URL, data={"secret": self.secret, "response": token, "remoteip": ip}, timeout=5)
-            return reply.json().get("success") is True
-        except (httpx.HTTPError, ValueError):
-            return False
 
 
 # Quota and spend

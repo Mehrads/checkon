@@ -302,10 +302,6 @@ export type InspectIn = {
      * Meets Headcount Threshold
      */
     meets_headcount_threshold?: boolean | null;
-    /**
-     * Turnstile Token
-     */
-    turnstile_token?: string | null;
 };
 
 /**

@@ -12,8 +12,6 @@ RUN bun install
 COPY ./frontend /app/frontend
 
 ARG VITE_API_URL=
-# Turnstile site key for the free check, passed by the deploy workflow
-ARG VITE_TURNSTILE_SITE_KEY=
 # Email shown on the contact form, passed by the deploy workflow
 ARG VITE_CONTACT_EMAIL=
 

@@ -71,7 +71,7 @@ It is also the research instrument from the Research guide: every result asks on
 | --- | --- | --- | --- |
 | Application form | Posting and form both checked (Tech §14) | Posting only | Your call: free users rarely have the form text at hand |
 | Classification | Jev first, Haiku on low confidence (Tech §7) | Haiku 5.5 only | The cascade saves well under a cent per check and adds a vendor and a data-retention review |
-| Free-check limits | Full set in Tech §11 | Turnstile with a signed single-use token, weekly quota per cookie and per IP in Postgres, 8,000-character cap, origin check, per-IP rate limit, daily spend cap | PRD §9 already accepts some abuse; add the rest when the logs show it is needed |
+| Free-check limits | Full set in Tech §11 | Weekly quota per cookie and per IP in Postgres, 8,000-character cap, origin check, per-IP rate limit, daily spend cap. No CAPTCHA: Turnstile was dropped on 2026-10-20 | PRD §9 already accepts some abuse; add the rest, or a bot check, when the logs show it is needed |
 | Result cache and quotas | Redis (Tech §11, §12) | Postgres tables | The lean stack has no Redis |
 | One-posting check | Separate decision-model call (Tech §11) | A field in the extraction output; non-postings and multiple postings are refused before refine | One call instead of two |
 | Applicability, headcount | Company profile, asked once (PRD §4) | Web search on the employer named in the posting; never asked; assumed to apply when nothing is found | Your call: no question on the form. Search figures are worldwide, rarely Ontario-only, so verdicts rest on an estimate |
@@ -96,7 +96,7 @@ Each step ends in something that runs and can be checked.
 
 - Who the lawyer is and what the review costs (needed for step 7).
 - Who the second golden-set labeller is (needed for step 0).
-- Product name and domain (needed for Turnstile and deploy).
+- Product name and domain (needed for deploy).
 - An API account with no training on inputs, and Langfuse masking turned on.
 
 ---

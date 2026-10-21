@@ -35,8 +35,7 @@ class Settings(BaseSettings):
     # Where contact-form messages are emailed (needs the SMTP settings above); they are always saved.
     CONTACT_EMAIL: EmailStr | None = None
 
-    # Free check limits (04-V1-Scope.md, section 4). Turnstile is skipped in development when unset.
-    TURNSTILE_SECRET_KEY: str | None = None
+    # Free check limits (04-V1-Scope.md, section 4)
     FREE_CHECKS_PER_WEEK: int = 1
     FREE_CHECK_DAILY_SPEND_CAP_USD: Decimal = Decimal("5")
     FREE_CHECK_REQUESTS_PER_MINUTE: int = 30
