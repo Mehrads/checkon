@@ -1,16 +1,23 @@
 // Opens the CheckON side panel from the toolbar button or the right-click menu.
 // Nothing is checked here: the side panel sends the posting to checkon.ca.
+//
+// The toolbar click is handled here rather than with setPanelBehavior({ openPanelOnActionClick }):
+// a click Chrome handles itself opens the panel but grants no activeTab access, so the panel
+// couldn't read the page. Handling the click grants it for the current tab.
 
 const MENU_ID = "checkon-check"
 
-function openOnToolbarClick() {
-  chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch(() => {})
+/** Open the panel in the tab's window, then ask it to read that tab. Both calls stay inside the
+ * click, which is the user gesture sidePanel.open needs. */
+function openFor(tab: chrome.tabs.Tab, selection = "") {
+  if (tab.id === undefined) return
+  chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => {})
+  chrome.storage.session.set({
+    request: { tabId: tab.id, selection, at: Date.now() },
+  })
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  openOnToolbarClick()
   chrome.contextMenus.create({
     id: MENU_ID,
     title: "Check with CheckON",
@@ -18,18 +25,8 @@ chrome.runtime.onInstalled.addListener(() => {
   })
 })
 
-chrome.runtime.onStartup.addListener(openOnToolbarClick)
+chrome.action.onClicked.addListener((tab) => openFor(tab))
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId !== MENU_ID || tab?.id === undefined) return
-  // Open first: the click is the user gesture that sidePanel.open needs.
-  chrome.sidePanel.open({ tabId: tab.id }).catch(() => {})
-  // The panel reads this and re-reads the page, so the selection is picked up whether or not it was open.
-  chrome.storage.session.set({
-    request: {
-      tabId: tab.id,
-      selection: info.selectionText ?? "",
-      at: Date.now(),
-    },
-  })
+  if (info.menuItemId === MENU_ID && tab) openFor(tab, info.selectionText)
 })

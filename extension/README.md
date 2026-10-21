@@ -32,6 +32,8 @@ The unpacked ID comes from `unpacked-public-key.txt`. Only the public half of th
 
 You can also select text and right-click › **Check with CheckON**.
 
+Chrome lets the panel read a page only after you click the CheckON icon (or the menu item) on that page. After switching tabs, click the icon again and the open panel reads the new tab.
+
 After changing the code, run the build again and click the reload arrow on the extension's card in `chrome://extensions`.
 
 ## Permissions

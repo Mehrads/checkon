@@ -73,7 +73,7 @@ export function Panel() {
     } catch {
       if (fallback) setText(fallback.slice(0, MAX_CHARS))
       setNotice(
-        "Chrome doesn't let extensions read this page. Select the posting and right-click › Check with CheckON, or paste it below.",
+        "CheckON can read a page once you click its icon on that page. Click the CheckON icon in the toolbar, or select the posting and right-click › Check with CheckON. You can also paste it below.",
       )
     } finally {
       setReading(false)
