@@ -25,6 +25,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 from app.api.check_store import CheckState, CheckStore
 from app.api.deps import SessionDep
+from app.api.employer_cache import PostgresSizeCache
 from app.api.free_check import (
     Limits,
     PostgresLimits,
@@ -37,6 +38,7 @@ from app.api.free_check import (
 from app.api.research import BY_ID, ResearchQuestion, question_for
 from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
 from app.compliance.answers import Answers, apply_answers
+from app.compliance.employer import SizeCache
 from app.compliance.inspector import InputRefused, inspect
 from app.compliance.llm import AnthropicLLM, LLMError, SpendMeter, StructuredLLM
 from app.compliance.models import Context, Question, Report, Verdict
@@ -87,12 +89,17 @@ def get_usage(session: SessionDep) -> Usage:
     return PostgresUsage(session)
 
 
+def get_sizes(session: SessionDep) -> SizeCache:
+    return PostgresSizeCache(session)
+
+
 StoreDep = Annotated[CheckStore, Depends(get_store)]
 LLMDep = Annotated[StructuredLLM, Depends(get_llm)]
 PackDep = Annotated[RulePack, Depends(get_pack)]
 DateDep = Annotated[date, Depends(get_posting_date)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
 UsageDep = Annotated[Usage, Depends(get_usage)]
+SizesDep = Annotated[SizeCache, Depends(get_sizes)]
 
 
 class InspectIn(BaseModel):
@@ -179,7 +186,7 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, store: StoreDep, llm: LLMDep, pack: PackDep,
-    today: DateDep, limits: LimitsDep, usage: UsageDep,
+    today: DateDep, limits: LimitsDep, usage: UsageDep, sizes: SizesDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
     ip, cookie = client_ip(request), visitor_cookie(request, response)
@@ -193,7 +200,7 @@ def inspect_posting(
         raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
     ctx = Context(meets_headcount_threshold=body.meets_headcount_threshold)
     try:
-        inspection = inspect(body.text, ctx, today, pack, llm)
+        inspection = inspect(body.text, ctx, today, pack, llm, sizes=sizes)
     except InputRefused as error:  # no credit used
         usage.record("refused", visitor=visitor, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm))
         raise refused(422, error.reason, error.message)

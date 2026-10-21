@@ -1,6 +1,7 @@
 import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from typing import Any
 
 from pydantic import EmailStr
 from sqlalchemy import JSON, Column, Text
@@ -226,3 +227,15 @@ class UsageEvent(SQLModel, table=True):
     duration_ms: int | None = None
     usd: Decimal | None = Field(default=None, max_digits=12, decimal_places=6)
     count: int | None = None  # fixes applied, on accept
+
+
+class EmployerSizeSearch(SQLModel, table=True):
+    """An employer-size web search (app/compliance/employer.py), kept 30 days so restarts and deploys don't
+    repeat it. Keyed by the employer's name and the job location; no posting text is stored.
+    """
+
+    __tablename__ = "employer_size_search"
+    employer: str = Field(primary_key=True, max_length=255)  # lower-cased, spaces collapsed
+    location: str = Field(primary_key=True, max_length=255)  # lower-cased; "" when the posting names none
+    size: dict[str, Any] = Field(sa_column=Column(JSON, nullable=False))  # an EmployerSize
+    searched_at: datetime = Field(default_factory=get_datetime_utc, index=True)

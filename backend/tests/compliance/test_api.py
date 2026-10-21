@@ -9,13 +9,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_usage
+from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_sizes, get_usage
 from app.api.usage import visitor_hash
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.compliance.refiner import _Rewrite
 from app.main import app
 from tests.compliance.fake_llm import FakeLLM
+from tests.compliance.test_employer import MemorySizes
 from tests.compliance.test_inspector import POSTING, extraction, labels
 
 API = "/api/v1"
@@ -71,6 +72,7 @@ def llm(limits: MemoryLimits, usage: MemoryUsage) -> Generator[FakeLLM]:
     app.dependency_overrides[get_posting_date] = lambda: date(2026, 10, 19)
     app.dependency_overrides[get_limits] = lambda: limits
     app.dependency_overrides[get_usage] = lambda: usage
+    app.dependency_overrides[get_sizes] = MemorySizes
     app.dependency_overrides[rate_limited] = lambda: None
     yield fake
     app.dependency_overrides.clear()

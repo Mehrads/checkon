@@ -5,10 +5,8 @@ threshold; when the employer isn't named or nothing is found, the rules are assu
 The search only reports figures; code decides, using the threshold from the rule pack.
 """
 
-import threading
-import time
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel
@@ -45,34 +43,19 @@ def search_tool() -> dict[str, Any]:
     }
 
 
-class _Cache:
-    """Lookups by employer and location, kept for 30 days in this process."""
+class SizeCache(Protocol):
+    """Searches by employer and location, kept for 30 days (Postgres in the app: app/api/employer_cache.py)."""
 
-    def __init__(self) -> None:
-        self._items: dict[tuple[str, str], tuple[float, EmployerSize]] = {}
-        self._lock = threading.Lock()
-
-    def get(self, key: tuple[str, str]) -> EmployerSize | None:
-        with self._lock:
-            item = self._items.get(key)
-            if item and time.monotonic() - item[0] < CACHE_SECONDS:
-                return item[1]
-            return None
-
-    def put(self, key: tuple[str, str], value: EmployerSize) -> None:
-        with self._lock:
-            if len(self._items) >= 5000:
-                self._items.pop(next(iter(self._items)))
-            self._items[key] = (time.monotonic(), value)
+    def get(self, key: tuple[str, str]) -> EmployerSize | None: ...
+    def put(self, key: tuple[str, str], value: EmployerSize) -> None: ...
 
 
-CACHE = _Cache()
-
-
-def look_up(employer: str, location: str | None, llm: StructuredLLM, settings: ModelSettings) -> EmployerSize | None:
-    """None when the search fails; the caller then assumes the rules apply."""
+def look_up(
+    employer: str, location: str | None, llm: StructuredLLM, settings: ModelSettings, cache: SizeCache | None = None
+) -> EmployerSize | None:
+    """None when the search fails; the caller then assumes the rules apply. Without a cache, every call searches."""
     key = (" ".join(employer.lower().split()), (location or "").lower())
-    if (cached := CACHE.get(key)) is not None:
+    if cache is not None and (cached := cache.get(key)) is not None:
         return cached
     user = f"<employer>{employer}</employer>"
     if location:
@@ -82,7 +65,8 @@ def look_up(employer: str, location: str | None, llm: StructuredLLM, settings: M
         size = llm.parse(system=system, user=user, schema=EmployerSize, settings=settings, tools=[search_tool()])
     except LLMError:
         return None
-    CACHE.put(key, size)
+    if cache is not None:
+        cache.put(key, size)
     return size
 
 
