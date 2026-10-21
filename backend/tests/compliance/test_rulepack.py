@@ -10,7 +10,7 @@ PACK_DIR = RULEPACKS_DIR / "CA-ON"
 
 
 def test_pack_label() -> None:
-    assert PACK.label == "CA-ON@1.1.0"
+    assert PACK.label == "CA-ON@1.1.1"
 
 
 def test_every_rule_cites_a_section() -> None:
@@ -39,6 +39,14 @@ def test_checked_rules_resolve_to_a_check() -> None:
             assert rule.check is None, rule.id
         else:
             assert rule.check in CHECKS, rule.id
+
+
+def test_process_rules_and_only_they_carry_a_reminder() -> None:
+    for rule in PACK.rules:
+        if rule.kind == "process":
+            assert rule.reminder, rule.id
+        else:
+            assert rule.reminder is None, rule.id
 
 
 def test_listed_test_files_exist() -> None:

@@ -101,6 +101,7 @@ def test_paste_answer_review_and_copy(client: TestClient, llm: FakeLLM) -> None:
     assert [(q["id"], q["kind"]) for q in check["questions"]] == [("uses_ai_in_hiring", "yes_no")]
     canadian = next(r for r in check["report"]["results"] if r["rule"] == "ON-CEX-01")["evidence"][0]
     assert check["text"][canadian[0] : canadian[1]] == "2+ years of Canadian payroll experience"
+    assert [r["rule"] for r in check["report"]["reminders"]] == ["ON-INT-01", "ON-REC-01"]
 
     # 2. Refine: the Canadian-experience sentence is rewritten and re-read.
     llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
@@ -119,6 +120,7 @@ def test_paste_answer_review_and_copy(client: TestClient, llm: FakeLLM) -> None:
     # 4. Accept: reject nothing; the final text keeps the pasted characters outside the patches.
     final = client.post(f"{API}/patches/accept", json={"check_id": check["check_id"], "decisions": []}).json()
     assert final["report"]["status"] == "compliant"
+    assert [r["rule"] for r in final["report"]["reminders"]] == ["ON-INT-01", "ON-REC-01"]
     assert "• 2+ years of payroll experience" in final["text"]
     assert "$60,000 – $80,000 per year" in final["text"]
     assert "We use artificial intelligence to screen, assess or select applicants" in final["text"]

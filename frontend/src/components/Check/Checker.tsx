@@ -132,6 +132,10 @@ export function Checker({ intro }: { intro: ReactNode }) {
             <label htmlFor="posting" className="text-sm font-medium">
               Paste one job posting
             </label>
+            <p className="text-xs text-muted-foreground">
+              The whole text applicants will read. Paste any linked document
+              too.
+            </p>
             <textarea
               id="posting"
               value={text}

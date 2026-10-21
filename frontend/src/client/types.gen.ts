@@ -544,6 +544,26 @@ export type Refinement = {
 };
 
 /**
+ * Reminder
+ *
+ * A process rule: a duty after the posting goes up, which the posting text can't show.
+ */
+export type Reminder = {
+    /**
+     * Rule
+     */
+    rule: string;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Citation
+     */
+    citation: string;
+};
+
+/**
  * Report
  */
 export type Report = {
@@ -552,6 +572,10 @@ export type Report = {
      * Results
      */
     results: Array<RuleResult>;
+    /**
+     * Reminders
+     */
+    reminders?: Array<Reminder>;
     /**
      * Message
      */

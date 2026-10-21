@@ -98,9 +98,40 @@ def test_gate_reason_is_the_report_message() -> None:
 
 
 def test_report_records_the_rule_pack_version() -> None:
-    assert report().versions == {"rule_pack": "CA-ON@1.1.0"}
+    assert report().versions == {"rule_pack": "CA-ON@1.1.1"}
 
 
-def test_process_rules_are_not_in_the_report() -> None:
-    rules = {r.rule for r in report().results}
-    assert rules == {"ON-APPL-01", "ON-APPL-02", "ON-PAY-01", "ON-PAY-02", "ON-VAC-01", "ON-AI-01", "ON-CEX-01"}
+def test_process_rules_are_reminders_not_results() -> None:
+    rep = report()
+    assert {r.rule for r in rep.results} == {
+        "ON-APPL-01", "ON-APPL-02", "ON-PAY-01", "ON-PAY-02", "ON-VAC-01", "ON-AI-01", "ON-CEX-01",
+    }  # fmt: skip
+    assert [r.rule for r in rep.reminders] == ["ON-INT-01", "ON-REC-01"]
+
+
+def test_reminders_carry_the_plain_line_and_the_citation() -> None:
+    reminders = {r.rule: r for r in report().reminders}
+    interview = reminders["ON-INT-01"]
+    assert interview.text.startswith("Within 45 days of an interview (or the last one), tell the applicant")
+    assert interview.citation.startswith("ESA 2000, s. 8.6; O. Reg. 476/24, s. 5")
+    records = reminders["ON-REC-01"]
+    assert records.text.startswith("Keep a copy of this posting, every revised version, any linked document")
+    assert records.citation.startswith("ESA 2000, s. 15 (7.1) and (7.1.1)")
+
+
+def test_reminders_are_listed_whatever_the_verdicts() -> None:
+    failing = report({"vacancy_statement": {"present": False}, "pay": []})
+    assert failing.status == "not_compliant"
+    asking = report(context={"meets_headcount_threshold": None})
+    assert asking.status == "needs_input"
+    for rep in (failing, asking):
+        assert [r.rule for r in rep.reminders] == ["ON-INT-01", "ON-REC-01"]
+
+
+def test_no_reminders_when_the_rules_dont_apply() -> None:
+    small = report(context={"headcount": 18})
+    internal = report({"internal_only": True})
+    early = evaluate(Facts.model_validate(POSTING), Context.model_validate(COVERED), PACK, date(2025, 12, 31))
+    for rep in (small, internal, early):
+        assert rep.status == "not_applicable"
+        assert rep.reminders == []

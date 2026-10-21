@@ -5,10 +5,11 @@
 # 2025, c. 13, Sched. 2; O. Reg. 476/24 unamended). See docs/law-review-2026-10.md.
 # Rules with interpretation: true need an employment lawyer's sign-off (reviewed_by, reviewed_on).
 # effective_to is the last day a rule is in force; null means it is still in force.
+# Process rules carry a reminder: one plain line the report lists after the findings.
 # Messages and questions are str.format templates. Numbers render as 50,000, so write the $ in the text.
 
 jurisdiction: CA-ON
-version: 1.1.0
+version: 1.1.1
 
 # Shared by every rule; a rule's own params override these.
 params:
@@ -223,25 +224,28 @@ rules:
       - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
     tests: [tests/cex.yaml]
 
-  # Process rules: not checked from posting text (reminder and archive services, later phases).
+  # Process rules: not checked from posting text. The report lists them as reminders; the reminder and archive
+  # services come in later phases.
   - id: ON-INT-01
-    version: 1.1.0
+    version: 1.1.1
     kind: process
     effective_from: 2026-01-01
     effective_to: null
     citation: "ESA 2000, s. 8.6; O. Reg. 476/24, s. 5: within 45 days after the interview (or the last interview), tell each interviewed applicant whether a hiring decision has been made, in person, in writing or using technology"
     source_url: https://www.ontario.ca/laws/regulation/240476
     check: null
+    reminder: "Within 45 days of an interview (or the last one), tell the applicant whether a hiring decision has been made, in person, in writing or by email, text or portal update."
     interpretation: false
     reviewed_by: null
 
   - id: ON-REC-01
-    version: 1.1.0
+    version: 1.1.1
     kind: process
     effective_from: 2026-01-01
     effective_to: null
     citation: "ESA 2000, s. 15 (7.1) and (7.1.1): keep a copy of every publicly advertised job posting and any associated application form for three years after public access to the posting is removed, and the information given to each interviewed applicant for three years after it was provided"
     source_url: https://www.ontario.ca/laws/statute/00e41
     check: null
+    reminder: "Keep a copy of this posting, every revised version, any linked document and any application form for 3 years after it comes down, and what you told each interviewed applicant for 3 years."
     interpretation: false
     reviewed_by: null

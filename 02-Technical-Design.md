@@ -43,6 +43,8 @@ The Inspector checks 2 applicability rules and 5 content rules; 2 more rules are
 
 **Process rules (outside the Inspector)**
 
+The report lists them as reminders, each with its citation and one plain line, under the findings ("After you post").
+
 | ID | Rule | Handled by |
 | --- | --- | --- |
 | ON-INT-01 | Tell each interviewed applicant within 45 days of their last interview whether a hiring decision has been made, in person, in writing or using technology | Reminder service (integration tier) |
@@ -223,6 +225,9 @@ Four objects carry everything between the engines: the rule record, the extracte
   "results": [
     { "rule": "ON-CEX-01", "verdict": "fail", "evidence": { "span": [610, 649] }, "message": "Requires Canadian experience." },
     { "rule": "ON-AI-01", "verdict": "needs_input", "question": "Do you use AI to screen, assess or select applicants?" }
+  ],
+  "reminders": [
+    { "rule": "ON-INT-01", "text": "Within 45 days of an interview (or the last one), tell the applicant whether a hiring decision has been made, …", "citation": "ESA 2000, s. 8.6; O. Reg. 476/24, s. 5: …" }
   ],
   "versions": { "rule_pack": "CA-ON@1.0.0", "model": "<pinned id>", "prompts": "2026-10-19.1", "profile_hash": "…", "text_hash": "…" }
 }

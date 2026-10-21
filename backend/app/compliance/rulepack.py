@@ -31,6 +31,7 @@ class Rule(BaseModel):
     messages: dict[str, str] = {}
     questions: dict[str, str] = {}
     examples: list[dict[str, str]] = []  # labelled sentences for the classifier prompt
+    reminder: str | None = None  # process rules: the plain line the report lists after the findings
     tests: list[str] = []
 
     def in_force(self, on: date) -> bool:

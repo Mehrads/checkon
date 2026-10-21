@@ -1,5 +1,6 @@
 import type { Report, RuleResult, Verdict } from "@/client"
 import { cn } from "@/lib/utils"
+import { AfterPosting } from "./AfterPosting"
 import { FeedbackButtons } from "./Feedback"
 import { ruleName, VERDICT_TEXT } from "./labels"
 import { VerdictIcon } from "./StatusIcon"
@@ -69,7 +70,8 @@ function Finding({
   )
 }
 
-/** Every rule's verdict, problems first, each pointing at the sentence it is about. */
+/** Every rule's verdict, problems first, each pointing at the sentence it is about; then what happens after
+ * posting and what the check didn't look at. */
 export function Findings({ checkId, report, text }: FindingsProps) {
   const results = [...report.results].sort(
     (a, b) => ORDER.indexOf(a.verdict) - ORDER.indexOf(b.verdict),
@@ -97,6 +99,11 @@ export function Findings({ checkId, report, text }: FindingsProps) {
           />
         ))}
       </ul>
+      <AfterPosting reminders={report.reminders ?? []} />
+      <p className="border-t px-5 py-3 text-xs text-muted-foreground">
+        Checked: the text you pasted. Not checked: your application form,
+        documents the posting links to, and what happens after you post.
+      </p>
     </section>
   )
 }

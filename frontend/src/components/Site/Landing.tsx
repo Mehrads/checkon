@@ -552,6 +552,10 @@ const QUESTIONS = [
     a: "Only what compliance requires. Everything else stays exactly as you wrote it, and you approve each change before it's applied.",
   },
   {
+    q: "What doesn't it check?",
+    a: "It checks only the text you paste. An application form, a document the posting links to, and anything that happens after you post are outside the check.",
+  },
+  {
     q: "How do I get more checks or a custom setup?",
     a: "Contact us below. Starter and Agency plans and custom setups are arranged directly with us for now.",
   },
