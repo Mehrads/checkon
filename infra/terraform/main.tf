@@ -257,7 +257,7 @@ resource "google_cloud_run_v2_service" "app" {
     max_instance_request_concurrency = 40
 
     scaling {
-      min_instance_count = 0
+      min_instance_count = 1 # no cold start for the first check after a quiet spell
       max_instance_count = 1
     }
 
