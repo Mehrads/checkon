@@ -21,6 +21,7 @@ import { useMemo, useState } from "react"
 
 import type { FinalOut } from "@/client"
 import { Button } from "@/components/ui/button"
+import { track } from "@/lib/analytics"
 import { countWords, docToPlainText, textToHtml } from "@/lib/posting-format"
 import { cn } from "@/lib/utils"
 import { STATUS_TEXT } from "./labels"
@@ -164,6 +165,7 @@ export function PostingEditor({ final }: { final: FinalOut }) {
     )
     setCopied(rich ? "rich" : "plain")
     setTimeout(() => setCopied(null), 2000)
+    track("copy", { format: rich ? "formatted" : "plain" })
   }
 
   return (

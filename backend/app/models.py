@@ -191,3 +191,20 @@ class ContactMessage(SQLModel, table=True):
     interest: str = Field(max_length=32)  # starter, agency, custom or other
     message: str = Field(max_length=2000)
     check_id: str | None = Field(default=None, max_length=64)
+
+
+class UsageEvent(SQLModel, table=True):
+    """One step of a free check, for the success metrics (PRD §2). Never holds posting text; `visitor` is an
+    HMAC of the anonymous cookie, kept (unlike the week-long quota keys) so returning visitors can be counted.
+    """
+
+    __tablename__ = "usage_event"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    at: datetime = Field(default_factory=get_datetime_utc, index=True)
+    kind: str = Field(max_length=16, index=True)  # check, refused, quota, paused, failed, refine, answers, accept
+    check_id: str | None = Field(default=None, max_length=64, index=True)
+    visitor: str | None = Field(default=None, max_length=64, index=True)
+    status: str | None = Field(default=None, max_length=32)  # report status, refusal reason, or ok / failed
+    duration_ms: int | None = None
+    usd: Decimal | None = Field(default=None, max_digits=12, decimal_places=6)
+    count: int | None = None  # fixes applied, on accept

@@ -73,6 +73,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `terraform output -raw workload_identity_provider` |
    | `GCP_DEPLOYER_SERVICE_ACCOUNT` | `terraform output -raw deployer_service_account` |
    | `CONTACT_EMAIL` | `info@checkon.ca` |
+   | `UMAMI_WEBSITE_ID` | optional: the website id from Umami Cloud, for visit counts |
 
    Then create an environment named `production`. Add yourself as a required reviewer if you want to approve each deploy.
 

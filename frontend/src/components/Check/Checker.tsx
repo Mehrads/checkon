@@ -11,6 +11,7 @@ import {
 } from "@/client"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { track } from "@/lib/analytics"
 import { Findings } from "./Findings"
 import { type Choices, defaultChoices, Fixes } from "./Fixes"
 import { PostingEditor } from "./PostingEditor"
@@ -28,6 +29,15 @@ function errorMessage(error: Error): string {
     if (Array.isArray(detail) && detail[0]?.msg) return detail[0].msg
   }
   return "Something went wrong. Try again."
+}
+
+/** Why a check didn't run, for the analytics event: the API's reason, or the status code. */
+function refusalReason(error: Error): string {
+  if (error instanceof AxiosError) {
+    const detail = error.response?.data?.detail
+    return detail?.reason ?? String(error.response?.status ?? "network")
+  }
+  return "unknown"
 }
 
 /** The free check: the paste form sits in the hero beside `intro`; results open below it. */
@@ -63,10 +73,14 @@ export function Checker({ intro }: { intro: ReactNode }) {
       setFinal(null)
     },
     onSuccess: (data) => {
+      track("check", { status: data.report.status })
       show(data)
       if (data.report.status !== "not_applicable") refine.mutate(data.check_id)
     },
-    onError: fail,
+    onError: (err) => {
+      track("check-not-run", { reason: refusalReason(err) })
+      fail(err)
+    },
   })
 
   const answer = useMutation({
@@ -90,7 +104,10 @@ export function Checker({ intro }: { intro: ReactNode }) {
           },
         })
       ).data,
-    onSuccess: setFinal,
+    onSuccess: (data) => {
+      track("apply-fixes")
+      setFinal(data)
+    },
     onError: fail,
   })
 

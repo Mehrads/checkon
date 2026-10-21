@@ -6,6 +6,7 @@ import { ChecksService, type FeedbackIn } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { track } from "@/lib/analytics"
 
 type Reason = NonNullable<FeedbackIn["reason"]>
 
@@ -19,6 +20,8 @@ const REASONS: { value: Reason; label: string }[] = [
 function useSend() {
   return useMutation({
     mutationFn: (body: FeedbackIn) => ChecksService.sendFeedback({ body }),
+    onSuccess: (_, body) =>
+      track("feedback", { rating: body.rating, on: body.target_kind }),
   })
 }
 

@@ -3,7 +3,7 @@ name: Deploy
 # Every push to main: test, build the image, migrate the database, then deploy to Cloud Run.
 # Repository variables (Settings > Secrets and variables > Actions > Variables), from `terraform output`:
 #   GCP_PROJECT_ID, GCP_REGION, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_DEPLOYER_SERVICE_ACCOUNT,
-#   CONTACT_EMAIL (shown on the contact form)
+#   CONTACT_EMAIL (shown on the contact form), UMAMI_WEBSITE_ID (optional; Umami Cloud visit counts)
 # No secrets live in GitHub: sign-in uses Workload Identity Federation, app secrets live in Secret Manager.
 
 on:
@@ -35,6 +35,7 @@ jobs:
       REGION: ${{ vars.GCP_REGION }}
       IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/posting-checker/app:${{ github.sha }}
       CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+      UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -50,7 +51,7 @@ jobs:
       - name: Build and push the image
         run: |
           gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
-          docker build -f backend/Dockerfile --build-arg VITE_CONTACT_EMAIL="$CONTACT_EMAIL" -t "$IMAGE" .
+          docker build -f backend/Dockerfile --build-arg VITE_CONTACT_EMAIL="$CONTACT_EMAIL" --build-arg VITE_UMAMI_WEBSITE_ID="$UMAMI_WEBSITE_ID" -t "$IMAGE" .
           docker push "$IMAGE"
 
       - name: Migrate the database

@@ -15,6 +15,7 @@ import type { ReactNode } from "react"
 import { Appearance } from "@/components/Common/Appearance"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import {
   CONTACT_EMAIL,
@@ -357,9 +358,11 @@ export function Pricing() {
               <Button
                 variant="outline"
                 className="mt-6"
-                onClick={() =>
-                  plan.cta.interest && contactAbout(plan.cta.interest)
-                }
+                onClick={() => {
+                  if (!plan.cta.interest) return
+                  track("plan-click", { plan: plan.cta.interest })
+                  contactAbout(plan.cta.interest)
+                }}
               >
                 {plan.cta.label}
               </Button>

@@ -577,6 +577,27 @@ export type ResearchQuestion = {
 };
 
 /**
+ * Returning
+ *
+ * Visitors whose first check is at least 30 days old, and how many came back a day or more later but
+ * within 30 days (another check, or a try that hit the weekly limit). PRD target: 20%.
+ */
+export type Returning = {
+    /**
+     * Cohort
+     */
+    cohort: number;
+    /**
+     * Returned
+     */
+    returned: number;
+    /**
+     * Rate
+     */
+    rate: number | null;
+};
+
+/**
  * RuleResult
  */
 export type RuleResult = {
@@ -614,9 +635,55 @@ export type RuleResult = {
 };
 
 /**
+ * StatsOut
+ */
+export type StatsOut = {
+    /**
+     * Generated At
+     */
+    generated_at: string;
+    totals: Totals;
+    /**
+     * Weeks
+     */
+    weeks: Array<Week>;
+    returning: Returning;
+    timing: Timing;
+};
+
+/**
  * Status
  */
 export type Status = 'compliant' | 'not_compliant' | 'needs_input' | 'not_applicable';
+
+/**
+ * Timing
+ *
+ * Seconds over the last 30 days. Findings: paste to results. Fixes: findings plus the suggested
+ * rewrite. PRD target: p95 under 15 seconds.
+ */
+export type Timing = {
+    /**
+     * Checks
+     */
+    checks: number;
+    /**
+     * Findings P50
+     */
+    findings_p50: number | null;
+    /**
+     * Findings P95
+     */
+    findings_p95: number | null;
+    /**
+     * Fixes P50
+     */
+    fixes_p50: number | null;
+    /**
+     * Fixes P95
+     */
+    fixes_p95: number | null;
+};
 
 /**
  * Token
@@ -630,6 +697,44 @@ export type Token = {
      * Token Type
      */
     token_type?: string;
+};
+
+/**
+ * Totals
+ */
+export type Totals = {
+    /**
+     * Checks
+     */
+    checks: number;
+    /**
+     * Visitors
+     */
+    visitors: number;
+    /**
+     * Fixes Applied
+     */
+    fixes_applied: number;
+    /**
+     * Custom Requests
+     */
+    custom_requests: number;
+    /**
+     * Plan Enquiries
+     */
+    plan_enquiries: number;
+    /**
+     * Contact Messages
+     */
+    contact_messages: number;
+    /**
+     * Model Spend Usd
+     */
+    model_spend_usd: string;
+    /**
+     * First Check
+     */
+    first_check: string | null;
 };
 
 /**
@@ -806,6 +911,64 @@ export type ValidationError = {
  * Verdict
  */
 export type Verdict = 'pass' | 'fail' | 'warning' | 'needs_input' | 'not_applicable';
+
+/**
+ * Week
+ */
+export type Week = {
+    /**
+     * Start
+     */
+    start: string;
+    /**
+     * Checks
+     */
+    checks: number;
+    /**
+     * Visitors
+     */
+    visitors: number;
+    /**
+     * New Visitors
+     */
+    new_visitors: number;
+    /**
+     * Limit Hits
+     */
+    limit_hits: number;
+    /**
+     * Refused
+     */
+    refused: number;
+    /**
+     * Fixes Applied
+     */
+    fixes_applied: number;
+    /**
+     * Custom Requests
+     */
+    custom_requests: number;
+    /**
+     * Plan Enquiries
+     */
+    plan_enquiries: number;
+    /**
+     * Contact Messages
+     */
+    contact_messages: number;
+    /**
+     * Feedback Up
+     */
+    feedback_up: number;
+    /**
+     * Feedback Down
+     */
+    feedback_down: number;
+    /**
+     * Model Spend Usd
+     */
+    model_spend_usd: string;
+};
 
 export type checksInspectPostingData = {
     body: InspectIn;
@@ -1006,6 +1169,22 @@ export type checksContactResponses = {
 };
 
 export type checksContactResponse = checksContactResponses[keyof checksContactResponses];
+
+export type statsReadStatsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/stats/';
+};
+
+export type statsReadStatsResponses = {
+    /**
+     * Successful Response
+     */
+    200: StatsOut;
+};
+
+export type statsReadStatsResponse = statsReadStatsResponses[keyof statsReadStatsResponses];
 
 export type loginLoginAccessTokenData = {
     body: Body_login_login_access_token;

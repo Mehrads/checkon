@@ -3,12 +3,14 @@
 from collections.abc import Generator
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
 from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date
+from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_usage
+from app.api.usage import visitor_hash
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.compliance.refiner import _Rewrite
@@ -42,17 +44,33 @@ class MemoryLimits:
         self.spent += usd
 
 
+class MemoryUsage:
+    """Usage events without Postgres."""
+
+    def __init__(self) -> None:
+        self.events: list[dict[str, Any]] = []
+
+    def record(self, kind: str, **fields: Any) -> None:
+        self.events.append({"kind": kind, **fields})
+
+
 @pytest.fixture
 def limits() -> MemoryLimits:
     return MemoryLimits(per_week=100)  # most tests run several checks
 
 
 @pytest.fixture
-def llm(limits: MemoryLimits) -> Generator[FakeLLM]:
+def usage() -> MemoryUsage:
+    return MemoryUsage()
+
+
+@pytest.fixture
+def llm(limits: MemoryLimits, usage: MemoryUsage) -> Generator[FakeLLM]:
     fake = FakeLLM()
     app.dependency_overrides[get_llm] = lambda: fake
     app.dependency_overrides[get_posting_date] = lambda: date(2026, 10, 19)
     app.dependency_overrides[get_limits] = lambda: limits
+    app.dependency_overrides[get_usage] = lambda: usage
     app.dependency_overrides[rate_limited] = lambda: None
     yield fake
     app.dependency_overrides.clear()
@@ -229,3 +247,38 @@ def test_same_host_origin_is_allowed_over_http_behind_a_proxy(client: TestClient
     # Cloud Run serves HTTPS to the browser but plain HTTP to the app; the hosts still match.
     response = client.post(f"{API}/refine", json={"check_id": "nope"}, headers={"Origin": "https://testserver"})
     assert response.status_code == 404  # past the origin check
+
+
+# Usage events (the admin Stats page)
+
+
+def test_each_step_is_recorded_for_the_usage_stats(client: TestClient, llm: FakeLLM, usage: MemoryUsage) -> None:
+    check = inspect(client, llm)
+    llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
+    llm.queue(Classification, {"canadian_experience": [{"sentence": 4, "label": "ok", "reason": "r"}], "vacancy": [], "ai": []})
+    client.post(f"{API}/refine", json={"check_id": check["check_id"]})
+    client.post(f"{API}/patches/accept", json={"check_id": check["check_id"], "decisions": []})
+
+    assert [(e["kind"], e.get("status"), e.get("count")) for e in usage.events] == [
+        ("check", "not_compliant", None), ("refine", "ok", None), ("accept", None, 1),
+    ]
+    assert {e["check_id"] for e in usage.events} == {check["check_id"]}
+    assert usage.events[0]["visitor"] == visitor_hash(client.cookies["free_check_id"])
+    assert all(e["duration_ms"] >= 0 for e in usage.events)
+    assert "payroll" not in str(usage.events)  # never the posting text
+
+
+def test_refusals_are_recorded_for_the_same_visitor(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, usage: MemoryUsage
+) -> None:
+    limits.per_week = 1
+    llm.queue(Extraction, extraction(input_kind="not_a_posting"))
+    assert client.post(f"{API}/inspect", json={"text": POSTING}).status_code == 422
+    inspect(client, llm)
+    assert client.post(f"{API}/inspect", json={"text": POSTING}).status_code == 429
+
+    assert [(e["kind"], e.get("status")) for e in usage.events] == [
+        ("refused", "not_a_posting"), ("check", "not_compliant"), ("quota", None),
+    ]
+    # An error response can't set the cookie, so only the check and the later try share a visitor.
+    assert usage.events[1]["visitor"] == usage.events[2]["visitor"]

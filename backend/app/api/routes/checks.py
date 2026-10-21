@@ -3,17 +3,24 @@ plus the research hooks (one question per result, a custom-solution request form
 and the site's contact form.
 """
 
+import html
+import logging
+import time
 from datetime import date, datetime
 from decimal import Decimal
 from functools import cache
 from typing import Annotated, Any, Literal
 from zoneinfo import ZoneInfo
 
-import html
-import logging
-
 import anthropic
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+)
 from pydantic import BaseModel, EmailStr, Field
 
 from app.api.check_store import CheckState, CheckStore
@@ -28,6 +35,7 @@ from app.api.free_check import (
     visitor_cookie,
 )
 from app.api.research import BY_ID, ResearchQuestion, question_for
+from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
 from app.compliance.answers import Answers, apply_answers
 from app.compliance.inspector import InputRefused, inspect
 from app.compliance.llm import AnthropicLLM, LLMError, SpendMeter, StructuredLLM
@@ -75,11 +83,16 @@ def get_limits(session: SessionDep, today: Annotated[date, Depends(get_posting_d
     )
 
 
+def get_usage(session: SessionDep) -> Usage:
+    return PostgresUsage(session)
+
+
 StoreDep = Annotated[CheckStore, Depends(get_store)]
 LLMDep = Annotated[StructuredLLM, Depends(get_llm)]
 PackDep = Annotated[RulePack, Depends(get_pack)]
 DateDep = Annotated[date, Depends(get_posting_date)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
+UsageDep = Annotated[Usage, Depends(get_usage)]
 
 
 class InspectIn(BaseModel):
@@ -166,41 +179,60 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, store: StoreDep, llm: LLMDep, pack: PackDep,
-    today: DateDep, limits: LimitsDep,
+    today: DateDep, limits: LimitsDep, usage: UsageDep,
 ) -> Any:  # fmt: skip
+    started = time.monotonic()
     ip, cookie = client_ip(request), visitor_cookie(request, response)
+    visitor = visitor_hash(cookie)
     if (next_check := limits.next_free_check(cookie, ip)) is not None:
+        usage.record("quota", visitor=visitor)  # a returning visitor, even though the check is refused
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
         raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
     if not limits.budget_left():
+        usage.record("paused", visitor=visitor)
         raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
     ctx = Context(meets_headcount_threshold=body.meets_headcount_threshold)
     try:
         inspection = inspect(body.text, ctx, today, pack, llm)
     except InputRefused as error:  # no credit used
+        usage.record("refused", visitor=visitor, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm))
         raise refused(422, error.reason, error.message)
     except LLMError as error:
+        usage.record("failed", visitor=visitor, duration_ms=elapsed_ms(started), usd=_spent(llm))
         raise _llm_failure(error)
     finally:
         limits.add_spend(_spent(llm))
     limits.record_use(cookie, ip)
-    return _out(store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection)))
+    state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection))
+    usage.record(
+        "check", check_id=state.id, visitor=visitor, status=inspection.report.status.value,
+        duration_ms=elapsed_ms(started), usd=_spent(llm),
+    )  # fmt: skip
+    return _out(state)
 
 
 @router.post("/refine", response_model=CheckOut)
-def refine_posting(body: CheckIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep) -> Any:
+def refine_posting(
+    body: CheckIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep
+) -> Any:
+    started = time.monotonic()
     state = _state(store, body.check_id)
     try:
         state.refinement = _refine(state, pack, llm)
     except LLMError as error:
+        usage.record("refine", check_id=state.id, status="failed", duration_ms=elapsed_ms(started), usd=_spent(llm))
         raise _llm_failure(error)
     finally:
         limits.add_spend(_spent(llm))
+    usage.record("refine", check_id=state.id, status="ok", duration_ms=elapsed_ms(started), usd=_spent(llm))
     return _out(state)
 
 
 @router.post("/answers", response_model=CheckOut)
-def answer_questions(body: AnswersIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep) -> Any:
+def answer_questions(
+    body: AnswersIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep
+) -> Any:
+    started = time.monotonic()
     state = _state(store, body.check_id)
     state.inspection, state.ctx = apply_answers(state.inspection, state.ctx, body.answers, pack, state.posting_date)
     if state.refinement is not None:  # answers can unlock patches (vacancy wording) or retire them
@@ -210,6 +242,7 @@ def answer_questions(body: AnswersIn, store: StoreDep, llm: LLMDep, pack: PackDe
             raise _llm_failure(error)
         finally:
             limits.add_spend(_spent(llm))
+    usage.record("answers", check_id=state.id, duration_ms=elapsed_ms(started), usd=_spent(llm))
     return _out(state)
 
 
@@ -233,7 +266,10 @@ def _chosen(refinement: Refinement, decisions: list[Decision]) -> list[Patch]:
 
 
 @router.post("/patches/accept", response_model=FinalOut)
-def accept_patches(body: AcceptIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep) -> Any:
+def accept_patches(
+    body: AcceptIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep
+) -> Any:
+    started = time.monotonic()
     state = _state(store, body.check_id)
     if state.refinement is None:
         raise HTTPException(status_code=409, detail="Refine the posting before accepting patches.")
@@ -246,6 +282,7 @@ def accept_patches(body: AcceptIn, store: StoreDep, llm: LLMDep, pack: PackDep, 
         raise _llm_failure(error)
     finally:
         limits.add_spend(_spent(llm))
+    usage.record("accept", check_id=state.id, count=len(chosen), duration_ms=elapsed_ms(started), usd=_spent(llm))
     return FinalOut(check_id=state.id, text=text, report=report)
 
 

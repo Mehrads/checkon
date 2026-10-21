@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { useEffect } from "react"
 
 import { Checker } from "@/components/Check/Checker"
 import { ContactProvider } from "@/components/Site/Contact"
@@ -12,6 +13,7 @@ import {
   SiteFooter,
   SiteHeader,
 } from "@/components/Site/Landing"
+import { loadAnalytics } from "@/lib/analytics"
 
 export const Route = createFileRoute("/check")({
   component: CheckPage,
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/check")({
 })
 
 function CheckPage() {
+  useEffect(loadAnalytics, [])
   return (
     <ContactProvider>
       <div className="min-h-svh bg-background">

@@ -43,6 +43,8 @@ For frontend work with hot reload, run `bun run dev` in `frontend/` and open htt
 - **No CAPTCHA:** v1 has no bot check (decided 2026-10-20). The quota, rate limit and spend cap bound what a script can cost; the worst case is free checks pausing for the rest of the day.
 - **Quota:** `FREE_CHECKS_PER_WEEK` per visitor cookie and per IP, stored in Postgres as HMACs. Rejected inputs don't use a check.
 - **Spend cap:** `FREE_CHECK_DAILY_SPEND_CAP_USD`, measured from the token counts the API reports.
+- **Usage stats:** each step of a free check adds a `usage_event` row (timing, model cost, an HMAC of the visitor cookie, never the posting). Superusers see the PRD success metrics at `/stats` after signing in at `/login`.
+- **Visit counts:** set `VITE_UMAMI_WEBSITE_ID` (the `UMAMI_WEBSITE_ID` repository variable in production) to load Umami Cloud's cookieless script on the public page. It only counts `checkon.ca`.
 - **Behind a proxy (Cloud Run):** start the server with `--forwarded-allow-ips` set, or every visitor shares the proxy's IP.
 
 ## Deploy

@@ -14,6 +14,8 @@ COPY ./frontend /app/frontend
 ARG VITE_API_URL=
 # Email shown on the contact form, passed by the deploy workflow
 ARG VITE_CONTACT_EMAIL=
+# Umami website id for cookieless visit counts (optional), passed by the deploy workflow
+ARG VITE_UMAMI_WEBSITE_ID=
 
 RUN bun run build
 
