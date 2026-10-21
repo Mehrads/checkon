@@ -16,6 +16,10 @@ import { Appearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { LoadingButton } from "@/components/ui/loading-button"
+import { isLoggedIn } from "@/hooks/useAuth"
+import { apiStatus, type PlanId, useCheckout } from "@/hooks/useBilling"
+import useCustomToast from "@/hooks/useCustomToast"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import {
@@ -62,6 +66,16 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Appearance />
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="hidden sm:inline-flex"
+          >
+            <Link to={isLoggedIn() ? "/" : "/login"}>
+              {isLoggedIn() ? "Your account" : "Log in"}
+            </Link>
+          </Button>
           <Button asChild size="sm">
             <a href="#check">Check a posting</a>
           </Button>
@@ -251,7 +265,7 @@ interface Plan {
   period?: string
   note: string
   features: string[]
-  cta: { label: string; interest?: Interest }
+  cta: { label: string; interest?: Interest; checkout?: PlanId }
   highlight?: boolean
 }
 
@@ -274,25 +288,25 @@ const PLANS: Plan[] = [
     name: "Starter",
     price: "$79",
     period: "/month",
-    note: "Contact us to get started",
+    note: "Billed monthly, cancel anytime. Extra checks $1 each.",
     features: [
       "50 checks a month",
       "Company profile and history",
       "Pay range suggestions",
     ],
-    cta: { label: "Contact us", interest: "starter" },
+    cta: { label: "Subscribe", interest: "starter", checkout: "starter" },
   },
   {
     name: "Agency",
     price: "$249",
     period: "/month",
-    note: "Contact us to get started",
+    note: "Billed monthly, cancel anytime. Extra checks $1 each.",
     features: [
       "300 checks a month",
       "A workspace per client",
       "Archive of approved postings",
     ],
-    cta: { label: "Contact us", interest: "agency" },
+    cta: { label: "Subscribe", interest: "agency", checkout: "agency" },
   },
   {
     name: "Custom setup",
@@ -309,12 +323,26 @@ const PLANS: Plan[] = [
 
 export function Pricing() {
   const { contactAbout } = useContact()
+  const { showErrorToast } = useCustomToast()
+  // Until Stripe is set up (503), or if the payment page can't open, the plan buttons fall back to the contact form.
+  const checkout = useCheckout((plan, error) => {
+    const status = apiStatus(error)
+    if (status === 409) {
+      window.location.assign("/")
+      return
+    }
+    if (status !== 503)
+      showErrorToast(
+        "We couldn't open the payment page. Send us a message instead.",
+      )
+    contactAbout(plan)
+  })
   return (
     <Section
       id="pricing"
       eyebrow="Pricing"
       title="Start free. Upgrade when it's part of your workflow."
-      lead="Prices in Canadian dollars."
+      lead="Prices in Canadian dollars, plus tax where it applies."
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => (
@@ -349,17 +377,22 @@ export function Pricing() {
               ))}
             </ul>
             {plan.cta.interest ? (
-              <Button
+              <LoadingButton
                 variant="outline"
                 className="mt-6"
+                loading={
+                  checkout.isPending && checkout.variables === plan.cta.checkout
+                }
+                disabled={checkout.isPending}
                 onClick={() => {
                   if (!plan.cta.interest) return
                   track("plan-click", { plan: plan.cta.interest })
-                  contactAbout(plan.cta.interest)
+                  if (plan.cta.checkout) checkout.mutate(plan.cta.checkout)
+                  else contactAbout(plan.cta.interest)
                 }}
               >
                 {plan.cta.label}
-              </Button>
+              </LoadingButton>
             ) : (
               <Button asChild className="mt-6">
                 <a href="#check">{plan.cta.label}</a>
@@ -383,7 +416,7 @@ const QUESTIONS = [
   },
   {
     q: "Do you keep my posting?",
-    a: "No. It's processed by our AI provider to run the check and held for up to an hour while you review the results. We keep it only if you choose to share it when you report a problem.",
+    a: "No. It's processed by our AI provider to run the check and held for up to an hour while you review the results. We keep it only if you choose to share it when you report a problem. On a paid plan, we keep the date, job title and result of each check for your history, not the posting.",
   },
   {
     q: "What does the rewrite change?",
@@ -391,7 +424,7 @@ const QUESTIONS = [
   },
   {
     q: "How do I get more checks or a custom setup?",
-    a: "Contact us below. Starter and Agency plans and custom setups are arranged directly with us for now.",
+    a: "Subscribe to Starter or Agency above. You pay by card through Stripe, and you can switch plans or cancel anytime from your account. For a custom setup, contact us below.",
   },
 ]
 
@@ -455,6 +488,15 @@ export function SiteFooter({ home = "" }: { home?: string }) {
           )}
           <Link to="/privacy" className="hover:text-foreground">
             Privacy
+          </Link>
+          <Link to="/terms" className="hover:text-foreground">
+            Terms
+          </Link>
+          <Link
+            to={isLoggedIn() ? "/" : "/login"}
+            className="hover:text-foreground"
+          >
+            {isLoggedIn() ? "Your account" : "Log in"}
           </Link>
           <span>© {new Date().getFullYear()} CheckON · checkon.ca</span>
         </p>

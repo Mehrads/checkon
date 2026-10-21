@@ -176,6 +176,7 @@ const COLUMNS: { label: string; value: (week: Week) => string }[] = [
     value: (w) => `${w.feedback_up} / ${w.feedback_down}`,
   },
   { label: "Model spend", value: (w) => usd.format(Number(w.model_spend_usd)) },
+  { label: "Paid checks", value: (w) => String(w.paid_checks) },
 ]
 
 function WeeklyTable({ weeks }: { weeks: Week[] }) {
@@ -239,8 +240,10 @@ function StatsContent() {
           : "No checks yet. "}
         {totals.checks} checks from {totals.visitors} visitors,{" "}
         {totals.fixes_applied} with fixes applied,{" "}
-        {usd.format(Number(totals.model_spend_usd))} in model fees. Paying
-        customers (target: 3+ by week 10) are tracked outside the app.
+        {usd.format(Number(totals.model_spend_usd))} in model fees. Paid plans:{" "}
+        {totals.customers} paying customers now (target: 3+ by week 10),{" "}
+        {totals.paid_checks} checks,{" "}
+        {usd.format(Number(totals.paid_model_spend_usd))} in model fees.
       </p>
     </>
   )
@@ -252,8 +255,8 @@ function Stats() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Stats</h1>
         <p className="text-muted-foreground">
-          The free check against the PRD's success metrics. Visits and where
-          they come from are in{" "}
+          The free check against the PRD's success metrics, and paid plans.
+          Visits and where they come from are in{" "}
           <a
             href={UMAMI_URL}
             target="_blank"

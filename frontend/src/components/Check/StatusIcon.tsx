@@ -52,3 +52,20 @@ export function VerdictIcon({
 export function StatusIcon({ status }: { status: Status }) {
   return <VerdictIcon verdict={STATUS_VERDICT[status]} className="size-7" />
 }
+
+const STATUS_LABEL: Record<Status, string> = {
+  compliant: "Meets the rules",
+  not_compliant: "Doesn't meet the rules",
+  needs_input: "Needs answers",
+  not_applicable: "Rules don't apply",
+}
+
+/** A small icon and a few words, for lists of checks. */
+export function StatusLabel({ status }: { status: Status }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <VerdictIcon verdict={STATUS_VERDICT[status]} className="size-4" />
+      {STATUS_LABEL[status]}
+    </span>
+  )
+}

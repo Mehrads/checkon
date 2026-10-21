@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { AxiosError } from "axios"
 import { ArrowRight, ShieldCheck } from "lucide-react"
 import { type ReactNode, useEffect, useRef, useState } from "react"
@@ -11,7 +12,9 @@ import {
 } from "@/client"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { isLoggedIn } from "@/hooks/useAuth"
 import { track } from "@/lib/analytics"
+import { cn } from "@/lib/utils"
 import { Findings } from "./Findings"
 import { type Choices, defaultChoices, Fixes } from "./Fixes"
 import { PostingEditor } from "./PostingEditor"
@@ -40,13 +43,30 @@ function refusalReason(error: Error): string {
   return "unknown"
 }
 
-/** The free check: the paste form sits in the hero beside `intro`; results open below it. */
-export function Checker({ intro }: { intro: ReactNode }) {
+const FREE_NOTE =
+  "Free once a week, no sign-up. We don't keep your posting after the check unless you choose to share it with us."
+
+/** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
+ * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
+ * check counts against their plan (the API reads the sign-in), and `onChecked` runs after each one. */
+export function Checker({
+  intro,
+  layout = "hero",
+  note = FREE_NOTE,
+  onChecked,
+}: {
+  intro?: ReactNode
+  layout?: "hero" | "app"
+  note?: ReactNode
+  onChecked?: () => void
+}) {
+  const hero = layout === "hero"
   const [text, setText] = useState("")
   const [check, setCheck] = useState<CheckOut | null>(null)
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [refusal, setRefusal] = useState<string | null>(null)
   const results = useRef<HTMLDivElement>(null)
   const editor = useRef<HTMLDivElement>(null)
 
@@ -69,16 +89,20 @@ export function Checker({ intro }: { intro: ReactNode }) {
       (await ChecksService.inspectPosting({ body: { text } })).data,
     onMutate: () => {
       setError(null)
+      setRefusal(null)
       setCheck(null)
       setFinal(null)
     },
     onSuccess: (data) => {
       track("check", { status: data.report.status })
       show(data)
+      onChecked?.()
       if (data.report.status !== "not_applicable") refine.mutate(data.check_id)
     },
     onError: (err) => {
-      track("check-not-run", { reason: refusalReason(err) })
+      const reason = refusalReason(err)
+      track("check-not-run", { reason })
+      setRefusal(reason)
       fail(err)
     },
   })
@@ -126,9 +150,19 @@ export function Checker({ intro }: { intro: ReactNode }) {
   return (
     <>
       <section id="check" className="scroll-mt-20">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:pt-20">
+        <div
+          className={cn(
+            hero &&
+              "mx-auto grid max-w-6xl gap-10 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:pt-20",
+          )}
+        >
           {intro}
-          <div className="min-w-0 rounded-2xl border bg-card p-5 shadow-lg shadow-primary/5 sm:p-6">
+          <div
+            className={cn(
+              "min-w-0 rounded-2xl border bg-card p-5 sm:p-6",
+              hero ? "shadow-lg shadow-primary/5" : "shadow-sm",
+            )}
+          >
             <label htmlFor="posting" className="text-sm font-medium">
               Paste one job posting
             </label>
@@ -139,7 +173,10 @@ export function Checker({ intro }: { intro: ReactNode }) {
                 setText(event.target.value.slice(0, MAX_CHARS))
               }
               placeholder="Job title, location, duties, requirements, pay…"
-              className="mt-2 min-h-72 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className={cn(
+                "mt-2 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                hero ? "min-h-72" : "min-h-48",
+              )}
             />
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-muted-foreground">
@@ -160,20 +197,53 @@ export function Checker({ intro }: { intro: ReactNode }) {
                 className="mt-px size-4 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              Free once a week, no sign-up. We don't keep your posting after the
-              check unless you choose to share it with us.
+              {note}
             </p>
           </div>
         </div>
       </section>
 
       {(check || error || busy) && (
-        <section ref={results} className="scroll-mt-20 border-t bg-muted/30">
-          <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-6">
+        <section
+          ref={results}
+          className={cn("scroll-mt-20", hero ? "border-t bg-muted/30" : "pt-6")}
+        >
+          <div
+            className={cn(
+              "space-y-6",
+              hero && "mx-auto max-w-6xl px-4 py-10 sm:px-6",
+            )}
+          >
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>We couldn't finish the check</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  {error}
+                  {refusal === "quota" && hero && (
+                    <span>
+                      Need more checks?{" "}
+                      <a
+                        href="#pricing"
+                        className="underline underline-offset-4"
+                      >
+                        See the plans
+                      </a>
+                      {!isLoggedIn() && (
+                        <>
+                          , or{" "}
+                          <Link
+                            to="/login"
+                            className="underline underline-offset-4"
+                          >
+                            log in
+                          </Link>{" "}
+                          if you have one
+                        </>
+                      )}
+                      .
+                    </span>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
             {inspect.isPending && (

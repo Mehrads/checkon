@@ -1,31 +1,53 @@
 import { createFileRoute } from "@tanstack/react-router"
-
+import { PastChecks } from "@/components/Billing/PastChecks"
+import { NoPlanCard, PlanCard } from "@/components/Billing/PlanCard"
+import { Checker } from "@/components/Check/Checker"
+import { Skeleton } from "@/components/ui/skeleton"
 import useAuth from "@/hooks/useAuth"
+import { useBilling, useRefreshBilling } from "@/hooks/useBilling"
 
 export const Route = createFileRoute("/_layout/")({
-  component: Dashboard,
+  component: Checks,
   head: () => ({
     meta: [
       {
-        title: "Dashboard - CheckON",
+        title: "Checks - CheckON",
       },
     ],
   }),
 })
 
-function Dashboard() {
-  const { user: currentUser } = useAuth()
+const PLAN_NOTE =
+  "Each check counts toward your plan. We keep the date, job title and result for your history, never the posting."
+
+/** The signed-in page: the plan and its checks this period, the checker, and past checks. */
+function Checks() {
+  const { user } = useAuth()
+  const { data: billing, isPending } = useBilling()
+  const refresh = useRefreshBilling()
+  const onPlan = Boolean(billing?.plan)
 
   return (
-    <div>
+    <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl truncate max-w-sm">
-          Hi, {currentUser?.full_name || currentUser?.email} 👋
-        </h1>
-        <p className="text-muted-foreground">
-          Welcome back, nice to see you again!!!
+        <h1 className="text-2xl font-bold tracking-tight">Check a posting</h1>
+        <p className="truncate text-muted-foreground">
+          Signed in as {user?.email}
         </p>
       </div>
+      {isPending || !billing ? (
+        <Skeleton className="h-36 w-full" />
+      ) : onPlan ? (
+        <PlanCard billing={billing} />
+      ) : (
+        <NoPlanCard billing={billing} />
+      )}
+      <Checker
+        layout="app"
+        note={onPlan ? PLAN_NOTE : undefined}
+        onChecked={refresh}
+      />
+      {(onPlan || billing?.has_billing) && <PastChecks />}
     </div>
   )
 }

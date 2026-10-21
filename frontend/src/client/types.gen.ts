@@ -72,6 +72,60 @@ export type AnswersIn = {
 };
 
 /**
+ * BillingOut
+ */
+export type BillingOut = {
+    /**
+     * Checkout Enabled
+     */
+    checkout_enabled: boolean;
+    /**
+     * Has Billing
+     */
+    has_billing: boolean;
+    /**
+     * Plan
+     */
+    plan: 'starter' | 'agency' | null;
+    /**
+     * Plan Name
+     */
+    plan_name: string | null;
+    /**
+     * Status
+     */
+    status: string | null;
+    /**
+     * Checks Included
+     */
+    checks_included: number;
+    /**
+     * Checks Used
+     */
+    checks_used: number;
+    /**
+     * Extra Checks
+     */
+    extra_checks: number;
+    /**
+     * Extra Checks Max
+     */
+    extra_checks_max: number;
+    /**
+     * Period Start
+     */
+    period_start: string | null;
+    /**
+     * Period End
+     */
+    period_end: string | null;
+    /**
+     * Cancel At Period End
+     */
+    cancel_at_period_end: boolean;
+};
+
+/**
  * Body_login-login_password
  */
 export type Body_login_login_password = {
@@ -421,6 +475,50 @@ export type NewPassword = {
 };
 
 /**
+ * PaidCheckPublic
+ */
+export type PaidCheckPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Title
+     */
+    title: string | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Final Status
+     */
+    final_status: string | null;
+    /**
+     * Extra
+     */
+    extra: boolean;
+};
+
+/**
+ * PaidChecksPublic
+ */
+export type PaidChecksPublic = {
+    /**
+     * Data
+     */
+    data: Array<PaidCheckPublic>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * Patch
  */
 export type Patch = {
@@ -477,6 +575,16 @@ export type Patch = {
 };
 
 /**
+ * PlanIn
+ */
+export type PlanIn = {
+    /**
+     * Plan
+     */
+    plan: 'starter' | 'agency';
+};
+
+/**
  * PrivateUserCreate
  */
 export type PrivateUserCreate = {
@@ -518,6 +626,16 @@ export type Question = {
      * Options
      */
     options?: Array<string>;
+};
+
+/**
+ * RedirectOut
+ */
+export type RedirectOut = {
+    /**
+     * Url
+     */
+    url: string;
 };
 
 /**
@@ -759,6 +877,18 @@ export type Totals = {
      * First Check
      */
     first_check: string | null;
+    /**
+     * Customers
+     */
+    customers: number;
+    /**
+     * Paid Checks
+     */
+    paid_checks: number;
+    /**
+     * Paid Model Spend Usd
+     */
+    paid_model_spend_usd: string;
 };
 
 /**
@@ -974,6 +1104,10 @@ export type Week = {
      * Model Spend Usd
      */
     model_spend_usd: string;
+    /**
+     * Paid Checks
+     */
+    paid_checks: number;
 };
 
 export type checksInspectPostingData = {
@@ -1175,6 +1309,122 @@ export type checksContactResponses = {
 };
 
 export type checksContactResponse = checksContactResponses[keyof checksContactResponses];
+
+export type billingReadBillingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/billing';
+};
+
+export type billingReadBillingResponses = {
+    /**
+     * Successful Response
+     */
+    200: BillingOut;
+};
+
+export type billingReadBillingResponse = billingReadBillingResponses[keyof billingReadBillingResponses];
+
+export type billingReadPaidChecksData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/billing/checks';
+};
+
+export type billingReadPaidChecksErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type billingReadPaidChecksError = billingReadPaidChecksErrors[keyof billingReadPaidChecksErrors];
+
+export type billingReadPaidChecksResponses = {
+    /**
+     * Successful Response
+     */
+    200: PaidChecksPublic;
+};
+
+export type billingReadPaidChecksResponse = billingReadPaidChecksResponses[keyof billingReadPaidChecksResponses];
+
+export type billingStartCheckoutData = {
+    body: PlanIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/billing/checkout';
+};
+
+export type billingStartCheckoutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type billingStartCheckoutError = billingStartCheckoutErrors[keyof billingStartCheckoutErrors];
+
+export type billingStartCheckoutResponses = {
+    /**
+     * Successful Response
+     */
+    200: RedirectOut;
+};
+
+export type billingStartCheckoutResponse = billingStartCheckoutResponses[keyof billingStartCheckoutResponses];
+
+export type billingOpenBillingPortalData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/billing/portal';
+};
+
+export type billingOpenBillingPortalResponses = {
+    /**
+     * Successful Response
+     */
+    200: RedirectOut;
+};
+
+export type billingOpenBillingPortalResponse = billingOpenBillingPortalResponses[keyof billingOpenBillingPortalResponses];
+
+export type billingChangePlanData = {
+    body: PlanIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/billing/plan';
+};
+
+export type billingChangePlanErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type billingChangePlanError = billingChangePlanErrors[keyof billingChangePlanErrors];
+
+export type billingChangePlanResponses = {
+    /**
+     * Successful Response
+     */
+    200: BillingOut;
+};
+
+export type billingChangePlanResponse = billingChangePlanResponses[keyof billingChangePlanResponses];
 
 export type statsReadStatsData = {
     body?: never;
