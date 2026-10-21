@@ -19,3 +19,10 @@ public_url = ""
 
 # Browser extension IDs allowed to call the free check (extension/README.md).
 # extension_ids = ["lfepfedddcabkigmmhbhacdllgljpdbe"]
+
+# Paid plans: live-mode price ids from the Stripe Dashboard (infra/README.md, "Stripe"). Empty keeps
+# Checkout off, and the pricing page offers the contact form instead.
+# stripe_price_starter     = "price_..."
+# stripe_price_agency      = "price_..."
+# stripe_price_extra_check = "price_..."
+# stripe_automatic_tax     = false # true once registered for GST/HST

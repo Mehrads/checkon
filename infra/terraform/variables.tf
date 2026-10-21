@@ -86,3 +86,30 @@ variable "free_check_daily_spend_cap_usd" {
   type    = string
   default = "5"
 }
+
+# Stripe (infra/README.md, "Stripe"): price ids from the Stripe Dashboard, live mode in production.
+# The secret key and webhook signing secret live in Secret Manager, not here.
+
+variable "stripe_price_starter" {
+  description = "Price id of the Starter monthly fee, for example price_1Q…"
+  type        = string
+  default     = ""
+}
+
+variable "stripe_price_agency" {
+  description = "Price id of the Agency monthly fee."
+  type        = string
+  default     = ""
+}
+
+variable "stripe_price_extra_check" {
+  description = "Price id of the $1 usage-based extra-check price on the checkon_extra_check meter."
+  type        = string
+  default     = ""
+}
+
+variable "stripe_automatic_tax" {
+  description = "Have Stripe Tax add HST at Checkout. Turn on only once registered for GST/HST and the registration is added in Stripe."
+  type        = bool
+  default     = false
+}

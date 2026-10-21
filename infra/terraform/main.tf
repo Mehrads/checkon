@@ -19,6 +19,11 @@ locals {
     SMTP_PORT                      = tostring(var.smtp_port)
     SMTP_USER                      = var.smtp_user
     EMAILS_FROM_EMAIL              = var.emails_from
+    # Paid plans (infra/README.md, "Stripe"). Empty price ids keep Checkout off.
+    STRIPE_PRICE_STARTER     = var.stripe_price_starter
+    STRIPE_PRICE_AGENCY      = var.stripe_price_agency
+    STRIPE_PRICE_EXTRA_CHECK = var.stripe_price_extra_check
+    STRIPE_AUTOMATIC_TAX     = tostring(var.stripe_automatic_tax)
   }
 
   # Settings read from Secret Manager
@@ -28,6 +33,8 @@ locals {
     FIRST_SUPERUSER_PASSWORD = google_secret_manager_secret.generated["first-superuser-password"].secret_id
     ANTHROPIC_API_KEY        = google_secret_manager_secret.manual["anthropic-api-key"].secret_id
     SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
+    STRIPE_SECRET_KEY        = google_secret_manager_secret.manual["stripe-secret-key"].secret_id
+    STRIPE_WEBHOOK_SECRET    = google_secret_manager_secret.manual["stripe-webhook-secret"].secret_id
   }
 }
 
@@ -147,7 +154,7 @@ resource "google_secret_manager_secret_version" "generated" {
 }
 
 resource "google_secret_manager_secret" "manual" {
-  for_each  = toset(["anthropic-api-key", "smtp-password"])
+  for_each  = toset(["anthropic-api-key", "smtp-password", "stripe-secret-key", "stripe-webhook-secret"])
   secret_id = "${local.name}-${each.value}"
   replication {
     user_managed {

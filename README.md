@@ -47,6 +47,10 @@ For frontend work with hot reload, run `bun run dev` in `frontend/` and open htt
 - **Visit counts:** set `VITE_UMAMI_WEBSITE_ID` (the `UMAMI_WEBSITE_ID` repository variable in production) to load Umami Cloud's cookieless script on the public page. It only counts `checkon.ca`.
 - **Behind a proxy (Cloud Run):** start the server with `--forwarded-allow-ips` set, or every visitor shares the proxy's IP.
 
+## Paid plans
+
+Starter and Agency are sold through Stripe Checkout; a completed Checkout creates the customer's account and emails a link to set a password. Signed-in customers check against their plan's monthly checks instead of the free limits, and extra checks are billed through a Stripe meter. Setup, test mode and the local end-to-end run are in `infra/README.md` ("Stripe"). Until Stripe is configured, the Subscribe buttons open the contact form.
+
 ## Deploy
 
 The GCP setup (Terraform, GitHub Actions and the runbook) is in `infra/README.md`.
