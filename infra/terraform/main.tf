@@ -267,9 +267,9 @@ resource "google_cloud_run_v2_service" "app" {
     }
 
     containers {
-      image   = var.image
-      command = ["fastapi"]
-      args    = ["run", "--workers", "1", "--port", "8000"]
+      # No command override: the image's CMD (backend/Dockerfile) already runs one worker on
+      # port 8000, and an override would break the placeholder image on the first apply.
+      image = var.image
 
       ports {
         container_port = 8000
