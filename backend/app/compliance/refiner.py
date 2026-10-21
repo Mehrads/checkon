@@ -363,19 +363,25 @@ def acceptance(c: _Context, patches: list[Patch], after: Inspection, applied: _A
     before_results = {r.rule: r for r in base.report.results}
     after_results = {r.rule: r for r in after.report.results}
 
-    def blame(rule: str, message: str, candidates: list[Patch]) -> None:
+    def blame(rule: str, message: str, candidates: list[Patch], *, only_culprits: bool = False) -> None:
         evidence = after_results[rule].evidence
         culprits = [p for p in candidates if any(_overlaps(applied.spans[p.id], e) for e in evidence)]
+        if not culprits and evidence and only_culprits:
+            return  # what's left is in sentences no patch touched; those are dropped with guidance
         for p in culprits or candidates:
             failures[p.id].append(message)
 
-    # 1. Every patched rule now passes, or is needs_input behind the pay placeholder.
+    # 1. Every patched rule now passes, or is needs_input behind the pay placeholder. A sentence rewrite
+    #    is judged by its own sentence: another sentence of the same rule that couldn't be fixed (a
+    #    borderline location line, say) must not throw away a rewrite that worked.
     patched = {p.rule for p in patches}
     for rule in patched:
         result = after_results[rule]
         placeholder = rule == "ON-PAY-01" and result.verdict == Verdict.NEEDS_INPUT and after.facts.pay_placeholder
         if result.verdict not in _FIXED and not placeholder:
-            blame(rule, f"Test 1: {rule} is still {result.verdict.value}: {result.message}", [p for p in patches if p.rule == rule])
+            own = [p for p in patches if p.rule == rule]
+            blame(rule, f"Test 1: {rule} is still {result.verdict.value}: {result.message}", own,
+                  only_culprits=all(p.op == "replace" for p in own))  # fmt: skip
 
     # 2. No rule that passed now fails or warns.
     for rule, before in before_results.items():

@@ -168,15 +168,25 @@ export function Fixes({
               />
               Fix these yourself
             </p>
-            {refinement.dropped.map((dropped) => (
-              <p
-                key={`${dropped.rule}-${dropped.span?.join("-")}`}
-                className="text-sm"
-              >
-                <span className="font-medium">{ruleName(dropped.rule)}:</span>{" "}
-                {dropped.guidance}
-              </p>
-            ))}
+            {refinement.dropped
+              // Several sentences under one rule share its guidance: show it once.
+              .filter(
+                (dropped, index, all) =>
+                  all.findIndex(
+                    (other) =>
+                      other.rule === dropped.rule &&
+                      other.guidance === dropped.guidance,
+                  ) === index,
+              )
+              .map((dropped) => (
+                <p
+                  key={`${dropped.rule}-${dropped.span?.join("-")}`}
+                  className="text-sm"
+                >
+                  <span className="font-medium">{ruleName(dropped.rule)}:</span>{" "}
+                  {dropped.guidance}
+                </p>
+              ))}
           </div>
         )}
       </div>

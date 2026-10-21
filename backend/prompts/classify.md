@@ -10,6 +10,8 @@ Give every listed sentence exactly one label in its task, using the sentence's n
 
 When a sentence sits between two labels, choose the stricter one: violation over borderline, borderline over ok.
 
+A job location or where the work happens ("Mississauga, Ontario (hybrid)", "Remote within Ontario") says nothing about experience: label it ok.
+
 ## Task vacancy
 
 {{ON-VAC-01}}

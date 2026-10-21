@@ -156,6 +156,33 @@ def test_borderline_rewrite_is_a_suggestion_not_applied_by_default() -> None:
     assert result.text == POSTING
 
 
+def test_an_unfixable_sentence_doesnt_block_the_fix_for_another() -> None:
+    # The safety net sends the location line to the classifier, which can call it borderline. That line
+    # can't be rewritten and is dropped; the real requirement's rewrite must still go through.
+    text = POSTING.replace("Mississauga, ON (hybrid)", "Mississauga, Ontario (hybrid)")
+    canadian, location = sid(text, "Canadian"), sid(text, "Mississauga")
+    vacancy, skills = sid(text, "existing vacancy"), sid(text, "communication")
+    base = inspected(
+        text, CTX,
+        {"requirement_sentences": [canadian, skills], "vacancy_sentences": [vacancy], "locations": ["Mississauga, Ontario"]},
+        labels(cex={canadian: "violation", location: "borderline", skills: "ok"}, vacancy={vacancy: "existing"}),
+    )  # fmt: skip
+    llm = FakeLLM()
+    llm.queue(_Rewrite, {"sentence": "Mississauga, Ontario (hybrid)"})  # nothing to change: no usable rewrite
+    llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
+    llm.queue(Classification, labels(cex={canadian: "ok"}))
+    result = refine(base, CTX, POSTED, PACK, llm)
+
+    [patch] = result.patches
+    assert (patch.before, patch.after, patch.default) == (
+        "2+ years of Canadian payroll experience", "2+ years of payroll experience", True,
+    )
+    [dropped] = result.dropped
+    assert dropped.rule == "ON-CEX-01" and text[dropped.span[0] : dropped.span[1]] == "Mississauga, Ontario (hybrid)"
+    assert "2+ years of payroll experience" in result.text
+    assert verdicts(result.report)["ON-CEX-01"] == "warning"  # the location line is still for a person to judge
+
+
 # Pay
 
 
