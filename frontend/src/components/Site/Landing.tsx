@@ -1,20 +1,13 @@
+import "@fontsource-variable/newsreader/wght.css"
+import "@fontsource-variable/hanken-grotesk/wght.css"
+import "./landing.css"
+
 import { Link } from "@tanstack/react-router"
-import {
-  Archive,
-  BadgeCheck,
-  Check,
-  ClipboardPaste,
-  ListChecks,
-  type LucideIcon,
-  PenLine,
-  Plug,
-  Users,
-} from "lucide-react"
+import { Check } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { Appearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
@@ -24,10 +17,11 @@ import {
   type Interest,
   useContact,
 } from "./Contact"
+import { BrowserFrame, Photo, Screenshot } from "./Media"
 
 const NAV = [
   { href: "#how", label: "How it works" },
-  { href: "#teams", label: "For teams" },
+  { href: "#teams", label: "Who it's for" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
@@ -43,12 +37,12 @@ export function Brand({ href = "#check" }: { href?: string }) {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b bg-background">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Brand />
         <nav
           aria-label="Sections"
-          className="hidden items-center gap-6 whitespace-nowrap text-sm text-muted-foreground lg:flex"
+          className="hidden items-center gap-7 whitespace-nowrap text-sm text-muted-foreground lg:flex"
         >
           {NAV.map((item) => (
             <a
@@ -71,177 +65,323 @@ export function SiteHeader() {
   )
 }
 
+/** A short rule and a label above a heading. */
+function Kicker({
+  children,
+  className,
+  rule = "bg-brand",
+}: {
+  children: ReactNode
+  className?: string
+  rule?: string
+}) {
+  return (
+    <p
+      className={cn(
+        "flex items-center gap-3 text-sm font-medium text-muted-foreground",
+        className,
+      )}
+    >
+      <span className={cn("h-px w-8", rule)} aria-hidden="true" />
+      {children}
+    </p>
+  )
+}
+
+function Heading({
+  id,
+  children,
+  className,
+}: {
+  id?: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <h2
+      id={id}
+      className={cn(
+        "font-display text-[2.125rem] leading-[1.08] font-medium tracking-[-0.015em] text-balance sm:text-5xl",
+        className,
+      )}
+    >
+      {children}
+    </h2>
+  )
+}
+
 export function HeroIntro() {
-  const points = [
-    "One click, no sign-up",
-    "A compliant rewrite you approve, change by change",
-    "Edit, format and copy it straight into your ATS",
+  const facts = [
+    ["Free", "Once a week, no sign-up"],
+    ["Yours to approve", "Change by change"],
+    ["Ready to publish", "Copy it into your ATS"],
   ]
   return (
-    <div className="min-w-0 space-y-6">
-      <Badge
-        variant="outline"
-        className="gap-1.5 rounded-full px-3 py-1 text-left text-xs font-medium whitespace-normal"
-      >
-        <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-        Ontario job posting compliance
-      </Badge>
-      <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        Ontario compliance check for your job postings,{" "}
-        <span className="text-primary">in one click.</span>
+    <div className="min-w-0 text-deep-foreground">
+      <Kicker className="text-deep-muted" rule="bg-deep-accent">
+        For HR teams and recruiters in Ontario
+      </Kicker>
+      <h1 className="mt-6 font-display text-[2.6rem] leading-[1.02] font-medium tracking-[-0.02em] text-balance sm:text-6xl">
+        Ontario job posting compliance,{" "}
+        <span className="text-deep-accent">in one click.</span>
       </h1>
-      <p className="max-w-xl text-lg text-muted-foreground">
-        Paste a posting and CheckON shows what doesn't comply, then rewrites it
-        for you before you publish.
+      <p className="mt-6 max-w-xl text-lg text-deep-muted">
+        Paste a posting. CheckON marks what doesn't comply, suggests the
+        smallest fix for each problem, and leaves every change up to you.
       </p>
-      <ul className="space-y-2.5">
-        {points.map((point) => (
-          <li key={point} className="flex items-start gap-2.5 text-sm">
-            <Check
-              className="mt-0.5 size-4 shrink-0 text-primary"
-              aria-hidden="true"
-            />
-            {point}
-          </li>
+      <dl className="mt-10 hidden max-w-xl gap-x-6 gap-y-4 border-t border-white/15 pt-5 text-sm sm:grid sm:grid-cols-3">
+        {facts.map(([term, detail]) => (
+          <div key={term}>
+            <dt className="font-semibold">{term}</dt>
+            <dd className="mt-0.5 text-deep-muted">{detail}</dd>
+          </div>
         ))}
-      </ul>
+      </dl>
     </div>
   )
 }
 
-function Section({
-  id,
-  eyebrow,
-  title,
-  lead,
-  children,
-  muted = false,
-}: {
-  id: string
-  eyebrow: string
-  title: string
-  lead?: string
-  children: ReactNode
-  muted?: boolean
-}) {
+/** Intrinsic heights of the product captures (all 1120 px wide). */
+const PRODUCT = { fixes: 983, findings: 1488, editor: 604 }
+
+/** A red pen on a notebook, with the suggested fixes overlapping it. */
+export function WhatYouGet() {
   return (
-    <section
-      id={id}
-      className={cn("scroll-mt-16 border-t", muted && "bg-muted/30")}
-    >
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <div className="max-w-2xl space-y-3">
-          <p className="text-sm font-medium text-primary">{eyebrow}</p>
-          <h2 className="text-3xl font-semibold tracking-tight text-balance">
-            {title}
-          </h2>
-          {lead && <p className="text-muted-foreground">{lead}</p>}
+    <section aria-labelledby="what-you-get" className="overflow-hidden">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 pt-8 pb-20 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:pt-16 lg:pb-32">
+        <div className="max-w-xl lg:col-span-5 lg:pt-6 lg:pr-16">
+          <Heading id="what-you-get">
+            Every problem, tied to the sentence behind it
+          </Heading>
+          <p className="mt-6 text-muted-foreground">
+            CheckON reads the whole posting and gives each requirement a plain
+            verdict. When something needs fixing, it quotes your words and
+            suggests the smallest change that fixes it.
+          </p>
+          <p className="mt-4 text-muted-foreground">
+            Nothing is rewritten until you tick it. Your tone, your structure
+            and your list of perks stay as you wrote them.
+          </p>
         </div>
-        <div className="mt-10">{children}</div>
+        <div className="relative lg:col-span-7 lg:col-start-6">
+          <div className="-mx-4 overflow-hidden sm:mx-0 sm:rounded-sm lg:-mr-[calc(max(0px,(100vw_-_72rem)/2)_+_1.5rem)] lg:rounded-r-none">
+            <Photo
+              name="red-pen"
+              widths={[640, 1024, 1600]}
+              width={1600}
+              height={1066}
+              sizes="(min-width: 1024px) 62vw, 100vw"
+              alt="A hand writing in a notebook with a red pen"
+              className="aspect-[3/2] h-auto w-full object-cover"
+            />
+          </div>
+          <BrowserFrame className="relative mx-3 -mt-20 sm:mx-10 sm:-mt-32 lg:absolute lg:-bottom-16 lg:-left-12 lg:m-0 lg:w-[25rem]">
+            <Screenshot
+              name="product-fixes"
+              widths={[560, 1120]}
+              width={1120}
+              height={PRODUCT.fixes}
+              sizes="(min-width: 1024px) 400px, 92vw"
+              alt="CheckON's suggested fixes for a sample posting: a pay range placeholder, and a sentence rewritten to drop a Canadian experience requirement"
+            />
+          </BrowserFrame>
+        </div>
       </div>
     </section>
   )
 }
 
-function Tile({
-  icon: Icon,
-  title,
-  children,
-}: {
-  icon: LucideIcon
-  title: string
-  children: ReactNode
-}) {
+/** One sentence from the sample posting, before and after the check. */
+export function SampleFix() {
   return (
-    <div className="rounded-xl border bg-card p-5 shadow-sm">
-      <Icon className="size-5 text-primary" aria-hidden="true" />
-      <h3 className="mt-3 font-semibold">{title}</h3>
-      <p className="mt-1.5 text-sm text-muted-foreground">{children}</p>
-    </div>
+    <section
+      aria-labelledby="sample-fix"
+      className="relative isolate overflow-hidden bg-deep text-deep-foreground"
+    >
+      <Photo
+        name="bg-pen"
+        widths={[960, 1600]}
+        width={1600}
+        height={1201}
+        sizes="100vw"
+        alt="A fountain pen writing on lined paper"
+        className="absolute inset-0 -z-20 h-full w-full object-cover object-[65%_center]"
+      />
+      <div className="absolute inset-0 -z-10 bg-deep/85" aria-hidden="true" />
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <h2 id="sample-fix" className="text-sm font-medium text-deep-muted">
+          One line from a sample posting, checked
+        </h2>
+        <dl className="mt-10 grid gap-x-10 gap-y-3 font-display text-[1.65rem] leading-snug sm:grid-cols-[7rem_1fr] sm:text-4xl">
+          <dt className="font-site text-sm font-medium tracking-wide text-deep-muted uppercase sm:pt-3">
+            Before
+          </dt>
+          <dd>
+            <del className="decoration-[#e4836a] decoration-2">
+              3+ years supervising in a warehouse, with Canadian experience
+              required
+            </del>
+          </dd>
+          <dt className="mt-6 font-sans text-sm font-medium tracking-wide text-deep-muted uppercase sm:mt-0 sm:pt-3">
+            After
+          </dt>
+          <dd>
+            <ins className="no-underline">
+              3+ years supervising in a warehouse required
+            </ins>
+          </dd>
+        </dl>
+        <p className="mt-10 max-w-xl border-t border-white/15 pt-6 text-deep-muted sm:ml-[9.5rem]">
+          CheckON's note: ask for the skill, not where it was gained. The rest
+          of the sentence stays as written, and you decide whether to accept the
+          change.
+        </p>
+      </div>
+    </section>
   )
 }
 
 export function HowItWorks() {
   const steps = [
     {
-      icon: ClipboardPaste,
-      title: "Paste your posting",
-      text: "From your ATS, a job board draft or your careers page. Nothing to install.",
+      title: "Paste one posting",
+      text: "From your ATS, a job board draft or a Word file. Up to 8,000 characters, nothing to install.",
     },
     {
-      icon: ListChecks,
-      title: "Check it in one click",
-      text: "See what complies and what doesn't, pointing at the exact sentence.",
+      title: "Check it",
+      text: "Each requirement gets a verdict, pointing at the exact sentence. If the answer depends on something only you know, CheckON asks a yes-or-no question.",
     },
     {
-      icon: BadgeCheck,
       title: "Approve the fixes",
-      text: "Only what compliance requires changes. You keep or drop each change.",
+      text: "Only what compliance requires is changed. Keep or drop each change.",
     },
     {
-      icon: PenLine,
       title: "Edit and copy",
-      text: "Polish the wording and formatting, then copy it back where you publish.",
+      text: "Tidy the wording and formatting, then copy it back where you publish, formatted or as plain text.",
     },
   ]
   return (
-    <Section
-      id="how"
-      eyebrow="How it works"
-      title="From draft to compliant in about a minute"
-    >
-      <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((step, index) => (
-          <li
-            key={step.title}
-            className="rounded-xl border bg-card p-5 shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <step.icon className="size-5 text-primary" aria-hidden="true" />
-              <span className="text-sm font-medium text-muted-foreground">
-                0{index + 1}
-              </span>
-            </div>
-            <h3 className="mt-3 font-semibold">{step.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{step.text}</p>
-          </li>
-        ))}
-      </ol>
-    </Section>
+    <section id="how" className="scroll-mt-16 bg-paper">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Kicker>How it works</Kicker>
+            <Heading className="mt-5">
+              From a pasted draft to a posting you can publish
+            </Heading>
+            <ol className="mt-10 border-t">
+              {steps.map((step, index) => (
+                <li
+                  key={step.title}
+                  className="grid grid-cols-[2.5rem_1fr] gap-3 border-b py-6"
+                >
+                  <span
+                    className="font-display text-3xl leading-none text-brand"
+                    aria-hidden="true"
+                  >
+                    {index + 1}
+                  </span>
+                  <div>
+                    <h3 className="font-semibold">{step.title}</h3>
+                    <p className="mt-1.5 text-muted-foreground">{step.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <figure className="lg:col-span-6 lg:col-start-7">
+            <BrowserFrame className="lg:sticky lg:top-24">
+              <Screenshot
+                name="product-findings"
+                widths={[560, 1120]}
+                width={1120}
+                height={PRODUCT.findings}
+                sizes="(min-width: 1024px) 540px, 92vw"
+                alt="CheckON's rule-by-rule results for a sample posting: three items to fix, each quoting the sentence it is about"
+              />
+            </BrowserFrame>
+            <figcaption className="mt-4 text-sm text-muted-foreground">
+              Results for a sample posting: a warehouse shift supervisor in
+              Mississauga.
+            </figcaption>
+          </figure>
+        </div>
+        <figure className="mt-16 lg:mt-24">
+          <BrowserFrame className="mx-auto max-w-4xl">
+            <Screenshot
+              name="product-editor"
+              widths={[560, 1120]}
+              width={1120}
+              height={PRODUCT.editor}
+              sizes="(min-width: 1024px) 896px, 92vw"
+              alt="The updated posting in CheckON's editor, with buttons to copy it formatted or as plain text"
+            />
+          </BrowserFrame>
+          <figcaption className="mx-auto mt-4 max-w-4xl text-sm text-muted-foreground">
+            Step 4: the updated posting opens in an editor, ready to copy.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
   )
 }
 
 export function ForTeams() {
   const { contactAbout } = useContact()
   return (
-    <Section
-      id="teams"
-      eyebrow="For agencies and HR teams"
-      title="Check every posting where you already write it"
-      lead="Recruiting agencies post for many clients. HR teams post from their HR system. Tell us how you work and we'll set CheckON up for you."
-      muted
-    >
-      <div className="grid gap-4 md:grid-cols-3">
-        <Tile icon={Users} title="A profile per client">
-          Settings saved for each client, so every posting is checked against
-          the right facts.
-        </Tile>
-        <Tile icon={Plug} title="Runs in your HR system">
-          A free browser extension for any job form, and a connection to your
-          own HR system, built for your setup.
-        </Tile>
-        <Tile icon={Archive} title="Proof for your clients">
-          A dated record of every approved posting.
-        </Tile>
+    <section id="teams" className="scroll-mt-16">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:sticky lg:top-24 lg:col-span-5 lg:self-start">
+          <Kicker>Who it's for</Kicker>
+          <Heading className="mt-5">
+            For the people who write the postings
+          </Heading>
+        </div>
+        <div className="space-y-14 lg:col-span-6 lg:col-start-7 lg:pt-2">
+          <div>
+            <h3 className="font-display text-3xl font-medium">
+              HR at Ontario employers
+            </h3>
+            <p className="mt-4 text-muted-foreground">
+              You're the HR generalist, or the whole HR team, at a business that
+              hires every month. CheckON gives each posting a check before it
+              goes up, and keeps the wording you chose.
+            </p>
+            <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
+              <li>Your company's details saved, so each check starts there</li>
+              <li>Pay range suggestions when a posting has none</li>
+              <li>A history of what you checked and approved</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-display text-3xl font-medium">
+              Recruiting agencies
+            </h3>
+            <p className="mt-4 text-muted-foreground">
+              You post for many clients, each with its own details. CheckON
+              keeps them apart and gives you something to show each client.
+            </p>
+            <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
+              <li>
+                A workspace per client, checked against that client's facts
+              </li>
+              <li>A dated archive of every approved posting</li>
+              <li>
+                A browser extension for any job form (coming soon), or a
+                connection to your own systems
+              </li>
+            </ul>
+            <Button
+              className="mt-8"
+              variant="outline"
+              onClick={() => contactAbout("custom")}
+            >
+              Talk to us about your setup
+            </Button>
+          </div>
+        </div>
       </div>
-      <Button
-        className="mt-6"
-        variant="outline"
-        onClick={() => contactAbout("custom")}
-      >
-        Talk to us about your setup
-      </Button>
-    </Section>
+    </section>
   )
 }
 
@@ -307,27 +447,49 @@ const PLANS: Plan[] = [
   },
 ]
 
+function PricingSection({ children }: { children: ReactNode }) {
+  return (
+    <section id="pricing" className="scroll-mt-16">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <Kicker>Pricing</Kicker>
+            <Heading className="mt-5 max-w-2xl">
+              Start free. Pay when it's part of the job.
+            </Heading>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Prices in Canadian dollars.
+          </p>
+        </div>
+        {children}
+      </div>
+    </section>
+  )
+}
+
 export function Pricing() {
   const { contactAbout } = useContact()
   return (
-    <Section
-      id="pricing"
-      eyebrow="Pricing"
-      title="Start free. Upgrade when it's part of your workflow."
-      lead="Prices in Canadian dollars."
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <PricingSection>
+      <div className="mt-12 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => (
           <div
             key={plan.name}
             className={cn(
-              "flex flex-col rounded-xl border bg-card p-5 shadow-sm",
-              plan.highlight && "border-primary ring-1 ring-primary",
+              "relative flex flex-col bg-card p-6",
+              plan.highlight && "bg-accent",
             )}
           >
-            <p className="text-sm font-medium">{plan.name}</p>
-            <p className="mt-3">
-              <span className="text-3xl font-semibold tracking-tight">
+            {plan.highlight && (
+              <span
+                className="absolute inset-x-0 top-0 h-1 bg-brand"
+                aria-hidden="true"
+              />
+            )}
+            <h3 className="text-sm font-semibold">{plan.name}</h3>
+            <p className="mt-4">
+              <span className="font-display text-5xl font-medium tracking-tight">
                 {plan.price}
               </span>
               {plan.period && (
@@ -337,7 +499,7 @@ export function Pricing() {
               )}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{plan.note}</p>
-            <ul className="mt-5 flex-1 space-y-2 text-sm">
+            <ul className="mt-6 flex-1 space-y-2 border-t pt-5 text-sm">
               {plan.features.map((feature) => (
                 <li key={feature} className="flex gap-2">
                   <Check
@@ -368,7 +530,7 @@ export function Pricing() {
           </div>
         ))}
       </div>
-    </Section>
+    </PricingSection>
   )
 }
 
@@ -397,39 +559,101 @@ const QUESTIONS = [
 
 export function Faq() {
   return (
-    <Section id="faq" eyebrow="FAQ" title="Questions people ask" muted>
-      <div className="divide-y rounded-xl border bg-card shadow-sm">
-        {QUESTIONS.map((item) => (
-          <details key={item.q} className="group px-5 py-4">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
-              {item.q}
-              <span
-                className="text-muted-foreground transition-transform group-open:rotate-45"
-                aria-hidden="true"
-              >
-                +
-              </span>
-            </summary>
-            <p className="mt-2 text-sm text-muted-foreground">{item.a}</p>
-          </details>
-        ))}
+    <section id="faq" className="scroll-mt-16 bg-paper">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-4">
+          <Kicker>FAQ</Kicker>
+          <Heading className="mt-5">Questions people ask</Heading>
+          <p className="mt-5 text-muted-foreground">
+            Something else?{" "}
+            <a
+              href="#contact"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Send us a message
+            </a>
+            .
+          </p>
+        </div>
+        <div className="border-t lg:col-span-7 lg:col-start-6">
+          {QUESTIONS.map((item) => (
+            <details key={item.q} className="group border-b py-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-medium">
+                {item.q}
+                <span
+                  className="text-xl text-primary transition-transform group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 max-w-prose text-muted-foreground">{item.a}</p>
+            </details>
+          ))}
+        </div>
       </div>
-    </Section>
+    </section>
+  )
+}
+
+/** A closing call to check a posting, beside a "Help wanted" sign. */
+export function NextPosting() {
+  return (
+    <section
+      aria-labelledby="next-posting"
+      className="grid bg-deep text-deep-foreground lg:grid-cols-2"
+    >
+      <div className="relative h-60 sm:h-80 lg:order-last lg:h-auto">
+        <Photo
+          name="bg-help-wanted"
+          widths={[960, 1440, 1920]}
+          width={1920}
+          height={1280}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          alt="A Help wanted sign taped inside a shop window"
+          className="absolute inset-0 h-full w-full object-cover object-[55%_center]"
+        />
+      </div>
+      <div className="px-4 py-16 sm:px-6 sm:py-24 lg:py-32 lg:pr-16 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]">
+        <h2
+          id="next-posting"
+          className="max-w-lg font-display text-[2.125rem] leading-[1.08] font-medium tracking-[-0.015em] text-balance sm:text-5xl"
+        >
+          Hiring this week? Check the posting before it goes up.
+        </h2>
+        <p className="mt-5 max-w-md text-lg text-deep-muted">
+          Paste it in, see what needs fixing and approve the changes. Free once
+          a week, no sign-up.
+        </p>
+        <Button
+          asChild
+          size="lg"
+          className="mt-8 bg-deep-foreground text-deep hover:bg-deep-foreground/90"
+        >
+          <a href="#check">Check a posting</a>
+        </Button>
+      </div>
+    </section>
   )
 }
 
 export function ContactSection() {
   return (
-    <Section
-      id="contact"
-      eyebrow="Contact"
-      title="Talk to us"
-      lead="Questions, a plan for your team, or a custom setup for your HR system: send us a message and we'll reply by email."
-    >
-      <div className="max-w-2xl">
-        <ContactForm />
+    <section id="contact" className="scroll-mt-16">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-4">
+          <Kicker>Contact</Kicker>
+          <Heading className="mt-5">Talk to us</Heading>
+          <p className="mt-5 text-muted-foreground">
+            Questions, a plan for your team, or a custom setup for your HR
+            system. Send a message and we'll reply by email.
+          </p>
+        </div>
+        <div className="lg:col-span-7 lg:col-start-6">
+          <ContactForm />
+        </div>
       </div>
-    </Section>
+    </section>
   )
 }
 
@@ -437,10 +661,12 @@ export function ContactSection() {
 export function SiteFooter({ home = "" }: { home?: string }) {
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <Brand href={`${home}#check`} />
-        <p>Ontario job posting compliance. Not legal advice.</p>
-        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-end sm:justify-between sm:px-6">
+        <div className="space-y-3">
+          <Brand href={`${home}#check`} />
+          <p>Ontario job posting compliance. Not legal advice.</p>
+        </div>
+        <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {CONTACT_EMAIL ? (
             <a
               href={`mailto:${CONTACT_EMAIL}`}

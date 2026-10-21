@@ -9,9 +9,12 @@ import {
   ForTeams,
   HeroIntro,
   HowItWorks,
+  NextPosting,
   Pricing,
+  SampleFix,
   SiteFooter,
   SiteHeader,
+  WhatYouGet,
 } from "@/components/Site/Landing"
 import { loadAnalytics } from "@/lib/analytics"
 
@@ -33,14 +36,17 @@ function CheckPage() {
   useEffect(loadAnalytics, [])
   return (
     <ContactProvider>
-      <div className="min-h-svh bg-background">
+      <div className="site min-h-svh bg-background text-foreground">
         <SiteHeader />
         <main>
           <Checker intro={<HeroIntro />} />
+          <WhatYouGet />
+          <SampleFix />
           <HowItWorks />
           <ForTeams />
           <Pricing />
           <Faq />
+          <NextPosting />
           <ContactSection />
         </main>
         <SiteFooter />
