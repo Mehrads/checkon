@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Annotated, Any, Literal
 
 import stripe
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict
 from sqlmodel import col, func, select
@@ -211,8 +211,9 @@ def _webhook_client() -> stripe.StripeClient:
 
 @router.post("/stripe/webhook", include_in_schema=False)
 async def stripe_webhook(
-    request: Request, session: SessionDep, client: Annotated[stripe.StripeClient, Depends(_webhook_client)]
-) -> dict[str, bool]:
+    request: Request, session: SessionDep, background: BackgroundTasks,
+    client: Annotated[stripe.StripeClient, Depends(_webhook_client)],
+) -> dict[str, bool]:  # fmt: skip
     """Stripe's events. The signature proves the request came from Stripe; anything else gets a 400."""
     payload = await request.body()
     try:
@@ -221,5 +222,7 @@ async def stripe_webhook(
         )
     except (ValueError, stripe.SignatureVerificationError):
         raise HTTPException(status_code=400, detail="Invalid Stripe webhook.")
-    applied = await run_in_threadpool(process_event, session, client, event)
-    return {"received": True, "duplicate": not applied}
+    after = await run_in_threadpool(process_event, session, client, event)
+    for action in after or []:
+        background.add_task(action)
+    return {"received": True, "duplicate": after is None}

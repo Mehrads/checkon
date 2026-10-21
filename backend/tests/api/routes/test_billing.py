@@ -18,11 +18,18 @@ import stripe
 from fastapi.testclient import TestClient
 from sqlmodel import Session, col, delete, select
 
-from app.api.billing import ACTIVE, Allowance, billing_period, plans, report_extra_checks
+from app.api.billing import (
+    ACTIVE,
+    Allowance,
+    billing_period,
+    get_stripe,
+    plans,
+    report_extra_checks,
+    stripe_client,
+)
 from app.api.free_check import rate_limited
 from app.api.routes.billing import _webhook_client
 from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_usage
-from app.api.billing import get_stripe, stripe_client
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.core import security

@@ -2,7 +2,8 @@
 the subscription is always read fresh from Stripe rather than taken from the event.
 
 A completed Checkout creates the customer's account (public sign-up is off) and emails a link to set a
-password. Emails go out only after the transaction commits, so a retried event can't send a second one.
+password. Emails go out only after the transaction commits, so a retried event can't send a second one, and
+after the response, so a slow mail server can't hold up Stripe's delivery.
 """
 
 import logging
@@ -48,14 +49,15 @@ After = list[Callable[[], None]]
 _email = TypeAdapter(EmailStr)
 
 
-def process_event(session: Session, client: stripe.StripeClient, event: stripe.Event) -> bool:
-    """Apply one event. False if it was already applied (Stripe redelivers events)."""
+def process_event(session: Session, client: stripe.StripeClient, event: stripe.Event) -> After | None:
+    """Apply one event and return what to do once it's committed (emails). None if it was already applied
+    (Stripe redelivers events)."""
     session.add(StripeEvent(id=event.id, type=event.type))
     try:
         session.flush()  # a second delivery waits here for the first to commit, then fails
     except IntegrityError:
         session.rollback()
-        return False
+        return None
     after: After = []
     data = event.data.object
     if event.type == "checkout.session.completed":
@@ -66,9 +68,7 @@ def process_event(session: Session, client: stripe.StripeClient, event: stripe.E
         if subscription := _invoice_subscription(data):
             _sync(session, client, subscription)
     session.commit()
-    for action in after:
-        action()
-    return True
+    return after
 
 
 def _sync(session: Session, client: stripe.StripeClient, subscription_id: str) -> Customer:

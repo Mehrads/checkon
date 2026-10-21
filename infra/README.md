@@ -180,7 +180,7 @@ Checkout also lets business customers add their tax number, which Stripe prints 
 
 In test mode, from the folder you run the app in (the one with `.env`):
 
-1. **Secret key.** Developers › API keys › reveal the test **Secret key** (`sk_test_…`), then:
+1. **Secret key.** With the **Sandbox** banner at the top, open Developers › API keys and copy the **Secret key** row's token: it starts with `sk_test_`. The Dashboard home page shows the live publishable key (`pk_live_…`), and live mode lists live restricted keys (`rk_live_…`); neither works here. Put it after `STRIPE_SECRET_KEY=` in `.env`, or without it showing on screen:
 
    ```bash
    sed -i '' '/^STRIPE_SECRET_KEY=/d' .env && read -rs "K?Stripe test secret key: " && printf 'STRIPE_SECRET_KEY=%s\n' "$K" >> .env; unset K
@@ -193,20 +193,18 @@ In test mode, from the folder you run the app in (the one with `.env`):
    brew install stripe/stripe-cli/stripe
    ```
 
-   ```bash
-   stripe login
-   ```
+   `stripe login` may only authorize **live** mode ("authorized for CheckON · live"). The commands below don't depend on it: they hand the CLI the test key from `.env`, so they always run in test mode.
 
 4. **Webhook secret.** The CLI's signing secret stays the same between runs, so store it once:
 
    ```bash
-   sed -i '' '/^STRIPE_WEBHOOK_SECRET=/d' .env && printf 'STRIPE_WEBHOOK_SECRET=%s\n' "$(stripe listen --print-secret)" >> .env
+   sed -i '' '/^STRIPE_WEBHOOK_SECRET=/d' .env && printf 'STRIPE_WEBHOOK_SECRET=%s\n' "$(STRIPE_API_KEY="$(sed -n 's/^STRIPE_SECRET_KEY=//p' .env)" stripe listen --print-secret)" >> .env
    ```
 
 5. **Forward the events** (leave it running in its own Terminal tab):
 
    ```bash
-   stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.paid,invoice.payment_failed --forward-to localhost:8000/api/v1/stripe/webhook
+   STRIPE_API_KEY="$(sed -n 's/^STRIPE_SECRET_KEY=//p' .env)" stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.paid,invoice.payment_failed --forward-to localhost:8000/api/v1/stripe/webhook
    ```
 
 6. Restart the backend (`cd backend && uv run fastapi dev`) and rebuild the frontend (`cd frontend && bun run build`).
@@ -217,7 +215,9 @@ In test mode, from the folder you run the app in (the one with `.env`):
    - The account page shows **Starter**, `0 of 50 checks this period`. Run a check (this uses your Anthropic key) and it becomes `1 of 50`, with the check in **Past checks**.
    - **Manage billing** opens Stripe's portal with the card, invoices and Cancel. **Switch to Agency** changes the plan and charges the difference.
    - To see an extra check without running 50, set `PLAN_CHECKS_STARTER=1` in `.env` and restart: the second check shows `Plus 1 extra check`, and the meter shows it under Billing › Meters (Stripe updates it within a few minutes).
-   - Cancel in the portal: the account page shows `Ends <date>`, and the plan keeps working until then.
+   - Cancel in the portal: the account page shows `Ends <date>`, and the plan keeps working until then. Stripe's preview of the next invoice then holds only the extra checks.
+
+Run on 2026-10-21 against the CheckON sandbox, all of the above passed: Checkout, the three webhooks (`invoice.paid`, `checkout.session.completed`, `customer.subscription.created`), the account and set-password link, sign-in with the code, `1 of 50`, an extra check on the meter (usage 1, next invoice "1 × CheckON extra checks, $1.00"), the portal, the switch to Agency (prorated invoice CA$169.94) and cancelling (`Ends Nov 21, 2026`). The portal cancels by setting a cancel date (`cancel_at`), not `cancel_at_period_end`; the app handles both.
 
 A failed renewal needs time to pass, which Stripe simulates with test clocks (Billing › Test clocks, and Stripe's "Test clocks" guide). The backend tests cover what the app does with it: the subscription turns `past_due`, checks keep working, and the account page shows **Payment failed**.
 
