@@ -49,6 +49,10 @@ class User(UserBase, table=True):
     hashed_password: str
     created_at: datetime | None = Field(default_factory=get_datetime_utc)
     items: list[Item] = Relationship(back_populates="owner", cascade_delete=True)
+    # The paying customer this user checks for; None for admins and anyone without a plan
+    customer_id: uuid.UUID | None = Field(
+        default=None, foreign_key="customer.id", ondelete="SET NULL", index=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -212,7 +216,7 @@ class ContactMessage(SQLModel, table=True):
 
 
 class UsageEvent(SQLModel, table=True):
-    """One step of a free check, for the success metrics (PRD §2). Never holds posting text; `visitor` is an
+    """One step of a check, free or on a plan (`plan`), for the success metrics (PRD §2). Never holds posting text; `visitor` is an
     HMAC of the anonymous cookie, kept (unlike the week-long quota keys) so returning visitors can be counted.
     """
 
@@ -226,3 +230,47 @@ class UsageEvent(SQLModel, table=True):
     duration_ms: int | None = None
     usd: Decimal | None = Field(default=None, max_digits=12, decimal_places=6)
     count: int | None = None  # fixes applied, on accept
+    plan: str | None = Field(default=None, max_length=16)  # starter or agency for a paid check; None when free
+
+
+# Paid plans (Stripe Billing). Card details stay with Stripe; we keep the ids and the subscription's state.
+
+
+class Customer(SQLModel, table=True):
+    """One Stripe customer and its subscription. Its users share the plan's checks for the billing period."""
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    stripe_customer_id: str = Field(unique=True, max_length=255)
+    email: str | None = Field(default=None, max_length=255)  # the email given at Checkout
+    stripe_subscription_id: str | None = Field(default=None, max_length=255)
+    plan: str | None = Field(default=None, max_length=16)  # starter or agency
+    subscription_status: str | None = Field(default=None, max_length=32)  # Stripe's: active, past_due, canceled…
+    current_period_start: datetime | None = None
+    current_period_end: datetime | None = None
+    cancel_at_period_end: bool = False
+
+
+class PaidCheck(SQLModel, table=True):
+    """A check that counted against a plan: the allowance and the customer's history. Never the posting text."""
+
+    __tablename__ = "paid_check"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+    customer_id: uuid.UUID = Field(foreign_key="customer.id", nullable=False, ondelete="CASCADE", index=True)
+    user_id: uuid.UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
+    check_id: str = Field(max_length=64, index=True)
+    title: str | None = Field(default=None, max_length=255)  # the job title, as written in the posting
+    status: str = Field(max_length=32)  # the report status when checked
+    final_status: str | None = Field(default=None, max_length=32)  # after the fixes were applied
+    extra: bool = False  # past the plan's checks for the period, so billed at the extra-check price
+    reported_at: datetime | None = None  # when an extra check was sent to Stripe's meter
+
+
+class StripeEvent(SQLModel, table=True):
+    """Webhook events already processed, so a redelivered event changes nothing."""
+
+    __tablename__ = "stripe_event"
+    id: str = Field(primary_key=True, max_length=255)
+    type: str = Field(max_length=64)
+    received_at: datetime = Field(default_factory=get_datetime_utc)

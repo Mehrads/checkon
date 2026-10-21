@@ -1,6 +1,6 @@
-"""The free paste check (Technical Design §11): inspect, refine, answer questions, accept patches,
-plus the research hooks (one question per result, a custom-solution request form, feedback)
-and the site's contact form.
+"""The paste check (Technical Design §11): inspect, refine, answer questions, accept patches, plus the
+research hooks (one question per result, a custom-solution request form, feedback) and the site's contact
+form. Visitors get the free check's limits; a signed-in customer on an active plan checks against the plan.
 """
 
 import html
@@ -9,10 +9,11 @@ import time
 from datetime import date, datetime
 from decimal import Decimal
 from functools import cache
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, NamedTuple
 from zoneinfo import ZoneInfo
 
 import anthropic
+import stripe
 from fastapi import (
     APIRouter,
     BackgroundTasks,
@@ -23,8 +24,15 @@ from fastapi import (
 )
 from pydantic import BaseModel, EmailStr, Field
 
+from app.api.billing import (
+    PlanLimits,
+    plan_access,
+    record_final_status,
+    report_extra_checks_later,
+    stripe_client,
+)
 from app.api.check_store import CheckState, CheckStore
-from app.api.deps import SessionDep
+from app.api.deps import OptionalUserDep, SessionDep
 from app.api.free_check import (
     Limits,
     PostgresLimits,
@@ -87,12 +95,20 @@ def get_usage(session: SessionDep) -> Usage:
     return PostgresUsage(session)
 
 
+def get_plan_limits(session: SessionDep, user: OptionalUserDep) -> PlanLimits | None:
+    """None for visitors and for signed-in users without an active plan: they get the free check."""
+    access = plan_access(session, user)
+    return PlanLimits(session, access) if access else None
+
+
 StoreDep = Annotated[CheckStore, Depends(get_store)]
 LLMDep = Annotated[StructuredLLM, Depends(get_llm)]
 PackDep = Annotated[RulePack, Depends(get_pack)]
 DateDep = Annotated[date, Depends(get_posting_date)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
 UsageDep = Annotated[Usage, Depends(get_usage)]
+PlanDep = Annotated[PlanLimits | None, Depends(get_plan_limits)]
+MeterDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
 
 
 class InspectIn(BaseModel):
@@ -169,6 +185,41 @@ def _spent(llm: StructuredLLM) -> Decimal:
     return meter.usd if meter is not None else Decimal(0)
 
 
+def _charge(limits: Limits, plan: str | None, llm: StructuredLLM) -> None:
+    """Free checks count toward the day's spend cap; a customer's checks don't."""
+    if plan is None:
+        limits.add_spend(_spent(llm))
+
+
+class Visitor(NamedTuple):
+    ip: str
+    cookie: str
+    hash: str
+
+
+def _free_check_allowed(request: Request, response: Response, limits: Limits, usage: Usage) -> Visitor:
+    visitor = Visitor(client_ip(request), cookie := visitor_cookie(request, response), visitor_hash(cookie))
+    if (next_check := limits.next_free_check(visitor.cookie, visitor.ip)) is not None:
+        usage.record("quota", visitor=visitor.hash)  # a returning visitor, even though the check is refused
+        day = next_check.astimezone(TORONTO).strftime("%B %-d")
+        raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
+    if not limits.budget_left():
+        usage.record("paused", visitor=visitor.hash)
+        raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
+    return visitor
+
+
+def _plan_check_allowed(plan: PlanLimits, usage: Usage) -> None:
+    if (next_check := plan.next_check()) is not None:
+        usage.record("quota", plan=plan.plan.id)
+        day = next_check.astimezone(TORONTO).strftime("%B %-d")
+        raise refused(
+            429, "plan_limit",
+            f"You've used this billing period's checks and {settings.PLAN_EXTRA_CHECKS_MAX} extra checks. "
+            f"Checks start again on {day}. Contact us if you need more.",
+        )  # fmt: skip
+
+
 def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement:
     return refine(
         state.inspection, state.ctx, state.posting_date, pack, llm,
@@ -178,35 +229,39 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
-    body: InspectIn, request: Request, response: Response, store: StoreDep, llm: LLMDep, pack: PackDep,
-    today: DateDep, limits: LimitsDep, usage: UsageDep,
+    body: InspectIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
+    llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
-    ip, cookie = client_ip(request), visitor_cookie(request, response)
-    visitor = visitor_hash(cookie)
-    if (next_check := limits.next_free_check(cookie, ip)) is not None:
-        usage.record("quota", visitor=visitor)  # a returning visitor, even though the check is refused
-        day = next_check.astimezone(TORONTO).strftime("%B %-d")
-        raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
-    if not limits.budget_left():
-        usage.record("paused", visitor=visitor)
-        raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
+    paid = plan.plan.id if plan else None
+    if plan is None:
+        visitor: Visitor | None = _free_check_allowed(request, response, limits, usage)
+    else:  # a customer's check: the plan's checks instead of the weekly limit and the spend cap
+        visitor = None
+        _plan_check_allowed(plan, usage)
+    who = visitor.hash if visitor else None
     ctx = Context(meets_headcount_threshold=body.meets_headcount_threshold)
     try:
         inspection = inspect(body.text, ctx, today, pack, llm)
     except InputRefused as error:  # no credit used
-        usage.record("refused", visitor=visitor, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm))
+        usage.record("refused", visitor=who, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise refused(422, error.reason, error.message)
     except LLMError as error:
-        usage.record("failed", visitor=visitor, duration_ms=elapsed_ms(started), usd=_spent(llm))
+        usage.record("failed", visitor=who, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise _llm_failure(error)
     finally:
-        limits.add_spend(_spent(llm))
-    limits.record_use(cookie, ip)
-    state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection))
+        _charge(limits, paid, llm)
+    if visitor:
+        limits.record_use(visitor.cookie, visitor.ip)
+    state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection, plan=paid))
+    if plan:
+        title = inspection.facts.title.value if inspection.facts.title else None
+        plan.record(state.id, title, inspection.report.status.value)
+        if meter is not None:  # extra checks go to Stripe's meter after the response
+            background.add_task(report_extra_checks_later, meter, plan.customer_id)
     usage.record(
-        "check", check_id=state.id, visitor=visitor, status=inspection.report.status.value,
-        duration_ms=elapsed_ms(started), usd=_spent(llm),
+        "check", check_id=state.id, visitor=who, status=inspection.report.status.value,
+        duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid,
     )  # fmt: skip
     return _out(state)
 
@@ -220,11 +275,16 @@ def refine_posting(
     try:
         state.refinement = _refine(state, pack, llm)
     except LLMError as error:
-        usage.record("refine", check_id=state.id, status="failed", duration_ms=elapsed_ms(started), usd=_spent(llm))
+        usage.record(
+            "refine", check_id=state.id, status="failed", duration_ms=elapsed_ms(started), usd=_spent(llm),
+            plan=state.plan,
+        )  # fmt: skip
         raise _llm_failure(error)
     finally:
-        limits.add_spend(_spent(llm))
-    usage.record("refine", check_id=state.id, status="ok", duration_ms=elapsed_ms(started), usd=_spent(llm))
+        _charge(limits, state.plan, llm)
+    usage.record(
+        "refine", check_id=state.id, status="ok", duration_ms=elapsed_ms(started), usd=_spent(llm), plan=state.plan
+    )
     return _out(state)
 
 
@@ -241,8 +301,8 @@ def answer_questions(
         except LLMError as error:
             raise _llm_failure(error)
         finally:
-            limits.add_spend(_spent(llm))
-    usage.record("answers", check_id=state.id, duration_ms=elapsed_ms(started), usd=_spent(llm))
+            _charge(limits, state.plan, llm)
+    usage.record("answers", check_id=state.id, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=state.plan)
     return _out(state)
 
 
@@ -267,8 +327,9 @@ def _chosen(refinement: Refinement, decisions: list[Decision]) -> list[Patch]:
 
 @router.post("/patches/accept", response_model=FinalOut)
 def accept_patches(
-    body: AcceptIn, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep
-) -> Any:
+    body: AcceptIn, session: SessionDep, store: StoreDep, llm: LLMDep, pack: PackDep, limits: LimitsDep,
+    usage: UsageDep,
+) -> Any:  # fmt: skip
     started = time.monotonic()
     state = _state(store, body.check_id)
     if state.refinement is None:
@@ -281,8 +342,13 @@ def accept_patches(
     except LLMError as error:
         raise _llm_failure(error)
     finally:
-        limits.add_spend(_spent(llm))
-    usage.record("accept", check_id=state.id, count=len(chosen), duration_ms=elapsed_ms(started), usd=_spent(llm))
+        _charge(limits, state.plan, llm)
+    if state.plan:
+        record_final_status(session, state.id, report.status.value)
+    usage.record(
+        "accept", check_id=state.id, count=len(chosen), duration_ms=elapsed_ms(started), usd=_spent(llm),
+        plan=state.plan,
+    )  # fmt: skip
     return FinalOut(check_id=state.id, text=text, report=report)
 
 

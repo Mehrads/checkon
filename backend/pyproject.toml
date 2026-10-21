@@ -23,6 +23,7 @@ dependencies = [
     "anthropic>=1.15.0",
     "pysbd>=0.3.4",
     "pyyaml>=6.0",
+    "stripe>=16.0.0,<17",
 ]
 
 [dependency-groups]

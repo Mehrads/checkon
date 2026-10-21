@@ -85,6 +85,26 @@ def generate_reset_password_email(email_to: str, email: str, token: str) -> Emai
     return EmailData(html_content=html_content, subject=subject)
 
 
+def generate_set_password_email(
+    email_to: str, plan_name: str | None, link: str
+) -> EmailData:
+    """For an account created by a completed Checkout; the link is a password-reset link."""
+    project_name = settings.PROJECT_NAME
+    subject = f"Set your {project_name} password"
+    html_content = render_email_template(
+        template_name="set_password.html",
+        context={
+            "project_name": project_name,
+            "username": email_to,
+            "plan": f"{plan_name} plan" if plan_name else "plan",
+            "valid_hours": settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
+            "link": link,
+            "login_link": f"{settings.FRONTEND_HOST}/login",
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
 def generate_login_code_email(email_to: str, code: str) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} sign-in code"

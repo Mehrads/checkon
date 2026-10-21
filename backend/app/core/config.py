@@ -44,6 +44,31 @@ class Settings(BaseSettings):
     TRUSTED_PROXY_HOPS: int = 0
     # Browser extensions allowed to call the free check, by ID, comma-separated (extension/README.md).
     EXTENSION_IDS: str = ""
+
+    # Paid plans through Stripe Billing (infra/README.md, "Stripe"). Until the key and the three prices are
+    # set, Checkout is off and the pricing page offers the contact form instead.
+    STRIPE_SECRET_KEY: str | None = None
+    STRIPE_WEBHOOK_SECRET: str | None = None
+    STRIPE_PRICE_STARTER: str | None = None
+    STRIPE_PRICE_AGENCY: str | None = None
+    STRIPE_PRICE_EXTRA_CHECK: str | None = None  # the usage-based price on the extra-check meter
+    STRIPE_METER_EVENT: str = "checkon_extra_check"  # the meter's event name
+    STRIPE_AUTOMATIC_TAX: bool = False  # Stripe Tax adds HST; turn on once registered
+    PLAN_CHECKS_STARTER: int = 50
+    PLAN_CHECKS_AGENCY: int = 300
+    # Extra checks a customer can run in one billing period before checks stop until the next one
+    PLAN_EXTRA_CHECKS_MAX: int = 200
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def billing_enabled(self) -> bool:
+        return bool(
+            self.STRIPE_SECRET_KEY
+            and self.STRIPE_PRICE_STARTER
+            and self.STRIPE_PRICE_AGENCY
+            and self.STRIPE_PRICE_EXTRA_CHECK
+        )
+
     DATABASE_URL: PostgresDsn
 
     @field_validator("DATABASE_URL", mode="before")

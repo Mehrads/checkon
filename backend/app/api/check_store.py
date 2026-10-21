@@ -23,6 +23,7 @@ class CheckState:
     refinement: Refinement | None = None
     label_cache: dict[str, SentenceLabels] = field(default_factory=dict)
     rewrites: dict[str, str] = field(default_factory=dict)
+    plan: str | None = None  # the plan a signed-in customer's check counted against; None for a free check
     id: str = field(default_factory=lambda: secrets.token_urlsafe(16))
     created: float = field(default_factory=time.monotonic)
 

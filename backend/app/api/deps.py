@@ -16,6 +16,10 @@ from app.models import TokenPayload, User
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
 )
+# For endpoints that visitors use too, such as the check: the token is read when one is sent
+optional_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/login/access-token", auto_error=False
+)
 
 
 def get_db() -> Generator[Session]:
@@ -27,18 +31,24 @@ SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 
-def get_current_user(session: SessionDep, token: TokenDep) -> User:
+def _token_subject(token: str) -> str | None:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
-        token_data = TokenPayload(**payload)
+        return TokenPayload(**payload).sub
     except InvalidTokenError, ValidationError:
+        return None
+
+
+def get_current_user(session: SessionDep, token: TokenDep) -> User:
+    subject = _token_subject(token)
+    if subject is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = session.get(User, token_data.sub)
+    user = session.get(User, subject)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
@@ -47,6 +57,18 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_optional_user(
+    session: SessionDep, token: Annotated[str | None, Depends(optional_oauth2)]
+) -> User | None:
+    """The signed-in user, or None for a visitor. An expired token counts as a visitor."""
+    subject = _token_subject(token) if token else None
+    user = session.get(User, subject) if subject else None
+    return user if user and user.is_active else None
+
+
+OptionalUserDep = Annotated[User | None, Depends(get_optional_user)]
 
 
 def get_current_active_superuser(current_user: CurrentUser) -> User:
