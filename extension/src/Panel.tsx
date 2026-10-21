@@ -18,6 +18,7 @@ import { Logo } from "@/components/Common/Logo"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { AccountBar, SignIn, useAccount } from "./Account"
 import { type PagePosting, readFromPage, writeToPage } from "./page"
 
 const MAX_CHARS = 8000
@@ -42,8 +43,11 @@ function errorMessage(error: Error): string {
   return "Something went wrong. Try again."
 }
 
-/** The free check in the browser's side panel: read the posting from the page, check it, write the fixes back. */
+/** The check in the browser's side panel: read the posting from the page, check it, write the fixes back.
+ * Visitors get the free check; a signed-in customer's checks count against their plan. */
 export function Panel() {
+  const account = useAccount()
+  const [loggingIn, setLoggingIn] = useState(false)
   const [text, setText] = useState("")
   const [posting, setPosting] = useState<PagePosting | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -130,6 +134,7 @@ export function Panel() {
     },
     onSuccess: (data) => {
       show(data)
+      account.refresh()
       if (data.report.status !== "not_applicable") refine.mutate(data.check_id)
     },
     onError: fail,
@@ -186,6 +191,18 @@ export function Panel() {
           Read page
         </Button>
       </header>
+
+      {loggingIn ? (
+        <SignIn
+          onSignedIn={(token) => {
+            account.signIn(token)
+            setLoggingIn(false)
+          }}
+          onCancel={() => setLoggingIn(false)}
+        />
+      ) : (
+        <AccountBar account={account} onLogIn={() => setLoggingIn(true)} />
+      )}
 
       <section className="rounded-xl border bg-card p-4 shadow-sm">
         <label htmlFor="posting" className="text-sm font-medium">
@@ -276,7 +293,10 @@ export function Panel() {
       )}
 
       <footer className="mt-auto border-t pt-3 text-xs text-muted-foreground">
-        One free check a week. Not legal advice.{" "}
+        {account.billing?.plan
+          ? `Checks count toward your ${account.billing.plan_name} plan. We keep the date, job title and result, never the posting.`
+          : "One free check a week."}{" "}
+        Not legal advice.{" "}
         <a
           href={`${SITE}/privacy`}
           target="_blank"
