@@ -13,6 +13,7 @@ locals {
     TRUSTED_PROXY_HOPS             = var.domain != "" ? "2" : "1" # the load balancer (lb.tf) adds its own address
     FREE_CHECKS_PER_WEEK           = tostring(var.free_checks_per_week)
     FREE_CHECK_DAILY_SPEND_CAP_USD = var.free_check_daily_spend_cap_usd
+    FREE_CHECK_ALLOWLIST_IPS       = join(",", var.free_check_allowlist_ips)
     CONTACT_EMAIL                  = var.contact_email
     EXTENSION_IDS                  = join(",", var.extension_ids)
     SMTP_HOST                      = var.smtp_host

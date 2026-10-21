@@ -86,3 +86,9 @@ variable "free_check_daily_spend_cap_usd" {
   type    = string
   default = "5"
 }
+
+# Our own addresses: they skip the weekly free-check quota so the live check can be tested.
+variable "free_check_allowlist_ips" {
+  type    = list(string)
+  default = []
+}

@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     TRUSTED_PROXY_HOPS: int = 0
     # Browser extensions allowed to call the free check, by ID, comma-separated (extension/README.md).
     EXTENSION_IDS: str = ""
+    # Our own addresses, comma-separated: they skip the weekly quota so the live check can be tested.
+    # The rate limit, the origin check and the daily spend cap still apply to them.
+    FREE_CHECK_ALLOWLIST_IPS: str = ""
     DATABASE_URL: PostgresDsn
 
     @field_validator("DATABASE_URL", mode="before")

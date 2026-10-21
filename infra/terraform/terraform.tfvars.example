@@ -19,3 +19,6 @@ public_url = ""
 
 # Browser extension IDs allowed to call the free check (extension/README.md).
 # extension_ids = ["lfepfedddcabkigmmhbhacdllgljpdbe"]
+
+# Your own public addresses, which skip the weekly free-check quota for testing the live site.
+# free_check_allowlist_ips = ["203.0.113.9"]

@@ -67,6 +67,12 @@ def same_origin(request: Request) -> None:
     raise refused(403, "origin", "Requests must come from the checker's own page.")
 
 
+def quota_exempt(ip: str) -> bool:
+    """Our own addresses (FREE_CHECK_ALLOWLIST_IPS) skip the weekly quota; every other limit still applies."""
+    allowed = {item.strip() for item in settings.FREE_CHECK_ALLOWLIST_IPS.split(",") if item.strip()}
+    return ip in allowed
+
+
 class RateLimiter:
     """Requests per IP per minute, in this process (v1 runs one instance)."""
 

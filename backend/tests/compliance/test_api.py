@@ -192,6 +192,23 @@ def test_second_check_in_a_week_is_refused(client: TestClient, llm: FakeLLM, lim
     assert len(limits.uses) == 1
 
 
+def test_allowlisted_ip_skips_the_quota_but_not_the_spend_cap(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.api import free_check
+
+    monkeypatch.setattr(free_check.settings, "FREE_CHECK_ALLOWLIST_IPS", " 203.0.113.9, testclient ")  # the TestClient's address
+    limits.per_week = 1
+    limits.uses.append(("someone-else", "testclient"))  # this address already used its week's check
+    inspect(client, llm)
+    inspect(client, llm)
+    assert limits.uses == [("someone-else", "testclient")]  # nothing recorded against the allowlisted visitor
+    limits.spent = limits.budget
+    llm.queue(Extraction, extraction()).queue(Classification, labels())
+    response = client.post(f"{API}/inspect", json={"text": POSTING})
+    assert response.status_code == 503 and response.json()["detail"]["reason"] == "paused"
+
+
 def test_visitor_cookie_is_set_and_reused(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:
     inspect(client, llm)
     cookie = client.cookies.get("free_check_id")

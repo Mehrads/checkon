@@ -30,6 +30,7 @@ from app.api.free_check import (
     Limits,
     PostgresLimits,
     client_ip,
+    quota_exempt,
     rate_limited,
     refused,
     same_origin,
@@ -191,7 +192,8 @@ def inspect_posting(
     started = time.monotonic()
     ip, cookie = client_ip(request), visitor_cookie(request, response)
     visitor = visitor_hash(cookie)
-    if (next_check := limits.next_free_check(cookie, ip)) is not None:
+    exempt = quota_exempt(ip)  # our own addresses: no weekly quota, and no credit recorded
+    if not exempt and (next_check := limits.next_free_check(cookie, ip)) is not None:
         usage.record("quota", visitor=visitor)  # a returning visitor, even though the check is refused
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
         raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
@@ -209,7 +211,8 @@ def inspect_posting(
         raise _llm_failure(error)
     finally:
         limits.add_spend(_spent(llm))
-    limits.record_use(cookie, ip)
+    if not exempt:
+        limits.record_use(cookie, ip)
     state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection))
     usage.record(
         "check", check_id=state.id, visitor=visitor, status=inspection.report.status.value,
