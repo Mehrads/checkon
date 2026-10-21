@@ -122,6 +122,30 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
+class LoginCode(SQLModel, table=True):
+    """A sign-in code emailed after a correct password; the browser holds the matching challenge."""
+
+    __tablename__ = "login_code"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    challenge_hash: str = Field(unique=True, max_length=64)  # SHA-256 of the challenge
+    code_hash: str = Field(max_length=64)  # HMAC of the challenge and the code
+    expires_at: datetime
+    attempts: int = 0
+
+
+class LoginChallenge(SQLModel):
+    challenge: str
+
+
+class LoginCodeIn(SQLModel):
+    challenge: str = Field(max_length=64)
+    code: str = Field(schema_extra={"pattern": r"^\d{6}$"})
+
+
 # Free check (v1): usage, spend and research. Keys are HMACs, never raw IPs or cookies,
 # and posting text is stored only when the person opts in (Technical Design §11).
 

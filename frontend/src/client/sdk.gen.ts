@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -156,18 +156,35 @@ export class StatsService {
 
 export class LoginService {
     /**
+     * Login Password
+     *
+     * Check the email and password, then email a sign-in code for /login/access-token
+     */
+    public static loginPassword<ThrowOnError extends boolean = true>(options: Options<loginLoginPasswordData, ThrowOnError>) {
+        return (options.client ?? client).post<loginLoginPasswordResponses, loginLoginPasswordErrors, ThrowOnError>({
+            ...urlSearchParamsBodySerializer,
+            responseType: 'json',
+            url: '/api/v1/login/password',
+            ...options,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
      * Login Access Token
      *
-     * OAuth2 compatible token login, get an access token for future requests
+     * Exchange the emailed sign-in code for an access token
      */
     public static loginAccessToken<ThrowOnError extends boolean = true>(options: Options<loginLoginAccessTokenData, ThrowOnError>) {
         return (options.client ?? client).post<loginLoginAccessTokenResponses, loginLoginAccessTokenErrors, ThrowOnError>({
-            ...urlSearchParamsBodySerializer,
             responseType: 'json',
             url: '/api/v1/login/access-token',
             ...options,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
                 ...options.headers
             }
         });

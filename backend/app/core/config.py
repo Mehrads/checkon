@@ -70,6 +70,11 @@ class Settings(BaseSettings):
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
 
+    # Logging in takes the password, then a 6-digit code emailed to the account (needs SMTP).
+    LOGIN_CODE_EXPIRE_MINUTES: int = 10
+    LOGIN_CODE_MAX_ATTEMPTS: int = 5
+    LOGIN_CODES_PER_HOUR: int = 5
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def emails_enabled(self) -> bool:

@@ -50,7 +50,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-ANTHROPIC-KEY" | gcloud secrets versions add posting-checker-anthropic-api-key --data-file=-
    ```
 
-   For contact-form emails, also add the app password for info@checkon.ca ([Email and DNS](#email-and-dns), step 3). `terraform.tfvars.example` already has the Gmail SMTP settings. Without the password, messages are still saved in the `contact_message` table.
+   Also add the app password for info@checkon.ca ([Email and DNS](#email-and-dns), step 3). `terraform.tfvars.example` already has the Gmail SMTP settings. Admin sign-in emails a 6-digit code after the password, so without working SMTP nobody can sign in to `/stats`. Contact-form messages are still saved in the `contact_message` table either way.
 
    ```bash
    printf %s "YOUR-APP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-

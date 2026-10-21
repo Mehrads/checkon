@@ -36,7 +36,7 @@ def send_email(
     email_to: str,
     subject: str = "",
     html_content: str = "",
-) -> None:
+) -> bool:
     assert settings.emails_enabled, "no provided configuration for email variables"
     assert settings.EMAILS_FROM_EMAIL  # For type checker
     message = emails.message.Message(
@@ -55,6 +55,7 @@ def send_email(
         smtp_options["password"] = settings.SMTP_PASSWORD
     response = message.send(to=email_to, smtp=smtp_options)
     logger.info(f"send email result: {response}")
+    return bool(response.success)
 
 
 def generate_test_email(email_to: str) -> EmailData:
@@ -79,6 +80,21 @@ def generate_reset_password_email(email_to: str, email: str, token: str) -> Emai
             "email": email_to,
             "valid_hours": settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
             "link": link,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
+def generate_login_code_email(email_to: str, code: str) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} sign-in code"
+    html_content = render_email_template(
+        template_name="login_code.html",
+        context={
+            "project_name": settings.PROJECT_NAME,
+            "username": email_to,
+            "code": code,
+            "valid_minutes": settings.LOGIN_CODE_EXPIRE_MINUTES,
         },
     )
     return EmailData(html_content=html_content, subject=subject)

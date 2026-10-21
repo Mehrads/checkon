@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
 import { randomPassword } from "./utils/random.ts"
+import { submitLogIn } from "./utils/user"
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
@@ -41,7 +42,7 @@ test("Log in with valid email and password ", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await submitLogIn(page, firstSuperuser)
 
   await page.waitForURL("/")
 
@@ -69,11 +70,27 @@ test("Log in with invalid password", async ({ page }) => {
   await expect(page.getByText("Incorrect email or password")).toBeVisible()
 })
 
-test("Successful log out", async ({ page }) => {
+test("Password alone asks for the emailed code", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await page.getByRole("button", { name: "Log In" }).click()
+
+  await expect(
+    page.getByRole("heading", { name: "Check your email" }),
+  ).toBeVisible()
+  await page.getByTestId("code-input").fill("000000")
+  await page.getByRole("button", { name: "Verify" }).click()
+
+  await expect(page.getByText("Incorrect code")).toBeVisible()
+  await expect(page).toHaveURL("/login")
+})
+
+test("Successful log out", async ({ page }) => {
+  await page.goto("/login")
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await submitLogIn(page, firstSuperuser)
 
   await page.waitForURL("/")
 
@@ -90,7 +107,7 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await page.goto("/login")
 
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await submitLogIn(page, firstSuperuser)
 
   await page.waitForURL("/")
 

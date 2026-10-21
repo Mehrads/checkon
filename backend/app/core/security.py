@@ -1,3 +1,6 @@
+import hashlib
+import hmac
+import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -34,3 +37,19 @@ def verify_password(
 
 def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
+
+
+def new_login_code() -> str:
+    return f"{secrets.randbelow(10**6):06d}"
+
+
+def hash_login_challenge(challenge: str) -> str:
+    return hashlib.sha256(challenge.encode()).hexdigest()
+
+
+def hash_login_code(challenge: str, code: str) -> str:
+    return hmac.new(
+        settings.SECRET_KEY.encode(),
+        f"login-code:{challenge}:{code}".encode(),
+        hashlib.sha256,
+    ).hexdigest()

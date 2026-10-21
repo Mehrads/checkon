@@ -2,7 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 
 import {
-  type Body_login_login_access_token as AccessToken,
+  type Body_login_login_password as Credentials,
+  type LoginCodeIn,
   LoginService,
   type UserPublic,
   UsersService,
@@ -24,7 +25,15 @@ const useAuth = () => {
     enabled: isLoggedIn(),
   })
 
-  const login = async (data: AccessToken) => {
+  // Step 1: the password. The API emails a sign-in code and returns its challenge.
+  const passwordMutation = useMutation({
+    mutationFn: async (data: Credentials) =>
+      (await LoginService.loginPassword({ body: data })).data,
+    onError: handleError.bind(showErrorToast),
+  })
+
+  // Step 2: the emailed code, exchanged for the access token
+  const login = async (data: LoginCodeIn) => {
     const response = await LoginService.loginAccessToken({
       body: data,
     })
@@ -45,6 +54,7 @@ const useAuth = () => {
   }
 
   return {
+    passwordMutation,
     loginMutation,
     logout,
     user,

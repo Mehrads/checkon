@@ -72,9 +72,9 @@ export type AnswersIn = {
 };
 
 /**
- * Body_login-login_access_token
+ * Body_login-login_password
  */
-export type Body_login_login_access_token = {
+export type Body_login_login_password = {
     /**
      * Grant Type
      */
@@ -370,6 +370,30 @@ export type ItemsPublic = {
      * Count
      */
     count: number;
+};
+
+/**
+ * LoginChallenge
+ */
+export type LoginChallenge = {
+    /**
+     * Challenge
+     */
+    challenge: string;
+};
+
+/**
+ * LoginCodeIn
+ */
+export type LoginCodeIn = {
+    /**
+     * Challenge
+     */
+    challenge: string;
+    /**
+     * Code
+     */
+    code: string;
 };
 
 /**
@@ -1168,8 +1192,33 @@ export type statsReadStatsResponses = {
 
 export type statsReadStatsResponse = statsReadStatsResponses[keyof statsReadStatsResponses];
 
+export type loginLoginPasswordData = {
+    body: Body_login_login_password;
+    path?: never;
+    query?: never;
+    url: '/api/v1/login/password';
+};
+
+export type loginLoginPasswordErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type loginLoginPasswordError = loginLoginPasswordErrors[keyof loginLoginPasswordErrors];
+
+export type loginLoginPasswordResponses = {
+    /**
+     * Successful Response
+     */
+    200: LoginChallenge;
+};
+
+export type loginLoginPasswordResponse = loginLoginPasswordResponses[keyof loginLoginPasswordResponses];
+
 export type loginLoginAccessTokenData = {
-    body: Body_login_login_access_token;
+    body: LoginCodeIn;
     path?: never;
     query?: never;
     url: '/api/v1/login/access-token';

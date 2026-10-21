@@ -67,6 +67,8 @@ services:
       SMTP_HOST: "mailpit"
       SMTP_PORT: "1025"
       SMTP_TLS: "false"
+      # The Playwright tests log in as the superuser more often than the production limit
+      LOGIN_CODES_PER_HOUR: "1000"
 
   mailpit:
     image: axllent/mailpit

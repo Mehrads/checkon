@@ -8,7 +8,7 @@ from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
 from app.models import User, UserCreate
-from tests.utils.user import create_random_user
+from tests.utils.user import create_random_user, user_authentication_headers
 from tests.utils.utils import random_email, random_lower_string
 
 
@@ -94,14 +94,9 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
     user = crud.create_user(session=db, user_create=user_in)
     user_id = user.id
 
-    login_data = {
-        "username": username,
-        "password": password,
-    }
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
-    tokens = r.json()
-    a_token = tokens["access_token"]
-    headers = {"Authorization": f"Bearer {a_token}"}
+    headers = user_authentication_headers(
+        client=client, email=username, password=password
+    )
 
     r = client.get(
         f"{settings.API_V1_STR}/users/{user_id}",
@@ -398,14 +393,9 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     user = crud.create_user(session=db, user_create=user_in)
     user_id = user.id
 
-    login_data = {
-        "username": username,
-        "password": password,
-    }
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
-    tokens = r.json()
-    a_token = tokens["access_token"]
-    headers = {"Authorization": f"Bearer {a_token}"}
+    headers = user_authentication_headers(
+        client=client, email=username, password=password
+    )
 
     r = client.delete(
         f"{settings.API_V1_STR}/users/me",

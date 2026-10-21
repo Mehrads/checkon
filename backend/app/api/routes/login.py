@@ -1,31 +1,48 @@
-from datetime import timedelta
+import hmac
+import logging
+import secrets
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import col, delete, select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
+from app.models import (
+    LoginChallenge,
+    LoginCode,
+    LoginCodeIn,
+    Message,
+    NewPassword,
+    Token,
+    User,
+    UserPublic,
+    UserUpdate,
+)
 from app.utils import (
+    generate_login_code_email,
     generate_password_reset_token,
     generate_reset_password_email,
     send_email,
     verify_password_reset_token,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(tags=["login"])
 
 
-@router.post("/login/access-token")
-def login_access_token(
+@router.post("/login/password")
+def login_password(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-) -> Token:
+) -> LoginChallenge:
     """
-    OAuth2 compatible token login, get an access token for future requests
+    Check the email and password, then email a sign-in code for /login/access-token
     """
     user = crud.authenticate(
         session=session, email=form_data.username, password=form_data.password
@@ -33,6 +50,90 @@ def login_access_token(
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+
+    now = datetime.now(UTC)
+    session.exec(
+        delete(LoginCode).where(
+            col(LoginCode.user_id) == user.id,
+            col(LoginCode.created_at) < now - timedelta(hours=1),
+        )
+    )
+    recent = session.exec(
+        select(LoginCode).where(col(LoginCode.user_id) == user.id)
+    ).all()
+    if len(recent) >= settings.LOGIN_CODES_PER_HOUR:
+        raise HTTPException(
+            status_code=429, detail="Too many sign-in codes. Try again in an hour."
+        )
+
+    challenge = secrets.token_urlsafe(32)
+    code = security.new_login_code()
+    session.add(
+        LoginCode(
+            user_id=user.id,
+            challenge_hash=security.hash_login_challenge(challenge),
+            code_hash=security.hash_login_code(challenge, code),
+            expires_at=now + timedelta(minutes=settings.LOGIN_CODE_EXPIRE_MINUTES),
+        )
+    )
+    session.commit()
+
+    development = settings.FASTAPI_ENV == "development"
+    if development:
+        logger.info(f"Sign-in code for {user.email}: {code}")
+    email_data = generate_login_code_email(email_to=user.email, code=code)
+    sent = settings.emails_enabled and send_email(
+        email_to=user.email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
+    if not sent and not development:
+        raise HTTPException(
+            status_code=503,
+            detail="We couldn't email your sign-in code. Try again later.",
+        )
+    return LoginChallenge(challenge=challenge)
+
+
+@router.post("/login/access-token")
+def login_access_token(session: SessionDep, body: LoginCodeIn) -> Token:
+    """
+    Exchange the emailed sign-in code for an access token
+    """
+    # Lock the row so parallel guesses can't get past the attempt limit
+    login_code = session.exec(
+        select(LoginCode)
+        .where(
+            col(LoginCode.challenge_hash)
+            == security.hash_login_challenge(body.challenge)
+        )
+        .with_for_update()
+    ).first()
+    if (
+        not login_code
+        or login_code.expires_at < datetime.now(UTC)
+        or login_code.attempts >= settings.LOGIN_CODE_MAX_ATTEMPTS
+    ):
+        raise HTTPException(
+            status_code=400, detail="This code has expired. Log in again."
+        )
+    expected = security.hash_login_code(body.challenge, body.code)
+    if not hmac.compare_digest(login_code.code_hash, expected):
+        login_code.attempts += 1
+        used_up = login_code.attempts >= settings.LOGIN_CODE_MAX_ATTEMPTS
+        session.add(login_code)
+        session.commit()
+        if used_up:
+            raise HTTPException(
+                status_code=400, detail="Too many wrong codes. Log in again."
+            )
+        raise HTTPException(status_code=400, detail="Incorrect code")
+
+    user = session.get(User, login_code.user_id)
+    session.delete(login_code)
+    session.commit()
+    if not user or not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(

@@ -1,11 +1,25 @@
 import { expect, type Page } from "@playwright/test"
+import { latestEmailId, waitForEmailHtml } from "./mailpit"
+
+/** Clicks "Log In" on the filled-in form, then enters the code emailed to `email`. */
+export async function submitLogIn(page: Page, email: string) {
+  const query = `to:${email} subject:"sign-in code"`
+  const skipId = await latestEmailId({ request: page.request, query })
+  await page.getByRole("button", { name: "Log In" }).click()
+
+  const html = await waitForEmailHtml({ request: page.request, query, skipId })
+  const code = html.match(/id="login-code"[^>]*>(\d{6})</)?.[1]
+  if (!code) throw new Error(`No sign-in code in the email to ${email}`)
+  await page.getByTestId("code-input").fill(code)
+  await page.getByRole("button", { name: "Verify" }).click()
+}
 
 export async function logInUser(page: Page, email: string, password: string) {
   await page.goto("/login")
 
   await page.getByTestId("email-input").fill(email)
   await page.getByTestId("password-input").fill(password)
-  await page.getByRole("button", { name: "Log In" }).click()
+  await submitLogIn(page, email)
   await page.waitForURL("/")
   await expect(
     page.getByText("Welcome back, nice to see you again!"),
