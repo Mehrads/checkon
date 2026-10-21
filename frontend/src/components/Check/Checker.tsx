@@ -48,7 +48,8 @@ const FREE_NOTE =
 
 /** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
  * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
- * check counts against their plan (the API reads the sign-in), and `onChecked` runs after each one. */
+ * check counts against their plan (the API reads the sign-in), and `onChecked` runs after each check and
+ * after fixes are applied. */
 export function Checker({
   intro,
   layout = "hero",
@@ -131,6 +132,7 @@ export function Checker({
     onSuccess: (data) => {
       track("apply-fixes")
       setFinal(data)
+      onChecked?.()
     },
     onError: fail,
   })

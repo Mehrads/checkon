@@ -13,6 +13,7 @@ import {
   SiteFooter,
   SiteHeader,
 } from "@/components/Site/Landing"
+import { isLoggedIn } from "@/hooks/useAuth"
 import { loadAnalytics } from "@/lib/analytics"
 
 export const Route = createFileRoute("/check")({
@@ -36,7 +37,14 @@ function CheckPage() {
       <div className="min-h-svh bg-background">
         <SiteHeader />
         <main>
-          <Checker intro={<HeroIntro />} />
+          <Checker
+            intro={<HeroIntro />}
+            note={
+              isLoggedIn()
+                ? "You're logged in: on a plan, this check counts toward it, and we keep its date, job title and result for your history, never the posting."
+                : undefined
+            }
+          />
           <HowItWorks />
           <ForTeams />
           <Pricing />
