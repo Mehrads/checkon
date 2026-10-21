@@ -10,7 +10,7 @@ locals {
     PROJECT_NAME                   = "CheckON"
     FRONTEND_HOST                  = var.public_url != "" ? var.public_url : "https://${local.name}.invalid"
     FIRST_SUPERUSER                = var.first_superuser_email
-    TRUSTED_PROXY_HOPS             = "1"
+    TRUSTED_PROXY_HOPS             = var.domain != "" ? "2" : "1" # the load balancer (lb.tf) adds its own address
     FREE_CHECKS_PER_WEEK           = tostring(var.free_checks_per_week)
     FREE_CHECK_DAILY_SPEND_CAP_USD = var.free_check_daily_spend_cap_usd
     CONTACT_EMAIL                  = var.contact_email
@@ -36,6 +36,7 @@ resource "google_project_service" "apis" {
   for_each = toset([
     "artifactregistry.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
     "run.googleapis.com",
@@ -312,7 +313,7 @@ resource "google_cloud_run_v2_service" "app" {
   }
 
   lifecycle {
-    ignore_changes = [template[0].containers[0].image, client, client_version]
+    ignore_changes = [template[0].containers[0].image, client, client_version, scaling] # service-level scaling: defaults Google fills in
   }
 
   depends_on = [

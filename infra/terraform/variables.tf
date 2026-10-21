@@ -20,6 +20,12 @@ variable "public_url" {
   default     = ""
 }
 
+variable "domain" {
+  description = "Public domain, for example checkon.ca. Setting it adds the load balancer in lb.tf (infra/README.md, step 5)."
+  type        = string
+  default     = ""
+}
+
 variable "first_superuser_email" {
   description = "Admin account the template creates on the first migration (accounts arrive in phase 3)."
   type        = string

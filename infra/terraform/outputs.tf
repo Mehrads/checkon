@@ -3,6 +3,11 @@ output "service_url" {
   value       = google_cloud_run_v2_service.app.uri
 }
 
+output "lb_ip" {
+  description = "Point the domain's A record, and www, at this address."
+  value       = one(google_compute_global_address.web[*].address)
+}
+
 output "artifact_repository" {
   description = "Docker repository the deploy workflow pushes to."
   value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images.repository_id}"

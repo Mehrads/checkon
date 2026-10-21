@@ -11,7 +11,8 @@ emails_from   = "info@checkon.ca"
 smtp_user     = "info@checkon.ca"
 smtp_host     = "smtp.gmail.com"
 
-# Leave empty for the first apply; once checkon.ca points at the service (infra/README.md, step 5),
-# set it and apply again.
+# Leave both empty for the first apply. Setting domain adds the load balancer (infra/README.md, step 5).
+domain     = ""
 public_url = ""
+# domain     = "checkon.ca"
 # public_url = "https://checkon.ca"

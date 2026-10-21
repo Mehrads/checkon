@@ -56,17 +56,13 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-APP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
    ```
 
-5. Point checkon.ca at the service. Cloud Run's built-in domain mapping isn't offered in every region, so check whether `northamerica-northeast2` has it:
+5. Point checkon.ca at the service. Cloud Run's own domain mapping isn't offered in Toronto, so `lb.tf` puts a global HTTPS load balancer in front (about $18 a month, the load balancer line in Technical Design §13). Set `domain = "checkon.ca"` and `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply. It also tells the app to read the visitor's IP one hop further back (`TRUSTED_PROXY_HOPS`).
 
    ```bash
-   gcloud beta run domain-mappings create --service posting-checker --domain checkon.ca --region northamerica-northeast2
+   terraform apply && terraform output -raw lb_ip
    ```
 
-   If the region doesn't support it, put a global HTTPS load balancer with a serverless network endpoint group in front instead (about $19 a month, the load balancer line in Technical Design §13). Either way, add the DNS records Google shows you in Wix: replace the three Wix `A` records on `checkon.ca` and the `www` `CNAME` (they point at Wix's parking page). Leave the `MX` and `TXT` records alone; they carry the email. Then set `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply again; the app uses it for the origin check.
-
-   ```bash
-   terraform apply
-   ```
+   In Wix, replace the three Wix `A` records on `checkon.ca` with one `A` record to that address, and point the `www` `CNAME` at `checkon.ca` (both start on Wix's parking page). Leave the `MX` and `TXT` records alone; they carry the email. Google issues the certificate once both names resolve to the load balancer, usually within an hour; until then HTTPS on checkon.ca fails to connect. `www.checkon.ca` redirects to `checkon.ca`, and plain HTTP redirects to HTTPS.
 
 6. In GitHub, under Settings > Secrets and variables > Actions > Variables, add:
 
