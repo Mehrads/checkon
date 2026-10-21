@@ -22,7 +22,7 @@ The product is two engines behind one API. The **Inspector** decides whether a p
 
 The Inspector checks 2 applicability rules and 5 content rules; 2 more rules are process rules handled outside the posting text. Each row below becomes one rule record (section 6). Rows marked **interpretation** are our reading of the law and must be signed off by an employment lawyer before launch.
 
-**Sources:** ESA 2000 Part III.1 and [O. Reg. 476/24](https://www.ontario.ca/laws/regulation/240476). Exact ESA section numbers for each rule are to be verified against e-Laws before the rule records are finalised.
+**Sources:** [ESA 2000](https://www.ontario.ca/laws/statute/00e41) Part III.1 (ss. 8.1–8.7) and s. 15 (7.1), (7.1.1); [O. Reg. 476/24](https://www.ontario.ca/laws/regulation/240476); the Ministry of Labour's guide chapter [Requirements related to publicly advertised job postings](https://www.ontario.ca/document/your-guide-employment-standards-act-0/requirements-related-publicly-advertised-job). Section numbers were verified against e-Laws on 2026-10-21; the comparison, the fixes it led to and the open lawyer questions are in `docs/law-review-2026-10.md`.
 
 **Applicability rules (evaluated first; if either fails, all content rules are `not_applicable`)**
 
@@ -35,13 +35,15 @@ The Inspector checks 2 applicability rules and 5 content rules; 2 more rules are
 
 | ID | Rule | Check | Edge cases |
 | --- | --- | --- | --- |
-| ON-PAY-01 | Include expected compensation or a range of expected compensation. Compensation means wages | Extract pay; fail if absent | Exempt if expected pay, or the top of the range, is above $200,000 a year (employer confirms). Benefits, bonus and equity alone do not satisfy the rule. Commission-only roles: **interpretation** |
+| ON-PAY-01 | Include expected compensation or a range of expected compensation (s. 8.2 (1)). Compensation means wages (O. Reg. 476/24, s. 2 (2)) | Extract pay; fail if absent | Exempt if the posted pay, or the top of the posted range, is more than $200,000 a year (O. Reg. 476/24, s. 3); the employer is asked only when the posting can't show it (hourly pay with unknown hours, or no pay stated). Benefits, discretionary bonus and equity alone do not satisfy the rule; commission is wages (ESA s. 1 (1)) and counts. Commission with no figure, and pay packages with several parts: **interpretation** |
 | ON-PAY-02 | A range may not exceed an amount equivalent to $50,000 a year | Code: annualise both ends, compare the difference to 50,000 | Hourly ranges need hours per week to annualise; if unknown, compute at 40 h/week and return `needs_input` when the result is within 10% of the cap (**interpretation**). Open-ended ranges ("$60,000+", "up to $90,000") fail as not a range (**interpretation**) |
 | ON-VAC-01 | State whether the posting is for an existing vacancy | Classifier: statement present, and which way | A statement that is vague ("we may hire") is `warning` |
 | ON-AI-01 | If AI is used to screen, assess or select applicants, include a statement disclosing it | Company fact (AI use) + classifier for a disclosure in text | AI is defined broadly (machine-based system that infers outputs such as predictions or recommendations). ATS auto-ranking, resume scoring and chat screening count; rule-only knockout questions: **interpretation**. Statement present but employer says no AI is used: `warning` (inaccurate) |
 | ON-CEX-01 | No requirement related to Canadian experience in the posting or the associated application form | Classifier on each requirement sentence: `violation`, `borderline`, `ok` | Violations include rephrasings ("experience in Canada", "local work experience"). Canadian licences or certifications (P.Eng., CPA) are not experience: `ok`. "Ontario experience" and "knowledge of Canadian regulations": `borderline` → `warning` (**interpretation**). Application form questions are checked when the form is available |
 
 **Process rules (outside the Inspector)**
+
+The report lists them as reminders, each with its citation and one plain line, under the findings ("After you post").
 
 | ID | Rule | Handled by |
 | --- | --- | --- |
@@ -224,6 +226,9 @@ Four objects carry everything between the engines: the rule record, the extracte
     { "rule": "ON-CEX-01", "verdict": "fail", "evidence": { "span": [610, 649] }, "message": "Requires Canadian experience." },
     { "rule": "ON-AI-01", "verdict": "needs_input", "question": "Do you use AI to screen, assess or select applicants?" }
   ],
+  "reminders": [
+    { "rule": "ON-INT-01", "text": "Within 45 days of an interview (or the last one), tell the applicant whether a hiring decision has been made, …", "citation": "ESA 2000, s. 8.6; O. Reg. 476/24, s. 5: …" }
+  ],
   "versions": { "rule_pack": "CA-ON@1.0.0", "model": "<pinned id>", "prompts": "2026-10-19.1", "profile_hash": "…", "text_hash": "…" }
 }
 ```
@@ -297,7 +302,7 @@ Correctness is proven by three layers of tests, and nothing ships unless all thr
 | Width at the cap | $60,000–$110,000 | ON-PAY-02 pass |
 | Width over the cap | $60,000–$110,001 | ON-PAY-02 fail |
 | Top of range exactly $200,000 | $160,000–$200,000 | Disclosure required (exemption is for more than $200,000) |
-| Top of range over $200,000 | $170,000–$210,000 | ON-PAY-01 and ON-PAY-02 exempt, if employer confirms |
+| Top of range over $200,000 | $170,000–$210,000 | ON-PAY-01 and ON-PAY-02 exempt on the posting's face |
 | Hourly, wide | $25–$50/hour, 40 h/week | Width $52,000 → fail |
 | Hourly, hours unknown, near the cap | $25–$48/hour | `needs_input` (hours per week) |
 | Open-ended | "$70,000+" | ON-PAY-02 fail (interpretation) |
@@ -550,7 +555,7 @@ Self-hosting Langfuse adds its own database, ClickHouse, Redis and storage, whic
 
 - Hourly ranges: which hours per week convert an hourly range to the $50,000 annual cap?
 - Do open-ended ranges ("$70,000+", "up to $90,000") count as a range?
-- Commission-only and tip-heavy roles: what satisfies the pay disclosure?
+- Commission-only and tip-heavy roles: commission is wages, so a stated commission figure counts; what satisfies the disclosure when no figure can be given, and does the $50,000 range limit apply to a commission range? (The full lawyer question list is in `docs/law-review-2026-10.md`.)
 - Do rule-only screening tools (knockout questions, keyword filters) count as AI under the regulation's definition?
 - Are "Ontario experience" and "knowledge of Canadian regulations" Canadian-experience requirements?
 

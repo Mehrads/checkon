@@ -20,6 +20,9 @@ public_url = ""
 # Browser extension IDs allowed to call the free check (extension/README.md).
 # extension_ids = ["lfepfedddcabkigmmhbhacdllgljpdbe"]
 
+# Your own public addresses, which skip the weekly free-check quota for testing the live site.
+# free_check_allowlist_ips = ["203.0.113.9"]
+
 # Paid plans: live-mode price ids from the Stripe Dashboard (infra/README.md, "Stripe"). Empty keeps
 # Checkout off, and the pricing page offers the contact form instead.
 # stripe_price_starter     = "price_..."

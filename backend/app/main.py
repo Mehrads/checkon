@@ -4,6 +4,7 @@ import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
@@ -31,6 +32,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Event streams, images and fonts are left alone by the middleware's default exclusions
+app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=6)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.frontend("/", directory=FRONTEND_DIR)

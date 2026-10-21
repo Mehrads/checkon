@@ -11,8 +11,8 @@ Fill every field:
 - title: the job title, copied from the text, or null.
 - employer: the name of the company that is hiring, copied from the text, or null if the posting doesn't name it (for example "our client, a leading manufacturer"). A recruiting agency's own name is not the employer when it is hiring for a client.
 - locations: each work location, copied from the text (for example "Mississauga, ON" or "Remote (Canada)").
-- work_in_ontario: true if the work is performed in Ontario, false if it is performed outside Ontario, null if the text doesn't make it clear. A remote job with no Ontario location is null.
-- internal_only: true if the text says the posting is open only to current employees, false if it reads as an ad for outside applicants, null if it could be either.
+- work_in_ontario: true if the work is performed in Ontario, including a job based in Ontario where some of the work happens elsewhere (travel, or a hybrid or multi-province role based in Ontario); false if the work is performed outside Ontario; null if the text doesn't make it clear. A remote job with no Ontario location is null.
+- internal_only: true if the text restricts the position to the employer's current employees, false if it doesn't (a posting that says nothing about it is open to outside applicants), null only if the text is contradictory.
 - specific_position: true if the posting advertises a specific position; false if it is a general recruitment campaign or a help-wanted message with no specific position (for example "We're always hiring! Join our team"); null if unclear.
 - pay: every amount of money that describes what the job pays: salary, hourly rate, wage, commission, bonus, equity or benefits. Leave out amounts that aren't pay, such as revenue, budgets or sales targets. For each amount:
   - sentence: the number of the sentence it is in.

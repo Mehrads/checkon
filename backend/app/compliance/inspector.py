@@ -9,7 +9,7 @@ from datetime import date
 
 from app.compliance.classification import Classification, classify, safety_net
 from app.compliance.engine import evaluate
-from app.compliance.employer import decide, look_up
+from app.compliance.employer import SizeCache, decide, look_up
 from app.compliance.extraction import PROMPTS_DIR, Extraction, extract, verify
 from app.compliance.llm import SEARCH_SETTINGS, ModelSettings, StructuredLLM
 from app.compliance.models import (
@@ -159,6 +159,7 @@ def inspect(
     llm: StructuredLLM,
     settings: ModelSettings = ModelSettings(),
     search_settings: ModelSettings = SEARCH_SETTINGS,
+    sizes: SizeCache | None = None,
 ) -> Inspection:
     doc = normalise(text)
     if not doc.sentences:
@@ -176,7 +177,7 @@ def inspect(
     if ctx.headcount is None and ctx.meets_headcount_threshold is None:  # never asked: search instead
         employer = verified.employer.value if verified.employer else None
         location = verified.locations[0].value if verified.locations else None
-        size = look_up(employer, location, llm, search_settings) if employer else None
+        size = look_up(employer, location, llm, search_settings, sizes) if employer else None
         rule = next(r for r in pack.rules if r.id == "ON-APPL-01")
         found = decide(employer, size, rule.params["min_employees"])
         ctx = ctx.model_copy(update={

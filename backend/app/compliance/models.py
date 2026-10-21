@@ -141,8 +141,17 @@ class RuleResult(_Model):
     interpretation: bool
 
 
+class Reminder(_Model):
+    """A process rule: a duty after the posting goes up, which the posting text can't show."""
+
+    rule: str
+    text: str
+    citation: str
+
+
 class Report(_Model):
     status: Status
     results: list[RuleResult]
+    reminders: list[Reminder] = []  # empty when the rules don't apply to the posting
     message: str | None = None
     versions: dict[str, str]

@@ -33,10 +33,12 @@ from app.api.billing import (
 )
 from app.api.check_store import CheckState, CheckStore
 from app.api.deps import OptionalUserDep, SessionDep
+from app.api.employer_cache import PostgresSizeCache
 from app.api.free_check import (
     Limits,
     PostgresLimits,
     client_ip,
+    quota_exempt,
     rate_limited,
     refused,
     same_origin,
@@ -45,6 +47,7 @@ from app.api.free_check import (
 from app.api.research import BY_ID, ResearchQuestion, question_for
 from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
 from app.compliance.answers import Answers, apply_answers
+from app.compliance.employer import SizeCache
 from app.compliance.inspector import InputRefused, inspect
 from app.compliance.llm import AnthropicLLM, LLMError, SpendMeter, StructuredLLM
 from app.compliance.models import Context, Question, Report, Verdict
@@ -95,6 +98,10 @@ def get_usage(session: SessionDep) -> Usage:
     return PostgresUsage(session)
 
 
+def get_sizes(session: SessionDep) -> SizeCache:
+    return PostgresSizeCache(session)
+
+
 def get_plan_limits(session: SessionDep, user: OptionalUserDep) -> PlanLimits | None:
     """None for visitors and for signed-in users without an active plan: they get the free check."""
     access = plan_access(session, user)
@@ -107,6 +114,7 @@ PackDep = Annotated[RulePack, Depends(get_pack)]
 DateDep = Annotated[date, Depends(get_posting_date)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
 UsageDep = Annotated[Usage, Depends(get_usage)]
+SizesDep = Annotated[SizeCache, Depends(get_sizes)]
 PlanDep = Annotated[PlanLimits | None, Depends(get_plan_limits)]
 MeterDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
 
@@ -195,11 +203,13 @@ class Visitor(NamedTuple):
     ip: str
     cookie: str
     hash: str
+    exempt: bool  # our own addresses: no weekly quota, and no credit recorded
 
 
 def _free_check_allowed(request: Request, response: Response, limits: Limits, usage: Usage) -> Visitor:
-    visitor = Visitor(client_ip(request), cookie := visitor_cookie(request, response), visitor_hash(cookie))
-    if (next_check := limits.next_free_check(visitor.cookie, visitor.ip)) is not None:
+    ip, cookie = client_ip(request), visitor_cookie(request, response)
+    visitor = Visitor(ip, cookie, visitor_hash(cookie), quota_exempt(ip))
+    if not visitor.exempt and (next_check := limits.next_free_check(visitor.cookie, visitor.ip)) is not None:
         usage.record("quota", visitor=visitor.hash)  # a returning visitor, even though the check is refused
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
         raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
@@ -230,7 +240,8 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
-    llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep,
+    llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep, sizes: SizesDep,
+    plan: PlanDep, meter: MeterDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
     paid = plan.plan.id if plan else None
@@ -242,7 +253,7 @@ def inspect_posting(
     who = visitor.hash if visitor else None
     ctx = Context(meets_headcount_threshold=body.meets_headcount_threshold)
     try:
-        inspection = inspect(body.text, ctx, today, pack, llm)
+        inspection = inspect(body.text, ctx, today, pack, llm, sizes=sizes)
     except InputRefused as error:  # no credit used
         usage.record("refused", visitor=who, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise refused(422, error.reason, error.message)
@@ -251,7 +262,7 @@ def inspect_posting(
         raise _llm_failure(error)
     finally:
         _charge(limits, paid, llm)
-    if visitor:
+    if visitor and not visitor.exempt:
         limits.record_use(visitor.cookie, visitor.ip)
     state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection, plan=paid))
     if plan:

@@ -1,6 +1,7 @@
 import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from typing import Any
 
 from pydantic import EmailStr
 from sqlalchemy import JSON, Column, Text
@@ -274,3 +275,15 @@ class StripeEvent(SQLModel, table=True):
     id: str = Field(primary_key=True, max_length=255)
     type: str = Field(max_length=64)
     received_at: datetime = Field(default_factory=get_datetime_utc)
+
+
+class EmployerSizeSearch(SQLModel, table=True):
+    """An employer-size web search (app/compliance/employer.py), kept 30 days so restarts and deploys don't
+    repeat it. Keyed by the employer's name and the job location; no posting text is stored.
+    """
+
+    __tablename__ = "employer_size_search"
+    employer: str = Field(primary_key=True, max_length=255)  # lower-cased, spaces collapsed
+    location: str = Field(primary_key=True, max_length=255)  # lower-cased; "" when the posting names none
+    size: dict[str, Any] = Field(sa_column=Column(JSON, nullable=False))  # an EmployerSize
+    searched_at: datetime = Field(default_factory=get_datetime_utc, index=True)

@@ -9,13 +9,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_usage
+from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_sizes, get_usage
 from app.api.usage import visitor_hash
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.compliance.refiner import _Rewrite
 from app.main import app
 from tests.compliance.fake_llm import FakeLLM
+from tests.compliance.test_employer import MemorySizes
 from tests.compliance.test_inspector import POSTING, extraction, labels
 
 API = "/api/v1"
@@ -71,6 +72,7 @@ def llm(limits: MemoryLimits, usage: MemoryUsage) -> Generator[FakeLLM]:
     app.dependency_overrides[get_posting_date] = lambda: date(2026, 10, 19)
     app.dependency_overrides[get_limits] = lambda: limits
     app.dependency_overrides[get_usage] = lambda: usage
+    app.dependency_overrides[get_sizes] = MemorySizes
     app.dependency_overrides[rate_limited] = lambda: None
     yield fake
     app.dependency_overrides.clear()
@@ -99,6 +101,7 @@ def test_paste_answer_review_and_copy(client: TestClient, llm: FakeLLM) -> None:
     assert [(q["id"], q["kind"]) for q in check["questions"]] == [("uses_ai_in_hiring", "yes_no")]
     canadian = next(r for r in check["report"]["results"] if r["rule"] == "ON-CEX-01")["evidence"][0]
     assert check["text"][canadian[0] : canadian[1]] == "2+ years of Canadian payroll experience"
+    assert [r["rule"] for r in check["report"]["reminders"]] == ["ON-INT-01", "ON-REC-01"]
 
     # 2. Refine: the Canadian-experience sentence is rewritten and re-read.
     llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
@@ -117,6 +120,7 @@ def test_paste_answer_review_and_copy(client: TestClient, llm: FakeLLM) -> None:
     # 4. Accept: reject nothing; the final text keeps the pasted characters outside the patches.
     final = client.post(f"{API}/patches/accept", json={"check_id": check["check_id"], "decisions": []}).json()
     assert final["report"]["status"] == "compliant"
+    assert [r["rule"] for r in final["report"]["reminders"]] == ["ON-INT-01", "ON-REC-01"]
     assert "• 2+ years of payroll experience" in final["text"]
     assert "$60,000 – $80,000 per year" in final["text"]
     assert "We use artificial intelligence to screen, assess or select applicants" in final["text"]
@@ -188,6 +192,23 @@ def test_second_check_in_a_week_is_refused(client: TestClient, llm: FakeLLM, lim
         "message": "You've used this week's free check. Your next free check is available on October 26.",
     }
     assert len(limits.uses) == 1
+
+
+def test_allowlisted_ip_skips_the_quota_but_not_the_spend_cap(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.api import free_check
+
+    monkeypatch.setattr(free_check.settings, "FREE_CHECK_ALLOWLIST_IPS", " 203.0.113.9, testclient ")  # the TestClient's address
+    limits.per_week = 1
+    limits.uses.append(("someone-else", "testclient"))  # this address already used its week's check
+    inspect(client, llm)
+    inspect(client, llm)
+    assert limits.uses == [("someone-else", "testclient")]  # nothing recorded against the allowlisted visitor
+    limits.spent = limits.budget
+    llm.queue(Extraction, extraction()).queue(Classification, labels())
+    response = client.post(f"{API}/inspect", json={"text": POSTING})
+    assert response.status_code == 503 and response.json()["detail"]["reason"] == "paused"
 
 
 def test_visitor_cookie_is_set_and_reused(client: TestClient, llm: FakeLLM, limits: MemoryLimits) -> None:

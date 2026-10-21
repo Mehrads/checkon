@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     TRUSTED_PROXY_HOPS: int = 0
     # Browser extensions allowed to call the free check, by ID, comma-separated (extension/README.md).
     EXTENSION_IDS: str = ""
+    # Our own addresses, comma-separated: they skip the weekly quota so the live check can be tested.
+    # The rate limit, the origin check and the daily spend cap still apply to them.
+    FREE_CHECK_ALLOWLIST_IPS: str = ""
 
     # Paid plans through Stripe Billing (infra/README.md, "Stripe"). Until the key and the three prices are
     # set, Checkout is off and the pricing page offers the contact form instead.

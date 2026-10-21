@@ -1,4 +1,5 @@
 # ON-CEX-01. Labels come from the classifier; these cases test what the rule does with them.
+# What each kind of wording is labelled is tested live (tests/compliance/test_live.py, law-review sample).
 cases:
   - name: requires Canadian experience
     facts:
@@ -18,9 +19,26 @@ cases:
         - {text: "P.Eng. designation required", span: [300, 327], cex_label: ok}
     expect: {ON-CEX-01: pass}
 
+  - name: a Canadian education credential is Canadian experience
+    facts:
+      requirements:
+        - {text: "Degree from a Canadian university", span: [300, 333], cex_label: violation}
+    expect: {ON-CEX-01: fail}
+
+  - name: legal entitlement to work in Canada is not experience
+    facts:
+      requirements:
+        - {text: "Legally entitled to work in Canada", span: [300, 334], cex_label: ok}
+    expect: {ON-CEX-01: pass, status: compliant}
+
   - name: a violation outranks a borderline sentence
     facts:
       requirements:
         - {text: "Ontario payroll experience is an asset", span: [300, 338], cex_label: borderline}
         - {text: "Must have worked in Canada", span: [340, 366], cex_label: violation}
     expect: {ON-CEX-01: fail}
+
+  - name: no requirements at all
+    facts:
+      requirements: []
+    expect: {ON-CEX-01: pass}

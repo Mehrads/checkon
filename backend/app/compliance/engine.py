@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Any
 
 from app.compliance.checks import CHECKS
-from app.compliance.models import Context, Facts, Question, Report, RuleResult, Status, Verdict
+from app.compliance.models import Context, Facts, Question, Reminder, Report, RuleResult, Status, Verdict
 from app.compliance.rulepack import Rule, RulePack
 
 
@@ -84,4 +84,10 @@ def evaluate(facts: Facts, ctx: Context, pack: RulePack, posting_date: date) -> 
         )
 
     content = [run_rule(rule, facts, ctx) for rule in content_rules]
-    return Report(status=_status(gate, content), results=gate + content, versions=versions)
+    # Process rules aren't checked from the text; they are what the employer must do after posting.
+    reminders = [
+        Reminder(rule=rule.id, text=rule.reminder, citation=rule.citation)
+        for rule in rules
+        if rule.kind == "process" and rule.reminder
+    ]
+    return Report(status=_status(gate, content), results=gate + content, reminders=reminders, versions=versions)

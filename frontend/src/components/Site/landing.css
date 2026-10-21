@@ -1,0 +1,56 @@
+/* The hero is the free checker's own section (#check, rendered by Check/Checker), so its background
+   is set here rather than in that component: a typewriter with a job application sheet, under a
+   deep teal scrim that is darkest where the headline sits. The phone gets a portrait crop.
+   Browsers without image-set() types keep the plain background colour. */
+.site #check {
+  --hero-scrim: linear-gradient(
+    180deg,
+    rgb(11 42 39 / 0.94) 0%,
+    rgb(11 42 39 / 0.86) 55%,
+    rgb(11 42 39 / 0.7) 100%
+  );
+  background-color: #0b2a27;
+  background-image:
+    var(--hero-scrim),
+    image-set(
+      url("/assets/images/landing/bg-job-application-portrait-800.avif")
+        type("image/avif"),
+      url("/assets/images/landing/bg-job-application-portrait-800.webp")
+        type("image/webp")
+    );
+  background-position: center top;
+  background-size: cover;
+}
+
+@media (min-width: 1024px) {
+  .site #check {
+    --hero-scrim: linear-gradient(
+      90deg,
+      rgb(11 42 39 / 0.96) 0%,
+      rgb(11 42 39 / 0.88) 42%,
+      rgb(11 42 39 / 0.5) 100%
+    );
+    background-image:
+      var(--hero-scrim),
+      image-set(
+        url("/assets/images/landing/bg-job-application-1280.avif")
+          type("image/avif"),
+        url("/assets/images/landing/bg-job-application-1280.webp")
+          type("image/webp")
+      );
+    background-position: center 35%;
+  }
+}
+
+@media (min-width: 1440px) {
+  .site #check {
+    background-image:
+      var(--hero-scrim),
+      image-set(
+        url("/assets/images/landing/bg-job-application-1920.avif")
+          type("image/avif"),
+        url("/assets/images/landing/bg-job-application-1920.webp")
+          type("image/webp")
+      );
+  }
+}

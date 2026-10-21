@@ -1,4 +1,6 @@
 # ON-PAY-01 and ON-PAY-02. The first seven cases are the Layer 1 table in Technical Design §8.
+# Boundaries (law review, docs/law-review-2026-10.md): the $50,000 limit is inclusive (O. Reg. 476/24, s. 4,
+# "shall not exceed"); the $200,000 exemption is strict (s. 3, "more than").
 cases:
   - name: width at the cap
     facts:
@@ -59,10 +61,10 @@ cases:
       pay: [{min: 5000, max: 5000, unit: year, kind: bonus, span: [100, 120]}]
     expect: {ON-PAY-01: fail}
 
-  - name: commission only is a warning
+  - name: commission only is expected pay
     facts:
       pay: [{min: 40000, max: 60000, unit: year, kind: commission, span: [100, 120]}]
-    expect: {ON-PAY-01: warning, ON-PAY-02: not_applicable, status: compliant}
+    expect: {ON-PAY-01: pass, ON-PAY-02: not_applicable, status: compliant}
 
   - name: parsers disagree on the pay
     facts:
@@ -95,10 +97,10 @@ cases:
       pay: [{min: 5000, max: 9500, unit: month, span: [100, 120]}]
     expect: {ON-PAY-02: fail}
 
-  - name: wide range above 200,000, exemption not yet confirmed
+  - name: wide range ending above 200,000 is exempt on its face
     facts:
       pay: [{min: 150000, max: 250000, unit: year, span: [100, 120]}]
-    expect: {ON-PAY-01: pass, ON-PAY-02: needs_input}
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable, status: compliant}
 
   - name: wide range above 200,000, employer says pay is not above it
     facts:
@@ -118,3 +120,123 @@ cases:
         - {min: 60000, max: 80000, unit: year, span: [100, 120]}
         - {min: 60000, max: 120000, unit: year, span: [130, 150]}
     expect: {ON-PAY-02: fail}
+
+  # Range width boundaries
+
+  - name: width just under the cap
+    facts:
+      pay: [{min: 60000, max: 109999, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-02: pass}
+
+  - name: hourly width just under the cap at 40 hours
+    facts:
+      pay: [{min: 20, max: 44, unit: hour, span: [100, 120]}]  # $24 x 40 x 52 = $49,920
+    context: {hours_per_week: 40}
+    expect: {ON-PAY-02: pass}
+
+  - name: hourly width just over the cap at 40 hours
+    facts:
+      pay: [{min: 20, max: 44.05, unit: hour, span: [100, 120]}]  # $24.05 x 40 x 52 = $50,024
+    context: {hours_per_week: 40}
+    expect: {ON-PAY-02: fail}
+
+  - name: hourly width just over the cap, hours unknown, asks for the hours
+    facts:
+      pay: [{min: 20, max: 44.05, unit: hour, span: [100, 120]}]
+    expect: {ON-PAY-02: needs_input}
+
+  - name: the same hourly range passes at 37.5 hours
+    facts:
+      pay: [{min: 20, max: 44.05, unit: hour, span: [100, 120]}]  # $24.05 x 37.5 x 52 = $46,898
+    context: {hours_per_week: 37.5}
+    expect: {ON-PAY-02: pass}
+
+  - name: weekly range at the cap
+    facts:
+      pay: [{min: 1000, max: 1961, unit: week, span: [100, 120]}]  # $961 x 52 = $49,972
+    expect: {ON-PAY-02: pass}
+
+  - name: weekly range over the cap
+    facts:
+      pay: [{min: 1000, max: 1962, unit: week, span: [100, 120]}]  # $962 x 52 = $50,024
+    expect: {ON-PAY-02: fail}
+
+  - name: monthly range at the cap
+    facts:
+      pay: [{min: 5000, max: 9166, unit: month, span: [100, 120]}]  # $4,166 x 12 = $49,992
+    expect: {ON-PAY-02: pass}
+
+  # The $200,000 exemption
+
+  - name: single figure of exactly 200,000 is not exempt
+    facts:
+      pay: [{min: 200000, max: 200000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: pass, ON-PAY-02: pass}
+
+  - name: single figure just above 200,000 is exempt on its face
+    facts:
+      pay: [{min: 200001, max: 200001, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable, status: compliant}
+
+  - name: wide range ending exactly at 200,000 is not exempt
+    facts:
+      pay: [{min: 140000, max: 200000, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: pass, ON-PAY-02: fail}
+
+  - name: wide range ending just above 200,000 is exempt
+    facts:
+      pay: [{min: 140000, max: 200001, unit: year, span: [100, 120]}]
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable}
+
+  - name: monthly pay above 200,000 a year is exempt
+    facts:
+      pay: [{min: 17000, max: 17000, unit: month, span: [100, 120]}]  # $204,000 a year
+    expect: {ON-PAY-01: not_applicable}
+
+  - name: wide hourly range above 200,000 at 40 hours, hours unknown, asks the employer
+    facts:
+      pay: [{min: 80, max: 110, unit: hour, span: [100, 120]}]  # width $62,400; top $228,800 at 40 hours
+    expect: {ON-PAY-01: pass, ON-PAY-02: needs_input}
+
+  - name: wide hourly range above 200,000 with the hours known is exempt
+    facts:
+      pay: [{min: 80, max: 110, unit: hour, span: [100, 120]}]
+    context: {hours_per_week: 40}
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable}
+
+  - name: the same hourly range at 30 hours is not exempt and too wide
+    facts:
+      pay: [{min: 80, max: 110, unit: hour, span: [100, 120]}]  # top $171,600; width $46,800 at 30 hours
+    context: {hours_per_week: 30}
+    expect: {ON-PAY-01: pass, ON-PAY-02: pass}
+
+  - name: exemption shown by the posting, employer confirms it
+    facts:
+      pay: [{min: 150000, max: 250000, unit: year, span: [100, 120]}]
+    context: {pay_exemption_confirmed: true}
+    expect: {ON-PAY-01: not_applicable, ON-PAY-02: not_applicable}
+
+  # Pay described without a figure: the extractor returns no pay, so the rule fails (the posting gives no amount).
+
+  - name: competitive salary with no figure
+    facts:
+      pay: []
+    expect: {ON-PAY-01: fail, status: not_compliant}
+
+  - name: salary depends on experience, no figure
+    facts:
+      pay: []
+    expect: {ON-PAY-01: fail}
+
+  - name: pay placeholder from the wording library still to be filled in
+    facts:
+      pay: []
+      pay_placeholder: [100, 134]
+    expect: {ON-PAY-01: needs_input, status: needs_input}
+
+  - name: commission on top of a salary leaves the salary range to the width rule
+    facts:
+      pay:
+        - {min: 60000, max: 80000, unit: year, span: [100, 120]}
+        - {min: 20000, max: 60000, unit: year, kind: commission, span: [130, 150]}
+    expect: {ON-PAY-01: pass, ON-PAY-02: pass}

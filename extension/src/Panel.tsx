@@ -215,7 +215,7 @@ export function Panel() {
               ? posting.source === "selection" && !posting.editable
                 ? "From the text you selected. Copy the result back when you're done."
                 : SOURCE_TEXT[posting.source]
-              : "Paste it, or select it on the page and right-click › Check with CheckON."}
+              : "Paste it, or select it on the page and right-click › Check with CheckON. Paste any linked document too."}
         </p>
         <textarea
           id="posting"

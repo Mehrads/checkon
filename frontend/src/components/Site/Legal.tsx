@@ -24,7 +24,7 @@ export function LegalPage({
   children: ReactNode
 }) {
   return (
-    <div className="min-h-svh bg-background">
+    <div className="site min-h-svh bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <Brand href="/check" />

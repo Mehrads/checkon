@@ -1,16 +1,15 @@
 """Employer size from a web search: the decision in code, and the lookup inside the Inspector."""
 
-from collections.abc import Generator
 from datetime import date
 from decimal import Decimal
 
 import pytest
 
 from app.compliance.classification import Classification
-from app.compliance.employer import EmployerSize, _Cache, decide
+from app.compliance.employer import EmployerSize, SizeCache, decide, look_up, place_key
 from app.compliance.extraction import Extraction
 from app.compliance.inspector import inspect
-from app.compliance.llm import LLMError
+from app.compliance.llm import SEARCH_SETTINGS, LLMError
 from app.compliance.models import Context
 from app.compliance.rulepack import load_pack
 from tests.compliance.fake_llm import FakeLLM
@@ -28,10 +27,17 @@ def size(**figures) -> EmployerSize:
     return EmployerSize(**{**base, **figures})
 
 
-@pytest.fixture(autouse=True)
-def fresh_cache(monkeypatch: pytest.MonkeyPatch) -> Generator[None]:
-    monkeypatch.setattr("app.compliance.employer.CACHE", _Cache())
-    yield
+class MemorySizes:
+    """The employer-size cache without Postgres."""
+
+    def __init__(self) -> None:
+        self.items: dict[tuple[str, str], EmployerSize] = {}
+
+    def get(self, key: tuple[str, str]) -> EmployerSize | None:
+        return self.items.get(key)
+
+    def put(self, key: tuple[str, str], value: EmployerSize) -> None:
+        self.items[key] = value
 
 
 # The decision
@@ -66,9 +72,9 @@ def test_no_employer_name_means_assumed() -> None:
 # Inside the Inspector
 
 
-def run(llm: FakeLLM, ctx: Context = NOT_ASKED, employer: str | None = EMPLOYER):
+def run(llm: FakeLLM, ctx: Context = NOT_ASKED, employer: str | None = EMPLOYER, sizes: SizeCache | None = None):
     llm.queue(Extraction, extraction(employer=employer)).queue(Classification, labels())
-    return inspect(TEXT, ctx, date(2026, 10, 19), PACK, llm)
+    return inspect(TEXT, ctx, date(2026, 10, 19), PACK, llm, sizes=sizes)
 
 
 def appl(result) -> tuple[str, str]:
@@ -111,10 +117,77 @@ def test_failed_search_assumes_the_rules_apply() -> None:
 
 
 def test_the_same_employer_is_searched_once() -> None:
-    llm = FakeLLM().queue(EmployerSize, size(total_employees_min=2000, total_employees_max=2000))
-    run(llm)
-    run(llm)
+    llm, sizes = FakeLLM().queue(EmployerSize, size(total_employees_min=2000, total_employees_max=2000)), MemorySizes()
+    first, second = run(llm, sizes=sizes), run(llm, sizes=sizes)
     assert len(llm.calls_for(EmployerSize)) == 1
+    assert appl(second) == appl(first)
+    assert second.context.headcount_basis == "search"
+
+
+def test_the_cache_holds_the_figures_by_employer_and_location() -> None:
+    found = size(total_employees_min=2000, total_employees_max=2000)
+    sizes = MemorySizes()
+    run(FakeLLM().queue(EmployerSize, found), sizes=sizes)
+    assert sizes.items == {("maple leaf payroll ltd.", "mississauga on"): found}
+
+
+def test_the_cache_key_ignores_case_and_spacing() -> None:
+    llm, sizes = FakeLLM().queue(EmployerSize, size()), MemorySizes()
+    look_up("Maple Leaf Payroll Ltd.", "Mississauga, ON", llm, SEARCH_SETTINGS, sizes)
+    look_up("maple leaf  PAYROLL Ltd.", "MISSISSAUGA, ON", llm, SEARCH_SETTINGS, sizes)
+    assert len(llm.calls_for(EmployerSize)) == 1
+
+
+def test_another_location_is_searched_again() -> None:
+    llm, sizes = FakeLLM().queue(EmployerSize, size(), size(), size()), MemorySizes()
+    look_up(EMPLOYER, "Mississauga, ON", llm, SEARCH_SETTINGS, sizes)
+    look_up(EMPLOYER, "Ottawa, ON", llm, SEARCH_SETTINGS, sizes)
+    look_up(EMPLOYER, None, llm, SEARCH_SETTINGS, sizes)
+    assert len(llm.calls_for(EmployerSize)) == 3
+    assert {location for _, location in sizes.items} == {"mississauga on", "ottawa on", ""}
+
+
+@pytest.mark.parametrize(
+    ("location", "key"),
+    [
+        ("Ottawa, ON", "ottawa on"),
+        ("Ottawa, ON (hybrid)", "ottawa on"),
+        ("Ottawa, ON - Hybrid", "ottawa on"),
+        ("OTTAWA,  Ontario, Canada", "ottawa on"),
+        ("Toronto, ON [Remote]", "toronto on"),
+        ("In-office, Waterloo ON", "waterloo on"),
+        ("Montréal, QC", "montreal qc"),
+        ("Sault Ste. Marie, ON", "sault ste marie on"),
+        ("Remote", ""),
+        (None, ""),
+    ],
+)
+def test_the_location_key_keeps_only_the_place(location: str | None, key: str) -> None:
+    assert place_key(location) == key
+
+
+def test_variants_of_the_same_city_share_one_search() -> None:
+    llm, sizes = FakeLLM().queue(EmployerSize, size()), MemorySizes()
+    for location in ("Ottawa, ON (hybrid)", "Ottawa, Ontario, Canada", "ottawa on"):
+        assert look_up(EMPLOYER, location, llm, SEARCH_SETTINGS, sizes) == size()
+    [search] = llm.calls_for(EmployerSize)
+    assert "<job_location>Ottawa, ON (hybrid)</job_location>" in search.user  # the search sees the posting's words
+    assert list(sizes.items) == [(EMPLOYER.lower(), "ottawa on")]
+
+
+def test_a_failed_search_is_not_cached() -> None:
+    llm, sizes = FakeLLM().queue(EmployerSize, LLMError("the search did not finish"), size()), MemorySizes()
+    assert look_up(EMPLOYER, None, llm, SEARCH_SETTINGS, sizes) is None
+    assert sizes.items == {}
+    assert look_up(EMPLOYER, None, llm, SEARCH_SETTINGS, sizes) == size()
+    assert len(llm.calls_for(EmployerSize)) == 2
+
+
+def test_without_a_cache_every_check_searches() -> None:
+    llm = FakeLLM().queue(EmployerSize, size(), size())
+    run(llm)
+    run(llm)
+    assert len(llm.calls_for(EmployerSize)) == 2
 
 
 def test_a_given_headcount_skips_the_search() -> None:
