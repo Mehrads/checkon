@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button"
 import { track } from "@/lib/analytics"
 import { countWords, docToPlainText, textToHtml } from "@/lib/posting-format"
 import { cn } from "@/lib/utils"
-import { STATUS_TEXT } from "./labels"
+import { FINAL_STATUS_TEXT } from "./labels"
 import { StatusIcon } from "./StatusIcon"
 
 interface Tool {
@@ -199,7 +199,7 @@ export function PostingEditor({
               Your updated posting
             </h2>
             <p className="text-sm text-muted-foreground">
-              {STATUS_TEXT[final.report.status]}
+              {FINAL_STATUS_TEXT[final.report.status]}
             </p>
           </div>
         </div>

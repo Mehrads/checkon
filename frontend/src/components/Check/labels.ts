@@ -17,6 +17,16 @@ export const STATUS_TEXT: Record<Status, string> = {
   not_applicable: "Ontario's job posting rules don't apply to this posting.",
 }
 
+/** The same statuses, said about the finished posting in the editor (nothing sits below it). */
+export const FINAL_STATUS_TEXT: Record<Status, string> = {
+  compliant: "Ready to publish: it meets Ontario's job posting rules.",
+  not_compliant:
+    "Some rules are still open. See the rule-by-rule results above.",
+  needs_input:
+    "Fill in what's marked in [brackets], and answer any open questions above, before you publish.",
+  not_applicable: "Ontario's job posting rules don't apply to this posting.",
+}
+
 export const VERDICT_TEXT: Record<Verdict, string> = {
   pass: "Pass",
   fail: "Fail",
