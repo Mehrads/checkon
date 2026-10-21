@@ -36,7 +36,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    cd infra/terraform && cp terraform.tfvars.example terraform.tfvars
    ```
 
-   The state file will hold the generated database password and app secret. For anything beyond a solo setup, store it in a GCS bucket only you can read (`backend "gcs"` in `versions.tf`).
+   The state holds the generated database password and app secret, so it lives in a private GCS bucket, not on disk. Create the bucket before step 3 ([Terraform state](#terraform-state)).
 
 3. Create the stack. The first apply runs Google's hello image, so the service exists before any deploy:
 
@@ -56,7 +56,7 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-APP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
    ```
 
-5. Point checkon.ca at the service. Cloud Run's own domain mapping isn't offered in Toronto, so `lb.tf` puts a global HTTPS load balancer in front (about $18 a month, the load balancer line in Technical Design §13). Set `domain = "checkon.ca"` and `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply. It also tells the app to read the visitor's IP one hop further back (`TRUSTED_PROXY_HOPS`).
+5. Point checkon.ca at the service. Cloud Run's own domain mapping isn't offered in Toronto, so `lb.tf` puts a global HTTPS load balancer in front (about $18 a month, the load balancer line in Technical Design §13). Set `domain = "checkon.ca"` and `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply. It also tells the app to read the visitor's IP one hop further back (`TRUSTED_PROXY_HOPS`), and closes the service's own run.app URL (ingress `INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER`, so it returns 404): visitors can only arrive through the load balancer and can't fake `X-Forwarded-For`.
 
    ```bash
    terraform apply && terraform output -raw lb_ip
@@ -80,6 +80,36 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
 7. Push to `main`. The Deploy workflow tests, builds the image, runs the migrations as a Cloud Run job, then deploys.
 
 8. Smoke-test the live site: run one real check, then a second one to see the weekly limit. In the Cloud Run logs, confirm requests show real visitor IPs. If they all show one Google address, adjust `TRUSTED_PROXY_HOPS`.
+
+## Terraform state
+
+State lives in `gs://compliance-512120-tfstate` under `posting-checker/` (`backend "gcs"` in `versions.tf`). The bucket is in Toronto, versioned (each apply keeps the previous state as an older version), with uniform access and public access prevention. Only the project Owner can read it: the Editor and Viewer access GCS adds by default is removed, since the default compute service account is a project Editor. Terraform takes a lock in the same bucket while it runs. Migrated from the local `terraform.tfstate` on 2026-10-21.
+
+The bucket sits outside Terraform, which can't create the bucket that holds its own state. On a new project, create it once before `terraform init`, then put its name in `versions.tf`:
+
+```bash
+gcloud storage buckets create gs://YOUR-PROJECT-ID-tfstate --location=northamerica-northeast2 --uniform-bucket-level-access --public-access-prevention
+```
+
+```bash
+gcloud storage buckets update gs://YOUR-PROJECT-ID-tfstate --versioning
+```
+
+```bash
+for r in legacyBucketOwner legacyObjectOwner; do gcloud storage buckets remove-iam-policy-binding gs://YOUR-PROJECT-ID-tfstate --member=projectEditor:YOUR-PROJECT-ID --role=roles/storage.$r; done
+```
+
+```bash
+for r in legacyBucketReader legacyObjectReader; do gcloud storage buckets remove-iam-policy-binding gs://YOUR-PROJECT-ID-tfstate --member=projectViewer:YOUR-PROJECT-ID --role=roles/storage.$r; done
+```
+
+To run Terraform as one Google account without changing the gcloud or application-default sign-in, hand it a token for that account:
+
+```bash
+GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token --account=YOUR-PERSONAL-ACCOUNT)" terraform plan
+```
+
+To restore an earlier state, list the versions with `gcloud storage ls -a gs://compliance-512120-tfstate/posting-checker/`, then copy the one you want over `default.tfstate`.
 
 ## Email and DNS
 
@@ -116,5 +146,6 @@ curl -s "https://dns.google/resolve?name=_dmarc.checkon.ca&type=TXT"
 - **The checker refuses everything until the Anthropic key is set.** With `replace-me`, the model calls fail.
 - **Organisation policies can block public access.** If your project sits in an organisation that forbids `allUsers`, the public invoker binding fails.
 - **Postgres version mismatch.** Cloud SQL runs Postgres 17 by default; local development runs 18. Switch `postgres_version` when Cloud SQL offers 18.
-- **Deletion protection is on** for the database and the service. Turn it off in Terraform before `terraform destroy`.
+- **The run.app URL is closed once `domain` is set.** Everything goes through the load balancer, so if it breaks, the site is down. To reach the service directly while you fix it, set `ingress` back to `INGRESS_TRAFFIC_ALL` in `main.tf` and apply.
+- **Deletion protection is on** for the database and the service. Turn it off in Terraform before `terraform destroy`. The state bucket isn't in Terraform, so `destroy` leaves it.
 - **Langfuse isn't wired in yet** (Technical Design §12). Add it before you rely on traces for the golden-set runs.

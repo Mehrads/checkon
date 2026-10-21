@@ -12,11 +12,11 @@ terraform {
     }
   }
 
-  # Keep state in a bucket once more than one person applies changes (see infra/README.md):
-  # backend "gcs" {
-  #   bucket = "YOUR-PROJECT-tfstate"
-  #   prefix = "posting-checker"
-  # }
+  # State holds the generated passwords, so it lives in a private, versioned bucket (infra/README.md).
+  backend "gcs" {
+    bucket = "compliance-512120-tfstate"
+    prefix = "posting-checker"
+  }
 }
 
 provider "google" {

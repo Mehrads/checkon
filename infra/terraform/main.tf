@@ -247,7 +247,8 @@ resource "google_service_account_iam_member" "github_deploys" {
 resource "google_cloud_run_v2_service" "app" {
   name     = local.name
   location = var.region
-  ingress  = "INGRESS_TRAFFIC_ALL"
+  # With a domain, only the load balancer (lb.tf) reaches the app, so visitors can't fake X-Forwarded-For.
+  ingress = var.domain != "" ? "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER" : "INGRESS_TRAFFIC_ALL"
 
   template {
     service_account                  = google_service_account.runtime.email
