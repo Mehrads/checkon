@@ -40,12 +40,12 @@ def rows(db: Session, employer: str) -> list[EmployerSizeSearch]:
 
 
 def test_a_search_outlives_the_session_that_stored_it(db: Session, employer: str) -> None:
-    key = (employer.lower(), "mississauga, on")
+    key = (employer.lower(), "mississauga on")
     found = size(total_employees_min=2000, total_employees_max=2000)
     PostgresSizeCache(db).put(key, found)
     with Session(engine) as fresh:  # as after a cold start or a deploy
         assert PostgresSizeCache(fresh).get(key) == found
-        assert PostgresSizeCache(fresh).get((employer.lower(), "ottawa, on")) is None
+        assert PostgresSizeCache(fresh).get((employer.lower(), "ottawa on")) is None
 
 
 def test_a_new_search_replaces_the_old_one(db: Session, employer: str) -> None:
@@ -107,5 +107,5 @@ def test_the_free_check_searches_once_and_keeps_no_posting_text(
         assert appl["message"].startswith(f"{employer}: about 2,000 employees worldwide (mapleleaf.example).")
     assert len(llm.calls_for(EmployerSize)) == 1
     [row] = rows(db, employer)
-    assert (row.employer, row.location) == (employer.lower(), "mississauga, on")
+    assert (row.employer, row.location) == (employer.lower(), "mississauga on")
     assert row.size == found.model_dump(mode="json")  # the search's figures, summary and source only

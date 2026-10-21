@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 
 from app.compliance.classification import Classification
-from app.compliance.employer import EmployerSize, SizeCache, decide, look_up
+from app.compliance.employer import EmployerSize, SizeCache, decide, look_up, place_key
 from app.compliance.extraction import Extraction
 from app.compliance.inspector import inspect
 from app.compliance.llm import SEARCH_SETTINGS, LLMError
@@ -128,7 +128,7 @@ def test_the_cache_holds_the_figures_by_employer_and_location() -> None:
     found = size(total_employees_min=2000, total_employees_max=2000)
     sizes = MemorySizes()
     run(FakeLLM().queue(EmployerSize, found), sizes=sizes)
-    assert sizes.items == {("maple leaf payroll ltd.", "mississauga, on"): found}
+    assert sizes.items == {("maple leaf payroll ltd.", "mississauga on"): found}
 
 
 def test_the_cache_key_ignores_case_and_spacing() -> None:
@@ -144,7 +144,35 @@ def test_another_location_is_searched_again() -> None:
     look_up(EMPLOYER, "Ottawa, ON", llm, SEARCH_SETTINGS, sizes)
     look_up(EMPLOYER, None, llm, SEARCH_SETTINGS, sizes)
     assert len(llm.calls_for(EmployerSize)) == 3
-    assert {location for _, location in sizes.items} == {"mississauga, on", "ottawa, on", ""}
+    assert {location for _, location in sizes.items} == {"mississauga on", "ottawa on", ""}
+
+
+@pytest.mark.parametrize(
+    ("location", "key"),
+    [
+        ("Ottawa, ON", "ottawa on"),
+        ("Ottawa, ON (hybrid)", "ottawa on"),
+        ("Ottawa, ON - Hybrid", "ottawa on"),
+        ("OTTAWA,  Ontario, Canada", "ottawa on"),
+        ("Toronto, ON [Remote]", "toronto on"),
+        ("In-office, Waterloo ON", "waterloo on"),
+        ("Montréal, QC", "montreal qc"),
+        ("Sault Ste. Marie, ON", "sault ste marie on"),
+        ("Remote", ""),
+        (None, ""),
+    ],
+)
+def test_the_location_key_keeps_only_the_place(location: str | None, key: str) -> None:
+    assert place_key(location) == key
+
+
+def test_variants_of_the_same_city_share_one_search() -> None:
+    llm, sizes = FakeLLM().queue(EmployerSize, size()), MemorySizes()
+    for location in ("Ottawa, ON (hybrid)", "Ottawa, Ontario, Canada", "ottawa on"):
+        assert look_up(EMPLOYER, location, llm, SEARCH_SETTINGS, sizes) == size()
+    [search] = llm.calls_for(EmployerSize)
+    assert "<job_location>Ottawa, ON (hybrid)</job_location>" in search.user  # the search sees the posting's words
+    assert list(sizes.items) == [(EMPLOYER.lower(), "ottawa on")]
 
 
 def test_a_failed_search_is_not_cached() -> None:
