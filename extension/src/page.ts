@@ -19,13 +19,106 @@ function readPostingInPage(): {
   editable: boolean
 } | null {
   const MARK = "data-checkon-target"
-  const clean = (value: string) => value.replace(/ /g, " ").trim()
+  const clean = (value: string) => value.replace(/\u00a0/g, " ").trim()
   const isField = (el: Element | null): el is HTMLElement =>
     !!el &&
     (el instanceof HTMLTextAreaElement ||
       (el instanceof HTMLElement && el.isContentEditable))
+
+  // Rich editors hold lists as <ul><li>, and innerText drops the bullets. Walk the DOM instead:
+  // one line per list item with "• ", a blank line between other blocks, like a pasted posting.
+  const BLOCKS = new Set([
+    "P",
+    "DIV",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "UL",
+    "OL",
+    "LI",
+    "SECTION",
+    "ARTICLE",
+    "HEADER",
+    "FOOTER",
+    "BLOCKQUOTE",
+    "TABLE",
+    "TR",
+    "PRE",
+  ])
+  // A heading, or a short line that is all bold (how many editors mark section titles), is followed
+  // by its body on the next line, which is how the check's editor recognises a heading again.
+  type Line = { text: string; item: boolean; heading: boolean; bold: boolean }
+  const asText = (root: Node) => {
+    const lines: Line[] = []
+    let line: Line | null = null
+    let bullet = false
+    const end = () => {
+      const text = line?.text.replace(/\s+/g, " ").trim()
+      if (line && text)
+        lines.push({
+          ...line,
+          text,
+          heading:
+            line.heading || (line.bold && !line.item && text.length <= 80),
+        })
+      line = null
+    }
+    const walk = (
+      node: Node,
+      inItem: boolean,
+      inHeading: boolean,
+      inBold: boolean,
+    ) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const value = node.textContent ?? ""
+        if (!line) {
+          if (!value.trim()) return
+          line = {
+            text: bullet ? "• " : "",
+            item: inItem,
+            heading: inHeading,
+            bold: inBold,
+          }
+          bullet = false
+        }
+        if (value.trim() && !inBold) line.bold = false
+        line.text += value
+        return
+      }
+      if (
+        !(node instanceof Element) &&
+        node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE
+      )
+        return
+      const tag = node instanceof Element ? node.tagName : ""
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "TEMPLATE") return
+      if (tag === "BR") return end()
+      const block = BLOCKS.has(tag)
+      if (block) end()
+      if (tag === "LI") bullet = true
+      for (const child of node.childNodes)
+        walk(
+          child,
+          inItem || tag === "LI",
+          inHeading || /^H[1-6]$/.test(tag),
+          inBold || tag === "STRONG" || tag === "B",
+        )
+      if (block) end()
+    }
+    walk(root, false, false, false)
+    const gap = (previous: Line, current: Line) =>
+      previous.heading || (previous.item && current.item) ? "\n" : "\n\n"
+    return clean(
+      lines
+        .map((l, i) => (i === 0 ? "" : gap(lines[i - 1], l)) + l.text)
+        .join(""),
+    )
+  }
   const fieldText = (el: HTMLElement) =>
-    clean(el instanceof HTMLTextAreaElement ? el.value : el.innerText)
+    el instanceof HTMLTextAreaElement ? clean(el.value) : asText(el)
   const outermostEditable = (el: HTMLElement) => {
     let node = el
     while (node.parentElement?.isContentEditable) node = node.parentElement
@@ -37,21 +130,35 @@ function readPostingInPage(): {
   }
   const mark = (el: HTMLElement) => el.setAttribute(MARK, "1")
 
-  // 1. Selected text, remembering the field it sits in so fixes can go back there.
+  // 1. Selected text. Fixes can be written back only when the selection is the whole field:
+  //    writing a checked part over the whole description would lose the rest of it.
   const selection = window.getSelection()
-  const selected = clean(selection?.toString() ?? "")
+  const focused = document.activeElement
+  let selected = ""
+  if (focused instanceof HTMLTextAreaElement) {
+    selected = clean(
+      focused.value.slice(focused.selectionStart, focused.selectionEnd),
+    )
+  } else {
+    const fragment = document.createDocumentFragment()
+    for (let i = 0; i < (selection?.rangeCount ?? 0); i++) {
+      fragment.append(selection!.getRangeAt(i).cloneContents())
+    }
+    selected = asText(fragment)
+  }
   if (selected.length >= 40) {
     const anchor = selection?.anchorNode
     const host =
       anchor instanceof HTMLElement ? anchor : (anchor?.parentElement ?? null)
     const field =
-      document.activeElement instanceof HTMLTextAreaElement
-        ? document.activeElement
+      focused instanceof HTMLTextAreaElement
+        ? focused
         : host?.isContentEditable
           ? outermostEditable(host)
           : null
-    if (field) mark(field)
-    return { text: selected, source: "selection", editable: !!field }
+    const whole = !!field && fieldText(field) === selected
+    if (whole) mark(field)
+    return { text: selected, source: "selection", editable: whole }
   }
 
   // 2. The focused field, else the longest visible one (job editors are the big box on the page).
@@ -113,10 +220,26 @@ function writePostingInPage(html: string, text: string): boolean {
   const selection = window.getSelection()
   selection?.removeAllRanges()
   selection?.addRange(range)
-  // Rich-text editors handle insertHTML like a paste, keeping their own state in step.
-  if (document.execCommand("insertHTML", false, html)) return true
+  // 1. Editors (ProseMirror, TinyMCE, CKEditor, Quill…) handle a paste themselves, so their own
+  //    document stays in step with what they show. A handled paste is cancelled by the editor.
+  const data = new DataTransfer()
+  data.setData("text/html", html)
+  data.setData("text/plain", text)
+  const paste = new ClipboardEvent("paste", {
+    clipboardData: data,
+    bubbles: true,
+    cancelable: true,
+  })
+  if (!el.dispatchEvent(paste)) return true
+  // 2. A bare editable area: replace its content. (execCommand("insertHTML") would copy the
+  //    first block's style, a heading, onto everything inserted.)
   el.innerHTML = html
-  el.dispatchEvent(new Event("input", { bubbles: true }))
+  el.dispatchEvent(
+    new InputEvent("input", {
+      bubbles: true,
+      inputType: "insertReplacementText",
+    }),
+  )
   return true
 }
 
