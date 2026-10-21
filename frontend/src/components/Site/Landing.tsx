@@ -4,7 +4,6 @@ import {
   BadgeCheck,
   Check,
   ClipboardPaste,
-  FileCheck2,
   ListChecks,
   type LucideIcon,
   PenLine,
@@ -14,6 +13,7 @@ import {
 import type { ReactNode } from "react"
 
 import { Appearance } from "@/components/Common/Appearance"
+import { Logo } from "@/components/Common/Logo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { track } from "@/lib/analytics"
@@ -35,16 +35,8 @@ const NAV = [
 
 export function Brand({ href = "#check" }: { href?: string }) {
   return (
-    <a
-      href={href}
-      className="flex items-center gap-2 text-lg font-semibold tracking-tight"
-    >
-      <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <FileCheck2 className="size-4.5" aria-hidden="true" />
-      </span>
-      <span>
-        Check<span className="text-primary">ON</span>
-      </span>
+    <a href={href}>
+      <Logo asLink={false} />
     </a>
   )
 }
