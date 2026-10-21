@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import {
   Archive,
   BadgeCheck,
@@ -32,10 +33,10 @@ const NAV = [
   { href: "#contact", label: "Contact" },
 ]
 
-export function Brand() {
+export function Brand({ href = "#check" }: { href?: string }) {
   return (
     <a
-      href="#check"
+      href={href}
       className="flex items-center gap-2 text-lg font-semibold tracking-tight"
     >
       <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -439,13 +440,14 @@ export function ContactSection() {
   )
 }
 
-export function SiteFooter() {
+/** `home` prefixes the in-page anchors, for pages other than the checker. */
+export function SiteFooter({ home = "" }: { home?: string }) {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <Brand />
+        <Brand href={`${home}#check`} />
         <p>Ontario job posting compliance. Not legal advice.</p>
-        <p className="flex items-center gap-4">
+        <p className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {CONTACT_EMAIL ? (
             <a
               href={`mailto:${CONTACT_EMAIL}`}
@@ -454,10 +456,13 @@ export function SiteFooter() {
               {CONTACT_EMAIL}
             </a>
           ) : (
-            <a href="#contact" className="hover:text-foreground">
+            <a href={`${home}#contact`} className="hover:text-foreground">
               Contact
             </a>
           )}
+          <Link to="/privacy" className="hover:text-foreground">
+            Privacy
+          </Link>
           <span>© {new Date().getFullYear()} CheckON · checkon.ca</span>
         </p>
       </div>
