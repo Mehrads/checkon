@@ -12,6 +12,7 @@ from collections.abc import Callable
 from typing import Any
 
 import stripe
+from pydantic import EmailStr, TypeAdapter, ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, func, select
 
@@ -44,6 +45,7 @@ EVENTS = {
 }
 
 After = list[Callable[[], None]]
+_email = TypeAdapter(EmailStr)
 
 
 def process_event(session: Session, client: stripe.StripeClient, event: stripe.Event) -> bool:
@@ -110,8 +112,10 @@ def _attach_user(session: Session, customer: Customer, email: str | None, refere
     if user is None and email:
         user = session.exec(select(User).where(func.lower(User.email) == email)).first()
     if user is None:
-        if not email:
-            logger.error("Checkout for Stripe customer %s has no email; no account created", customer.stripe_customer_id)
+        try:
+            email = _email.validate_python(email)
+        except ValidationError:  # the API's user model would refuse it
+            logger.error("Checkout for Stripe customer %s has no usable email; no account created", customer.stripe_customer_id)
             return
         user = User(email=email, hashed_password=get_password_hash(secrets.token_urlsafe(32)))
         plan = plans().get(customer.plan or "")

@@ -202,6 +202,17 @@ def test_checkout_creates_the_account_once(client: TestClient, db: Session, fake
     assert db.get(StripeEvent, completed["id"]) is not None
 
 
+def test_checkout_with_an_unusable_email_creates_no_account(client: TestClient, db: Session, fake_stripe: FakeStripe,
+                                                            emails: list) -> None:  # fmt: skip
+    cus, sub = stripe_ids()
+    fake_stripe.add_subscription(sub, cus, price="price_starter")
+    assert post_event(client, checkout_completed(cus, sub, "someone@example.test")).status_code == 200
+    assert db.exec(select(User).where(User.email == "someone@example.test")).first() is None
+    assert emails == []
+    customer = db.exec(select(Customer).where(Customer.stripe_customer_id == cus)).one()
+    assert customer.plan == "starter"  # the subscription is still recorded, to link by hand
+
+
 def test_checkout_by_a_signed_in_user_links_that_user(client: TestClient, db: Session, fake_stripe: FakeStripe,
                                                       emails: list) -> None:  # fmt: skip
     user, _ = make_user(db)
