@@ -15,7 +15,7 @@ import {
 import { usePaidChecks } from "@/hooks/useBilling"
 import { formatDay } from "./UsageMeter"
 
-/** Checks that counted against the plan: date, job title and result. The postings themselves aren't kept.
+/** Checks that counted against the plan: date, job title and result. Postings are kept only by the archive.
  * With client workspaces (Agency), the picked `workspace`'s checks, or every client's. */
 export function PastChecks({ workspace }: { workspace?: WorkspacePublic }) {
   const [everyClient, setEveryClient] = useState(false)
@@ -30,8 +30,8 @@ export function PastChecks({ workspace }: { workspace?: WorkspacePublic }) {
             {only ? `Past checks for ${only.name}` : "Past checks"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            The date, job title and result of each check on your plan. We don't
-            keep the postings.
+            The date, job title and result of each check on your plan. Postings
+            are kept only in the archive, if you turn it on.
           </p>
         </div>
         {workspace && (

@@ -1,4 +1,4 @@
-import { Building2, ChartColumn, Home, Users } from "lucide-react"
+import { Archive, Building2, ChartColumn, Home, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -31,6 +31,10 @@ export function AppSidebar() {
             path: "/profile",
           },
         ]
+      : []),
+    // Still there after the plan ends: the archive stays readable
+    ...(billing?.has_billing
+      ? [{ icon: Archive, title: "Archive", path: "/archive" }]
       : []),
     ...(currentUser?.is_superuser
       ? [

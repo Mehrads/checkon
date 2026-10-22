@@ -17,6 +17,7 @@ import {
 } from "@/components/Check/ApplicationForm"
 import { Findings } from "@/components/Check/Findings"
 import { type Choices, defaultChoices, Fixes } from "@/components/Check/Fixes"
+import { planNote } from "@/components/Check/labels"
 import { PostingEditor } from "@/components/Check/PostingEditor"
 import { LINK_REFUSALS, PostingLink } from "@/components/Check/PostingLink"
 import { Questions } from "@/components/Check/Questions"
@@ -528,15 +529,33 @@ export function Panel() {
                   </div>
                 )
               )}
-              {final && <PostingEditor final={final} onInsert={insert} />}
+              {final && (
+                <PostingEditor
+                  final={final}
+                  onInsert={insert}
+                  archiveLink={(label, postingId) => (
+                    <a
+                      href={new URL(`/archive?posting=${postingId}`, SITE).href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline underline-offset-4"
+                    >
+                      {label}
+                    </a>
+                  )}
+                />
+              )}
             </>
           )}
         </div>
       )}
 
       <footer className="mt-auto border-t pt-3 text-xs text-muted-foreground">
-        {account.billing?.plan
-          ? `Checks count toward your ${account.billing.plan_name} plan. We keep the date, job title and result, never the posting.`
+        {account.billing?.plan_name
+          ? planNote(
+              account.billing.plan_name,
+              Boolean(profile?.archive_postings),
+            )
           : "One free check a week."}{" "}
         Not legal advice.{" "}
         <a

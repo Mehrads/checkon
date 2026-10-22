@@ -48,7 +48,8 @@ function PrivacyPage() {
             provider to run the check and held in memory for up to an hour so
             you can apply fixes. If you give a link, our server opens that page
             once to read the posting, and holds it the same way. We don't save
-            them, unless you tick "Share this posting" when reporting a problem.
+            them, unless you turn on the archive or tick "Share this posting"
+            when reporting a problem.
           </li>
           <li>
             <strong>Searches.</strong> We search the web for the employer's name
@@ -69,8 +70,19 @@ function PrivacyPage() {
             <strong>Your account, if you subscribe.</strong> Email, name,
             password (hashed) and sign-in codes (expire after 10 minutes). Also
             your company profiles, client workspaces, confirmed pay ranges and
-            check history (date, job title and result, never the posting). Kept
-            until you delete your account.
+            check history (date, job title and result). Kept until you delete
+            your account.
+          </li>
+          <li>
+            <strong>Archive, if you turn it on.</strong> On a paid plan, you can
+            turn on the archive for a company profile or client. We then save
+            each posting you apply fixes to (or the edited version you save),
+            with its date and job title, and any application form text and
+            documents you add. Each one is deleted 3 years after the takedown
+            date you enter, and kept until you enter one. You can delete
+            postings at any time, and deleting a workspace or your account
+            deletes its archive. If you cancel, you can still view and download
+            it.
           </li>
           <li>
             <strong>Billing.</strong> Stripe takes your card; we never see it.

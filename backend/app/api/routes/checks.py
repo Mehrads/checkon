@@ -27,6 +27,7 @@ from fastapi import (
 )
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
+from app.api.archive import purge_soon, save_applied
 from app.api.billing import (
     PlanLimits,
     plan_access,
@@ -202,10 +203,15 @@ class CheckOut(BaseModel):
     form_text: str | None = None  # the application form once checked; the report's form evidence points into it
 
 
+class ArchiveSaved(BaseModel):
+    id: uuid.UUID  # the archived posting
+
+
 class FinalOut(BaseModel):
     check_id: str
     text: str  # the pasted posting with the accepted patches applied
     report: Report
+    archived: ArchiveSaved | None = None  # saved to the archive: a paid check in a workspace with it on
 
 
 def _state(store: CheckStore, check_id: str) -> CheckState:
@@ -361,6 +367,7 @@ def inspect_posting(
         "check", check_id=state.id, visitor=who, status=inspection.report.status.value,
         duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid,
     )  # fmt: skip
+    background.add_task(purge_soon)  # archived postings past their three years, whoever's check this is
     return _out(state)
 
 
@@ -505,13 +512,17 @@ def accept_patches(
         raise _llm_failure(error)
     finally:
         _charge(limits, state.plan, llm)
-    if state.plan:
+    archived = None
+    if state.plan:  # a free check is never archived
         record_final_status(session, state.id, report.status.value)
+        archived = save_applied(session, state.id, state.workspace_id, text)
     usage.record(
         "accept", check_id=state.id, count=len(chosen), duration_ms=elapsed_ms(started), usd=_spent(llm),
         plan=state.plan,
     )  # fmt: skip
-    return FinalOut(check_id=state.id, text=text, report=report)
+    return FinalOut(
+        check_id=state.id, text=text, report=report, archived=ArchiveSaved(id=archived.id) if archived else None
+    )
 
 
 # Research hooks

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { PageHeading } from "@/components/Common/PageHeading"
+import { ArchiveSetting } from "@/components/Profile/ArchiveSetting"
 import { PayBands } from "@/components/Profile/PayBands"
 import { ProfileForm } from "@/components/Profile/ProfileForm"
 import { Workspaces } from "@/components/Profile/Workspaces"
@@ -66,10 +67,16 @@ function Profile() {
             )}
             <ProfileForm key={current.id} profile={current} />
           </div>
+          <ArchiveSetting
+            key={current.id}
+            profile={current}
+            client={canCreate}
+          />
           <PayBands workspaceId={current.id} />
           <p className="text-xs text-muted-foreground">
-            We store these company facts and pay ranges with your account, and
-            never your postings.{" "}
+            {current.archive_postings
+              ? "We store these company facts and pay ranges with your account. This workspace's archive is on: we save the posting when you apply fixes."
+              : "We store these company facts and pay ranges with your account, and never your postings."}{" "}
             <Link to="/privacy" className="underline underline-offset-4">
               Privacy
             </Link>
