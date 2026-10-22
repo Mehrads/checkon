@@ -1,4 +1,4 @@
-import { ChartColumn, Home, Users } from "lucide-react"
+import { Building2, ChartColumn, Home, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -9,6 +9,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
+import { useBilling } from "@/hooks/useBilling"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
 
@@ -16,14 +17,20 @@ const baseItems: Item[] = [{ icon: Home, title: "Checks", path: "/" }]
 
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
+  const { data: billing } = useBilling()
 
-  const items = currentUser?.is_superuser
-    ? [
-        ...baseItems,
-        { icon: ChartColumn, title: "Stats", path: "/stats" },
-        { icon: Users, title: "Admin", path: "/admin" },
-      ]
-    : baseItems
+  const items = [
+    ...baseItems,
+    ...(billing?.plan
+      ? [{ icon: Building2, title: "Company profile", path: "/profile" }]
+      : []),
+    ...(currentUser?.is_superuser
+      ? [
+          { icon: ChartColumn, title: "Stats", path: "/stats" },
+          { icon: Users, title: "Admin", path: "/admin" },
+        ]
+      : []),
+  ]
 
   return (
     <Sidebar collapsible="icon">

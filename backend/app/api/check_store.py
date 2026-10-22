@@ -7,12 +7,14 @@ v1 runs one process; quotas and a shared store move to Postgres in step 6.
 import secrets
 import threading
 import time
+import uuid
 from dataclasses import dataclass, field
 from datetime import date
 
 from app.compliance.inspector import Inspection, SentenceLabels
 from app.compliance.models import Context
 from app.compliance.refiner import Refinement
+from app.compliance.wording import Variant
 
 
 @dataclass
@@ -24,6 +26,8 @@ class CheckState:
     label_cache: dict[str, SentenceLabels] = field(default_factory=dict)
     rewrites: dict[str, str] = field(default_factory=dict)
     plan: str | None = None  # the plan a signed-in customer's check counted against; None for a free check
+    workspace_id: uuid.UUID | None = None  # the company profile the check started from
+    wording: Variant = "formal"  # the profile's choice for the wording library's statements
     id: str = field(default_factory=lambda: secrets.token_urlsafe(16))
     created: float = field(default_factory=time.monotonic)
 

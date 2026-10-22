@@ -160,7 +160,10 @@ def inspect(
     settings: ModelSettings = ModelSettings(),
     search_settings: ModelSettings = SEARCH_SETTINGS,
     sizes: SizeCache | None = None,
+    employer: str | None = None,
 ) -> Inspection:
+    """`employer` is the name from the company profile; when set, the size search uses it instead of the name
+    read from the posting, which may be a recruiter's."""
     doc = normalise(text)
     if not doc.sentences:
         raise InputRefused("empty")
@@ -175,7 +178,7 @@ def inspect(
         verified = verify(doc, extraction, readings)
 
     if ctx.headcount is None and ctx.meets_headcount_threshold is None:  # never asked: search instead
-        employer = verified.employer.value if verified.employer else None
+        employer = employer or (verified.employer.value if verified.employer else None)
         location = verified.locations[0].value if verified.locations else None
         size = look_up(employer, location, llm, search_settings, sizes) if employer else None
         rule = next(r for r in pack.rules if r.id == "ON-APPL-01")

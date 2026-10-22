@@ -184,6 +184,10 @@ export type CheckOut = {
      */
     questions: Array<Question>;
     research_question: ResearchQuestion;
+    /**
+     * Workspace Id
+     */
+    workspace_id?: string | null;
 };
 
 /**
@@ -604,6 +608,34 @@ export type PrivateUserCreate = {
      * Is Verified
      */
     is_verified?: boolean;
+};
+
+/**
+ * ProfileUpdate
+ *
+ * Only the fields sent are changed. A headcount replaces "25 or more", and the other way round.
+ */
+export type ProfileUpdate = {
+    /**
+     * Employer Name
+     */
+    employer_name?: string | null;
+    /**
+     * Headcount
+     */
+    headcount?: number | null;
+    /**
+     * Meets Headcount Threshold
+     */
+    meets_headcount_threshold?: boolean | null;
+    /**
+     * Uses Ai In Hiring
+     */
+    uses_ai_in_hiring?: boolean | null;
+    /**
+     * Wording
+     */
+    wording?: 'formal' | 'plain';
 };
 
 /**
@@ -1134,6 +1166,44 @@ export type Week = {
     paid_checks: number;
 };
 
+/**
+ * WorkspacePublic
+ */
+export type WorkspacePublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Employer Name
+     */
+    employer_name: string | null;
+    /**
+     * Headcount
+     */
+    headcount: number | null;
+    /**
+     * Meets Headcount Threshold
+     */
+    meets_headcount_threshold: boolean | null;
+    /**
+     * Uses Ai In Hiring
+     */
+    uses_ai_in_hiring: boolean | null;
+    /**
+     * Wording
+     */
+    wording: 'formal' | 'plain';
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Headcount Threshold
+     */
+    headcount_threshold: number;
+};
+
 export type checksInspectPostingData = {
     body: InspectIn;
     path?: never;
@@ -1449,6 +1519,52 @@ export type billingChangePlanResponses = {
 };
 
 export type billingChangePlanResponse = billingChangePlanResponses[keyof billingChangePlanResponses];
+
+export type workspacesReadCurrentWorkspaceData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/workspaces/current';
+};
+
+export type workspacesReadCurrentWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacePublic;
+};
+
+export type workspacesReadCurrentWorkspaceResponse = workspacesReadCurrentWorkspaceResponses[keyof workspacesReadCurrentWorkspaceResponses];
+
+export type workspacesUpdateWorkspaceData = {
+    body: ProfileUpdate;
+    path: {
+        /**
+         * Workspace Id
+         */
+        workspace_id: string;
+    };
+    query?: never;
+    url: '/api/v1/workspaces/{workspace_id}';
+};
+
+export type workspacesUpdateWorkspaceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type workspacesUpdateWorkspaceError = workspacesUpdateWorkspaceErrors[keyof workspacesUpdateWorkspaceErrors];
+
+export type workspacesUpdateWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacePublic;
+};
+
+export type workspacesUpdateWorkspaceResponse = workspacesUpdateWorkspaceResponses[keyof workspacesUpdateWorkspaceResponses];
 
 export type statsReadStatsData = {
     body?: never;

@@ -6,6 +6,7 @@ form. Visitors get the free check's limits; a signed-in customer on an active pl
 import html
 import logging
 import time
+import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from functools import cache
@@ -46,6 +47,7 @@ from app.api.free_check import (
 )
 from app.api.research import BY_ID, ResearchQuestion, question_for
 from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
+from app.api.workspaces import current_workspace, profile_context, wording
 from app.compliance.answers import Answers, apply_answers
 from app.compliance.employer import SizeCache
 from app.compliance.inspector import InputRefused, inspect
@@ -121,7 +123,7 @@ MeterDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
 
 class InspectIn(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_POSTING_CHARS)
-    # Left empty by the free check, which looks the employer up; set it when the profile knows.
+    # Left empty by the free check, which looks the employer up. A customer's company profile fills it in.
     meets_headcount_threshold: bool | None = None
 
 
@@ -152,6 +154,7 @@ class CheckOut(BaseModel):
     refinement: Refinement | None = None
     questions: list[Question]  # open questions, from the report and the refinement
     research_question: ResearchQuestion  # one optional market-research question per check
+    workspace_id: uuid.UUID | None = None  # the company profile the check started from; None for a free check
 
 
 class FinalOut(BaseModel):
@@ -181,6 +184,7 @@ def _out(state: CheckState) -> CheckOut:
         refinement=state.refinement,
         questions=list(questions.values()),
         research_question=question_for(state.id),
+        workspace_id=state.workspace_id,
     )
 
 
@@ -233,15 +237,15 @@ def _plan_check_allowed(plan: PlanLimits, usage: Usage) -> None:
 def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement:
     return refine(
         state.inspection, state.ctx, state.posting_date, pack, llm,
-        label_cache=state.label_cache, rewrites=state.rewrites,
+        variant=state.wording, label_cache=state.label_cache, rewrites=state.rewrites,
     )  # fmt: skip
 
 
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
-    body: InspectIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
-    llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep, sizes: SizesDep,
-    plan: PlanDep, meter: MeterDep,
+    body: InspectIn, request: Request, response: Response, background: BackgroundTasks, session: SessionDep,
+    store: StoreDep, llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep,
+    sizes: SizesDep, plan: PlanDep, meter: MeterDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
     paid = plan.plan.id if plan else None
@@ -251,9 +255,14 @@ def inspect_posting(
         visitor = None
         _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
-    ctx = Context(meets_headcount_threshold=body.meets_headcount_threshold)
+    # A customer's check starts from their company profile: its facts aren't asked or searched for.
+    workspace = current_workspace(session, plan.access.customer) if plan else None
+    ctx = profile_context(workspace) if workspace else Context()
+    if body.meets_headcount_threshold is not None:
+        ctx = ctx.model_copy(update={"headcount": None, "meets_headcount_threshold": body.meets_headcount_threshold})
+    employer = workspace.employer_name if workspace else None
     try:
-        inspection = inspect(body.text, ctx, today, pack, llm, sizes=sizes)
+        inspection = inspect(body.text, ctx, today, pack, llm, sizes=sizes, employer=employer)
     except InputRefused as error:  # no credit used
         usage.record("refused", visitor=who, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise refused(422, error.reason, error.message)
@@ -264,7 +273,10 @@ def inspect_posting(
         _charge(limits, paid, llm)
     if visitor and not visitor.exempt:
         limits.record_use(visitor.cookie, visitor.ip)
-    state = store.add(CheckState(posting_date=today, ctx=inspection.context, inspection=inspection, plan=paid))
+    state = store.add(CheckState(
+        posting_date=today, ctx=inspection.context, inspection=inspection, plan=paid,
+        workspace_id=workspace.id if workspace else None, wording=wording(workspace),
+    ))  # fmt: skip
     if plan:
         title = inspection.facts.title.value if inspection.facts.title else None
         plan.record(state.id, title, inspection.report.status.value)

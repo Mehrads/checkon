@@ -53,6 +53,7 @@ export function useAccount() {
       await clearToken()
       setSignedIn(false)
       queryClient.removeQueries({ queryKey: ["billing"] })
+      queryClient.removeQueries({ queryKey: ["workspace"] })
     },
     refresh: () => queryClient.invalidateQueries({ queryKey: ["billing"] }),
   }

@@ -362,10 +362,7 @@ export function ForTeams() {
               goes up, and keeps the wording you chose.
             </p>
             <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
-              <li>
-                Your company's details saved, so each check starts there{" "}
-                <Soon />
-              </li>
+              <li>Your company's details saved, so each check starts there</li>
               <li>
                 Pay range suggestions when a posting has none <Soon />
               </li>
@@ -449,7 +446,7 @@ const PLANS: Plan[] = [
     features: [
       "50 checks a month",
       "History of your checks",
-      { text: "Company profile", soon: true },
+      "Company profile",
       { text: "Pay range suggestions", soon: true },
     ],
     cta: { label: "Subscribe", interest: "starter", checkout: "starter" },

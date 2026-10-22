@@ -9,7 +9,14 @@ import {
   type CheckOut,
   ChecksService,
   type FinalOut,
+  type ProfileUpdate,
+  type WorkspacePublic,
 } from "@/client"
+import {
+  ProfileNote,
+  profileAnswers,
+  SaveToProfile,
+} from "@/components/Profile/ProfileNote"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { isLoggedIn } from "@/hooks/useAuth"
@@ -48,18 +55,22 @@ const FREE_NOTE =
 
 /** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
  * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
- * check counts against their plan (the API reads the sign-in), and `onChecked` runs after each check and
- * after fixes are applied. */
+ * check counts against their plan and starts from their company `profile` (the API reads the sign-in);
+ * `editProfile` renders the link to change it. `onChecked` runs after each check and after fixes are applied. */
 export function Checker({
   intro,
   layout = "hero",
   note = FREE_NOTE,
   onChecked,
+  profile,
+  editProfile,
 }: {
   intro?: ReactNode
   layout?: "hero" | "app"
   note?: ReactNode
   onChecked?: () => void
+  profile?: WorkspacePublic
+  editProfile?: (label: string) => ReactNode
 }) {
   const hero = layout === "hero"
   const [text, setText] = useState("")
@@ -68,6 +79,7 @@ export function Checker({
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [refusal, setRefusal] = useState<string | null>(null)
+  const [toSave, setToSave] = useState<ProfileUpdate>({})
   const results = useRef<HTMLDivElement>(null)
   const editor = useRef<HTMLDivElement>(null)
 
@@ -93,6 +105,7 @@ export function Checker({
       setRefusal(null)
       setCheck(null)
       setFinal(null)
+      setToSave({})
     },
     onSuccess: (data) => {
       track("check", { status: data.report.status })
@@ -115,7 +128,10 @@ export function Checker({
           body: { check_id: check!.check_id, answers },
         })
       ).data,
-    onSuccess: show,
+    onSuccess: (data, answers) => {
+      show(data)
+      setToSave((saved) => ({ ...saved, ...profileAnswers(answers) }))
+    },
     onError: fail,
   })
 
@@ -173,6 +189,11 @@ export function Checker({
               The whole text applicants will read. Paste any linked document
               too.
             </p>
+            {profile && editProfile && (
+              <div className="mt-3">
+                <ProfileNote profile={profile} edit={editProfile} />
+              </div>
+            )}
             <textarea
               id="posting"
               value={text}
@@ -266,6 +287,16 @@ export function Checker({
                   pending={answer.isPending}
                   onAnswer={(answers) => answer.mutate(answers)}
                 />
+                {check.workspace_id &&
+                  profile &&
+                  Object.keys(toSave).length > 0 && (
+                    <SaveToProfile
+                      key={JSON.stringify(toSave)}
+                      workspaceId={check.workspace_id}
+                      threshold={profile.headcount_threshold}
+                      answers={toSave}
+                    />
+                  )}
                 <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                   <Findings
                     checkId={check.check_id}

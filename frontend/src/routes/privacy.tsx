@@ -10,7 +10,7 @@ import {
 } from "@/components/Site/Legal"
 
 // Every statement here describes what the code does; change this page when that changes.
-const DRAFTED = "October 21, 2026"
+const DRAFTED = "October 22, 2026"
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -49,9 +49,10 @@ function PrivacyPage() {
             or email.
           </li>
           <li>
-            If you subscribe to a plan, we keep your account and a short history
-            of your checks: the date, the job title and the result, never the
-            posting. Stripe handles your card.
+            If you subscribe to a plan, we keep your account, the company
+            details you save in your profile, and a short history of your
+            checks: the date, the job title and the result, never the posting.
+            Stripe handles your card.
           </li>
           <li>
             Your posting goes to our AI provider to run the check. We hold it
@@ -84,10 +85,11 @@ function PrivacyPage() {
           <li>
             <strong>The employer's name.</strong> Some requirements depend on
             how many people an employer has. If the posting names the employer,
-            we run a web search through our AI provider for that name, and the
-            location if the posting gives one, to estimate the employer's size.
-            We keep the result in memory for up to 30 days so we don't search
-            for the same employer twice.
+            or your company profile gives a name but no headcount, we run a web
+            search through our AI provider for that name, and the location if
+            the posting gives one, to estimate the employer's size. We keep the
+            result in memory for up to 30 days so we don't search for the same
+            employer twice.
           </li>
           <li>
             <strong>A cookie for the free check.</strong> When you run a check,
@@ -131,6 +133,16 @@ function PrivacyPage() {
             name if you add one, and your password, which we store only as a
             one-way hash. When you sign in, we email you a 6-digit code and keep
             a hash of it, which stops working after 10 minutes.
+          </li>
+          <li>
+            <strong>Your company profile, if you subscribe.</strong> The company
+            details you save so checks don't ask for them each time: the
+            employer's name, how many people you employ in Ontario (or simply
+            whether it's 25 or more), whether you or a recruiter use AI in
+            hiring, and the wording style you prefer. We store them with your
+            account, use them in each check on your plan and show them on your
+            profile page. They describe your company and never include a
+            posting.
           </li>
           <li>
             <strong>Billing, if you subscribe.</strong> You pay on Stripe's
@@ -255,12 +267,13 @@ function PrivacyPage() {
             one year in your browser, or until you clear it.
           </li>
           <li>
-            <strong>Your account and check history:</strong> until you delete
-            your account, which you can do under Settings once your plan is
-            cancelled. Deleting it removes your sign-in. The billing records of
-            your plan, including the dates and titles of its checks, stay for as
-            long as tax law needs them (in Canada, generally six years). Ask and
-            we'll delete anything the law lets us.
+            <strong>Your account, company profile and check history:</strong>{" "}
+            until you delete your account, which you can do under Settings once
+            your plan is cancelled. Deleting it removes your sign-in and your
+            company profile. The billing records of your plan, including the
+            dates and titles of its checks, stay for as long as tax law needs
+            them (in Canada, generally six years). Ask and we'll delete anything
+            the law lets us.
           </li>
           <li>
             <strong>
@@ -285,8 +298,8 @@ function PrivacyPage() {
           </li>
           <li>
             Only CheckON's administrators can see saved feedback, contact
-            messages and usage records. Your check history is visible to you and
-            to them.
+            messages and usage records. Your company profile and check history
+            are visible to you and to them.
           </li>
           <li>
             Signing in takes your password and a code we email you, so a stolen

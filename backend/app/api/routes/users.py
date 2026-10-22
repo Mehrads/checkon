@@ -6,6 +6,7 @@ from sqlmodel import col, delete, func, select
 
 from app import crud
 from app.api.billing import active_plan
+from app.api.workspaces import forget_profiles
 from app.api.deps import (
     CurrentUser,
     SessionDep,
@@ -151,6 +152,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
             detail="Cancel your plan under Manage billing first, then delete your account.",
         )
     session.delete(current_user)
+    forget_profiles(session, current_user.customer_id)
     session.commit()
     return Message(message="User deleted successfully")
 
@@ -224,5 +226,6 @@ def delete_user(
     statement = delete(Item).where(col(Item.owner_id) == user_id)
     session.exec(statement)
     session.delete(user)
+    forget_profiles(session, user.customer_id)
     session.commit()
     return Message(message="User deleted successfully")

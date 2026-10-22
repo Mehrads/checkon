@@ -268,6 +268,24 @@ class PaidCheck(SQLModel, table=True):
     reported_at: datetime | None = None  # when an extra check was sent to Stripe's meter
 
 
+class Workspace(SQLModel, table=True):
+    """The company a customer checks postings for, and its company profile (PRD FR2): facts every check starts
+    from, so the check doesn't ask or search for them. Company facts only, never posting text. None means not
+    given, and the check asks or searches as it does without a profile.
+    """
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    customer_id: uuid.UUID = Field(foreign_key="customer.id", nullable=False, ondelete="CASCADE", index=True)
+    employer_name: str | None = Field(default=None, max_length=255)  # searched for the headcount when none is given
+    # Employees in Ontario on the day of posting, part-time, casual and on leave included
+    headcount: int | None = None
+    meets_headcount_threshold: bool | None = None  # "25 or more" without an exact figure; None when headcount is set
+    uses_ai_in_hiring: bool | None = None  # AI screens, assesses or selects applicants, by them or a recruiter
+    wording: str = Field(default="formal", max_length=16)  # the wording library's variant: formal or plain
+    updated_at: datetime | None = None  # when the profile was last saved
+
+
 class StripeEvent(SQLModel, table=True):
     """Webhook events already processed, so a redelivered event changes nothing."""
 

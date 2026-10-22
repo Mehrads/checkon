@@ -8,6 +8,7 @@ import {
   type CheckOut,
   ChecksService,
   type FinalOut,
+  type ProfileUpdate,
 } from "@/client"
 import { Findings } from "@/components/Check/Findings"
 import { type Choices, defaultChoices, Fixes } from "@/components/Check/Fixes"
@@ -15,9 +16,15 @@ import { PostingEditor } from "@/components/Check/PostingEditor"
 import { Questions } from "@/components/Check/Questions"
 import { Summary } from "@/components/Check/Summary"
 import { Logo } from "@/components/Common/Logo"
+import {
+  ProfileNote,
+  profileAnswers,
+  SaveToProfile,
+} from "@/components/Profile/ProfileNote"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { useWorkspace } from "@/hooks/useWorkspace"
 import { AccountBar, SignIn, useAccount } from "./Account"
 import { type PagePosting, readFromPage, writeToPage } from "./page"
 
@@ -44,9 +51,13 @@ function errorMessage(error: Error): string {
 }
 
 /** The check in the browser's side panel: read the posting from the page, check it, write the fixes back.
- * Visitors get the free check; a signed-in customer's checks count against their plan. */
+ * Visitors get the free check; a signed-in customer's checks count against their plan and start from their
+ * company profile. */
 export function Panel() {
   const account = useAccount()
+  const onPlan = Boolean(account.billing?.plan)
+  const workspace = useWorkspace(onPlan)
+  const profile = onPlan ? workspace.data : undefined
   const [loggingIn, setLoggingIn] = useState(false)
   const [text, setText] = useState("")
   const [posting, setPosting] = useState<PagePosting | null>(null)
@@ -56,6 +67,7 @@ export function Panel() {
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [toSave, setToSave] = useState<ProfileUpdate>({})
   const results = useRef<HTMLDivElement>(null)
 
   const read = useCallback(async (fallback = "") => {
@@ -131,6 +143,7 @@ export function Panel() {
       setError(null)
       setCheck(null)
       setFinal(null)
+      setToSave({})
     },
     onSuccess: (data) => {
       show(data)
@@ -147,7 +160,10 @@ export function Panel() {
           body: { check_id: check!.check_id, answers },
         })
       ).data,
-    onSuccess: show,
+    onSuccess: (data, answers) => {
+      show(data)
+      setToSave((saved) => ({ ...saved, ...profileAnswers(answers) }))
+    },
     onError: fail,
   })
 
@@ -217,6 +233,23 @@ export function Panel() {
                 : SOURCE_TEXT[posting.source]
               : "Paste it, or select it on the page and right-click › Check with CheckON. Paste any linked document too."}
         </p>
+        {profile && (
+          <div className="mt-2">
+            <ProfileNote
+              profile={profile}
+              edit={(label) => (
+                <a
+                  href={`${SITE}/profile`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-4"
+                >
+                  {label}
+                </a>
+              )}
+            />
+          </div>
+        )}
         <textarea
           id="posting"
           value={text}
@@ -265,6 +298,16 @@ export function Panel() {
                 pending={answer.isPending}
                 onAnswer={(answers) => answer.mutate(answers)}
               />
+              {check.workspace_id &&
+                profile &&
+                Object.keys(toSave).length > 0 && (
+                  <SaveToProfile
+                    key={JSON.stringify(toSave)}
+                    workspaceId={check.workspace_id}
+                    threshold={profile.headcount_threshold}
+                    answers={toSave}
+                  />
+                )}
               <Findings
                 checkId={check.check_id}
                 report={check.report}
