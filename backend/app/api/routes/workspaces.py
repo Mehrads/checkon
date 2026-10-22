@@ -58,6 +58,7 @@ class WorkspacePublic(BaseModel):
     meets_headcount_threshold: bool | None
     uses_ai_in_hiring: bool | None
     wording: Wording
+    archive_postings: bool  # the archive is on: each check's applied posting is kept
     updated_at: datetime | None
     headcount_threshold: int  # the rule pack's employer size, for the profile form's wording
 
@@ -87,6 +88,7 @@ class WorkspaceUpdate(BaseModel):
     meets_headcount_threshold: bool | None = None
     uses_ai_in_hiring: bool | None = None
     wording: Wording = "formal"
+    archive_postings: bool = False
 
     @field_validator("name", "employer_name", mode="before")
     @classmethod

@@ -2,6 +2,7 @@ import { Placeholder } from "@tiptap/extensions"
 import { type Editor, EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import {
+  Archive,
   Bold,
   Check,
   Copy,
@@ -17,10 +18,13 @@ import {
   RotateCcw,
   Undo2,
 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { type ReactNode, useMemo, useState } from "react"
 
 import type { FinalOut } from "@/client"
 import { Button } from "@/components/ui/button"
+import { LoadingButton } from "@/components/ui/loading-button"
+import { useSaveArchivedText } from "@/hooks/useArchive"
+import { apiMessage } from "@/hooks/useBilling"
 import { track } from "@/lib/analytics"
 import { countWords, docToPlainText, textToHtml } from "@/lib/posting-format"
 import { cn } from "@/lib/utils"
@@ -122,20 +126,88 @@ async function copyToClipboard(html: string, text: string, rich: boolean) {
   await navigator.clipboard.writeText(text)
 }
 
+/** A link to an archived posting: the website's router, or a new tab from the extension. */
+export type ArchiveLink = (label: string, postingId: string) => ReactNode
+
+/** "Saved to the archive", under the editor's header when the check's workspace keeps postings, and a button
+ * to save the edits made here: the archive should hold what actually goes up. */
+function ArchiveNote({
+  postingId,
+  editor,
+  edited,
+  onSaved,
+  link,
+}: {
+  postingId: string
+  editor: Editor | null
+  edited: boolean
+  onSaved: () => void
+  link?: ArchiveLink
+}) {
+  const save = useSaveArchivedText(postingId)
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-primary/5 px-5 py-2.5 text-sm">
+      <p className="flex items-center gap-2">
+        <Archive className="size-4 shrink-0 text-primary" aria-hidden="true" />
+        <span>
+          {save.isSuccess && !edited
+            ? "Your edits are saved to the archive."
+            : "Saved to the archive."}{" "}
+          {link?.("Open it", postingId)}
+        </span>
+      </p>
+      {edited && (
+        <LoadingButton
+          size="sm"
+          variant="outline"
+          loading={save.isPending}
+          disabled={!editor}
+          onClick={() =>
+            editor &&
+            save.mutate(docToPlainText(editor.getJSON()), {
+              onSuccess: onSaved,
+            })
+          }
+        >
+          Save edits to the archive
+        </LoadingButton>
+      )}
+      {save.isError && (
+        <p className="w-full text-destructive">
+          {apiMessage(
+            save.error,
+            "We couldn't save your edits to the archive.",
+          )}
+        </p>
+      )}
+    </div>
+  )
+}
+
 /** The updated posting as a document: edit and format it, then copy it into your ATS or careers page. */
 export function PostingEditor({
   final,
   onInsert,
+  archiveLink,
 }: {
   final: FinalOut
   /** The browser extension: write the edited posting back into the page's job form. */
   onInsert?: (html: string, text: string) => Promise<boolean>
+  /** Where "Saved to the archive" links to. */
+  archiveLink?: ArchiveLink
 }) {
   const initial = useMemo(() => textToHtml(final.text), [final.text])
   const [copied, setCopied] = useState<"rich" | "plain" | null>(null)
   const [inserted, setInserted] = useState<boolean | null>(null)
+  const [edited, setEdited] = useState(false) // since the archive last saved it
+  const [shown, setShown] = useState(final)
+  if (shown !== final) {
+    setShown(final) // applied again: the archive has this text
+    setEdited(false)
+  }
   const editor = useEditor(
     {
+      onUpdate: () => setEdited(true),
       extensions: [
         StarterKit.configure({
           heading: { levels: [2, 3] },
@@ -233,6 +305,17 @@ export function PostingEditor({
           </p>
         )}
       </header>
+
+      {final.archived && (
+        <ArchiveNote
+          key={final.archived.id}
+          postingId={final.archived.id}
+          editor={editor}
+          edited={edited}
+          onSaved={() => setEdited(false)}
+          link={archiveLink}
+        />
+      )}
 
       <div
         role="toolbar"

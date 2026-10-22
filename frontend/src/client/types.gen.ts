@@ -72,6 +72,220 @@ export type AnswersIn = {
 };
 
 /**
+ * ArchiveSaved
+ */
+export type ArchiveSaved = {
+    /**
+     * Id
+     */
+    id: string;
+};
+
+/**
+ * ArchiveWorkspace
+ */
+export type ArchiveWorkspace = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Archive Postings
+     */
+    archive_postings: boolean;
+    /**
+     * Archived
+     */
+    archived: boolean;
+};
+
+/**
+ * ArchivedFilePublic
+ */
+export type ArchivedFilePublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * Size
+     */
+    size: number;
+};
+
+/**
+ * ArchivedPostingPublic
+ */
+export type ArchivedPostingPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Title
+     */
+    title: string | null;
+    /**
+     * Final Status
+     */
+    final_status: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id: string;
+    /**
+     * Workspace Name
+     */
+    workspace_name: string;
+    /**
+     * Taken Down On
+     */
+    taken_down_on: string | null;
+    /**
+     * Kept Until
+     */
+    kept_until: string | null;
+    /**
+     * Files
+     */
+    files: number;
+    /**
+     * Text
+     */
+    text: string;
+    /**
+     * Application Form
+     */
+    application_form: string | null;
+    /**
+     * Documents
+     */
+    documents: Array<ArchivedFilePublic>;
+    /**
+     * Read Only
+     */
+    read_only: boolean;
+};
+
+/**
+ * ArchivedPostingSummary
+ */
+export type ArchivedPostingSummary = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string | null;
+    /**
+     * Title
+     */
+    title: string | null;
+    /**
+     * Final Status
+     */
+    final_status: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id: string;
+    /**
+     * Workspace Name
+     */
+    workspace_name: string;
+    /**
+     * Taken Down On
+     */
+    taken_down_on: string | null;
+    /**
+     * Kept Until
+     */
+    kept_until: string | null;
+    /**
+     * Files
+     */
+    files: number;
+};
+
+/**
+ * ArchivedPostingUpdate
+ *
+ * Only the fields sent are changed. A takedown date sets when the posting is deleted; null means still up.
+ */
+export type ArchivedPostingUpdate = {
+    /**
+     * Taken Down On
+     */
+    taken_down_on?: string | null;
+    /**
+     * Application Form
+     */
+    application_form?: string | null;
+};
+
+/**
+ * ArchivedPostingsPublic
+ */
+export type ArchivedPostingsPublic = {
+    /**
+     * Data
+     */
+    data: Array<ArchivedPostingSummary>;
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Workspaces
+     */
+    workspaces: Array<ArchiveWorkspace>;
+    /**
+     * Read Only
+     */
+    read_only: boolean;
+};
+
+/**
+ * ArchivedTextIn
+ */
+export type ArchivedTextIn = {
+    /**
+     * Text
+     */
+    text: string;
+};
+
+/**
  * BandPublic
  */
 export type BandPublic = {
@@ -164,6 +378,16 @@ export type BillingOut = {
      * Cancel At Period End
      */
     cancel_at_period_end: boolean;
+};
+
+/**
+ * Body_archive-upload_archived_file
+ */
+export type Body_archive_upload_archived_file = {
+    /**
+     * File
+     */
+    file: Blob | File;
 };
 
 /**
@@ -412,6 +636,7 @@ export type FinalOut = {
      */
     text: string;
     report: Report;
+    archived?: ArchiveSaved | null;
 };
 
 /**
@@ -1427,6 +1652,10 @@ export type WorkspacePublic = {
      */
     wording: 'formal' | 'plain';
     /**
+     * Archive Postings
+     */
+    archive_postings: boolean;
+    /**
      * Updated At
      */
     updated_at: string | null;
@@ -1466,6 +1695,10 @@ export type WorkspaceUpdate = {
      * Wording
      */
     wording?: 'formal' | 'plain';
+    /**
+     * Archive Postings
+     */
+    archive_postings?: boolean;
 };
 
 /**
@@ -2057,6 +2290,300 @@ export type payDeleteBandResponses = {
 };
 
 export type payDeleteBandResponse = payDeleteBandResponses[keyof payDeleteBandResponses];
+
+export type archiveReadArchiveData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace Id
+         */
+        workspace_id?: string | null;
+        /**
+         * Q
+         */
+        q?: string | null;
+        /**
+         * Saved From
+         */
+        saved_from?: string | null;
+        /**
+         * Saved To
+         */
+        saved_to?: string | null;
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/archive/';
+};
+
+export type archiveReadArchiveErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveReadArchiveError = archiveReadArchiveErrors[keyof archiveReadArchiveErrors];
+
+export type archiveReadArchiveResponses = {
+    /**
+     * Successful Response
+     */
+    200: ArchivedPostingsPublic;
+};
+
+export type archiveReadArchiveResponse = archiveReadArchiveResponses[keyof archiveReadArchiveResponses];
+
+export type archiveExportArchiveData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Workspace Id
+         */
+        workspace_id: string;
+    };
+    url: '/api/v1/archive/export';
+};
+
+export type archiveExportArchiveErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveExportArchiveError = archiveExportArchiveErrors[keyof archiveExportArchiveErrors];
+
+export type archiveExportArchiveResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type archiveDeleteArchivedPostingData = {
+    body?: never;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}';
+};
+
+export type archiveDeleteArchivedPostingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveDeleteArchivedPostingError = archiveDeleteArchivedPostingErrors[keyof archiveDeleteArchivedPostingErrors];
+
+export type archiveDeleteArchivedPostingResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type archiveDeleteArchivedPostingResponse = archiveDeleteArchivedPostingResponses[keyof archiveDeleteArchivedPostingResponses];
+
+export type archiveReadArchivedPostingData = {
+    body?: never;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}';
+};
+
+export type archiveReadArchivedPostingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveReadArchivedPostingError = archiveReadArchivedPostingErrors[keyof archiveReadArchivedPostingErrors];
+
+export type archiveReadArchivedPostingResponses = {
+    /**
+     * Successful Response
+     */
+    200: ArchivedPostingPublic;
+};
+
+export type archiveReadArchivedPostingResponse = archiveReadArchivedPostingResponses[keyof archiveReadArchivedPostingResponses];
+
+export type archiveUpdateArchivedPostingData = {
+    body: ArchivedPostingUpdate;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}';
+};
+
+export type archiveUpdateArchivedPostingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveUpdateArchivedPostingError = archiveUpdateArchivedPostingErrors[keyof archiveUpdateArchivedPostingErrors];
+
+export type archiveUpdateArchivedPostingResponses = {
+    /**
+     * Successful Response
+     */
+    200: ArchivedPostingPublic;
+};
+
+export type archiveUpdateArchivedPostingResponse = archiveUpdateArchivedPostingResponses[keyof archiveUpdateArchivedPostingResponses];
+
+export type archiveSaveArchivedTextData = {
+    body: ArchivedTextIn;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}/text';
+};
+
+export type archiveSaveArchivedTextErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveSaveArchivedTextError = archiveSaveArchivedTextErrors[keyof archiveSaveArchivedTextErrors];
+
+export type archiveSaveArchivedTextResponses = {
+    /**
+     * Successful Response
+     */
+    200: ArchivedPostingPublic;
+};
+
+export type archiveSaveArchivedTextResponse = archiveSaveArchivedTextResponses[keyof archiveSaveArchivedTextResponses];
+
+export type archiveUploadArchivedFileData = {
+    body: Body_archive_upload_archived_file;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}/files';
+};
+
+export type archiveUploadArchivedFileErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveUploadArchivedFileError = archiveUploadArchivedFileErrors[keyof archiveUploadArchivedFileErrors];
+
+export type archiveUploadArchivedFileResponses = {
+    /**
+     * Successful Response
+     */
+    201: ArchivedFilePublic;
+};
+
+export type archiveUploadArchivedFileResponse = archiveUploadArchivedFileResponses[keyof archiveUploadArchivedFileResponses];
+
+export type archiveDeleteArchivedFileData = {
+    body?: never;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}/files/{file_id}';
+};
+
+export type archiveDeleteArchivedFileErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveDeleteArchivedFileError = archiveDeleteArchivedFileErrors[keyof archiveDeleteArchivedFileErrors];
+
+export type archiveDeleteArchivedFileResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type archiveDeleteArchivedFileResponse = archiveDeleteArchivedFileResponses[keyof archiveDeleteArchivedFileResponses];
+
+export type archiveDownloadArchivedFileData = {
+    body?: never;
+    path: {
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+        /**
+         * File Id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v1/archive/{posting_id}/files/{file_id}';
+};
+
+export type archiveDownloadArchivedFileErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type archiveDownloadArchivedFileError = archiveDownloadArchivedFileErrors[keyof archiveDownloadArchivedFileErrors];
+
+export type archiveDownloadArchivedFileResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type statsReadStatsData = {
     body?: never;

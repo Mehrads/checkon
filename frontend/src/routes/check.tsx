@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useEffect } from "react"
 
 import { Checker } from "@/components/Check/Checker"
+import { planNote } from "@/components/Check/labels"
 import { ContactProvider } from "@/components/Site/Contact"
 import {
   ContactSection,
@@ -16,7 +17,8 @@ import {
   SiteHeader,
   WhatYouGet,
 } from "@/components/Site/Landing"
-import { isLoggedIn } from "@/hooks/useAuth"
+import { useBilling } from "@/hooks/useBilling"
+import { useWorkspaces } from "@/hooks/useWorkspace"
 import { loadAnalytics } from "@/lib/analytics"
 
 export const Route = createFileRoute("/check")({
@@ -35,6 +37,8 @@ export const Route = createFileRoute("/check")({
 
 function CheckPage() {
   useEffect(loadAnalytics, [])
+  const { data: billing } = useBilling() // signed in: the plan this check counts toward
+  const { current } = useWorkspaces(Boolean(billing?.plan))
   return (
     <ContactProvider>
       <div className="site min-h-svh bg-background text-foreground">
@@ -43,8 +47,11 @@ function CheckPage() {
           <Checker
             intro={<HeroIntro />}
             note={
-              isLoggedIn()
-                ? "You're logged in: on a plan, this check counts toward it, and we keep its date, job title and result for your history, never the posting."
+              billing?.plan_name
+                ? planNote(
+                    billing.plan_name,
+                    Boolean(current?.archive_postings),
+                  )
                 : undefined
             }
           />

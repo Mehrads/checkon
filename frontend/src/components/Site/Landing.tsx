@@ -381,9 +381,7 @@ export function ForTeams() {
               <li>
                 A workspace per client, checked against that client's facts
               </li>
-              <li>
-                A dated archive of every approved posting <Soon />
-              </li>
+              <li>A dated archive of every approved posting</li>
               <li>
                 A browser extension for any job form <Soon />, or a connection
                 to your own systems
@@ -447,6 +445,7 @@ const PLANS: Plan[] = [
       "History of your checks",
       "Company profile",
       "Pay range suggestions",
+      "Archive of approved postings",
     ],
     cta: { label: "Subscribe", interest: "starter", checkout: "starter" },
   },
@@ -458,7 +457,7 @@ const PLANS: Plan[] = [
     features: [
       "300 checks a month",
       "A workspace per client",
-      { text: "Archive of approved postings", soon: true },
+      "Archive of approved postings",
     ],
     cta: { label: "Subscribe", interest: "agency", checkout: "agency" },
   },
@@ -607,7 +606,7 @@ const QUESTIONS = [
   },
   {
     q: "Do you keep my posting?",
-    a: "No. It's processed by our AI provider to run the check and held for up to an hour while you review the results. We keep it only if you choose to share it when you report a problem. On a paid plan, we keep the date, job title and result of each check for your history, not the posting.",
+    a: "No. It's processed by our AI provider to run the check and held for up to an hour while you review the results. We keep it only if you share it when you report a problem, or turn on the archive on a paid plan. Otherwise a plan keeps only the date, job title and result of each check.",
   },
   {
     q: "What does the rewrite change?",

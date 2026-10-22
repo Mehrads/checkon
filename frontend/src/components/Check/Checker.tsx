@@ -334,7 +334,18 @@ export function Checker({
                 </div>
                 {final && (
                   <div ref={editor} className="scroll-mt-20">
-                    <PostingEditor final={final} />
+                    <PostingEditor
+                      final={final}
+                      archiveLink={(label, postingId) => (
+                        <Link
+                          to="/archive"
+                          search={{ posting: postingId }}
+                          className="underline underline-offset-4"
+                        >
+                          {label}
+                        </Link>
+                      )}
+                    />
                   </div>
                 )}
                 <ResearchQuestionCard
