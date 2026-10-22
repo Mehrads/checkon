@@ -623,7 +623,7 @@ const QUESTIONS = [
   },
   {
     q: "How do I get more checks or a custom setup?",
-    a: "Subscribe to Starter or Agency above. You pay by card through Stripe, and you can switch plans or cancel anytime from your account. For a custom setup, contact us below.",
+    a: "Pick Starter or Agency above, or contact us below for a custom setup. Plans are billed monthly and you can cancel anytime.",
   },
 ]
 

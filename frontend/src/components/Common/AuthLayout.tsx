@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 }
 
 const INCLUDED = [
-  "Your plan's checks, on the site and in the browser extension",
+  "Your plan's monthly checks, on checkon.ca",
   "The date, job title and result of every check",
   "Invoices, your card and your plan, in one place",
 ]
