@@ -366,6 +366,31 @@ def test_applying_fixes_records_the_final_status(
                                        "workspace_name"}  # fmt: skip
 
 
+def test_the_application_form_is_a_second_check_on_the_plan(
+    client: TestClient, db: Session, fake_stripe: FakeStripe, checker: tuple[FakeLLM, MemoryLimits, MemoryUsage]
+) -> None:
+    from app.compliance.form import FormLabels
+
+    llm, limits, usage = checker
+    customer = make_customer(db)
+    _, headers = make_user(db, customer)
+    check = run_check(client, llm, headers).json()
+    llm.queue(FormLabels, {"questions": [{"question": 1, "label": "violation", "reason": "r"}]})
+    body = {"check_id": check["check_id"], "form": "Years of experience in Canada *"}
+    response = client.post(f"{API}/form", json=body, headers=headers)
+    assert response.status_code == 200, response.text
+    assert [r["verdict"] for r in response.json()["report"]["form_results"]] == ["fail"]
+
+    rows = db.exec(select(PaidCheck).where(PaidCheck.customer_id == customer.id).order_by(col(PaidCheck.created_at))).all()
+    assert [(r.check_id, r.title, r.status) for r in rows] == [
+        (check["check_id"], "Payroll Specialist", "not_compliant"),
+        (f"{check['check_id']}-form", "Payroll Specialist: application form", "not_compliant"),
+    ]
+    assert limits.uses == [] and limits.spent == 0  # the free quota and spend cap weren't touched
+    assert client.get(f"{API}/billing", headers=headers).json()["checks_used"] == 2
+    assert [(e["kind"], e["plan"]) for e in usage.events] == [("check", "starter"), ("form", "starter")]
+
+
 def test_failed_meter_reports_are_retried(db: Session, fake_stripe: FakeStripe) -> None:
     customer = make_customer(db)
     checks = [PaidCheck(customer_id=customer.id, check_id=secrets.token_hex(4), status="compliant", extra=True)

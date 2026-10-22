@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { AfterPosting } from "./AfterPosting"
 import { FeedbackButtons } from "./Feedback"
 import { ruleName, VERDICT_TEXT } from "./labels"
+import { host } from "./PostingLink"
 import { VerdictIcon } from "./StatusIcon"
 
 const ORDER: Verdict[] = [
@@ -23,16 +24,20 @@ interface FindingsProps {
   checkId: string
   report: Report
   text: string // the normalised posting the evidence spans point into
+  formText?: string | null // the application form, once checked; its findings point into it
+  url?: string | null // the page the posting was read from, for a check by link
 }
 
 function Finding({
   checkId,
   result,
   text,
+  target,
 }: {
   checkId: string
   result: RuleResult
   text: string
+  target: string
 }) {
   const quotes = result.verdict === "pass" ? [] : (result.evidence ?? [])
   return (
@@ -51,7 +56,7 @@ function Finding({
           <blockquote
             key={`${start}-${end}`}
             className={cn(
-              "rounded-r-md border-l-2 px-3 py-1.5 text-sm",
+              "rounded-r-md border-l-2 px-3 py-1.5 text-sm whitespace-pre-line",
               QUOTE_TONE[result.verdict],
             )}
           >
@@ -59,23 +64,43 @@ function Finding({
           </blockquote>
         ))}
         <div className="opacity-60 transition-opacity group-hover:opacity-100">
-          <FeedbackButtons
-            checkId={checkId}
-            kind="finding"
-            target={result.rule}
-          />
+          <FeedbackButtons checkId={checkId} kind="finding" target={target} />
         </div>
       </div>
     </li>
   )
 }
 
-/** Every rule's verdict, problems first, each pointing at the sentence it is about; then what happens after
- * posting and what the check didn't look at. */
-export function Findings({ checkId, report, text }: FindingsProps) {
-  const results = [...report.results].sort(
+const sorted = (results: RuleResult[]) =>
+  [...results].sort(
     (a, b) => ORDER.indexOf(a.verdict) - ORDER.indexOf(b.verdict),
   )
+
+/** What the check read, and what it couldn't: "Checked: … Not checked: …". */
+export function checkedLine(url: string | null | undefined, form: boolean) {
+  const posting = url ? `the posting at ${host(url)}` : "the posting's text"
+  const missed = [
+    ...(form ? [] : ["your application form"]),
+    "documents the posting links to",
+    "what happens after you post",
+  ]
+  const list =
+    missed.length > 2
+      ? `${missed.slice(0, -1).join(", ")}, and ${missed[missed.length - 1]}`
+      : missed.join(" and ")
+  return `Checked: ${posting}${form ? " and your application form" : ""}. Not checked: ${list}.`
+}
+
+/** Every rule's verdict, problems first, each pointing at the sentence it is about; the application form's, once
+ * checked, pointing at its questions; then what happens after posting and what the check didn't look at. */
+export function Findings({
+  checkId,
+  report,
+  text,
+  formText,
+  url,
+}: FindingsProps) {
+  const form = formText ? sorted(report.form_results ?? []) : []
   return (
     <section
       aria-labelledby="findings"
@@ -90,19 +115,37 @@ export function Findings({ checkId, report, text }: FindingsProps) {
         </p>
       </header>
       <ul className="divide-y">
-        {results.map((result) => (
+        {sorted(report.results).map((result) => (
           <Finding
             key={result.rule}
             checkId={checkId}
             result={result}
             text={text}
+            target={result.rule}
           />
         ))}
       </ul>
+      {formText && form.length > 0 && (
+        <>
+          <h3 className="border-t bg-muted/40 px-5 py-3 text-sm font-semibold">
+            Application form
+          </h3>
+          <ul className="divide-y border-t">
+            {form.map((result) => (
+              <Finding
+                key={result.rule}
+                checkId={checkId}
+                result={result}
+                text={formText}
+                target={`${result.rule}:form`}
+              />
+            ))}
+          </ul>
+        </>
+      )}
       <AfterPosting reminders={report.reminders ?? []} />
       <p className="border-t px-5 py-3 text-xs text-muted-foreground">
-        Checked: the text you pasted. Not checked: your application form,
-        documents the posting links to, and what happens after you post.
+        {checkedLine(url, Boolean(formText))}
       </p>
     </section>
   )

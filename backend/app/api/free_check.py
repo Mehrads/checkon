@@ -74,10 +74,11 @@ def quota_exempt(ip: str) -> bool:
 
 
 class RateLimiter:
-    """Requests per IP per minute, in this process (v1 runs one instance)."""
+    """Requests per IP in a sliding window (a minute unless given), in this process (v1 runs one instance)."""
 
-    def __init__(self, per_minute: int) -> None:
-        self.per_minute = per_minute
+    def __init__(self, limit: int, window_seconds: float = 60) -> None:
+        self.limit = limit
+        self.window = window_seconds
         self._hits: dict[str, deque[float]] = defaultdict(deque)
         self._lock = threading.Lock()
 
@@ -85,9 +86,9 @@ class RateLimiter:
         now = time.monotonic()
         with self._lock:
             hits = self._hits[key]
-            while hits and hits[0] < now - 60:
+            while hits and hits[0] < now - self.window:
                 hits.popleft()
-            if len(hits) >= self.per_minute:
+            if len(hits) >= self.limit:
                 return False
             hits.append(now)
             return True

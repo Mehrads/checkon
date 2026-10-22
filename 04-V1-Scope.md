@@ -53,7 +53,7 @@ It is also the research instrument from the Research guide: every result asks on
 
 | Feature | When |
 | --- | --- |
-| Application form checks | Phase 3, with accounts |
+| Application form checks | Shipped October 22, 2026: pasted on the website or read by the extension, one more check |
 | Accounts, company profile, history, overrides, edit-and-recheck of a patch | Phase 3 |
 | Pay suggestions | Phase 3 |
 | Archive, BambooHR, 45-day reminders | Phase 4 and later |

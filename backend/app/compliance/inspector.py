@@ -16,6 +16,7 @@ from app.compliance.models import (
     AIDisclosure,
     Context,
     Facts,
+    FormQuestion,
     PayMention,
     Report,
     Requirement,
@@ -67,7 +68,7 @@ def content_hash(text: str) -> str:
 
 
 def prompt_version() -> str:
-    names = ("extract.md", "classify.md", "rewrite.md", "employer_size.md")
+    names = ("extract.md", "classify.md", "classify_form.md", "rewrite.md", "employer_size.md")
     return content_hash("".join((PROMPTS_DIR / name).read_text(encoding="utf-8") for name in names))
 
 
@@ -119,6 +120,7 @@ def build_facts(
     title: TextFact | None,
     locations: list[TextFact],
     placeholder: str,
+    form: list[FormQuestion] | None = None,
 ) -> Facts:
     requirements = [
         Requirement(text=s.text, span=s.span, cex_label=labels[s.id].cex, reason=labels[s.id].cex_reason)
@@ -137,6 +139,7 @@ def build_facts(
         internal_only=extraction.internal_only,
         work_in_ontario=extraction.work_in_ontario,
         pay_placeholder=(start, start + len(placeholder)) if start >= 0 else None,
+        form=form,
     )
 
 

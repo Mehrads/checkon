@@ -11,8 +11,9 @@ export function Summary({
   checkId: string
   report: Report
 }) {
+  const results = [...report.results, ...(report.form_results ?? [])]
   const count = (verdict: string) =>
-    report.results.filter((r) => r.verdict === verdict).length
+    results.filter((r) => r.verdict === verdict).length
   const parts = [
     [count("fail"), "to fix"],
     [count("warning"), "worth fixing"],

@@ -53,6 +53,13 @@ def _not_checked(rule: Rule, reason: str) -> RuleResult:
     )
 
 
+def on_form(rule: Rule) -> Rule:
+    """The rule as it runs on the application form: the form block's check and messages, and no patch."""
+    if rule.form is None:
+        raise ValueError(f"{rule.id} doesn't cover the application form")
+    return rule.model_copy(update={"check": rule.form.check, "messages": rule.form.messages, "fix": None})
+
+
 def _status(gate: list[RuleResult], content: list[RuleResult]) -> Status:
     # Only fail blocks the badge outright; needs_input blocks it until answered.
     if any(result.verdict == Verdict.NEEDS_INPUT for result in gate):
@@ -75,19 +82,27 @@ def evaluate(facts: Facts, ctx: Context, pack: RulePack, posting_date: date) -> 
             status=Status.NOT_APPLICABLE, results=[], message=pack.messages["not_in_force"], versions=versions
         )
 
+    form_rules = [on_form(rule) for rule in content_rules if rule.form] if facts.form is not None else []
+
     gate = [run_rule(rule, facts, ctx) for rule in gate_rules]
     excluded = next((result for result in gate if result.verdict == Verdict.NOT_APPLICABLE), None)
     if excluded:
         content = [_not_checked(rule, excluded.message) for rule in content_rules]
+        form = [_not_checked(rule, excluded.message) for rule in form_rules]
         return Report(
-            status=Status.NOT_APPLICABLE, results=gate + content, message=excluded.message, versions=versions
-        )
+            status=Status.NOT_APPLICABLE, results=gate + content, form_results=form, message=excluded.message,
+            versions=versions,
+        )  # fmt: skip
 
     content = [run_rule(rule, facts, ctx) for rule in content_rules]
+    form = [run_rule(rule, facts, ctx) for rule in form_rules]
     # Process rules aren't checked from the text; they are what the employer must do after posting.
     reminders = [
         Reminder(rule=rule.id, text=rule.reminder, citation=rule.citation)
         for rule in rules
         if rule.kind == "process" and rule.reminder
     ]
-    return Report(status=_status(gate, content), results=gate + content, reminders=reminders, versions=versions)
+    return Report(
+        status=_status(gate, content + form), results=gate + content, form_results=form, reminders=reminders,
+        versions=versions,
+    )  # fmt: skip

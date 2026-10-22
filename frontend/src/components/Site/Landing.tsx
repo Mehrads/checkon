@@ -615,7 +615,7 @@ const QUESTIONS = [
   },
   {
     q: "What doesn't it check?",
-    a: "It checks only the text you paste. An application form, a document the posting links to, and anything that happens after you post are outside the check.",
+    a: "It checks the posting you paste or link to, and its application form when you add the form's questions (that uses one more check). A document the posting links to, and anything that happens after you post, are outside the check.",
   },
   {
     q: "How do I get more checks or a custom setup?",

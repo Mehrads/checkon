@@ -229,6 +229,14 @@ export type CheckOut = {
      * Workspace Id
      */
     workspace_id?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Form Text
+     */
+    form_text?: string | null;
 };
 
 /**
@@ -415,6 +423,20 @@ export type FinalOut = {
 };
 
 /**
+ * FormIn
+ */
+export type FormIn = {
+    /**
+     * Check Id
+     */
+    check_id: string;
+    /**
+     * Form
+     */
+    form: string;
+};
+
+/**
  * HTTPValidationError
  */
 export type HTTPValidationError = {
@@ -426,12 +448,19 @@ export type HTTPValidationError = {
 
 /**
  * InspectIn
+ *
+ * The posting's text, or the link to its public page (which the server reads; never LinkedIn, Indeed or
+ * Glassdoor). Either way it is one check.
  */
 export type InspectIn = {
     /**
      * Text
      */
-    text: string;
+    text?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
     /**
      * Meets Headcount Threshold
      */
@@ -843,6 +872,10 @@ export type Report = {
      * Results
      */
     results: Array<RuleResult>;
+    /**
+     * Form Results
+     */
+    form_results?: Array<RuleResult>;
     /**
      * Reminders
      */
@@ -1510,6 +1543,31 @@ export type checksInspectPostingResponses = {
 };
 
 export type checksInspectPostingResponse = checksInspectPostingResponses[keyof checksInspectPostingResponses];
+
+export type checksCheckFormData = {
+    body: FormIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/form';
+};
+
+export type checksCheckFormErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type checksCheckFormError = checksCheckFormErrors[keyof checksCheckFormErrors];
+
+export type checksCheckFormResponses = {
+    /**
+     * Successful Response
+     */
+    200: CheckOut;
+};
+
+export type checksCheckFormResponse = checksCheckFormResponses[keyof checksCheckFormResponses];
 
 export type checksRefinePostingData = {
     body: CheckIn;

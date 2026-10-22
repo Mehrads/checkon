@@ -11,6 +11,16 @@ from pydantic import BaseModel, ConfigDict
 RULEPACKS_DIR = Path(__file__).resolve().parents[2] / "rulepacks"
 
 
+class FormRule(BaseModel):
+    """How a content rule that also covers the posting's application form runs on the form's questions."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    check: str
+    messages: dict[str, str]
+    examples: list[dict[str, str]] = []  # labelled questions for the form classifier's prompt
+
+
 class Rule(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -32,6 +42,7 @@ class Rule(BaseModel):
     questions: dict[str, str] = {}
     examples: list[dict[str, str]] = []  # labelled sentences for the classifier prompt
     reminder: str | None = None  # process rules: the plain line the report lists after the findings
+    form: FormRule | None = None  # content rules whose section also covers "any associated application form"
     tests: list[str] = []
 
     def in_force(self, on: date) -> bool:

@@ -1,16 +1,18 @@
-"""The paste check (Technical Design §11): inspect, refine, answer questions, accept patches, plus the
-research hooks (one question per result, a custom-solution request form, feedback) and the site's contact
-form. Visitors get the free check's limits; a signed-in customer on an active plan checks against the plan.
+"""The paste check (Technical Design §11): inspect (pasted text, or a posting's link the server reads), check the
+application form, refine, answer questions, accept patches, plus the research hooks (one question per result, a
+custom-solution request form, feedback) and the site's contact form. Visitors get the free check's limits; a
+signed-in customer on an active plan checks against the plan. The application form counts as one more check.
 """
 
 import html
 import logging
 import time
 import uuid
+from dataclasses import replace
 from datetime import date, datetime
 from decimal import Decimal
 from functools import cache
-from typing import Annotated, Any, Literal, NamedTuple
+from typing import Annotated, Any, Literal, NamedTuple, Self
 from zoneinfo import ZoneInfo
 
 import anthropic
@@ -23,7 +25,7 @@ from fastapi import (
     Request,
     Response,
 )
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.api.billing import (
     PlanLimits,
@@ -38,6 +40,7 @@ from app.api.employer_cache import PostgresSizeCache
 from app.api.free_check import (
     Limits,
     PostgresLimits,
+    RateLimiter,
     client_ip,
     quota_exempt,
     rate_limited,
@@ -45,28 +48,48 @@ from app.api.free_check import (
     same_origin,
     visitor_cookie,
 )
+from app.api.posting_link import REFUSALS as LINK_REFUSALS
+from app.api.posting_link import LinkReader, LinkRefused
 from app.api.research import BY_ID, ResearchQuestion, question_for
 from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
 from app.api.workspaces import current_workspace, profile_context, wording
 from app.compliance.answers import Answers, apply_answers
 from app.compliance.employer import SizeCache
-from app.compliance.inspector import InputRefused, inspect
-from app.compliance.llm import AnthropicLLM, LLMError, SpendMeter, StructuredLLM
-from app.compliance.models import Context, Question, Report, Verdict
+from app.compliance.engine import evaluate
+from app.compliance.form import MAX_FORM_CHARS, classify_form, parse_form
+from app.compliance.inspector import InputRefused, content_hash, inspect
+from app.compliance.llm import (
+    AnthropicLLM,
+    LLMError,
+    ModelSettings,
+    SpendMeter,
+    StructuredLLM,
+)
+from app.compliance.models import Context, Question, Report, Status, Verdict
 from app.compliance.refiner import Patch, Refinement, finalize, refine
 from app.compliance.rulepack import RulePack, load_pack
 from app.core.config import settings
 from app.models import ContactMessage, CustomRequest, Feedback, Message, ResearchAnswer
 
 MAX_POSTING_CHARS = 8000
+MAX_URL_CHARS = 2048
 TORONTO = ZoneInfo("America/Toronto")
 
 router = APIRouter(tags=["checks"], dependencies=[Depends(rate_limited), Depends(same_origin)])
 _store = CheckStore()
+_link_limiter = RateLimiter(settings.LINK_FETCHES_PER_HOUR, window_seconds=3600)
 
 
 def get_store() -> CheckStore:
     return _store
+
+
+def get_link_reader() -> LinkReader:
+    return LinkReader()
+
+
+def get_link_limiter() -> RateLimiter:
+    return _link_limiter
 
 
 @cache
@@ -119,13 +142,32 @@ UsageDep = Annotated[Usage, Depends(get_usage)]
 SizesDep = Annotated[SizeCache, Depends(get_sizes)]
 PlanDep = Annotated[PlanLimits | None, Depends(get_plan_limits)]
 MeterDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
+LinkReaderDep = Annotated[LinkReader, Depends(get_link_reader)]
+LinkLimiterDep = Annotated[RateLimiter, Depends(get_link_limiter)]
 
 
 class InspectIn(BaseModel):
-    text: str = Field(min_length=1, max_length=MAX_POSTING_CHARS)
+    """The posting's text, or the link to its public page (which the server reads; never LinkedIn, Indeed or
+    Glassdoor). Either way it is one check."""
+
+    text: str | None = Field(default=None, min_length=1, max_length=MAX_POSTING_CHARS)
+    url: str | None = Field(default=None, min_length=1, max_length=MAX_URL_CHARS)
     # Left empty by the free check, which looks the employer up. A customer's company profile fills it in.
     meets_headcount_threshold: bool | None = None
     workspace_id: uuid.UUID | None = None  # Agency: the client workspace picked in the switcher
+
+    @model_validator(mode="after")
+    def _text_or_url(self) -> Self:
+        if (self.text is None) == (self.url is None):
+            raise ValueError("Paste the posting's text, or give its link.")
+        return self
+
+
+class FormIn(BaseModel):
+    check_id: str
+    # One question per line, its answer options on the lines after it starting with "-"; "*" or "(required)"
+    # marks a required question, "(optional)" an optional one.
+    form: str = Field(min_length=1, max_length=MAX_FORM_CHARS)
 
 
 class CheckIn(BaseModel):
@@ -156,6 +198,8 @@ class CheckOut(BaseModel):
     questions: list[Question]  # open questions, from the report and the refinement
     research_question: ResearchQuestion  # one optional market-research question per check
     workspace_id: uuid.UUID | None = None  # the company profile the check started from; None for a free check
+    url: str | None = None  # the page the posting was read from, for a check by link
+    form_text: str | None = None  # the application form once checked; the report's form evidence points into it
 
 
 class FinalOut(BaseModel):
@@ -186,6 +230,8 @@ def _out(state: CheckState) -> CheckOut:
         questions=list(questions.values()),
         research_question=question_for(state.id),
         workspace_id=state.workspace_id,
+        url=state.url,
+        form_text=state.form,
     )
 
 
@@ -211,13 +257,16 @@ class Visitor(NamedTuple):
     exempt: bool  # our own addresses: no weekly quota, and no credit recorded
 
 
-def _free_check_allowed(request: Request, response: Response, limits: Limits, usage: Usage) -> Visitor:
+def _free_check_allowed(
+    request: Request, response: Response, limits: Limits, usage: Usage, *, form: bool = False
+) -> Visitor:
     ip, cookie = client_ip(request), visitor_cookie(request, response)
     visitor = Visitor(ip, cookie, visitor_hash(cookie), quota_exempt(ip))
     if not visitor.exempt and (next_check := limits.next_free_check(visitor.cookie, visitor.ip)) is not None:
         usage.record("quota", visitor=visitor.hash)  # a returning visitor, even though the check is refused
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
-        raise refused(429, "quota", f"You've used this week's free check. Your next free check is available on {day}.")
+        used = "Checking the application form uses a second check, and you've" if form else "You've"
+        raise refused(429, "quota", f"{used} used this week's free check. Your next free check is available on {day}.")
     if not limits.budget_left():
         usage.record("paused", visitor=visitor.hash)
         raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
@@ -242,11 +291,33 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
     )  # fmt: skip
 
 
+def _read_link(
+    url: str, request: Request, reader: LinkReader, limiter: RateLimiter, usage: Usage, who: str | None,
+    plan: str | None, started: float,
+) -> tuple[str, str]:  # fmt: skip
+    """The posting text on the page and the page's address. A link that can't be read uses no check."""
+
+    def refuse(status: int, reason: str, message: str) -> HTTPException:
+        usage.record("refused", visitor=who, status=reason, duration_ms=elapsed_ms(started), plan=plan)
+        return refused(status, reason, message)
+
+    if not limiter.allow(client_ip(request)):
+        raise refuse(429, "fetch_limit", LINK_REFUSALS["fetch_limit"])
+    try:
+        page = reader.read(url)
+    except LinkRefused as error:
+        raise refuse(422, error.reason, error.message)
+    if len(page.text) > MAX_POSTING_CHARS:
+        raise refuse(422, "too_long", f"That page has more than {MAX_POSTING_CHARS:,} characters of text. "
+                                      "Paste just the posting's text instead.")  # fmt: skip
+    return page.text, page.url
+
+
 @router.post("/inspect", response_model=CheckOut)
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, background: BackgroundTasks, session: SessionDep,
     store: StoreDep, llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep,
-    sizes: SizesDep, plan: PlanDep, meter: MeterDep,
+    sizes: SizesDep, plan: PlanDep, meter: MeterDep, reader: LinkReaderDep, link_limiter: LinkLimiterDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
     paid = plan.plan.id if plan else None
@@ -256,6 +327,9 @@ def inspect_posting(
         visitor = None
         _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
+    text, url = body.text or "", None
+    if body.url is not None:  # after the quota, so a visitor with no check left can't make us fetch pages
+        text, url = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started)
     # A customer's check starts from their company profile: its facts aren't asked or searched for.
     workspace = current_workspace(session, plan.access, body.workspace_id) if plan else None
     ctx = profile_context(workspace) if workspace else Context()
@@ -263,7 +337,7 @@ def inspect_posting(
         ctx = ctx.model_copy(update={"headcount": None, "meets_headcount_threshold": body.meets_headcount_threshold})
     employer = workspace.employer_name if workspace else None
     try:
-        inspection = inspect(body.text, ctx, today, pack, llm, sizes=sizes, employer=employer)
+        inspection = inspect(text, ctx, today, pack, llm, sizes=sizes, employer=employer)
     except InputRefused as error:  # no credit used
         usage.record("refused", visitor=who, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise refused(422, error.reason, error.message)
@@ -276,7 +350,7 @@ def inspect_posting(
         limits.record_use(visitor.cookie, visitor.ip)
     state = store.add(CheckState(
         posting_date=today, ctx=inspection.context, inspection=inspection, plan=paid,
-        workspace_id=workspace.id if workspace else None, wording=wording(workspace),
+        workspace_id=workspace.id if workspace else None, wording=wording(workspace), url=url,
     ))  # fmt: skip
     if plan:
         title = inspection.facts.title.value if inspection.facts.title else None
@@ -286,6 +360,70 @@ def inspect_posting(
     usage.record(
         "check", check_id=state.id, visitor=who, status=inspection.report.status.value,
         duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid,
+    )  # fmt: skip
+    return _out(state)
+
+
+FORM_REFUSALS = {
+    "empty_form": "Paste the application form's questions, one per line.",
+    "not_applicable": "Ontario's job posting rules don't apply to this posting, so its application form isn't checked.",
+}
+
+
+@router.post("/form", response_model=CheckOut)
+def check_form(
+    body: FormIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
+    llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep,
+) -> Any:  # fmt: skip
+    """Check the posting's application form against the rules that cover it (ESA s. 8.3 (1)): one more check,
+    on the same limits as the posting's."""
+    started = time.monotonic()
+    state = _state(store, body.check_id)
+    if state.inspection.report.status == Status.NOT_APPLICABLE:
+        raise refused(422, "not_applicable", FORM_REFUSALS["not_applicable"])
+    form = parse_form(body.form)
+    if not form.questions:
+        raise refused(422, "empty_form", FORM_REFUSALS["empty_form"])
+    paid = plan.plan.id if plan else None
+    if plan is None:
+        visitor: Visitor | None = _free_check_allowed(request, response, limits, usage, form=True)
+    else:
+        visitor = None
+        _plan_check_allowed(plan, usage)
+    who = visitor.hash if visitor else None
+    try:
+        questions = classify_form(form, pack, llm, ModelSettings())
+    except LLMError as error:
+        usage.record("failed", check_id=state.id, visitor=who, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
+        raise _llm_failure(error)
+    finally:
+        _charge(limits, paid, llm)
+    if visitor and not visitor.exempt:
+        limits.record_use(visitor.cookie, visitor.ip)
+
+    facts = state.inspection.facts.model_copy(update={"form": questions})
+    report = evaluate(facts, state.ctx, pack, state.posting_date)
+    versions = {**state.inspection.report.versions, **report.versions, "form_hash": content_hash(form.text)}
+    state.inspection = replace(state.inspection, facts=facts, report=report.model_copy(update={"versions": versions}))
+    state.form = form.text
+    if state.refinement is not None:  # its report covers the form too; rewrites come from the cache
+        try:
+            state.refinement = _refine(state, pack, llm)
+        except LLMError as error:
+            raise _llm_failure(error)
+        finally:
+            _charge(limits, paid, llm)
+
+    failed = any(result.verdict == Verdict.FAIL for result in report.form_results)
+    status = Status.NOT_COMPLIANT if failed else Status.COMPLIANT
+    if plan:
+        title = state.inspection.facts.title.value if state.inspection.facts.title else None
+        plan.record(f"{state.id}-form", f"{title or 'Untitled posting'}: application form", status.value, state.workspace_id)
+        if meter is not None:
+            background.add_task(report_extra_checks_later, meter, plan.customer_id)
+    usage.record(
+        "form", check_id=state.id, visitor=who, status=status.value, duration_ms=elapsed_ms(started),
+        usd=_spent(llm), count=len(questions), plan=paid,
     )  # fmt: skip
     return _out(state)
 

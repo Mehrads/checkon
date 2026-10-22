@@ -44,10 +44,11 @@ function PrivacyPage() {
       <Part title="What we collect, and how long we keep it">
         <List>
           <li>
-            <strong>Your posting.</strong> Sent to our AI provider to run the
-            check and held in memory for up to an hour so you can apply fixes.
-            We don't save it, unless you tick "Share this posting" when
-            reporting a problem.
+            <strong>Your posting and application form.</strong> Sent to our AI
+            provider to run the check and held in memory for up to an hour so
+            you can apply fixes. If you give a link, our server opens that page
+            once to read the posting, and holds it the same way. We don't save
+            them, unless you tick "Share this posting" when reporting a problem.
           </li>
           <li>
             <strong>Searches.</strong> We search the web for the employer's name
@@ -83,8 +84,9 @@ function PrivacyPage() {
           <li>
             <strong>Browser extension.</strong> Reads the posting on the current
             tab (your selection, the job field or the page text) only when you
-            click the CheckON icon or "Check with CheckON", and writes text back
-            only when you apply a fix. It doesn't track your browsing.
+            click the CheckON icon or "Check with CheckON", and the application
+            form's questions only when you click "Read form". It writes text
+            back only when you apply a fix, and doesn't track your browsing.
           </li>
           <li>
             <strong>Visits and logs.</strong> Umami counts page visits without

@@ -1,6 +1,7 @@
 """Server-side state for one free check, held in memory and kept for an hour.
 
-The posting text lives only here, never in the database (Technical Design §11, anonymous checks).
+The posting text, and the application form when one is checked, live only here, never in the database
+(Technical Design §11, anonymous checks).
 v1 runs one process; quotas and a shared store move to Postgres in step 6.
 """
 
@@ -30,6 +31,8 @@ class CheckState:
     workspace_id: uuid.UUID | None = None  # the company profile the check started from
     wording: Variant = "formal"  # the profile's choice for the wording library's statements
     pay_suggestions: dict[str, Suggestion] = field(default_factory=dict)  # by the occupation picked ("" for none)
+    url: str | None = None  # the page the posting was read from, for a check by link
+    form: str | None = None  # the normalised application form, once it has been checked
     id: str = field(default_factory=lambda: secrets.token_urlsafe(16))
     created: float = field(default_factory=time.monotonic)
 

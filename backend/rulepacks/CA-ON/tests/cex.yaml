@@ -42,3 +42,51 @@ cases:
     facts:
       requirements: []
     expect: {ON-CEX-01: pass}
+
+  # The application form (s. 8.3 (1)): questions carry their own label; a question not marked optional counts
+  # as required.
+  - name: a required form question about Canadian experience fails the check
+    facts:
+      form:
+        - {id: 1, text: "Do you have Canadian work experience?", span: [0, 48], options: ["Yes", "No"], required: true, cex_label: violation}
+    expect: {ON-CEX-01: pass, form: {ON-CEX-01: fail}, status: not_compliant}
+
+  - name: a form question not marked optional counts as required
+    facts:
+      form:
+        - {id: 1, text: "Years of experience in Canada", span: [0, 29], cex_label: violation}
+    expect: {form: {ON-CEX-01: fail}, status: not_compliant}
+
+  - name: an optional form question about Canadian experience is a warning
+    facts:
+      form:
+        - {id: 1, text: "Years of experience in Canada", span: [0, 40], required: false, cex_label: violation}
+    expect: {form: {ON-CEX-01: warning}, status: compliant}
+
+  - name: a borderline form question is a warning
+    facts:
+      form:
+        - {id: 1, text: "Experience with Ontario payroll legislation?", span: [0, 44], required: true, cex_label: borderline}
+    expect: {form: {ON-CEX-01: warning}, status: compliant}
+
+  - name: a form with no Canadian experience question passes
+    facts:
+      form:
+        - {id: 1, text: "Email", span: [0, 7], required: true, cex_label: ok}
+        - {id: 2, text: "Are you legally entitled to work in Canada?", span: [8, 51], required: true, cex_label: ok}
+    expect: {ON-CEX-01: pass, form: {ON-CEX-01: pass}, status: compliant}
+
+  - name: the form doesn't fix the posting
+    facts:
+      requirements:
+        - {text: "2+ years of Canadian payroll experience", span: [300, 339], cex_label: violation}
+      form:
+        - {id: 1, text: "Email", span: [0, 7], required: true, cex_label: ok}
+    expect: {ON-CEX-01: fail, form: {ON-CEX-01: pass}, status: not_compliant}
+
+  - name: the form is not checked when the rules don't apply
+    facts:
+      internal_only: true
+      form:
+        - {id: 1, text: "Do you have Canadian work experience?", span: [0, 37], required: true, cex_label: violation}
+    expect: {form: {ON-CEX-01: not_applicable}, status: not_applicable}

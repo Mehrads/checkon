@@ -19,12 +19,15 @@ import {
 } from "@/components/Profile/ProfileNote"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
+import { ApplicationForm, FORM_NOTES } from "./ApplicationForm"
 import { Findings } from "./Findings"
 import { type Choices, defaultChoices, Fixes } from "./Fixes"
 import { PostingEditor } from "./PostingEditor"
+import { LINK_REFUSALS, PostingLink } from "./PostingLink"
 import { Questions } from "./Questions"
 import { ResearchQuestionCard } from "./Research"
 import { Summary } from "./Summary"
@@ -53,11 +56,37 @@ function refusalReason(error: Error): string {
 const FREE_NOTE =
   "Free once a week, no sign-up. We don't keep your posting after the check unless you choose to share it with us."
 
+type Input = "text" | "link"
+
+/** The plans, for a refusal on the public page. */
+function SeePlans() {
+  return (
+    <span>
+      {" "}
+      Need more checks?{" "}
+      <a href="#pricing" className="underline underline-offset-4">
+        See the plans
+      </a>
+      {!isLoggedIn() && (
+        <>
+          , or{" "}
+          <Link to="/login" className="underline underline-offset-4">
+            log in
+          </Link>{" "}
+          if you have one
+        </>
+      )}
+      .
+    </span>
+  )
+}
+
 /** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
- * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
- * check counts against their plan and starts from their company `profile` (the API reads the sign-in), which
- * on Agency is the picked `client`'s; `editProfile` renders the link to change it. `onChecked` runs after each
- * check and after fixes are applied. */
+ * full-width band; in the signed-in app (`app`) everything stacks inside the page. The posting is pasted or
+ * given as a link the server reads; its application form, when added, is checked right after it as one more
+ * check. A signed-in customer's check counts against their plan and starts from their company `profile` (the
+ * API reads the sign-in), which on Agency is the picked `client`'s; `editProfile` renders the link to change
+ * it. `onChecked` runs after each check and after fixes are applied. */
 export function Checker({
   intro,
   layout = "hero",
@@ -76,7 +105,13 @@ export function Checker({
   client?: boolean
 }) {
   const hero = layout === "hero"
+  const [input, setInput] = useState<Input>("text")
   const [text, setText] = useState("")
+  const [url, setUrl] = useState("")
+  const [form, setForm] = useState("")
+  const [checkedForm, setCheckedForm] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [formRefusal, setFormRefusal] = useState<string | null>(null)
   const [check, setCheck] = useState<CheckOut | null>(null)
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
@@ -100,31 +135,75 @@ export function Checker({
     onError: fail,
   })
 
+  const checkForm = useMutation({
+    mutationFn: async ({
+      checkId,
+      questions,
+    }: {
+      checkId: string
+      questions: string
+    }) =>
+      (
+        await ChecksService.checkForm({
+          body: { check_id: checkId, form: questions },
+        })
+      ).data,
+    onMutate: () => {
+      setFormError(null)
+      setFormRefusal(null)
+    },
+    onSuccess: (data, { questions }) => {
+      track("check-form", { status: data.report.status })
+      setCheckedForm(questions)
+      show(data)
+      onChecked?.()
+    },
+    onError: (err) => {
+      setFormRefusal(refusalReason(err))
+      setFormError(errorMessage(err))
+    },
+  })
+
   const inspect = useMutation({
     mutationFn: async () =>
       (
         await ChecksService.inspectPosting({
-          body: { text, workspace_id: profile?.id },
+          body:
+            input === "link"
+              ? { url: url.trim(), workspace_id: profile?.id }
+              : { text, workspace_id: profile?.id },
         })
       ).data,
     onMutate: () => {
       setError(null)
       setRefusal(null)
+      setFormError(null)
+      setCheckedForm(null)
       setCheck(null)
       setFinal(null)
       setToSave({})
     },
     onSuccess: (data) => {
-      track("check", { status: data.report.status })
+      track("check", { status: data.report.status, input })
       show(data)
       onChecked?.()
-      if (data.report.status !== "not_applicable") refine.mutate(data.check_id)
+      if (input === "link") setText(data.text.slice(0, MAX_CHARS))
+      if (data.report.status === "not_applicable") return
+      // The form goes right after the posting, before the fixes, so the fixes' report covers it too.
+      const fixes = () => refine.mutate(data.check_id)
+      if (form.trim())
+        checkForm.mutate(
+          { checkId: data.check_id, questions: form },
+          { onSettled: fixes },
+        )
+      else fixes()
     },
     onError: (err) => {
       const reason = refusalReason(err)
       track("check-not-run", { reason })
       setRefusal(reason)
       fail(err)
+      if (input === "link" && LINK_REFUSALS.has(reason)) setInput("text") // the paste box is the way on
     },
   })
 
@@ -170,7 +249,17 @@ export function Checker({
       editor.current?.scrollIntoView({ behavior: "smooth", block: "start" })
   }, [final])
 
-  const busy = inspect.isPending || refine.isPending || answer.isPending
+  const busy =
+    inspect.isPending ||
+    refine.isPending ||
+    answer.isPending ||
+    checkForm.isPending
+  const ready = input === "link" ? Boolean(url.trim()) : Boolean(text.trim())
+  // A posting already checked can have its form checked on its own (one more check), once per version.
+  const formAlone =
+    check && check.report.status !== "not_applicable" && form !== checkedForm
+      ? () => checkForm.mutate({ checkId: check.check_id, questions: form })
+      : undefined
 
   return (
     <>
@@ -189,43 +278,96 @@ export function Checker({
               hero ? "shadow-lg shadow-primary/5" : "shadow-sm",
             )}
           >
-            <label htmlFor="posting" className="text-sm font-medium">
-              Paste one job posting
-            </label>
-            <p className="text-xs text-muted-foreground">
-              The whole text applicants will read. Paste any linked document
-              too.
-            </p>
-            {profile && editProfile && (
-              <div className="mt-3">
-                <ProfileNote
-                  profile={profile}
-                  edit={editProfile}
-                  client={client}
-                />
+            <Tabs
+              value={input}
+              onValueChange={(value) => setInput(value as Input)}
+              className="gap-0"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label
+                  htmlFor={input === "link" ? "posting-link" : "posting"}
+                  className="text-sm font-medium"
+                >
+                  {input === "link"
+                    ? "Link to one job posting"
+                    : "Paste one job posting"}
+                </label>
+                <TabsList className="h-8">
+                  <TabsTrigger value="text" className="px-3 text-xs">
+                    Paste text
+                  </TabsTrigger>
+                  <TabsTrigger value="link" className="px-3 text-xs">
+                    Link
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            )}
-            <textarea
-              id="posting"
-              value={text}
-              onChange={(event) =>
-                setText(event.target.value.slice(0, MAX_CHARS))
-              }
-              placeholder="Job title, location, duties, requirements, pay…"
-              className={cn(
-                "mt-2 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-                hero ? "min-h-72" : "min-h-48",
+              {profile && editProfile && (
+                <div className="mt-3">
+                  <ProfileNote
+                    profile={profile}
+                    edit={editProfile}
+                    client={client}
+                  />
+                </div>
               )}
+              <TabsContent value="text">
+                <p className="text-xs text-muted-foreground">
+                  The whole text applicants will read. Paste any linked document
+                  too.
+                </p>
+                <textarea
+                  id="posting"
+                  value={text}
+                  onChange={(event) =>
+                    setText(event.target.value.slice(0, MAX_CHARS))
+                  }
+                  placeholder="Job title, location, duties, requirements, pay…"
+                  className={cn(
+                    "mt-2 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                    hero ? "min-h-72" : "min-h-48",
+                  )}
+                />
+              </TabsContent>
+              <TabsContent value="link" className="mt-2">
+                <PostingLink
+                  value={url}
+                  onChange={setUrl}
+                  onSubmit={() => !busy && inspect.mutate()}
+                  read={
+                    check?.url
+                      ? { url: check.url, characters: check.text.length }
+                      : null
+                  }
+                />
+              </TabsContent>
+            </Tabs>
+            <ApplicationForm
+              className="mt-4"
+              value={form}
+              onChange={setForm}
+              note={
+                FORM_NOTES[profile ? "plan" : isLoggedIn() ? "check" : "free"]
+              }
+              onCheck={busy ? undefined : formAlone}
+              checking={checkForm.isPending}
+              error={
+                formError && (
+                  <>
+                    {formError}
+                    {formRefusal === "quota" && hero && <SeePlans />}
+                  </>
+                )
+              }
             />
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-muted-foreground">
-                {text.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}{" "}
-                characters
+                {input === "text" &&
+                  `${text.length.toLocaleString()} / ${MAX_CHARS.toLocaleString()} characters`}
               </span>
               <LoadingButton
                 size="lg"
                 loading={inspect.isPending}
-                disabled={!text.trim() || busy}
+                disabled={!ready || busy}
                 onClick={() => inspect.mutate()}
               >
                 Check my posting <ArrowRight />
@@ -258,36 +400,20 @@ export function Checker({
                 <AlertTitle>We couldn't finish the check</AlertTitle>
                 <AlertDescription>
                   {error}
-                  {refusal === "quota" && hero && (
-                    <span>
-                      Need more checks?{" "}
-                      <a
-                        href="#pricing"
-                        className="underline underline-offset-4"
-                      >
-                        See the plans
-                      </a>
-                      {!isLoggedIn() && (
-                        <>
-                          , or{" "}
-                          <Link
-                            to="/login"
-                            className="underline underline-offset-4"
-                          >
-                            log in
-                          </Link>{" "}
-                          if you have one
-                        </>
-                      )}
-                      .
-                    </span>
-                  )}
+                  {refusal === "quota" && hero && <SeePlans />}
                 </AlertDescription>
               </Alert>
             )}
             {inspect.isPending && (
               <p className="text-sm text-muted-foreground">
-                Reading your posting and checking each rule…
+                {input === "link"
+                  ? "Reading the page and checking each rule…"
+                  : "Reading your posting and checking each rule…"}
+              </p>
+            )}
+            {checkForm.isPending && (
+              <p className="text-sm text-muted-foreground">
+                Checking the application form…
               </p>
             )}
             {check && (
@@ -313,6 +439,8 @@ export function Checker({
                     checkId={check.check_id}
                     report={check.report}
                     text={check.text}
+                    formText={check.form_text}
+                    url={check.url}
                   />
                   {check.refinement ? (
                     <Fixes
