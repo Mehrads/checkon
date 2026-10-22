@@ -3,7 +3,7 @@
 # DRAFT: every entry needs an employment lawyer's sign-off (reviewed_by, reviewed_on) before launch.
 # labels: how the classifier would label the inserted sentence, so re-inspection needs no LLM call.
 
-version: 1.0.0
+version: 1.1.0
 reviewed_by: null
 reviewed_on: null
 
@@ -35,3 +35,12 @@ entries:
     variants:
       formal: "[Pay range: add before publishing]"
       plain: "[Pay range: add before publishing]"
+
+  # A pay range the employer confirmed (a pay suggestion they accepted or edited). {pay} is written by code,
+  # for example "$60,000-$75,000 a year"; it replaces the placeholder.
+  pay_confirmed:
+    rule: ON-PAY-01
+    labels: {}
+    variants:
+      formal: "Expected pay: {pay}"
+      plain: "Pay: {pay}"

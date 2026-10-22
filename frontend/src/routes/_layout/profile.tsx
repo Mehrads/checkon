@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { PageHeading } from "@/components/Common/PageHeading"
+import { PayBands } from "@/components/Profile/PayBands"
 import { ProfileForm } from "@/components/Profile/ProfileForm"
 import { Workspaces } from "@/components/Profile/Workspaces"
 import { Button } from "@/components/ui/button"
@@ -65,9 +66,10 @@ function Profile() {
             )}
             <ProfileForm key={current.id} profile={current} />
           </div>
+          <PayBands workspaceId={current.id} />
           <p className="text-xs text-muted-foreground">
-            We store these company facts with your account, and never your
-            postings.{" "}
+            We store these company facts and pay ranges with your account, and
+            never your postings.{" "}
             <Link to="/privacy" className="underline underline-offset-4">
               Privacy
             </Link>

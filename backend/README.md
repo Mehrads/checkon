@@ -15,6 +15,13 @@ FastAPI backend from the Full Stack FastAPI Template, plus the compliance core. 
 - `app/compliance/refiner.py`: one patch per failing finding, applied together, re-inspected and checked against acceptance tests 1–5; LLM rewrites get one retry, anything still failing is dropped with guidance.
 - `rulepacks/CA-ON/wording.yaml`: the wording library (draft, needs lawyer sign-off).
 - `prompts/`: the extraction, classification and rewrite prompts. Their hash is the `prompts` version in every report.
+- `app/pay/`: pay range suggestions for paid plans (`POST /api/v1/pay/suggest`, `/pay/confirm`, in `app/api/routes/pay.py`). `jobbank.py` reads Job Bank's Ontario wages and place names from `app/pay/data/`; `suggest.py` names the occupation (NOC 2021), searches current postings and builds the range within the yearly cap. A confirmed range is saved as the job title's band (`pay_band`) and goes through the Refiner like an answer.
+
+Refresh the Job Bank wages when Job Bank publishes a new year (usually November or December), then review and commit the diff in `app/pay/data/`:
+
+```bash
+uv run python -m app.pay.refresh
+```
 
 Run the tests (the live API tests are skipped; `tests/api` and `tests/crud` need Postgres, see `../README.md`):
 

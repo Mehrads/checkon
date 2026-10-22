@@ -8,7 +8,7 @@ from app.compliance.classification import Classification, safety_net
 from app.compliance.extraction import Extraction
 from app.compliance.inspector import Inspection, inspect
 from app.compliance.llm import LLMError
-from app.compliance.models import Context, PayMention, PayUnit
+from app.compliance.models import Context, ExpectedPay, PayMention, PayUnit
 from app.compliance.money import restate_range
 from app.compliance.normalise import normalise
 from app.compliance.refiner import Patch, _deletion, _Rewrite, apply_edits, range_options, refine
@@ -286,6 +286,70 @@ def test_inaccurate_ai_statement_is_removed_with_its_line() -> None:
     assert sentence not in result.text
     assert "• Excellent communication skills\n\nCompensation" in result.text
     assert verdicts(result.report)["ON-AI-01"] == "pass"
+
+
+# Pay the employer confirmed (a pay suggestion they accepted or edited)
+
+
+def confirmed(low: int, high: int, unit: PayUnit = PayUnit.YEAR) -> Context:
+    return CTX.model_copy(update={"expected_pay": ExpectedPay(min=Decimal(low), max=Decimal(high), unit=unit)})
+
+
+def test_confirmed_pay_goes_where_the_placeholder_would() -> None:
+    base, ctx = no_pay_posting(), confirmed(60000, 70000)
+    result = refine(base, ctx, POSTED, PACK, FakeLLM())
+
+    [patch] = result.patches
+    assert (patch.rule, patch.op, patch.writer, patch.default, patch.confirmed, patch.verified) == (
+        "ON-PAY-01", "insert", "template", True, True, True,
+    )  # fmt: skip
+    assert patch.after == "\nExpected pay: $60,000-$70,000 a year"
+    assert "Great benefits and a friendly team.\nExpected pay: $60,000-$70,000 a year\n\nThis posting" in result.text
+    assert (verdicts(result.report)["ON-PAY-01"], verdicts(result.report)["ON-PAY-02"]) == ("pass", "pass")
+    assert "[Pay range" not in result.text
+
+
+def test_confirmed_pay_replaces_the_placeholder_already_in_the_posting() -> None:
+    text = POSTING.replace("Salary: $60,000 – $80,000 per year.", "[Pay range: add before publishing]")
+    vacancy = sid(text, "existing vacancy")
+    ctx = confirmed(28, 32, PayUnit.HOUR)
+    base = inspected(text, ctx, {"vacancy_sentences": [vacancy]}, labels(vacancy={vacancy: "existing"}))
+    assert verdicts(base.report)["ON-PAY-01"] == "needs_input"
+    result = refine(base, ctx, POSTED, PACK, FakeLLM(), variant="plain")
+
+    [patch] = result.patches
+    assert (patch.op, patch.before, patch.after) == ("replace", "[Pay range: add before publishing]", "Pay: $28-$32 an hour")
+    assert "Compensation\nPay: $28-$32 an hour\n" in result.text
+    assert verdicts(result.report)["ON-PAY-01"] == "pass"
+
+
+def test_confirmed_pay_replaces_a_range_that_is_too_wide() -> None:
+    text = POSTING.replace("$80,000", "$120,000")
+    pay = [{"sentence": sid(text, "Salary"), "quote": "$60,000 - $120,000 per year", "min": 60000, "max": 120000,
+            "unit": "year", "kind": "wage"}]  # fmt: skip
+    vacancy = sid(text, "existing vacancy")
+    ctx = confirmed(70000, 85000)
+    base = inspected(text, ctx, {"pay": pay, "vacancy_sentences": [vacancy]}, labels(vacancy={vacancy: "existing"}))
+    result = refine(base, ctx, POSTED, PACK, FakeLLM())
+
+    [patch] = result.patches
+    assert (patch.rule, patch.options, patch.default, patch.confirmed) == ("ON-PAY-02", [], True, True)
+    assert patch.after == "$70,000 - $85,000 per year"  # the posting's own style
+    assert "Salary: $70,000 - $85,000 per year." in result.text
+    assert verdicts(result.report)["ON-PAY-02"] == "pass"
+
+
+def test_a_confirmed_range_over_the_cap_is_never_written() -> None:
+    base, ctx = no_pay_posting(), confirmed(50000, 110000)
+    result = refine(base, ctx, POSTED, PACK, FakeLLM())
+    assert result.patches == [] and [d.rule for d in result.dropped] == ["ON-PAY-01"]
+    assert "Expected pay" not in result.text
+
+
+def test_without_a_confirmed_range_the_refiner_writes_no_pay() -> None:
+    result = refine(no_pay_posting(), CTX, POSTED, PACK, FakeLLM())
+    [patch] = result.patches
+    assert patch.after.strip() == "[Pay range: add before publishing]" and not patch.confirmed
 
 
 # Mechanics

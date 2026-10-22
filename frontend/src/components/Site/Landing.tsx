@@ -364,7 +364,7 @@ export function ForTeams() {
             <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
               <li>Your company's details saved, so each check starts there</li>
               <li>
-                Pay range suggestions when a posting has none <Soon />
+                Pay range suggestions, with sources, when a posting has none
               </li>
               <li>A history of what you checked and approved</li>
             </ul>
@@ -446,7 +446,7 @@ const PLANS: Plan[] = [
       "50 checks a month",
       "History of your checks",
       "Company profile",
-      { text: "Pay range suggestions", soon: true },
+      "Pay range suggestions",
     ],
     cta: { label: "Subscribe", interest: "starter", checkout: "starter" },
   },

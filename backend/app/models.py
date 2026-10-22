@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 from pydantic import EmailStr
-from sqlalchemy import JSON, Column, Text
+from sqlalchemy import JSON, Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -228,7 +228,8 @@ class UsageEvent(SQLModel, table=True):
     __tablename__ = "usage_event"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     at: datetime = Field(default_factory=get_datetime_utc, index=True)
-    kind: str = Field(max_length=16, index=True)  # check, refused, quota, paused, failed, refine, answers, accept
+    kind: str = Field(max_length=16, index=True)  # check, refused, quota, paused, failed, refine, answers, accept,
+    # pay_suggest, pay_confirm
     check_id: str | None = Field(default=None, max_length=64, index=True)
     visitor: str | None = Field(default=None, max_length=64, index=True)
     status: str | None = Field(default=None, max_length=32)  # report status, refusal reason, or ok / failed
@@ -312,4 +313,35 @@ class EmployerSizeSearch(SQLModel, table=True):
     employer: str = Field(primary_key=True, max_length=255)  # lower-cased, spaces collapsed
     location: str = Field(primary_key=True, max_length=255)  # lower-cased; "" when the posting names none
     size: dict[str, Any] = Field(sa_column=Column(JSON, nullable=False))  # an EmployerSize
+    searched_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+
+
+class PayBand(SQLModel, table=True):
+    """A pay range the customer confirmed for a job title (PRD FR9), kept with the company profile or client
+    workspace the check used: the next pay suggestion for that title starts from it. Never posting text.
+    """
+
+    __tablename__ = "pay_band"
+    __table_args__ = (UniqueConstraint("workspace_id", "role"),)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    workspace_id: uuid.UUID = Field(foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True)
+    role: str = Field(max_length=255)  # the job title, lower-cased without punctuation (app/pay/suggest.py)
+    title: str = Field(max_length=255)  # the job title as the posting writes it
+    noc_code: str | None = Field(default=None, max_length=5)  # the occupation the suggestion used, if any
+    min: Decimal = Field(max_digits=12, decimal_places=2)
+    max: Decimal = Field(max_digits=12, decimal_places=2)
+    unit: str = Field(max_length=8)  # hour, week, month or year
+    confirmed_at: datetime = Field(default_factory=get_datetime_utc)
+    confirmed_by: uuid.UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
+
+
+class PayPostingSearch(SQLModel, table=True):
+    """A web search for the pay in current postings (app/pay/suggest.py), kept a week so repeat suggestions
+    don't search again. Keyed by job title and place; holds quoted pay and links, never posting text.
+    """
+
+    __tablename__ = "pay_posting_search"
+    title: str = Field(primary_key=True, max_length=255)  # lower-cased, without punctuation
+    location: str = Field(primary_key=True, max_length=255)  # as the employer-size cache keys it
+    result: dict[str, Any] = Field(sa_column=Column(JSON, nullable=False))  # a PostingSearch
     searched_at: datetime = Field(default_factory=get_datetime_utc, index=True)

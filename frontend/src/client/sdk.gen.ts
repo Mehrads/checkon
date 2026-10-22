@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
+import type { billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, payConfirmPayData, payConfirmPayErrors, payConfirmPayResponses, payDeleteBandData, payDeleteBandErrors, payDeleteBandResponses, payReadBandsData, payReadBandsErrors, payReadBandsResponses, paySuggestPayData, paySuggestPayErrors, paySuggestPayResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -319,6 +319,72 @@ export class WorkspacesService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/workspaces/{workspace_id}/archive',
+            ...options
+        });
+    }
+}
+
+export class PayService {
+    /**
+     * Suggest Pay
+     *
+     * A pay range for the check's job, within the yearly cap, with the market range and each source. Asks the
+     * user to pick an occupation first when the posting fits two. Nothing changes in the posting.
+     */
+    public static suggestPay<ThrowOnError extends boolean = true>(options: Options<paySuggestPayData, ThrowOnError>) {
+        return (options.client ?? client).post<paySuggestPayResponses, paySuggestPayErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/pay/suggest',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Confirm Pay
+     *
+     * Save the confirmed range as the job title's band in the check's workspace, and refine the posting with it:
+     * it replaces the pay placeholder, or a range that is too wide or open-ended.
+     */
+    public static confirmPay<ThrowOnError extends boolean = true>(options: Options<payConfirmPayData, ThrowOnError>) {
+        return (options.client ?? client).post<payConfirmPayResponses, payConfirmPayErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/pay/confirm',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Read Bands
+     *
+     * The pay ranges confirmed in the current workspace (Agency: the one asked for), by job title.
+     */
+    public static readBands<ThrowOnError extends boolean = true>(options?: Options<payReadBandsData, ThrowOnError>) {
+        return (options?.client ?? client).get<payReadBandsResponses, payReadBandsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/pay/bands',
+            ...options
+        });
+    }
+    
+    /**
+     * Delete Band
+     */
+    public static deleteBand<ThrowOnError extends boolean = true>(options: Options<payDeleteBandData, ThrowOnError>) {
+        return (options.client ?? client).delete<payDeleteBandResponses, payDeleteBandErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/pay/bands/{band_id}',
             ...options
         });
     }

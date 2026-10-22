@@ -1,11 +1,12 @@
-"""A scripted stand-in for the LLM: returns queued answers per schema and records every call."""
+"""A scripted stand-in for the LLM: returns queued answers per schema and records every call. A cited web search
+(`cite`) returns the queued `Cited` answers."""
 
 from dataclasses import dataclass, field
 from typing import Any
 
 from pydantic import BaseModel
 
-from app.compliance.llm import ModelSettings
+from app.compliance.llm import Cited, ModelSettings
 
 
 @dataclass
@@ -14,6 +15,7 @@ class Call:
     user: str
     schema: type
     tools: list[dict[str, Any]] | None = None
+    settings: ModelSettings | None = None
 
 
 @dataclass
@@ -28,7 +30,7 @@ class FakeLLM:
     def parse(
         self, *, system: str, user: str, schema: type, settings: ModelSettings, tools: list[dict[str, Any]] | None = None
     ) -> Any:
-        self.calls.append(Call(system, user, schema, tools))
+        self.calls.append(Call(system, user, schema, tools, settings))
         queue = self.answers.get(schema, [])
         if not queue:
             raise AssertionError(f"no answer queued for {schema.__name__}")
@@ -36,6 +38,9 @@ class FakeLLM:
         if isinstance(answer, Exception):
             raise answer
         return answer if isinstance(answer, schema) else schema.model_validate(answer)
+
+    def cite(self, *, system: str, user: str, settings: ModelSettings, tools: list[dict[str, Any]]) -> Cited:
+        return self.parse(system=system, user=user, schema=Cited, settings=settings, tools=tools)
 
     def calls_for(self, schema: type) -> list[Call]:
         return [call for call in self.calls if call.schema is schema]

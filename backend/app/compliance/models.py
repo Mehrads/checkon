@@ -104,6 +104,14 @@ class Facts(_Model):
     pay_placeholder: Span | None = None  # the wording-library placeholder, where pay is still to be added
 
 
+class ExpectedPay(_Model):
+    """A pay range the employer confirmed for this job; min == max is a single figure."""
+
+    min: Decimal
+    max: Decimal
+    unit: PayUnit
+
+
 class Context(_Model):
     """Company-profile facts merged with the answers given for this posting.
 
@@ -121,6 +129,7 @@ class Context(_Model):
     existing_vacancy: bool | None = None
     hours_per_week: Decimal | None = None
     pay_exemption_confirmed: bool | None = None
+    expected_pay: ExpectedPay | None = None  # confirmed by the employer (a pay suggestion they accepted or edited)
 
 
 class Question(_Model):

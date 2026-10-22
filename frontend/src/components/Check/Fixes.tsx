@@ -1,14 +1,17 @@
 import { CircleAlert } from "lucide-react"
 
-import type { Decision, Patch, Refinement } from "@/client"
+import type { CheckOut, Decision, Patch, Refinement } from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { cn } from "@/lib/utils"
 import { FeedbackButtons } from "./Feedback"
 import { ruleName, WRITER_TEXT } from "./labels"
+import { PaySuggestion } from "./PaySuggestion"
 
 export type Choices = Record<string, Decision>
+
+const PAY_RULES = ["ON-PAY-01", "ON-PAY-02"]
 
 export function defaultChoices(refinement: Refinement): Choices {
   return Object.fromEntries(
@@ -26,6 +29,8 @@ interface FixesProps {
   onChange: (choices: Choices) => void
   onApply: () => void
   applying: boolean
+  /** A paying customer's check: offer a pay range suggestion; the check with the confirmed range comes back. */
+  onPayConfirmed?: (check: CheckOut) => void
 }
 
 function Change({ patch }: { patch: Patch }) {
@@ -53,11 +58,15 @@ export function Fixes({
   onChange,
   onApply,
   applying,
+  onPayConfirmed,
 }: FixesProps) {
   const set = (decision: Decision) =>
     onChange({ ...choices, [decision.patch_id]: decision })
   const accepted = refinement.patches.filter(
     (patch) => choices[patch.id]?.accept,
+  )
+  const payFix = [...refinement.patches, ...refinement.dropped].some((fix) =>
+    PAY_RULES.includes(fix.rule),
   )
   const missingChoice = accepted.some(
     (patch) =>
@@ -112,7 +121,11 @@ export function Fixes({
                 <label htmlFor={patch.id} className="font-medium">
                   {ruleName(patch.rule)}
                 </label>
-                <Badge variant="secondary">{WRITER_TEXT[patch.writer]}</Badge>
+                <Badge variant="secondary">
+                  {patch.confirmed
+                    ? "Your confirmed range"
+                    : WRITER_TEXT[patch.writer]}
+                </Badge>
                 {!patch.default && options.length === 0 && (
                   <Badge variant="outline">Optional</Badge>
                 )}
@@ -158,6 +171,15 @@ export function Fixes({
             </div>
           )
         })}
+
+        {onPayConfirmed && payFix && (
+          <PaySuggestion
+            key={checkId}
+            checkId={checkId}
+            confirmed={refinement.patches.some((patch) => patch.confirmed)}
+            onConfirmed={onPayConfirmed}
+          />
+        )}
 
         {refinement.dropped.length > 0 && (
           <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">

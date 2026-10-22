@@ -322,6 +322,7 @@ export function Checker({
                       onChange={setChoices}
                       onApply={() => accept.mutate()}
                       applying={accept.isPending}
+                      onPayConfirmed={check.workspace_id ? show : undefined}
                     />
                   ) : (
                     refine.isPending && (

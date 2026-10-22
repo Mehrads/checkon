@@ -25,6 +25,7 @@ from app.compliance.inspector import Inspection, SentenceLabels, build_facts, la
 from app.compliance.llm import REWRITE_SETTINGS, LLMError, ModelSettings, StructuredLLM
 from app.compliance.models import (
     Context,
+    ExpectedPay,
     PayKind,
     PayMention,
     PayUnit,
@@ -34,7 +35,7 @@ from app.compliance.models import (
     Span,
     Verdict,
 )
-from app.compliance.money import parse_pay, restate_range
+from app.compliance.money import format_pay, parse_pay, restate_range
 from app.compliance.normalise import NormalisedText, fold, normalise
 from app.compliance.rulepack import RulePack
 from app.compliance.wording import Variant, WordingLibrary, load_wording
@@ -61,6 +62,7 @@ class Patch(BaseModel):
     writer: Writer
     default: bool = True  # applied unless the user rejects it; suggestions are False
     verified: bool = False
+    confirmed: bool = False  # writes the pay range the employer confirmed
 
 
 class Dropped(BaseModel):
@@ -137,6 +139,17 @@ def _floor(value: Decimal, step: Decimal) -> Decimal:
     return (value / step).to_integral_value(ROUND_FLOOR) * step
 
 
+def pay_statement(wording: WordingLibrary, variant: Variant, pay: ExpectedPay) -> str:
+    """The confirmed pay as a line of the posting: "Expected pay: $60,000-$75,000 a year"."""
+    return fold(wording.text("pay_confirmed", variant).format(pay=format_pay(pay.min, pay.max, pay.unit)))
+
+
+def _restated(text: str, pay: PayMention, expected: ExpectedPay) -> str:
+    """The posting's own range text with the confirmed figures, in its style where the unit is the same."""
+    same = pay.unit == expected.unit and pay.min is not None and pay.max is not None and expected.min != expected.max
+    return (same and restate_range(text, expected.min, expected.max)) or fold(format_pay(expected.min, expected.max, expected.unit))
+
+
 def range_options(pay: PayMention, ctx: Context, params: dict) -> list[tuple[Decimal, Decimal]]:
     """Ranges within the cap, in the posting's own unit: keep the bottom, centre, keep the top."""
     hours = ctx.hours_per_week if ctx.hours_per_week is not None else params["default_hours_per_week"]
@@ -172,11 +185,23 @@ def _plan(
         result = results.get(rule)
         return result if result and result.verdict in (verdicts or (Verdict.FAIL,)) else None
 
+    # Pay the employer confirmed replaces the placeholder and a range that is too wide or open-ended.
+    expected = ctx.expected_pay
     if failing("ON-PAY-01"):
         point, prefix = _pay_point(doc)
-        patch("ON-PAY-01", "insert", (point, point), prefix + wording.placeholder, "template")
+        if expected:
+            patch("ON-PAY-01", "insert", (point, point), prefix + pay_statement(wording, variant, expected), "template",
+                  confirmed=True)  # fmt: skip
+        else:
+            patch("ON-PAY-01", "insert", (point, point), prefix + wording.placeholder, "template")
+    elif expected and (result := failing("ON-PAY-01", Verdict.NEEDS_INPUT)) and facts.pay_placeholder in result.evidence:
+        patch("ON-PAY-01", "replace", facts.pay_placeholder, pay_statement(wording, variant, expected), "template",
+              confirmed=True)  # fmt: skip
 
-    if result := failing("ON-PAY-02"):
+    if (result := failing("ON-PAY-02")) and expected and len(wide := [p for p in facts.pay if p.span in result.evidence]) == 1:
+        text = doc.text[wide[0].span[0] : wide[0].span[1]]
+        patch("ON-PAY-02", "replace", wide[0].span, _restated(text, wide[0], expected), "code", confirmed=True)
+    elif result:
         for pay in facts.pay:
             if pay.span not in result.evidence:
                 continue
@@ -316,11 +341,12 @@ def reinspect(c: _Context, patches: list[Patch]) -> tuple[Inspection, _Applied]:
             labels[sentence_id] = c.label_cache[doc.sentences[sentence_id].text] = found
 
     pay = [m.model_copy(update={"span": moved(m.span)}) for m in base.facts.pay if not applied.touched(m.span)]
+    confirmed_unit = c.ctx.expected_pay.unit if c.ctx.expected_pay else PayUnit.YEAR
     for p in patches:
-        if p.rule == "ON-PAY-02" and p.op == "replace":
+        if p.rule in ("ON-PAY-01", "ON-PAY-02") and p.op != "delete":  # a narrower or confirmed range
             start, end = applied.spans[p.id]
             for reading in parse_pay(doc.text[start:end])[:1]:
-                old_unit = next((m.unit for m in base.facts.pay if m.span == p.span), PayUnit.YEAR)
+                old_unit = next((m.unit for m in base.facts.pay if m.span == p.span), confirmed_unit)
                 pay.append(
                     PayMention(min=reading.min, max=reading.max, unit=reading.unit or old_unit, kind=PayKind.WAGE,
                                span=(start + reading.span[0], start + reading.span[1]))  # fmt: skip
@@ -401,6 +427,8 @@ def acceptance(c: _Context, patches: list[Patch], after: Inspection, applied: _A
     for entry in c.wording.entries.values():
         for variant in entry.variants.values():
             allowed_numbers.update(_NUMBER.findall(variant))
+    if pay := c.ctx.expected_pay:  # the employer's own figures
+        allowed_numbers.update(_NUMBER.findall(format_pay(pay.min, pay.max, pay.unit)))
     for p in patches:
         new = p.after or ""
         # 4. No new facts: numbers and names come from the source sentence (LLM) or the posting.

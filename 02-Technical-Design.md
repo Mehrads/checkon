@@ -353,6 +353,14 @@ The pay service proposes a range the employer can confirm; it never writes a num
 
 **Guardrails:** low NOC-mapping confidence shows two candidate occupations and asks the user to pick; market figures are always labelled as suggestions; the confirmed number is saved as that role's band and goes through the Refiner like any other confirmed fact.
 
+**As built (October 2026, paid plans):** sources 2–4 above; the HR-system source waits for the integration tier.
+
+- Job Bank wages: the official open-data CSV (open.canada.ca, Open Government Licence – Canada), Ontario rows kept in versioned files in `backend/app/pay/data/` with the publication date. `python -m app.pay.refresh` downloads the newest year. A job location is placed in its economic region by name: Statistics Canada's census subdivisions, plus the city names on Job Bank's own postings (so Burlington follows Job Bank into Hamilton–Niagara Peninsula); an unknown or remote location uses Ontario's figures. Where a region has no published median, Ontario's figures are shown with a note.
+- The NOC mapping is a Haiku 5.5 call (thinking on at low effort) that picks a code from the 516 unit groups and a confidence; "low" asks the user to pick between two occupations before anything is searched.
+- The postings search uses the employer-size lookup's settings and at most 3 searches, with Glassdoor, Indeed, SimplyHired and LinkedIn blocked. Structured output can't carry citations, so the model answers in cited sentences: each figure is read by the money parser from a sentence that cites a search result, and shown with that result's link and age. Postings over a year old are left out; searches are kept a week in Postgres.
+- The suggestion is centred on the saved band, else on Job Bank's median (spanning its quartiles), else on the postings' median, and narrowed to the $50,000 cap at the job's hours. A saved band whose middle is 20% or more below or above the market median is flagged; so is an edited range in the UI.
+- Cost: about US$0.026 for a new title and place, under US$0.001 when the search is cached. Recorded as `usage_event` kind `pay_suggest` and in the day's spend meter.
+
 ## 10. Rule versioning and change monitoring
 
 Rule packs are versioned like code (semantic versions per jurisdiction), and a posting is always checked against the rules in force on its posting date.

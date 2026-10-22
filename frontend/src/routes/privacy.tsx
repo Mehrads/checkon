@@ -152,6 +152,16 @@ function PrivacyPage() {
             website and the browser extension use the same one.
           </li>
           <li>
+            <strong>Pay ranges, if you subscribe.</strong> When you ask for a
+            pay range suggestion, the posting goes to our AI provider, which
+            names the job's occupation, and the job title and location are used
+            for a web search of current postings with pay. When you confirm a
+            range, we keep the job title, the range and the occupation code with
+            your company profile or the client workspace, so the next suggestion
+            for that title starts from it. You can remove them on your profile
+            page.
+          </li>
+          <li>
             <strong>Billing, if you subscribe.</strong> You pay on Stripe's
             checkout page, and your card details go to Stripe, not to us. Stripe
             tells us your email and the state of your subscription. We keep your
@@ -222,8 +232,9 @@ function PrivacyPage() {
         </p>
         <List>
           <li>
-            <strong>Anthropic</strong> (AI provider): the posting text, and the
-            employer's name and location for the web search.
+            <strong>Anthropic</strong> (AI provider): the posting text, the
+            employer's name and location for the employer-size search, and the
+            job title and location for the pay search.
           </li>
           <li>
             <strong>Google Cloud</strong> (hosting and database): everything
@@ -261,6 +272,10 @@ function PrivacyPage() {
             <strong>Employer size searches:</strong> up to 30 days, in memory.
           </li>
           <li>
+            <strong>Pay searches:</strong> up to 7 days, in our database: the
+            job title, the place and the pay quoted from postings, with links.
+          </li>
+          <li>
             <strong>Per-minute request counts by IP address:</strong> one
             minute, in memory.
           </li>
@@ -275,16 +290,17 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>
-              Your account, company profiles, client workspaces and check
-              history:
+              Your account, company profiles, pay ranges, client workspaces and
+              check history:
             </strong>{" "}
             until you delete your account, which you can do under Settings once
             your plan is cancelled. Deleting it removes your sign-in, your
-            company profiles and your client workspaces. Archiving a workspace
-            only hides it, so its past checks keep its name. The billing records
-            of your plan, including the dates and titles of its checks, stay for
-            as long as tax law needs them (in Canada, generally six years). Ask
-            and we'll delete anything the law lets us.
+            company profiles, their pay ranges and your client workspaces.
+            Archiving a workspace only hides it, so its past checks keep its
+            name. The billing records of your plan, including the dates and
+            titles of its checks, stay for as long as tax law needs them (in
+            Canada, generally six years). Ask and we'll delete anything the law
+            lets us.
           </li>
           <li>
             <strong>

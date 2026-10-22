@@ -72,6 +72,47 @@ export type AnswersIn = {
 };
 
 /**
+ * BandPublic
+ */
+export type BandPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Min
+     */
+    min: string;
+    /**
+     * Max
+     */
+    max: string;
+    unit: PayUnit;
+    /**
+     * Noc Code
+     */
+    noc_code: string | null;
+    /**
+     * Confirmed At
+     */
+    confirmed_at: string;
+};
+
+/**
+ * BandsPublic
+ */
+export type BandsPublic = {
+    /**
+     * Data
+     */
+    data: Array<BandPublic>;
+};
+
+/**
  * BillingOut
  */
 export type BillingOut = {
@@ -188,6 +229,31 @@ export type CheckOut = {
      * Workspace Id
      */
     workspace_id?: string | null;
+};
+
+/**
+ * ConfirmIn
+ *
+ * The range the customer confirmed, as suggested or edited; min equal to max is a single figure.
+ */
+export type ConfirmIn = {
+    /**
+     * Check Id
+     */
+    check_id: string;
+    /**
+     * Min
+     */
+    min: number | string;
+    /**
+     * Max
+     */
+    max: number | string;
+    unit: PayUnit;
+    /**
+     * Noc Code
+     */
+    noc_code?: string | null;
 };
 
 /**
@@ -469,6 +535,29 @@ export type LoginCodeIn = {
 };
 
 /**
+ * MarketRange
+ */
+export type MarketRange = {
+    /**
+     * Low
+     */
+    low: string | null;
+    /**
+     * Median
+     */
+    median: string;
+    /**
+     * High
+     */
+    high: string | null;
+    unit: PayUnit;
+    /**
+     * Basis
+     */
+    basis: 'job_bank' | 'postings';
+};
+
+/**
  * Message
  */
 export type Message = {
@@ -490,6 +579,20 @@ export type NewPassword = {
      * New Password
      */
     new_password: string;
+};
+
+/**
+ * Occupation
+ */
+export type Occupation = {
+    /**
+     * Code
+     */
+    code: string;
+    /**
+     * Title
+     */
+    title: string;
 };
 
 /**
@@ -598,7 +701,31 @@ export type Patch = {
      * Verified
      */
     verified?: boolean;
+    /**
+     * Confirmed
+     */
+    confirmed?: boolean;
 };
+
+/**
+ * PayRange
+ */
+export type PayRange = {
+    /**
+     * Min
+     */
+    min: string;
+    /**
+     * Max
+     */
+    max: string;
+    unit: PayUnit;
+};
+
+/**
+ * PayUnit
+ */
+export type PayUnit = 'hour' | 'week' | 'month' | 'year';
 
 /**
  * PlanIn
@@ -827,6 +954,44 @@ export type RuleResult = {
 };
 
 /**
+ * Source
+ */
+export type Source = {
+    /**
+     * Kind
+     */
+    kind: 'band' | 'job_bank' | 'posting';
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Figures
+     */
+    figures: string;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Date
+     */
+    date?: string | null;
+    /**
+     * Quote
+     */
+    quote?: string | null;
+    /**
+     * Licence
+     */
+    licence?: string | null;
+    /**
+     * Licence Url
+     */
+    licence_url?: string | null;
+};
+
+/**
  * StatsOut
  */
 export type StatsOut = {
@@ -847,6 +1012,65 @@ export type StatsOut = {
  * Status
  */
 export type Status = 'compliant' | 'not_compliant' | 'needs_input' | 'not_applicable';
+
+/**
+ * SuggestIn
+ */
+export type SuggestIn = {
+    /**
+     * Check Id
+     */
+    check_id: string;
+    /**
+     * Noc Code
+     */
+    noc_code?: string | null;
+};
+
+/**
+ * Suggestion
+ *
+ * `pick_occupation`: the posting fits two occupations about equally, so the user picks one of
+ * `alternatives` and asks again. Otherwise `suggested` is within the yearly cap, in `market`'s unit.
+ */
+export type Suggestion = {
+    /**
+     * Status
+     */
+    status: 'suggested' | 'pick_occupation';
+    occupation?: Occupation | null;
+    /**
+     * Alternatives
+     */
+    alternatives?: Array<Occupation>;
+    /**
+     * Region
+     */
+    region?: string | null;
+    suggested?: PayRange | null;
+    market?: MarketRange | null;
+    band?: PayRange | null;
+    /**
+     * Flag
+     */
+    flag?: 'below_market' | 'above_market' | null;
+    /**
+     * Hours Per Week
+     */
+    hours_per_week: string;
+    /**
+     * Max Annual Width
+     */
+    max_annual_width: string;
+    /**
+     * Sources
+     */
+    sources?: Array<Source>;
+    /**
+     * Notes
+     */
+    notes?: Array<string>;
+};
 
 /**
  * Timing
@@ -1723,6 +1947,116 @@ export type workspacesArchiveWorkspaceResponses = {
 };
 
 export type workspacesArchiveWorkspaceResponse = workspacesArchiveWorkspaceResponses[keyof workspacesArchiveWorkspaceResponses];
+
+export type paySuggestPayData = {
+    body: SuggestIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/pay/suggest';
+};
+
+export type paySuggestPayErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type paySuggestPayError = paySuggestPayErrors[keyof paySuggestPayErrors];
+
+export type paySuggestPayResponses = {
+    /**
+     * Successful Response
+     */
+    200: Suggestion;
+};
+
+export type paySuggestPayResponse = paySuggestPayResponses[keyof paySuggestPayResponses];
+
+export type payConfirmPayData = {
+    body: ConfirmIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/pay/confirm';
+};
+
+export type payConfirmPayErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type payConfirmPayError = payConfirmPayErrors[keyof payConfirmPayErrors];
+
+export type payConfirmPayResponses = {
+    /**
+     * Successful Response
+     */
+    200: CheckOut;
+};
+
+export type payConfirmPayResponse = payConfirmPayResponses[keyof payConfirmPayResponses];
+
+export type payReadBandsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace Id
+         */
+        workspace_id?: string | null;
+    };
+    url: '/api/v1/pay/bands';
+};
+
+export type payReadBandsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type payReadBandsError = payReadBandsErrors[keyof payReadBandsErrors];
+
+export type payReadBandsResponses = {
+    /**
+     * Successful Response
+     */
+    200: BandsPublic;
+};
+
+export type payReadBandsResponse = payReadBandsResponses[keyof payReadBandsResponses];
+
+export type payDeleteBandData = {
+    body?: never;
+    path: {
+        /**
+         * Band Id
+         */
+        band_id: string;
+    };
+    query?: never;
+    url: '/api/v1/pay/bands/{band_id}';
+};
+
+export type payDeleteBandErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type payDeleteBandError = payDeleteBandErrors[keyof payDeleteBandErrors];
+
+export type payDeleteBandResponses = {
+    /**
+     * Successful Response
+     */
+    200: Message;
+};
+
+export type payDeleteBandResponse = payDeleteBandResponses[keyof payDeleteBandResponses];
 
 export type statsReadStatsData = {
     body?: never;
