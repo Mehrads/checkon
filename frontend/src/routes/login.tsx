@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import type { Body_login_login_password as Credentials } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import {
   Form,
   FormControl,
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       {
-        title: "Log In - CheckON",
+        title: "Log in - CheckON",
       },
     ],
   }),
@@ -111,9 +111,9 @@ function PasswordForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Login to your account</h1>
-        </div>
+        <AuthHeading title="Log in to CheckON">
+          Use the email you subscribed with. We'll email you a sign-in code.
+        </AuthHeading>
 
         <div className="grid gap-4">
           <FormField
@@ -162,9 +162,19 @@ function PasswordForm({
           />
 
           <LoadingButton type="submit" loading={passwordMutation.isPending}>
-            Log In
+            Log in
           </LoadingButton>
         </div>
+
+        <p className="border-t pt-5 text-sm text-muted-foreground">
+          No account yet? Accounts come with a Starter or Agency plan.{" "}
+          <a
+            href="/check#pricing"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            See plans
+          </a>
+        </p>
       </form>
     </Form>
   )
@@ -194,12 +204,10 @@ function CodeForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p className="text-sm text-muted-foreground">
-            We sent a 6-digit sign-in code to {pending.email}.
-          </p>
-        </div>
+        <AuthHeading title="Check your email">
+          We sent a 6-digit sign-in code to {pending.email}. It works for 10
+          minutes.
+        </AuthHeading>
 
         <div className="grid gap-4">
           <FormField
@@ -233,7 +241,7 @@ function CodeForm({
           </LoadingButton>
         </div>
 
-        <div className="text-center text-sm">
+        <div className="text-sm text-muted-foreground">
           Code expired or didn't arrive?{" "}
           <button
             type="button"

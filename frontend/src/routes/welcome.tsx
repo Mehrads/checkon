@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { CircleCheck, MailCheck } from "lucide-react"
+import { CircleCheck } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { BillingService } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import { Button } from "@/components/ui/button"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { track } from "@/lib/analytics"
@@ -25,19 +25,35 @@ function Welcome() {
   )
 }
 
+const NEXT = [
+  ["Open our email", "It comes from CheckON, to the address you paid with."],
+  ["Set your password", "The link in it works for 48 hours."],
+  ["Log in", "With your password and a code we email you each time."],
+]
+
 function CheckEmail() {
   return (
-    <div className="flex flex-col gap-4 text-center">
-      <MailCheck className="mx-auto size-10 text-primary" aria-hidden="true" />
-      <h1 className="text-2xl font-bold">Thanks, you're subscribed</h1>
-      <p className="text-sm text-muted-foreground">
-        We've emailed you a link to set your password. Set it, then log in with
-        the email you paid with. We'll email you a sign-in code each time.
-      </p>
+    <div className="flex flex-col gap-6">
+      <AuthHeading title="Thanks, you're subscribed">
+        Three steps and you're checking postings on your plan.
+      </AuthHeading>
+      <ol className="space-y-4">
+        {NEXT.map(([step, detail], index) => (
+          <li key={step} className="flex gap-3">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent font-display text-sm font-medium text-primary">
+              {index + 1}
+            </span>
+            <span className="text-sm">
+              <span className="font-medium">{step}</span>
+              <span className="block text-muted-foreground">{detail}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
       <Button asChild>
         <Link to="/login">Log in</Link>
       </Button>
-      <p className="text-xs text-muted-foreground">
+      <p className="border-t pt-5 text-xs text-muted-foreground">
         No email after a few minutes? Check your spam folder, or use "Forgot
         your password?" on the log-in page with the email you paid with.
       </p>
@@ -55,21 +71,19 @@ function PlanStarting() {
   })
   const ready = Boolean(data?.plan)
   return (
-    <div className="flex flex-col gap-4 text-center">
-      <CircleCheck
-        className="mx-auto size-10 text-primary"
-        aria-hidden="true"
-      />
-      <h1 className="text-2xl font-bold">
-        {ready
-          ? `Your ${data?.plan_name} plan is active`
-          : "Thanks for subscribing"}
-      </h1>
-      <p className="text-sm text-muted-foreground">
+    <div className="flex flex-col gap-6">
+      <CircleCheck className="size-9 text-primary" aria-hidden="true" />
+      <AuthHeading
+        title={
+          ready
+            ? `Your ${data?.plan_name} plan is active`
+            : "Thanks for subscribing"
+        }
+      >
         {ready
           ? "Your checks are ready to use."
           : "We're setting up your plan. This usually takes a few seconds."}
-      </p>
+      </AuthHeading>
       <Button asChild>
         <Link to="/">Start checking</Link>
       </Button>

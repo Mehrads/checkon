@@ -133,7 +133,8 @@ def _attach_user(session: Session, customer: Customer, email: str | None, refere
 
 
 def send_set_password_email(email: str, plan_name: str | None) -> None:
-    link = f"{settings.FRONTEND_HOST}/reset-password?token={generate_password_reset_token(email=email)}"
+    token = generate_password_reset_token(email=email)
+    link = f"{settings.FRONTEND_HOST}/reset-password?token={token}&new=1"  # the page says "Set your password"
     email_data = generate_set_password_email(email_to=email, plan_name=plan_name, link=link)
     if settings.FASTAPI_ENV == "development":
         logger.info(f"Set-password link for {email}: {link}")

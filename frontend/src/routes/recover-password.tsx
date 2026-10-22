@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { LoginService } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import {
   Form,
   FormControl,
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/recover-password")({
   head: () => ({
     meta: [
       {
-        title: "Recover Password - CheckON",
+        title: "Forgot your password - CheckON",
       },
     ],
   }),
@@ -84,9 +84,10 @@ function RecoverPassword() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Password Recovery</h1>
-          </div>
+          <AuthHeading title="Forgot your password?">
+            Enter your account's email and we'll send a link to choose a new
+            one.
+          </AuthHeading>
 
           <div className="grid gap-4">
             <FormField
@@ -113,11 +114,11 @@ function RecoverPassword() {
               className="w-full"
               loading={mutation.isPending}
             >
-              Continue
+              Email me a link
             </LoadingButton>
           </div>
 
-          <div className="text-center text-sm">
+          <div className="text-sm text-muted-foreground">
             Remember your password?{" "}
             <RouterLink to="/login" className="underline underline-offset-4">
               Log in

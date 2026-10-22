@@ -151,7 +151,8 @@ export function Checker({
 
   return (
     <>
-      <section id="check" className="scroll-mt-20">
+      {/* #check is the public page's hero (landing.css gives it the photo); the app's checker isn't */}
+      <section id={hero ? "check" : undefined} className="scroll-mt-20">
         <div
           className={cn(
             hero &&

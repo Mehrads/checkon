@@ -11,13 +11,16 @@ export function formatDay(value: string): string {
   })
 }
 
-/** "12 of 50 checks this period", a bar, and the extra checks past the plan. Shared with the extension. */
+/** "12 of 50 checks this period", a bar, and the extra checks past the plan. Shared with the extension,
+ * which uses the compact size; the account page shows the count large. */
 export function UsageMeter({
   billing,
   className,
+  size = "sm",
 }: {
   billing: BillingOut
   className?: string
+  size?: "sm" | "lg"
 }) {
   const included = billing.checks_included
   const used = Math.min(billing.checks_used, included)
@@ -25,10 +28,22 @@ export function UsageMeter({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
-        <p>
-          <span className="font-semibold tabular-nums">{used}</span> of{" "}
-          <span className="tabular-nums">{included}</span> checks this period
-        </p>
+        {size === "lg" ? (
+          <p className="flex items-baseline gap-2">
+            <span className="font-display text-4xl leading-none font-medium tabular-nums">
+              {used}
+            </span>
+            <span className="text-muted-foreground">
+              of <span className="tabular-nums">{included}</span> checks this
+              period
+            </span>
+          </p>
+        ) : (
+          <p>
+            <span className="font-semibold tabular-nums">{used}</span> of{" "}
+            <span className="tabular-nums">{included}</span> checks this period
+          </p>
+        )}
         {billing.period_end && (
           <p className="text-muted-foreground">
             {billing.cancel_at_period_end ? "Ends" : "Renews"}{" "}

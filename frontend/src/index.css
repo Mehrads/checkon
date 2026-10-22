@@ -120,7 +120,8 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-/* The public site (checker page and privacy page): warm paper, ink and the brand teal.
+/* The brand palette: warm paper, ink and the brand teal. <body> carries .site, so the public pages, the
+   signed-in app and the dialogs and menus they open all share it.
    Buttons use a deeper teal than the brand's #009485 so white text on them passes AA. */
 .site {
   --background: #fbfaf7;
@@ -147,6 +148,14 @@
   --deep-foreground: #f3efe6;
   --deep-muted: #b9c7c3;
   --deep-accent: #7fd8cc;
+  --sidebar: #f3efe6;
+  --sidebar-foreground: #1b2422;
+  --sidebar-primary: #00756a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e9e3d6;
+  --sidebar-accent-foreground: #1b2422;
+  --sidebar-border: #e4dfd3;
+  --sidebar-ring: #009485;
   font-family: var(--font-site);
 }
 .dark .site {
@@ -173,6 +182,28 @@
   --deep: #0b2a27;
   --deep-foreground: #ece9e2;
   --deep-muted: #b9c7c3;
+  --sidebar: #171f1d;
+  --sidebar-foreground: #ece9e2;
+  --sidebar-primary: #3cc0b0;
+  --sidebar-primary-foreground: #0a1f1c;
+  --sidebar-accent: #1f2b29;
+  --sidebar-accent-foreground: #ece9e2;
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: #3cc0b0;
+}
+
+/* The brand panel beside the log-in and password forms: a "help wanted" sign under the hero's deep
+   teal scrim. Browsers without image-set() types keep the plain colour. */
+.auth-panel {
+  background-color: #0b2a27;
+  background-image:
+    linear-gradient(180deg, rgb(11 42 39 / 0.82) 0%, rgb(11 42 39 / 0.94) 70%),
+    image-set(
+      url("/assets/images/landing/bg-help-wanted-960.avif") type("image/avif"),
+      url("/assets/images/landing/bg-help-wanted-960.webp") type("image/webp")
+    );
+  background-position: center;
+  background-size: cover;
 }
 
 @layer base {

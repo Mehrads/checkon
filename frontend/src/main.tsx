@@ -11,6 +11,8 @@ import ReactDOM from "react-dom/client"
 import { client } from "./client/client.gen"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
+import "@fontsource-variable/newsreader/wght.css"
+import "@fontsource-variable/hanken-grotesk/wght.css"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 

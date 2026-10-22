@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { PastChecks } from "@/components/Billing/PastChecks"
 import { NoPlanCard, PlanCard } from "@/components/Billing/PlanCard"
 import { Checker } from "@/components/Check/Checker"
+import { PageHeading } from "@/components/Common/PageHeading"
 import { Skeleton } from "@/components/ui/skeleton"
 import useAuth from "@/hooks/useAuth"
 import { useBilling, useRefreshBilling } from "@/hooks/useBilling"
@@ -29,12 +30,9 @@ function Checks() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Check a posting</h1>
-        <p className="truncate text-muted-foreground">
-          Signed in as {user?.email}
-        </p>
-      </div>
+      <PageHeading eyebrow="Your account" title="Check a posting">
+        Signed in as {user?.email}
+      </PageHeading>
       {isPending || !billing ? (
         <Skeleton className="h-36 w-full" />
       ) : onPlan ? (

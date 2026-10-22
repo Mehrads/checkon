@@ -18,7 +18,9 @@ export function PastChecks() {
   return (
     <section className="space-y-2">
       <div>
-        <h2 className="text-lg font-semibold">Past checks</h2>
+        <h2 className="font-display text-2xl font-medium tracking-[-0.01em]">
+          Past checks
+        </h2>
         <p className="text-sm text-muted-foreground">
           The date, job title and result of each check on your plan. We don't
           keep the postings.

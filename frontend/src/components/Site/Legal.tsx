@@ -39,7 +39,7 @@ export function LegalPage({
       <main className="mx-auto max-w-3xl space-y-10 px-4 py-16 sm:px-6 sm:py-20">
         <div className="space-y-3">
           <p className="text-sm font-medium text-primary">{eyebrow}</p>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance">
+          <h1 className="font-display text-5xl leading-tight font-medium tracking-[-0.015em] text-balance">
             {title}
           </h1>
           <p className="text-muted-foreground">Draft of {drafted}</p>
@@ -67,7 +67,9 @@ export function Part({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="font-display text-2xl font-medium tracking-[-0.01em]">
+        {title}
+      </h2>
       <div className="space-y-3 text-muted-foreground [&_strong]:font-medium [&_strong]:text-foreground">
         {children}
       </div>

@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { LoginService } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import {
   Form,
   FormControl,
@@ -27,6 +27,9 @@ import { handleError } from "@/utils"
 
 const searchSchema = z.object({
   token: z.string().catch(""),
+  // Set by the link in the email a new subscriber gets: the account has no password yet
+  // (the router reads "new=1" as the number 1)
+  new: z.union([z.string(), z.number()]).optional().catch(undefined),
 })
 
 const formSchema = z
@@ -60,14 +63,15 @@ export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
       {
-        title: "Reset Password - CheckON",
+        title: "Password - CheckON",
       },
     ],
   }),
 })
 
 function ResetPassword() {
-  const { token } = Route.useSearch()
+  const { token, new: first } = Route.useSearch()
+  const setting = String(first) === "1"
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const navigate = useNavigate()
 
@@ -85,7 +89,11 @@ function ResetPassword() {
     mutationFn: (data: { new_password: string; token: string }) =>
       LoginService.resetPassword({ body: data }),
     onSuccess: () => {
-      showSuccessToast("Password updated successfully")
+      showSuccessToast(
+        setting
+          ? "Password set. Log in to start checking."
+          : "Password updated successfully",
+      )
       form.reset()
       navigate({ to: "/login" })
     },
@@ -103,9 +111,13 @@ function ResetPassword() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Reset Password</h1>
-          </div>
+          <AuthHeading
+            title={setting ? "Set your password" : "Choose a new password"}
+          >
+            {setting
+              ? "Welcome to CheckON. Choose a password for your account, then log in."
+              : "At least 8 characters."}
+          </AuthHeading>
 
           <div className="grid gap-4">
             <FormField
@@ -113,11 +125,11 @@ function ResetPassword() {
               name="new_password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{setting ? "Password" : "New password"}</FormLabel>
                   <FormControl>
                     <PasswordInput
                       data-testid="new-password-input"
-                      placeholder="New Password"
+                      placeholder="At least 8 characters"
                       {...field}
                     />
                   </FormControl>
@@ -131,11 +143,11 @@ function ResetPassword() {
               name="confirm_password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>Confirm password</FormLabel>
                   <FormControl>
                     <PasswordInput
                       data-testid="confirm-password-input"
-                      placeholder="Confirm Password"
+                      placeholder="Type it again"
                       {...field}
                     />
                   </FormControl>
@@ -149,12 +161,12 @@ function ResetPassword() {
               className="w-full"
               loading={mutation.isPending}
             >
-              Reset Password
+              {setting ? "Set password" : "Save new password"}
             </LoadingButton>
           </div>
 
-          <div className="text-center text-sm">
-            Remember your password?{" "}
+          <div className="text-sm text-muted-foreground">
+            {setting ? "Already set it?" : "Remember your password?"}{" "}
             <RouterLink to="/login" className="underline underline-offset-4">
               Log in
             </RouterLink>
