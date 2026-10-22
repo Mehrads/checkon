@@ -36,350 +36,146 @@ function PrivacyPage() {
     >
       <p className="text-muted-foreground">
         CheckON (checkon.ca) checks job postings for Ontario employers and the
-        agencies that post for them. This page explains what information we
-        collect, why we need it, who we share it with, how long we keep it and
-        how to reach us about it. We wrote it with Canada's private-sector
-        privacy law, PIPEDA, in mind.
+        agencies that post for them. This page covers the website, the browser
+        extension and the paid plans, and follows Canada's private-sector
+        privacy law, PIPEDA.
       </p>
 
-      <Part title="The short version">
+      <Part title="What we collect, and how long we keep it">
         <List>
           <li>
-            You don't need an account. The free check doesn't ask for your name
-            or email.
+            <strong>Your posting.</strong> Sent to our AI provider to run the
+            check and held in memory for up to an hour so you can apply fixes.
+            We don't save it, unless you tick "Share this posting" when
+            reporting a problem.
           </li>
           <li>
-            If you subscribe to a plan, we keep your account, the company
-            details you save in your profile, and a short history of your
-            checks: the date, the job title and the result, never the posting.
-            Stripe handles your card.
+            <strong>Searches.</strong> We search the web for the employer's name
+            and location to estimate its size (results kept 30 days), and, for
+            pay suggestions, the job title and location (kept 7 days).
           </li>
           <li>
-            Your posting goes to our AI provider to run the check. We hold it
-            for up to an hour and don't save it, unless you choose to share it
-            with feedback.
+            <strong>Cookie and IP address.</strong> Used to enforce the weekly
+            free check and stop abuse. We store only keyed hashes of them, not
+            the values, and delete them after about 8 days.
           </li>
           <li>
-            We set one cookie, to count your free weekly check. No advertising
-            or tracking cookies.
+            <strong>Usage records and feedback.</strong> What each check did,
+            how long it took, plus any rating, comment or survey answer you
+            give. Linked to a hashed cookie, never to your posting.
           </li>
           <li>
-            We store scrambled versions of that cookie and your IP address, not
-            the values themselves.
-          </li>
-          <li>If you contact us, we keep your message so we can reply.</li>
-        </List>
-      </Part>
-
-      <Part title="What we collect and why">
-        <List>
-          <li>
-            <strong>The posting you paste.</strong> We need it to run the check.
-            We send it to our AI provider, Anthropic, for analysis and keep it
-            in our server's memory for up to an hour, so you can review the
-            results, answer questions and apply fixes. It isn't saved to our
-            database. Postings rarely contain personal information, but if yours
-            names a person, such as a hiring contact, that name goes through the
-            same steps.
+            <strong>Your account, if you subscribe.</strong> Email, name,
+            password (hashed) and sign-in codes (expire after 10 minutes). Also
+            your company profiles, client workspaces, confirmed pay ranges and
+            check history (date, job title and result, never the posting). Kept
+            until you delete your account.
           </li>
           <li>
-            <strong>The employer's name.</strong> Some requirements depend on
-            how many people an employer has. If the posting names the employer,
-            or your company profile gives a name but no headcount, we run a web
-            search through our AI provider for that name, and the location if
-            the posting gives one, to estimate the employer's size. We keep the
-            result in memory for up to 30 days so we don't search for the same
-            employer twice.
+            <strong>Billing.</strong> Stripe takes your card; we never see it.
+            We keep your Stripe IDs, plan, status and billing dates, for as long
+            as tax law requires (generally six years).
           </li>
           <li>
-            <strong>A cookie for the free check.</strong> When you run a check,
-            we set a cookie called <Code>free_check_id</Code>. It holds a random
-            ID and nothing else, and lets us limit free checks per week.
+            <strong>Contact form.</strong> Your name, email, company and
+            message, saved and emailed to <Mail /> so we can reply.
           </li>
           <li>
-            <strong>Your IP address.</strong> We use it to prevent abuse: to
-            limit how many requests one address can send per minute, and as a
-            second way to apply the weekly limit.
+            <strong>Browser extension.</strong> Reads the posting on the current
+            tab (your selection, the job field or the page text) only when you
+            click the CheckON icon or "Check with CheckON", and writes text back
+            only when you apply a fix. It doesn't track your browsing.
           </li>
           <li>
-            <strong>Weekly-limit records.</strong> We don't store your cookie ID
-            or IP address as they are. We store keyed hashes of them: one-way
-            codes made with a secret key, which tell us whether we've seen the
-            same value before but can't be turned back into it. We delete these
-            records about 8 days after your check.
-          </li>
-          <li>
-            <strong>Usage records.</strong> For each step of a check, we record
-            what happened (for example, a check ran or was refused), how long it
-            took and what it cost us to run. Each record carries a keyed hash of
-            your cookie ID, so we can count returning visitors without knowing
-            who they are. Usage records never contain your posting.
-          </li>
-          <li>
-            <strong>Feedback.</strong> If you rate a finding or a fix, or report
-            that a check looks wrong, we save your rating, the reason you pick
-            and any comment, linked to that check. After a result we may ask one
-            optional question about how you post jobs, such as which HR system
-            you use. We save your answer the same way.
-          </li>
-          <li>
-            <strong>Your posting, only if you choose.</strong> When you report a
-            problem, you can tick "Share this posting with us so we can fix the
-            mistake". Only then do we save the posting text with your feedback,
-            so we can find and fix the mistake.
-          </li>
-          <li>
-            <strong>Your account, if you subscribe.</strong> Your email, your
-            name if you add one, and your password, which we store only as a
-            one-way hash. When you sign in, we email you a 6-digit code and keep
-            a hash of it, which stops working after 10 minutes.
-          </li>
-          <li>
-            <strong>Your company profile, if you subscribe.</strong> The company
-            details you save so checks don't ask for them each time: the
-            employer's name, how many people you employ in Ontario (or simply
-            whether it's 25 or more), whether you or a recruiter use AI in
-            hiring, and the wording style you prefer. We store them with your
-            account, use them in each check on your plan and show them on your
-            profile page. They describe your company and never include a
-            posting.
-          </li>
-          <li>
-            <strong>Client workspaces, on the Agency plan.</strong> If you post
-            for clients, you can keep a workspace for each one: the name you
-            give it and that client's company profile, with the same details as
-            above. We also remember which workspace you picked last, so the
-            website and the browser extension use the same one.
-          </li>
-          <li>
-            <strong>Pay ranges, if you subscribe.</strong> When you ask for a
-            pay range suggestion, the posting goes to our AI provider, which
-            names the job's occupation, and the job title and location are used
-            for a web search of current postings with pay. When you confirm a
-            range, we keep the job title, the range and the occupation code with
-            your company profile or the client workspace, so the next suggestion
-            for that title starts from it. You can remove them on your profile
-            page.
-          </li>
-          <li>
-            <strong>Billing, if you subscribe.</strong> You pay on Stripe's
-            checkout page, and your card details go to Stripe, not to us. Stripe
-            tells us your email and the state of your subscription. We keep your
-            Stripe customer and subscription IDs, your plan, its status and the
-            dates of your billing period. Your billing address and any tax
-            number you give stay with Stripe, which puts them on your invoices.
-          </li>
-          <li>
-            <strong>Check history, if you subscribe.</strong> For each check on
-            your plan we keep the date, the job title as written in the posting,
-            the result before and after fixes, whether it was an extra check,
-            and the client workspace it was for. You see this list on your
-            account page. We tell Stripe how many extra checks you ran, so it
-            can bill them. We don't keep the posting itself, and usage records
-            for these checks carry your plan, not a cookie hash.
-          </li>
-          <li>
-            <strong>The contact form.</strong> Your name, email, company
-            (optional), what you're asking about and your message. We save it in
-            our database and email it to <Mail />, our Google Workspace mailbox,
-            so we can reply.
-          </li>
-          <li>
-            <strong>Visit counts.</strong> On checkon.ca we use Umami Cloud to
-            count visits and a few actions, such as running a check, copying a
-            result or sending the contact form. Umami doesn't use cookies, and
-            we don't send it your posting or anything you type into a form.
-          </li>
-          <li>
-            <strong>Server logs.</strong> Our hosting provider, Google Cloud,
-            keeps standard request logs, such as IP address, browser type and
-            the page requested, to run and secure the service.
+            <strong>Visits and logs.</strong> Umami counts page visits without
+            cookies. Google Cloud keeps standard server logs, such as IP address
+            and the page requested.
           </li>
         </List>
+        <p>
+          Usage records, feedback, shared postings and contact messages are kept
+          while we need them to run and improve CheckON. Ask and we'll delete
+          them sooner.
+        </p>
       </Part>
 
       <Part title="Cookies and browser storage">
         <List>
           <li>
-            <Code>free_check_id</Code> is set when you run a check. It holds a
-            random ID, lasts one year and can't be read by scripts on the page.
-            We use it only for the weekly free-check limit.
+            <Code>free_check_id</Code>: a random ID for the weekly free check,
+            kept for one year. Blocking it doesn't stop the checker.
           </li>
           <li>
-            Your light or dark theme choice is saved in your browser and never
-            sent to us.
+            A sign-in token, in your browser or the extension, until you log out
+            or it expires after 8 days.
           </li>
-          <li>
-            When you sign in, your browser keeps a sign-in token in its local
-            storage, and the browser extension keeps one in its own storage,
-            until you log out or it expires after 8 days.
-          </li>
-          <li>
-            We don't use advertising, social media or cross-site tracking
-            cookies.
-          </li>
-          <li>
-            If you block or clear cookies, the checker still works. The weekly
-            limit then relies on your IP address.
-          </li>
+          <li>Your light or dark theme choice, never sent to us.</li>
         </List>
+        <p>No advertising or cross-site tracking cookies.</p>
       </Part>
 
       <Part title="Who we share it with">
         <p>
-          We don't sell personal information or share it for advertising. We use
-          these service providers to run CheckON:
+          We don't sell personal information or share it for advertising. Our
+          service providers are:
         </p>
         <List>
           <li>
-            <strong>Anthropic</strong> (AI provider): the posting text, the
-            employer's name and location for the employer-size search, and the
-            job title and location for the pay search.
+            <strong>Anthropic</strong> (AI): postings and search terms.
           </li>
           <li>
-            <strong>Google Cloud</strong> (hosting and database): everything
-            CheckON stores, in its Toronto region.
+            <strong>Google Cloud</strong> (hosting and database, Toronto
+            region): everything we store.
           </li>
           <li>
-            <strong>Google Workspace</strong> (email): contact form messages and
-            our replies.
+            <strong>Google Workspace</strong> (email): contact messages.
           </li>
           <li>
-            <strong>Umami Cloud</strong> (visit counts): page visits and the
-            actions listed above.
+            <strong>Stripe</strong> (payments): checkout details and extra-check
+            counts.
           </li>
           <li>
-            <strong>Stripe</strong> (payments, for paid plans): what you enter
-            on its checkout page, such as your email, card and billing address,
-            and the number of extra checks you ran.
+            <strong>Umami Cloud</strong> (visit counts): page visits and a few
+            actions.
           </li>
         </List>
         <p>
-          Anthropic is based in the United States, and other providers may
-          process information outside Canada. Information processed in another
-          country is subject to that country's laws and may be accessible to its
-          courts and authorities.
+          Anthropic is in the United States, and other providers may process
+          data outside Canada, where it's subject to local laws.
         </p>
-      </Part>
-
-      <Part title="How long we keep it">
-        <List>
-          <li>
-            <strong>Your posting:</strong> up to an hour, in memory. Not saved
-            unless you share it with feedback.
-          </li>
-          <li>
-            <strong>Employer size searches:</strong> up to 30 days, in memory.
-          </li>
-          <li>
-            <strong>Pay searches:</strong> up to 7 days, in our database: the
-            job title, the place and the pay quoted from postings, with links.
-          </li>
-          <li>
-            <strong>Per-minute request counts by IP address:</strong> one
-            minute, in memory.
-          </li>
-          <li>
-            <strong>Weekly-limit records:</strong> about 8 days.
-          </li>
-          <li>
-            <strong>
-              The <Code>free_check_id</Code> cookie:
-            </strong>{" "}
-            one year in your browser, or until you clear it.
-          </li>
-          <li>
-            <strong>
-              Your account, company profiles, pay ranges, client workspaces and
-              check history:
-            </strong>{" "}
-            until you delete your account, which you can do under Settings once
-            your plan is cancelled. Deleting it removes your sign-in, your
-            company profiles, their pay ranges and your client workspaces.
-            Archiving a workspace only hides it, so its past checks keep its
-            name. The billing records of your plan, including the dates and
-            titles of its checks, stay for as long as tax law needs them (in
-            Canada, generally six years). Ask and we'll delete anything the law
-            lets us.
-          </li>
-          <li>
-            <strong>
-              Usage records, feedback, shared postings and contact messages:
-            </strong>{" "}
-            as long as we need them to run and improve CheckON and to reply to
-            you. Ask and we'll delete them sooner.
-          </li>
-        </List>
       </Part>
 
       <Part title="How we protect it">
-        <List>
-          <li>Connections to checkon.ca are encrypted (HTTPS).</li>
-          <li>
-            The app and database run in Google Cloud's Toronto region, in
-            Canada, which encrypts stored data.
-          </li>
-          <li>
-            We store keyed hashes of cookie IDs and IP addresses instead of the
-            values.
-          </li>
-          <li>
-            Only CheckON's administrators can see saved feedback, contact
-            messages and usage records. Your company profile and check history
-            are visible to you and to them.
-          </li>
-          <li>
-            Signing in takes your password and a code we email you, so a stolen
-            password alone isn't enough.
-          </li>
-        </List>
-      </Part>
-
-      <Part title="Your choices and rights">
-        <List>
-          <li>You can use the free check without giving your name or email.</li>
-          <li>
-            Leave "Share this posting" unticked and we won't keep your posting.
-          </li>
-          <li>
-            Our <PageLink to="/terms">terms of service</PageLink> explain how
-            plans, billing and cancelling work.
-          </li>
-          <li>
-            You can ask what personal information we hold about you, and ask us
-            to correct or delete it. Email <Mail /> and we'll reply within 30
-            days. Free-check records aren't linked to your name, so tell us
-            roughly when you used CheckON to help us find them.
-          </li>
-          <li>
-            You can withdraw consent, for example to a posting you shared, by
-            emailing us.
-          </li>
-          <li>
-            If you're not satisfied with our answer, you can complain to the{" "}
-            <a
-              href="https://www.priv.gc.ca"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Office of the Privacy Commissioner of Canada
-            </a>
-            .
-          </li>
-        </List>
-      </Part>
-
-      <Part title="Contact us">
         <p>
-          CheckON is responsible for the personal information it handles. For
-          questions about this policy, or to see, correct or delete your
-          information, email <Mail />.
+          Connections are encrypted, data is stored encrypted in Canada, cookie
+          IDs and IP addresses are hashed, and signing in takes your password
+          plus an emailed code. Only CheckON's administrators can see feedback,
+          contact messages and usage records.
         </p>
       </Part>
 
-      <Part title="Changes to this policy">
+      <Part title="Your rights">
         <p>
-          When the way we handle information changes, we'll update this page and
-          the date at the top.
+          You can ask to see, correct or delete your information, or withdraw
+          consent, by emailing <Mail />. We reply within 30 days. You can delete
+          your account yourself under Settings once your plan is cancelled; see
+          our <PageLink to="/terms">terms of service</PageLink>. If you're not
+          satisfied, you can complain to the{" "}
+          <a
+            href="https://www.priv.gc.ca"
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Office of the Privacy Commissioner of Canada
+          </a>
+          .
+        </p>
+      </Part>
+
+      <Part title="Contact and changes">
+        <p>
+          CheckON is responsible for the personal information it handles.
+          Questions go to <Mail />. When our practices change, we'll update this
+          page and its date.
         </p>
       </Part>
     </LegalPage>
