@@ -3,7 +3,7 @@ import "@fontsource-variable/hanken-grotesk/wght.css"
 import "./landing.css"
 
 import { Link } from "@tanstack/react-router"
-import { Check } from "lucide-react"
+import { Check, Clock } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { Appearance } from "@/components/Common/Appearance"
@@ -348,8 +348,13 @@ export function ForTeams() {
               goes up, and keeps the wording you chose.
             </p>
             <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
-              <li>Your company's details saved, so each check starts there</li>
-              <li>Pay range suggestions when a posting has none</li>
+              <li>
+                Your company's details saved, so each check starts there{" "}
+                <Soon />
+              </li>
+              <li>
+                Pay range suggestions when a posting has none <Soon />
+              </li>
               <li>A history of what you checked and approved</li>
             </ul>
           </div>
@@ -363,12 +368,15 @@ export function ForTeams() {
             </p>
             <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
               <li>
-                A workspace per client, checked against that client's facts
+                A workspace per client, checked against that client's facts{" "}
+                <Soon />
               </li>
-              <li>A dated archive of every approved posting</li>
               <li>
-                A browser extension for any job form (coming soon), or a
-                connection to your own systems
+                A dated archive of every approved posting <Soon />
+              </li>
+              <li>
+                A browser extension for any job form <Soon />, or a connection
+                to your own systems
               </li>
             </ul>
             <Button
@@ -385,12 +393,21 @@ export function ForTeams() {
   )
 }
 
+/** A feature we list but haven't built yet: say so wherever it appears. */
+function Soon() {
+  return (
+    <span className="ml-1 inline-block rounded-full border px-1.5 py-px align-middle text-[0.7rem] font-medium whitespace-nowrap text-muted-foreground">
+      Coming soon
+    </span>
+  )
+}
+
 interface Plan {
   name: string
   price: string
   period?: string
   note: string
-  features: string[]
+  features: (string | { text: string; soon: true })[]
   cta: { label: string; interest?: Interest }
   highlight?: boolean
 }
@@ -405,7 +422,7 @@ const PLANS: Plan[] = [
       "No sign-up",
       "Compliant rewrite you approve",
       "Edit and copy the result",
-      "Browser extension, coming soon",
+      { text: "Browser extension", soon: true },
     ],
     cta: { label: "Check a posting" },
     highlight: true,
@@ -417,8 +434,9 @@ const PLANS: Plan[] = [
     note: "Contact us to get started",
     features: [
       "50 checks a month",
-      "Company profile and history",
-      "Pay range suggestions",
+      "History of your checks",
+      { text: "Company profile", soon: true },
+      { text: "Pay range suggestions", soon: true },
     ],
     cta: { label: "Contact us", interest: "starter" },
   },
@@ -429,8 +447,8 @@ const PLANS: Plan[] = [
     note: "Contact us to get started",
     features: [
       "300 checks a month",
-      "A workspace per client",
-      "Archive of approved postings",
+      { text: "A workspace per client", soon: true },
+      { text: "Archive of approved postings", soon: true },
     ],
     cta: { label: "Contact us", interest: "agency" },
   },
@@ -500,15 +518,30 @@ export function Pricing() {
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{plan.note}</p>
             <ul className="mt-6 flex-1 space-y-2 border-t pt-5 text-sm">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <Check
-                    className="mt-0.5 size-4 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  {feature}
-                </li>
-              ))}
+              {plan.features.map((feature) =>
+                typeof feature === "string" ? (
+                  <li key={feature} className="flex gap-2">
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    {feature}
+                  </li>
+                ) : (
+                  <li
+                    key={feature.text}
+                    className="flex gap-2 text-muted-foreground"
+                  >
+                    <Clock
+                      className="mt-0.5 size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span>
+                      {feature.text} <Soon />
+                    </span>
+                  </li>
+                ),
+              )}
             </ul>
             {plan.cta.interest ? (
               <Button
