@@ -362,7 +362,8 @@ def test_applying_fixes_records_the_final_status(
 
     history = client.get(f"{API}/billing/checks", headers=headers).json()
     assert history["count"] == 1 and history["data"][0]["title"] == "Payroll Specialist"
-    assert set(history["data"][0]) == {"id", "created_at", "title", "status", "final_status", "extra"}
+    assert set(history["data"][0]) == {"id", "created_at", "title", "status", "final_status", "extra", "workspace_id",
+                                       "workspace_name"}  # fmt: skip
 
 
 def test_failed_meter_reports_are_retried(db: Session, fake_stripe: FakeStripe) -> None:

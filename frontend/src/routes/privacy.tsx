@@ -145,6 +145,13 @@ function PrivacyPage() {
             posting.
           </li>
           <li>
+            <strong>Client workspaces, on the Agency plan.</strong> If you post
+            for clients, you can keep a workspace for each one: the name you
+            give it and that client's company profile, with the same details as
+            above. We also remember which workspace you picked last, so the
+            website and the browser extension use the same one.
+          </li>
+          <li>
             <strong>Billing, if you subscribe.</strong> You pay on Stripe's
             checkout page, and your card details go to Stripe, not to us. Stripe
             tells us your email and the state of your subscription. We keep your
@@ -155,11 +162,11 @@ function PrivacyPage() {
           <li>
             <strong>Check history, if you subscribe.</strong> For each check on
             your plan we keep the date, the job title as written in the posting,
-            the result before and after fixes, and whether it was an extra
-            check. You see this list on your account page. We tell Stripe how
-            many extra checks you ran, so it can bill them. We don't keep the
-            posting itself, and usage records for these checks carry your plan,
-            not a cookie hash.
+            the result before and after fixes, whether it was an extra check,
+            and the client workspace it was for. You see this list on your
+            account page. We tell Stripe how many extra checks you ran, so it
+            can bill them. We don't keep the posting itself, and usage records
+            for these checks carry your plan, not a cookie hash.
           </li>
           <li>
             <strong>The contact form.</strong> Your name, email, company
@@ -267,13 +274,17 @@ function PrivacyPage() {
             one year in your browser, or until you clear it.
           </li>
           <li>
-            <strong>Your account, company profile and check history:</strong>{" "}
+            <strong>
+              Your account, company profiles, client workspaces and check
+              history:
+            </strong>{" "}
             until you delete your account, which you can do under Settings once
-            your plan is cancelled. Deleting it removes your sign-in and your
-            company profile. The billing records of your plan, including the
-            dates and titles of its checks, stay for as long as tax law needs
-            them (in Canada, generally six years). Ask and we'll delete anything
-            the law lets us.
+            your plan is cancelled. Deleting it removes your sign-in, your
+            company profiles and your client workspaces. Archiving a workspace
+            only hides it, so its past checks keep its name. The billing records
+            of your plan, including the dates and titles of its checks, stay for
+            as long as tax law needs them (in Canada, generally six years). Ask
+            and we'll delete anything the law lets us.
           </li>
           <li>
             <strong>

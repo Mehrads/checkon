@@ -45,6 +45,7 @@ function SwitchPlan({ billing }: { billing: BillingOut }) {
       (await BillingService.changePlan({ body: { plan: target.id } })).data,
     onSuccess: (data) => {
       queryClient.setQueryData(["billing"], data)
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] }) // Agency adds client workspaces
       setOpen(false)
       showSuccessToast(`You're now on ${target.name}.`)
     },

@@ -2,10 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { PageHeading } from "@/components/Common/PageHeading"
 import { ProfileForm } from "@/components/Profile/ProfileForm"
+import { Workspaces } from "@/components/Profile/Workspaces"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useBilling } from "@/hooks/useBilling"
-import { useWorkspace } from "@/hooks/useWorkspace"
+import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout/profile")({
   component: Profile,
@@ -18,16 +19,21 @@ export const Route = createFileRoute("/_layout/profile")({
   }),
 })
 
-/** The company profile every check starts from (paid plans). */
+/** The company profile every check starts from (paid plans); on Agency, one per client workspace. */
 function Profile() {
   const { data: billing, isPending } = useBilling()
   const onPlan = Boolean(billing?.plan)
-  const { data: profile } = useWorkspace(onPlan)
+  const { workspaces, current, canCreate } = useWorkspaces(onPlan)
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading eyebrow="Your account" title="Company profile">
-        Each check starts from these facts, so it doesn't ask for them.
+      <PageHeading
+        eyebrow="Your account"
+        title={canCreate ? "Client workspaces" : "Company profile"}
+      >
+        {canCreate
+          ? "A company profile for each client. Checks use the one you pick and share your plan's checks."
+          : "Each check starts from these facts, so it doesn't ask for them."}
       </PageHeading>
       {isPending ? (
         <Skeleton className="h-96 w-full" />
@@ -44,11 +50,21 @@ function Profile() {
             <Link to="/">See the plans</Link>
           </Button>
         </section>
-      ) : !profile ? (
+      ) : !current ? (
         <Skeleton className="h-96 w-full" />
       ) : (
         <>
-          <ProfileForm key={profile.id} profile={profile} />
+          {canCreate && (
+            <Workspaces workspaces={workspaces} current={current} />
+          )}
+          <div className="space-y-3">
+            {canCreate && (
+              <h2 className="font-display text-2xl font-medium tracking-[-0.01em]">
+                Company profile for {current.name}
+              </h2>
+            )}
+            <ProfileForm key={current.id} profile={current} />
+          </div>
           <p className="text-xs text-muted-foreground">
             We store these company facts with your account, and never your
             postings.{" "}

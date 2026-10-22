@@ -6,7 +6,7 @@ import { PageHeading } from "@/components/Common/PageHeading"
 import { Skeleton } from "@/components/ui/skeleton"
 import useAuth from "@/hooks/useAuth"
 import { useBilling, useRefreshBilling } from "@/hooks/useBilling"
-import { useWorkspace } from "@/hooks/useWorkspace"
+import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout/")({
   component: Checks,
@@ -28,7 +28,8 @@ function Checks() {
   const { data: billing, isPending } = useBilling()
   const refresh = useRefreshBilling()
   const onPlan = Boolean(billing?.plan)
-  const { data: profile } = useWorkspace(onPlan)
+  const { current, canCreate } = useWorkspaces(onPlan)
+  const profile = onPlan ? current : undefined
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,14 +47,17 @@ function Checks() {
         layout="app"
         note={onPlan ? PLAN_NOTE : undefined}
         onChecked={refresh}
-        profile={onPlan ? profile : undefined}
+        profile={profile}
+        client={canCreate}
         editProfile={(label) => (
           <Link to="/profile" className="underline underline-offset-4">
             {label}
           </Link>
         )}
       />
-      {(onPlan || billing?.has_billing) && <PastChecks />}
+      {(onPlan || billing?.has_billing) && (
+        <PastChecks workspace={canCreate ? profile : undefined} />
+      )}
     </div>
   )
 }

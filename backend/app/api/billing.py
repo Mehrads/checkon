@@ -158,15 +158,16 @@ class PlanLimits:
         current = allowance(self.session, self.access.customer, self.plan, now)
         return current.end if current.exhausted else None
 
-    def record(self, check_id: str, title: str | None, status: str) -> PaidCheck:
-        """Count a check against the plan. The customer row is locked so two checks at once can't both take
-        the last included check."""
+    def record(self, check_id: str, title: str | None, status: str, workspace_id: uuid.UUID | None = None) -> PaidCheck:
+        """Count a check against the plan, whichever workspace it's for. The customer row is locked so two
+        checks at once can't both take the last included check."""
         now = get_datetime_utc()
         customer = self.session.exec(select(Customer).where(Customer.id == self.customer_id).with_for_update()).one()
         used = allowance(self.session, customer, self.plan, now).used
         check = PaidCheck(
             created_at=now, customer_id=customer.id, user_id=self.access.user.id, check_id=check_id,
             title=title[:255] if title else None, status=status, extra=used >= self.plan.checks,
+            workspace_id=workspace_id,
         )  # fmt: skip
         self.session.add(check)
         self.session.commit()

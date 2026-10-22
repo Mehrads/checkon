@@ -25,8 +25,9 @@ from app.api.billing import (
 from app.api.deps import CurrentUser, OptionalUserDep, SessionDep
 from app.api.free_check import rate_limited, same_origin
 from app.api.stripe_webhook import process_event
+from app.api.workspaces import label
 from app.core.config import settings
-from app.models import Customer, PaidCheck, User, get_datetime_utc
+from app.models import Customer, PaidCheck, User, Workspace, get_datetime_utc
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,8 @@ class PaidCheckPublic(BaseModel):
     status: str
     final_status: str | None
     extra: bool
+    workspace_id: uuid.UUID | None = None  # the client workspace (Agency); archived ones included
+    workspace_name: str | None = None
 
 
 class PaidChecksPublic(BaseModel):
@@ -104,16 +107,30 @@ def read_billing(session: SessionDep, user: CurrentUser) -> Any:
 
 
 @router.get("/billing/checks", response_model=PaidChecksPublic)
-def read_paid_checks(session: SessionDep, user: CurrentUser, skip: int = 0, limit: int = 50) -> Any:
-    """Checks that counted against the plan, newest first. Date, job title and result only, never the posting."""
+def read_paid_checks(
+    session: SessionDep, user: CurrentUser, skip: int = 0, limit: int = 50, workspace_id: uuid.UUID | None = None
+) -> Any:
+    """Checks that counted against the plan, newest first, for all workspaces or one. Date, job title, result
+    and workspace only, never the posting."""
     if user.customer_id is None:
         return PaidChecksPublic(data=[], count=0)
-    mine = col(PaidCheck.customer_id) == user.customer_id
-    count = session.exec(select(func.count()).select_from(PaidCheck).where(mine)).one()
+    mine = [col(PaidCheck.customer_id) == user.customer_id]
+    if workspace_id is not None:
+        mine.append(col(PaidCheck.workspace_id) == workspace_id)
+    count = session.exec(select(func.count()).select_from(PaidCheck).where(*mine)).one()
     rows = session.exec(
-        select(PaidCheck).where(mine).order_by(col(PaidCheck.created_at).desc()).offset(skip).limit(min(limit, 100))
+        select(PaidCheck, Workspace)
+        .join(Workspace, col(PaidCheck.workspace_id) == Workspace.id, isouter=True)
+        .where(*mine)
+        .order_by(col(PaidCheck.created_at).desc())
+        .offset(skip)
+        .limit(min(limit, 100))
     ).all()
-    return PaidChecksPublic(data=[PaidCheckPublic.model_validate(row) for row in rows], count=count)
+    data = [
+        PaidCheckPublic.model_validate(check).model_copy(update={"workspace_name": label(ws) if ws else None})
+        for check, ws in rows
+    ]
+    return PaidChecksPublic(data=data, count=count)
 
 
 @router.post(

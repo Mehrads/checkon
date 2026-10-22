@@ -29,10 +29,16 @@ export function useBilling() {
   })
 }
 
-export function usePaidChecks() {
+/** Checks on the plan, for one client workspace (Agency) or all of them. */
+export function usePaidChecks(workspaceId?: string) {
   return useQuery({
-    queryKey: ["paidChecks"],
-    queryFn: async () => (await BillingService.readPaidChecks()).data,
+    queryKey: ["paidChecks", workspaceId ?? "all"],
+    queryFn: async () =>
+      (
+        await BillingService.readPaidChecks({
+          query: { workspace_id: workspaceId },
+        })
+      ).data,
     enabled: isLoggedIn(),
   })
 }

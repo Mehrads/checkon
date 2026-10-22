@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
+import type { billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -159,7 +159,8 @@ export class BillingService {
     /**
      * Read Paid Checks
      *
-     * Checks that counted against the plan, newest first. Date, job title and result only, never the posting.
+     * Checks that counted against the plan, newest first, for all workspaces or one. Date, job title, result
+     * and workspace only, never the posting.
      */
     public static readPaidChecks<ThrowOnError extends boolean = true>(options?: Options<billingReadPaidChecksData, ThrowOnError>) {
         return (options?.client ?? client).get<billingReadPaidChecksResponses, billingReadPaidChecksErrors, ThrowOnError>({
@@ -226,6 +227,38 @@ export class BillingService {
 
 export class WorkspacesService {
     /**
+     * Read Workspaces
+     *
+     * The customer's open workspaces and the one checks use. Starter has exactly one.
+     */
+    public static readWorkspaces<ThrowOnError extends boolean = true>(options?: Options<workspacesReadWorkspacesData, ThrowOnError>) {
+        return (options?.client ?? client).get<workspacesReadWorkspacesResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/workspaces/',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Workspace
+     *
+     * A workspace for a new client, with an empty company profile. Checks use it from now on.
+     */
+    public static createWorkspace<ThrowOnError extends boolean = true>(options: Options<workspacesCreateWorkspaceData, ThrowOnError>) {
+        return (options.client ?? client).post<workspacesCreateWorkspaceResponses, workspacesCreateWorkspaceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/workspaces/',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
      * Read Current Workspace
      *
      * The company profile the customer's checks use.
@@ -240,9 +273,28 @@ export class WorkspacesService {
     }
     
     /**
+     * Switch Workspace
+     *
+     * Pick the client workspace checks use, on the website and in the extension.
+     */
+    public static switchWorkspace<ThrowOnError extends boolean = true>(options: Options<workspacesSwitchWorkspaceData, ThrowOnError>) {
+        return (options.client ?? client).put<workspacesSwitchWorkspaceResponses, workspacesSwitchWorkspaceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/workspaces/current',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
      * Update Workspace
      *
-     * Change the company profile: the fields sent, such as one answer saved during a check.
+     * Rename a workspace or change its company profile: the fields sent, such as one answer saved during a
+     * check.
      */
     public static updateWorkspace<ThrowOnError extends boolean = true>(options: Options<workspacesUpdateWorkspaceData, ThrowOnError>) {
         return (options.client ?? client).patch<workspacesUpdateWorkspaceResponses, workspacesUpdateWorkspaceErrors, ThrowOnError>({
@@ -254,6 +306,20 @@ export class WorkspacesService {
                 'Content-Type': 'application/json',
                 ...options.headers
             }
+        });
+    }
+    
+    /**
+     * Archive Workspace
+     *
+     * Hide a client's workspace from the switcher and stop using its profile. Its past checks keep its name.
+     */
+    public static archiveWorkspace<ThrowOnError extends boolean = true>(options: Options<workspacesArchiveWorkspaceData, ThrowOnError>) {
+        return (options.client ?? client).post<workspacesArchiveWorkspaceResponses, workspacesArchiveWorkspaceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/workspaces/{workspace_id}/archive',
+            ...options
         });
     }
 }

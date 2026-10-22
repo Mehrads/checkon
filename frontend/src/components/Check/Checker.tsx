@@ -9,8 +9,8 @@ import {
   type CheckOut,
   ChecksService,
   type FinalOut,
-  type ProfileUpdate,
   type WorkspacePublic,
+  type WorkspaceUpdate,
 } from "@/client"
 import {
   ProfileNote,
@@ -55,8 +55,9 @@ const FREE_NOTE =
 
 /** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
  * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
- * check counts against their plan and starts from their company `profile` (the API reads the sign-in);
- * `editProfile` renders the link to change it. `onChecked` runs after each check and after fixes are applied. */
+ * check counts against their plan and starts from their company `profile` (the API reads the sign-in), which
+ * on Agency is the picked `client`'s; `editProfile` renders the link to change it. `onChecked` runs after each
+ * check and after fixes are applied. */
 export function Checker({
   intro,
   layout = "hero",
@@ -64,6 +65,7 @@ export function Checker({
   onChecked,
   profile,
   editProfile,
+  client = false,
 }: {
   intro?: ReactNode
   layout?: "hero" | "app"
@@ -71,6 +73,7 @@ export function Checker({
   onChecked?: () => void
   profile?: WorkspacePublic
   editProfile?: (label: string) => ReactNode
+  client?: boolean
 }) {
   const hero = layout === "hero"
   const [text, setText] = useState("")
@@ -79,7 +82,7 @@ export function Checker({
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [refusal, setRefusal] = useState<string | null>(null)
-  const [toSave, setToSave] = useState<ProfileUpdate>({})
+  const [toSave, setToSave] = useState<WorkspaceUpdate>({})
   const results = useRef<HTMLDivElement>(null)
   const editor = useRef<HTMLDivElement>(null)
 
@@ -99,7 +102,11 @@ export function Checker({
 
   const inspect = useMutation({
     mutationFn: async () =>
-      (await ChecksService.inspectPosting({ body: { text } })).data,
+      (
+        await ChecksService.inspectPosting({
+          body: { text, workspace_id: profile?.id },
+        })
+      ).data,
     onMutate: () => {
       setError(null)
       setRefusal(null)
@@ -191,7 +198,11 @@ export function Checker({
             </p>
             {profile && editProfile && (
               <div className="mt-3">
-                <ProfileNote profile={profile} edit={editProfile} />
+                <ProfileNote
+                  profile={profile}
+                  edit={editProfile}
+                  client={client}
+                />
               </div>
             )}
             <textarea

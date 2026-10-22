@@ -1,17 +1,24 @@
 import { Building2, Check } from "lucide-react"
 import type { ReactNode } from "react"
 
-import type { Answers, ProfileUpdate, WorkspacePublic } from "@/client"
+import type { Answers, WorkspacePublic, WorkspaceUpdate } from "@/client"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { useSaveProfile } from "@/hooks/useWorkspace"
 
 // Shared by the website's checker and the extension's side panel, so links come in as rendered nodes.
 
 /** The profile's facts in a few words each, for the line above the check. */
-export function profileFacts(profile: WorkspacePublic): string[] {
+export function profileFacts(
+  profile: WorkspacePublic,
+  named = false,
+): string[] {
   const threshold = profile.headcount_threshold
   const facts: string[] = []
-  if (profile.employer_name) facts.push(profile.employer_name)
+  if (
+    profile.employer_name &&
+    !(named && profile.employer_name === profile.name)
+  )
+    facts.push(profile.employer_name)
   if (profile.headcount !== null)
     facts.push(`${profile.headcount.toLocaleString()} employees in Ontario`)
   else if (profile.meets_headcount_threshold !== null)
@@ -28,13 +35,16 @@ export function profileFacts(profile: WorkspacePublic): string[] {
   return facts
 }
 
-/** "Using your company profile" with its facts, or an invitation to set one up; `edit` is the link. */
+/** "Using your company profile" with its facts, or an invitation to set one up; `edit` is the link. With
+ * client workspaces (Agency), the note names the client. */
 export function ProfileNote({
   profile,
   edit,
+  client = false,
 }: {
   profile: WorkspacePublic
   edit: (label: string) => ReactNode
+  client?: boolean
 }) {
   return (
     <p className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
@@ -45,14 +55,18 @@ export function ProfileNote({
       {profile.updated_at ? (
         <span>
           <span className="font-medium text-foreground">
-            Using your company profile:
+            {client
+              ? `Using the company profile for ${profile.name}:`
+              : "Using your company profile:"}
           </span>{" "}
-          {profileFacts(profile).join(" · ")}. {edit("Edit")}
+          {profileFacts(profile, client).join(" · ")}. {edit("Edit")}
         </span>
       ) : (
         <span>
-          Save your company's details once and checks stop asking for them.{" "}
-          {edit("Set up your company profile")}
+          {client
+            ? `Checking for ${profile.name}. Save this client's details once and checks stop asking for them.`
+            : "Save your company's details once and checks stop asking for them."}{" "}
+          {edit(client ? "Set up its profile" : "Set up your company profile")}
         </span>
       )}
     </p>
@@ -60,8 +74,8 @@ export function ProfileNote({
 }
 
 /** The answers a company profile can hold: facts about the company, not this posting. */
-export function profileAnswers(answers: Answers): ProfileUpdate {
-  const picked: ProfileUpdate = {}
+export function profileAnswers(answers: Answers): WorkspaceUpdate {
+  const picked: WorkspaceUpdate = {}
   if (typeof answers.uses_ai_in_hiring === "boolean")
     picked.uses_ai_in_hiring = answers.uses_ai_in_hiring
   if (typeof answers.meets_headcount_threshold === "boolean")
@@ -69,7 +83,7 @@ export function profileAnswers(answers: Answers): ProfileUpdate {
   return picked
 }
 
-function describe(answers: ProfileUpdate, threshold: number): string[] {
+function describe(answers: WorkspaceUpdate, threshold: number): string[] {
   const lines: string[] = []
   if (answers.uses_ai_in_hiring !== undefined)
     lines.push(
@@ -94,7 +108,7 @@ export function SaveToProfile({
 }: {
   workspaceId: string
   threshold: number
-  answers: ProfileUpdate
+  answers: WorkspaceUpdate
 }) {
   const save = useSaveProfile()
   return (

@@ -1,8 +1,11 @@
-"""Company profiles against Postgres, with a scripted LLM (no network): the profile fills a customer's check,
-so its questions and the employer-size search are skipped. Run `docker compose up -d db` and migrate first.
+"""Company profiles and client workspaces against Postgres, with a scripted LLM (no network): the profile fills
+a customer's check, so its questions and the employer-size search are skipped; Agency's checks and history are
+scoped to a client workspace and share one allowance; Starter has one profile and no workspaces. Run
+`docker compose up -d db` and migrate first.
 """
 
 import secrets
+import uuid
 from collections.abc import Generator
 from datetime import date
 from decimal import Decimal
@@ -51,12 +54,15 @@ def customer_headers(db: Session, plan: str = "starter") -> dict[str, str]:
     return make_user(db, make_customer(db, plan=plan))[1]
 
 
-def check(client: TestClient, llm: FakeLLM, headers: dict[str, str], employer: str | None = None) -> dict[str, Any]:
+def check(
+    client: TestClient, llm: FakeLLM, headers: dict[str, str], employer: str | None = None,
+    workspace: str | None = None, status: int = 200,
+) -> dict[str, Any]:  # fmt: skip
     """A check of the sample posting, which has no AI statement and names `employer` in its last line."""
     text = f"{POSTING}\nJoin {employer}.\n" if employer else POSTING
     llm.queue(Extraction, extraction(employer=employer)).queue(Classification, labels())
-    response = client.post(f"{API}/inspect", json={"text": text}, headers=headers)
-    assert response.status_code == 200, response.text
+    response = client.post(f"{API}/inspect", json={"text": text, "workspace_id": workspace}, headers=headers)
+    assert response.status_code == status, response.text
     return response.json()
 
 
@@ -165,14 +171,116 @@ def test_deleting_the_last_account_deletes_the_profile(client: TestClient, db: S
     assert db.get(Customer, customer.id) is not None  # billing records stay
 
 
+# Client workspaces (Agency)
+
+
+def create(client: TestClient, headers: dict[str, str], name: str) -> dict[str, Any]:
+    response = client.post(f"{API}/workspaces/", json={"name": name}, headers=headers)
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def patch(client: TestClient, headers: dict[str, str], workspace: dict[str, Any], **fields: Any) -> Any:
+    return client.patch(f"{API}/workspaces/{workspace['id']}", json=fields, headers=headers)
+
+
+def history(client: TestClient, headers: dict[str, str], workspace: dict[str, Any] | None = None) -> list[Any]:
+    params = {"workspace_id": workspace["id"]} if workspace else {}
+    return client.get(f"{API}/billing/checks", params=params, headers=headers).json()["data"]
+
+
+def test_each_client_workspace_has_its_own_profile_and_history(client: TestClient, db: Session, llm: FakeLLM) -> None:
+    headers = customer_headers(db, plan="agency")
+    acme, beta = create(client, headers, "Acme Retail"), create(client, headers, "  Beta   Foods ")
+    assert (acme["name"], beta["name"], beta["employer_name"], beta["updated_at"]) == ("Acme Retail", "Beta Foods", None, None)
+    patch(client, headers, acme, headcount=300, uses_ai_in_hiring=False)
+    patch(client, headers, beta, meets_headcount_threshold=True, uses_ai_in_hiring=True, wording="plain")
+
+    for_acme = check(client, llm, headers, workspace=acme["id"])
+    for_beta = check(client, llm, headers, workspace=beta["id"])
+    assert (for_acme["workspace_id"], for_beta["workspace_id"]) == (acme["id"], beta["id"])
+    assert (result(for_acme, "ON-AI-01")["verdict"], result(for_beta, "ON-AI-01")["verdict"]) == ("pass", "fail")
+    assert for_acme["questions"] == for_beta["questions"] == []
+    check(client, llm, headers)  # no workspace sent: the newest one, which the user last created
+
+    assert [c["workspace_name"] for c in history(client, headers, acme)] == ["Acme Retail"]
+    assert [c["workspace_name"] for c in history(client, headers, beta)] == ["Beta Foods", "Beta Foods"]
+    assert len(history(client, headers)) == 3
+    billing = client.get(f"{API}/billing", headers=headers).json()
+    assert billing["checks_used"] == 3  # one allowance, shared by every workspace
+
+
+def test_switching_renaming_and_archiving(client: TestClient, db: Session, llm: FakeLLM) -> None:
+    headers = customer_headers(db, plan="agency")
+    first = client.get(f"{API}/workspaces/current", headers=headers).json()  # the empty one every customer gets
+    second = create(client, headers, "Beta Foods")
+    listed = client.get(f"{API}/workspaces/", headers=headers).json()
+    assert ([w["id"] for w in listed["data"]], listed["current_id"], listed["can_create"]) == (
+        [first["id"], second["id"]], second["id"], True,
+    )  # fmt: skip
+
+    switched = client.put(f"{API}/workspaces/current", json={"workspace_id": first["id"]}, headers=headers)
+    assert switched.json()["id"] == first["id"]
+    assert client.get(f"{API}/workspaces/current", headers=headers).json()["id"] == first["id"]
+    assert check(client, llm, headers)["workspace_id"] == first["id"]  # the one picked, on any device
+
+    assert patch(client, headers, second, name="Beta Foods Inc.").json()["name"] == "Beta Foods Inc."
+    assert patch(client, headers, second, name="  ").status_code == 422
+    check(client, llm, headers, workspace=second["id"])
+
+    archived = client.post(f"{API}/workspaces/{second['id']}/archive", headers=headers)
+    assert [w["id"] for w in archived.json()["data"]] == [first["id"]]
+    assert history(client, headers, second)[0]["workspace_name"] == "Beta Foods Inc."  # past checks keep the name
+    refused = check(client, llm, headers, workspace=second["id"], status=409)  # a switcher that hasn't refreshed
+    assert "archived" in refused["detail"]
+    assert client.put(f"{API}/workspaces/current", json={"workspace_id": second["id"]}, headers=headers).status_code == 404
+    assert patch(client, headers, second, headcount=5).status_code == 404
+    assert client.post(f"{API}/workspaces/{first['id']}/archive", headers=headers).status_code == 409  # the last one
+
+
+def test_workspaces_belong_to_one_customer(client: TestClient, db: Session, llm: FakeLLM) -> None:
+    mine, theirs = customer_headers(db, plan="agency"), customer_headers(db, plan="agency")
+    other = create(client, theirs, "Their client")
+    assert check(client, llm, mine, workspace=other["id"], status=409)  # never another customer's profile
+    assert patch(client, mine, other, uses_ai_in_hiring=True).status_code == 404
+    assert client.put(f"{API}/workspaces/current", json={"workspace_id": other["id"]}, headers=mine).status_code == 404
+    assert client.post(f"{API}/workspaces/{other['id']}/archive", headers=mine).status_code == 404
+    assert history(client, mine, other) == []
+
+
+def test_starter_has_one_profile_and_no_workspaces(client: TestClient, db: Session, llm: FakeLLM) -> None:
+    headers = customer_headers(db, plan="starter")
+    profile = client.get(f"{API}/workspaces/current", headers=headers).json()
+    assert client.post(f"{API}/workspaces/", json={"name": "Second"}, headers=headers).status_code == 403
+    assert client.put(f"{API}/workspaces/current", json={"workspace_id": profile["id"]}, headers=headers).status_code == 403
+    assert client.post(f"{API}/workspaces/{profile['id']}/archive", headers=headers).status_code == 403
+    listed = client.get(f"{API}/workspaces/", headers=headers).json()
+    assert ([w["id"] for w in listed["data"]], listed["can_create"]) == ([profile["id"]], False)
+    assert check(client, llm, headers, workspace=str(uuid.uuid4()))["workspace_id"] == profile["id"]  # no picking
+
+
+def test_after_a_downgrade_starter_keeps_the_last_workspace(client: TestClient, db: Session, llm: FakeLLM) -> None:
+    customer = make_customer(db, plan="agency")
+    _, headers = make_user(db, customer)
+    client.get(f"{API}/workspaces/current", headers=headers)
+    client_two = create(client, headers, "Client two")
+    customer.plan = "starter"
+    db.add(customer)
+    db.commit()
+    listed = client.get(f"{API}/workspaces/", headers=headers).json()
+    assert ([w["id"] for w in listed["data"]], listed["current_id"]) == ([client_two["id"]], client_two["id"])
+    assert check(client, llm, headers)["workspace_id"] == client_two["id"]
+
+
 @pytest.fixture(autouse=True, scope="module")
 def clean_up(db: Session) -> Generator[None]:
     yield
     db.execute(delete(PaidCheck))
-    db.execute(delete(Workspace))
     for user in db.exec(select(User).where(col(User.customer_id).is_not(None))).all():
         db.delete(user)
     for user in db.exec(select(User).where(col(User.email).like("%@agency.example"))).all():
         db.delete(user)
+    db.commit()
+    db.execute(delete(Workspace))
     db.execute(delete(Customer))
     db.commit()

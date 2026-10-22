@@ -221,6 +221,16 @@ export type ContactIn = {
 };
 
 /**
+ * CurrentIn
+ */
+export type CurrentIn = {
+    /**
+     * Workspace Id
+     */
+    workspace_id: string;
+};
+
+/**
  * CustomRequestIn
  */
 export type CustomRequestIn = {
@@ -360,6 +370,10 @@ export type InspectIn = {
      * Meets Headcount Threshold
      */
     meets_headcount_threshold?: boolean | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id?: string | null;
 };
 
 /**
@@ -506,6 +520,14 @@ export type PaidCheckPublic = {
      * Extra
      */
     extra: boolean;
+    /**
+     * Workspace Id
+     */
+    workspace_id?: string | null;
+    /**
+     * Workspace Name
+     */
+    workspace_name?: string | null;
 };
 
 /**
@@ -608,34 +630,6 @@ export type PrivateUserCreate = {
      * Is Verified
      */
     is_verified?: boolean;
-};
-
-/**
- * ProfileUpdate
- *
- * Only the fields sent are changed. A headcount replaces "25 or more", and the other way round.
- */
-export type ProfileUpdate = {
-    /**
-     * Employer Name
-     */
-    employer_name?: string | null;
-    /**
-     * Headcount
-     */
-    headcount?: number | null;
-    /**
-     * Meets Headcount Threshold
-     */
-    meets_headcount_threshold?: boolean | null;
-    /**
-     * Uses Ai In Hiring
-     */
-    uses_ai_in_hiring?: boolean | null;
-    /**
-     * Wording
-     */
-    wording?: 'formal' | 'plain';
 };
 
 /**
@@ -1167,6 +1161,16 @@ export type Week = {
 };
 
 /**
+ * WorkspaceCreate
+ */
+export type WorkspaceCreate = {
+    /**
+     * Name
+     */
+    name: string;
+};
+
+/**
  * WorkspacePublic
  */
 export type WorkspacePublic = {
@@ -1174,6 +1178,10 @@ export type WorkspacePublic = {
      * Id
      */
     id: string;
+    /**
+     * Name
+     */
+    name: string;
     /**
      * Employer Name
      */
@@ -1202,6 +1210,56 @@ export type WorkspacePublic = {
      * Headcount Threshold
      */
     headcount_threshold: number;
+};
+
+/**
+ * WorkspaceUpdate
+ *
+ * Only the fields sent are changed. A headcount replaces "25 or more", and the other way round.
+ */
+export type WorkspaceUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Employer Name
+     */
+    employer_name?: string | null;
+    /**
+     * Headcount
+     */
+    headcount?: number | null;
+    /**
+     * Meets Headcount Threshold
+     */
+    meets_headcount_threshold?: boolean | null;
+    /**
+     * Uses Ai In Hiring
+     */
+    uses_ai_in_hiring?: boolean | null;
+    /**
+     * Wording
+     */
+    wording?: 'formal' | 'plain';
+};
+
+/**
+ * WorkspacesPublic
+ */
+export type WorkspacesPublic = {
+    /**
+     * Data
+     */
+    data: Array<WorkspacePublic>;
+    /**
+     * Current Id
+     */
+    current_id: string;
+    /**
+     * Can Create
+     */
+    can_create: boolean;
 };
 
 export type checksInspectPostingData = {
@@ -1432,6 +1490,10 @@ export type billingReadPaidChecksData = {
          * Limit
          */
         limit?: number;
+        /**
+         * Workspace Id
+         */
+        workspace_id?: string | null;
     };
     url: '/api/v1/billing/checks';
 };
@@ -1520,6 +1582,47 @@ export type billingChangePlanResponses = {
 
 export type billingChangePlanResponse = billingChangePlanResponses[keyof billingChangePlanResponses];
 
+export type workspacesReadWorkspacesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/workspaces/';
+};
+
+export type workspacesReadWorkspacesResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacesPublic;
+};
+
+export type workspacesReadWorkspacesResponse = workspacesReadWorkspacesResponses[keyof workspacesReadWorkspacesResponses];
+
+export type workspacesCreateWorkspaceData = {
+    body: WorkspaceCreate;
+    path?: never;
+    query?: never;
+    url: '/api/v1/workspaces/';
+};
+
+export type workspacesCreateWorkspaceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type workspacesCreateWorkspaceError = workspacesCreateWorkspaceErrors[keyof workspacesCreateWorkspaceErrors];
+
+export type workspacesCreateWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    201: WorkspacePublic;
+};
+
+export type workspacesCreateWorkspaceResponse = workspacesCreateWorkspaceResponses[keyof workspacesCreateWorkspaceResponses];
+
 export type workspacesReadCurrentWorkspaceData = {
     body?: never;
     path?: never;
@@ -1536,8 +1639,33 @@ export type workspacesReadCurrentWorkspaceResponses = {
 
 export type workspacesReadCurrentWorkspaceResponse = workspacesReadCurrentWorkspaceResponses[keyof workspacesReadCurrentWorkspaceResponses];
 
+export type workspacesSwitchWorkspaceData = {
+    body: CurrentIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/workspaces/current';
+};
+
+export type workspacesSwitchWorkspaceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type workspacesSwitchWorkspaceError = workspacesSwitchWorkspaceErrors[keyof workspacesSwitchWorkspaceErrors];
+
+export type workspacesSwitchWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacePublic;
+};
+
+export type workspacesSwitchWorkspaceResponse = workspacesSwitchWorkspaceResponses[keyof workspacesSwitchWorkspaceResponses];
+
 export type workspacesUpdateWorkspaceData = {
-    body: ProfileUpdate;
+    body: WorkspaceUpdate;
     path: {
         /**
          * Workspace Id
@@ -1565,6 +1693,36 @@ export type workspacesUpdateWorkspaceResponses = {
 };
 
 export type workspacesUpdateWorkspaceResponse = workspacesUpdateWorkspaceResponses[keyof workspacesUpdateWorkspaceResponses];
+
+export type workspacesArchiveWorkspaceData = {
+    body?: never;
+    path: {
+        /**
+         * Workspace Id
+         */
+        workspace_id: string;
+    };
+    query?: never;
+    url: '/api/v1/workspaces/{workspace_id}/archive';
+};
+
+export type workspacesArchiveWorkspaceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type workspacesArchiveWorkspaceError = workspacesArchiveWorkspaceErrors[keyof workspacesArchiveWorkspaceErrors];
+
+export type workspacesArchiveWorkspaceResponses = {
+    /**
+     * Successful Response
+     */
+    200: WorkspacesPublic;
+};
+
+export type workspacesArchiveWorkspaceResponse = workspacesArchiveWorkspaceResponses[keyof workspacesArchiveWorkspaceResponses];
 
 export type statsReadStatsData = {
     body?: never;

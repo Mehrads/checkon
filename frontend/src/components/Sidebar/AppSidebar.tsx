@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
 import { useBilling } from "@/hooks/useBilling"
+import { useWorkspaces } from "@/hooks/useWorkspace"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
 
@@ -18,11 +19,18 @@ const baseItems: Item[] = [{ icon: Home, title: "Checks", path: "/" }]
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
   const { data: billing } = useBilling()
+  const { canCreate } = useWorkspaces(Boolean(billing?.plan))
 
   const items = [
     ...baseItems,
     ...(billing?.plan
-      ? [{ icon: Building2, title: "Company profile", path: "/profile" }]
+      ? [
+          {
+            icon: Building2,
+            title: canCreate ? "Client workspaces" : "Company profile",
+            path: "/profile",
+          },
+        ]
       : []),
     ...(currentUser?.is_superuser
       ? [

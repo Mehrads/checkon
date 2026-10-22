@@ -8,7 +8,7 @@ import {
   type CheckOut,
   ChecksService,
   type FinalOut,
-  type ProfileUpdate,
+  type WorkspaceUpdate,
 } from "@/client"
 import { Findings } from "@/components/Check/Findings"
 import { type Choices, defaultChoices, Fixes } from "@/components/Check/Fixes"
@@ -21,10 +21,11 @@ import {
   profileAnswers,
   SaveToProfile,
 } from "@/components/Profile/ProfileNote"
+import { WorkspaceSwitcher } from "@/components/Profile/WorkspaceSwitcher"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
-import { useWorkspace } from "@/hooks/useWorkspace"
+import { useWorkspaces } from "@/hooks/useWorkspace"
 import { AccountBar, SignIn, useAccount } from "./Account"
 import { type PagePosting, readFromPage, writeToPage } from "./page"
 
@@ -56,8 +57,8 @@ function errorMessage(error: Error): string {
 export function Panel() {
   const account = useAccount()
   const onPlan = Boolean(account.billing?.plan)
-  const workspace = useWorkspace(onPlan)
-  const profile = onPlan ? workspace.data : undefined
+  const { workspaces, current, canCreate } = useWorkspaces(onPlan)
+  const profile = onPlan ? current : undefined
   const [loggingIn, setLoggingIn] = useState(false)
   const [text, setText] = useState("")
   const [posting, setPosting] = useState<PagePosting | null>(null)
@@ -67,7 +68,7 @@ export function Panel() {
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [toSave, setToSave] = useState<ProfileUpdate>({})
+  const [toSave, setToSave] = useState<WorkspaceUpdate>({})
   const results = useRef<HTMLDivElement>(null)
 
   const read = useCallback(async (fallback = "") => {
@@ -138,7 +139,11 @@ export function Panel() {
 
   const inspect = useMutation({
     mutationFn: async () =>
-      (await ChecksService.inspectPosting({ body: { text } })).data,
+      (
+        await ChecksService.inspectPosting({
+          body: { text, workspace_id: profile?.id },
+        })
+      ).data,
     onMutate: () => {
       setError(null)
       setCheck(null)
@@ -220,6 +225,17 @@ export function Panel() {
         <AccountBar account={account} onLogIn={() => setLoggingIn(true)} />
       )}
 
+      {profile && canCreate && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Checking for</span>
+          <WorkspaceSwitcher
+            workspaces={workspaces}
+            current={profile}
+            className="flex-1 max-w-none"
+          />
+        </div>
+      )}
+
       <section className="rounded-xl border bg-card p-4 shadow-sm">
         <label htmlFor="posting" className="text-sm font-medium">
           Job posting
@@ -237,6 +253,7 @@ export function Panel() {
           <div className="mt-2">
             <ProfileNote
               profile={profile}
+              client={canCreate}
               edit={(label) => (
                 <a
                   href={`${SITE}/profile`}

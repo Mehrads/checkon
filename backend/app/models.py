@@ -54,6 +54,10 @@ class User(UserBase, table=True):
     customer_id: uuid.UUID | None = Field(
         default=None, foreign_key="customer.id", ondelete="SET NULL", index=True
     )
+    # The client workspace this user last picked (Agency); None means the customer's first
+    workspace_id: uuid.UUID | None = Field(
+        default=None, foreign_key="workspace.id", ondelete="SET NULL"
+    )
 
 
 # Properties to return via API, id is always required
@@ -266,17 +270,21 @@ class PaidCheck(SQLModel, table=True):
     final_status: str | None = Field(default=None, max_length=32)  # after the fixes were applied
     extra: bool = False  # past the plan's checks for the period, so billed at the extra-check price
     reported_at: datetime | None = None  # when an extra check was sent to Stripe's meter
+    workspace_id: uuid.UUID | None = Field(default=None, foreign_key="workspace.id", ondelete="SET NULL", index=True)
 
 
 class Workspace(SQLModel, table=True):
     """The company a customer checks postings for, and its company profile (PRD FR2): facts every check starts
-    from, so the check doesn't ask or search for them. Company facts only, never posting text. None means not
-    given, and the check asks or searches as it does without a profile.
+    from, so the check doesn't ask or search for them. Starter has one; Agency has one per client (FR10), and
+    the plan's checks are shared by all of them. Company facts only, never posting text. None means not given,
+    and the check asks or searches as it does without a profile.
     """
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime = Field(default_factory=get_datetime_utc)
     customer_id: uuid.UUID = Field(foreign_key="customer.id", nullable=False, ondelete="CASCADE", index=True)
+    name: str | None = Field(default=None, max_length=255)  # the client's name in the switcher; None: the employer's
+    archived_at: datetime | None = None  # hidden from the switcher; its checks keep the tag
     employer_name: str | None = Field(default=None, max_length=255)  # searched for the headcount when none is given
     # Employees in Ontario on the day of posting, part-time, casual and on leave included
     headcount: int | None = None

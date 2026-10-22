@@ -125,6 +125,7 @@ class InspectIn(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_POSTING_CHARS)
     # Left empty by the free check, which looks the employer up. A customer's company profile fills it in.
     meets_headcount_threshold: bool | None = None
+    workspace_id: uuid.UUID | None = None  # Agency: the client workspace picked in the switcher
 
 
 class CheckIn(BaseModel):
@@ -256,7 +257,7 @@ def inspect_posting(
         _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
     # A customer's check starts from their company profile: its facts aren't asked or searched for.
-    workspace = current_workspace(session, plan.access.customer) if plan else None
+    workspace = current_workspace(session, plan.access, body.workspace_id) if plan else None
     ctx = profile_context(workspace) if workspace else Context()
     if body.meets_headcount_threshold is not None:
         ctx = ctx.model_copy(update={"headcount": None, "meets_headcount_threshold": body.meets_headcount_threshold})
@@ -279,7 +280,7 @@ def inspect_posting(
     ))  # fmt: skip
     if plan:
         title = inspection.facts.title.value if inspection.facts.title else None
-        plan.record(state.id, title, inspection.report.status.value)
+        plan.record(state.id, title, inspection.report.status.value, state.workspace_id)
         if meter is not None:  # extra checks go to Stripe's meter after the response
             background.add_task(report_extra_checks_later, meter, plan.customer_id)
     usage.record(

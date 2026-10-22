@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from "react"
 
-import type { ProfileUpdate, WorkspacePublic } from "@/client"
+import type { WorkspacePublic, WorkspaceUpdate } from "@/client"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LoadingButton } from "@/components/ui/loading-button"
@@ -79,7 +79,7 @@ export function ProfileForm({ profile }: { profile: WorkspacePublic }) {
     size !== "number" || (headcount !== "" && Number.isInteger(count))
 
   const submit = () => {
-    const body: ProfileUpdate = {
+    const body: WorkspaceUpdate = {
       employer_name: employer,
       headcount: size === "number" ? count : null,
       meets_headcount_threshold:

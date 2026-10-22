@@ -379,8 +379,7 @@ export function ForTeams() {
             </p>
             <ul className="mt-6 space-y-3 border-l-2 border-brand pl-5">
               <li>
-                A workspace per client, checked against that client's facts{" "}
-                <Soon />
+                A workspace per client, checked against that client's facts
               </li>
               <li>
                 A dated archive of every approved posting <Soon />
@@ -458,7 +457,7 @@ const PLANS: Plan[] = [
     note: "Billed monthly, cancel anytime. Extra checks $1 each.",
     features: [
       "300 checks a month",
-      { text: "A workspace per client", soon: true },
+      "A workspace per client",
       { text: "Archive of approved postings", soon: true },
     ],
     cta: { label: "Subscribe", interest: "agency", checkout: "agency" },
