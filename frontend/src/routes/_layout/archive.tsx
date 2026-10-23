@@ -70,7 +70,7 @@ function Archive() {
       savedFrom,
       savedTo,
     },
-    Boolean(billing?.has_billing),
+    Boolean(billing), // the API answers 403 to accounts without a customer: no plan, now or before
   )
   const open = (id?: string) =>
     navigate({ search: id ? { posting: id } : {}, replace: !id })
@@ -110,8 +110,7 @@ function Archive() {
 
       {billingPending ? (
         <Skeleton className="h-48 w-full" />
-      ) : !billing?.has_billing ||
-        (error && apiStatus(error) === 403 && !data) ? (
+      ) : error && apiStatus(error) === 403 && !data ? (
         <section className="rounded-xl border bg-card p-5 shadow-sm sm:p-6">
           <h2 className="font-display text-2xl font-medium">
             The archive comes with a paid plan

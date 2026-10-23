@@ -11,3 +11,5 @@ Give every listed question exactly one label, using the question's number, with 
 When a question sits between two labels, choose the stricter one: violation over borderline, borderline over ok.
 
 Contact details (name, email, phone, address, city), a résumé or cover letter upload, a link to a profile or portfolio, and questions about the job's location, schedule, start date or pay expectations say nothing about experience: label them ok.
+
+Experience tied only to another country ("your experience running UK payroll") isn't Canadian experience: label it ok.

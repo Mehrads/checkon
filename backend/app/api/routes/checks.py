@@ -50,7 +50,7 @@ from app.api.free_check import (
     visitor_cookie,
 )
 from app.api.posting_link import REFUSALS as LINK_REFUSALS
-from app.api.posting_link import LinkReader, LinkRefused
+from app.api.posting_link import FetchedPosting, LinkReader, LinkRefused
 from app.api.research import BY_ID, ResearchQuestion, question_for
 from app.api.usage import PostgresUsage, Usage, elapsed_ms, visitor_hash
 from app.api.workspaces import current_workspace, profile_context, wording
@@ -300,7 +300,7 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 def _read_link(
     url: str, request: Request, reader: LinkReader, limiter: RateLimiter, usage: Usage, who: str | None,
     plan: str | None, started: float,
-) -> tuple[str, str]:  # fmt: skip
+) -> FetchedPosting:  # fmt: skip
     """The posting text on the page and the page's address. A link that can't be read uses no check."""
 
     def refuse(status: int, reason: str, message: str) -> HTTPException:
@@ -316,7 +316,17 @@ def _read_link(
     if len(page.text) > MAX_POSTING_CHARS:
         raise refuse(422, "too_long", f"That page has more than {MAX_POSTING_CHARS:,} characters of text. "
                                       "Paste just the posting's text instead.")  # fmt: skip
-    return page.text, page.url
+    return page
+
+
+def _link_refusal(error: InputRefused, page: FetchedPosting) -> tuple[str, str]:
+    """A linked page that isn't one posting, said about the link: often a closed posting whose link now
+    opens the employer's list of jobs."""
+    found = "a list of jobs, not one posting" if error.reason == "multiple_postings" else "a page that isn't a job posting"
+    closed = " The posting may have closed." if page.redirected else ""
+    return "link_not_a_posting", (
+        f"That link opens {found}.{closed} Check the link, or paste the posting's text instead."
+    )
 
 
 @router.post("/inspect", response_model=CheckOut)
@@ -333,9 +343,10 @@ def inspect_posting(
         visitor = None
         _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
-    text, url = body.text or "", None
+    text, url, page = body.text or "", None, None
     if body.url is not None:  # after the quota, so a visitor with no check left can't make us fetch pages
-        text, url = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started)
+        page = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started)
+        text, url = page.text, page.url
     # A customer's check starts from their company profile: its facts aren't asked or searched for.
     workspace = current_workspace(session, plan.access, body.workspace_id) if plan else None
     ctx = profile_context(workspace) if workspace else Context()
@@ -345,8 +356,11 @@ def inspect_posting(
     try:
         inspection = inspect(text, ctx, today, pack, llm, sizes=sizes, employer=employer)
     except InputRefused as error:  # no credit used
-        usage.record("refused", visitor=who, status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
-        raise refused(422, error.reason, error.message)
+        reason, message = error.reason, error.message
+        if page is not None and reason in ("multiple_postings", "not_a_posting"):
+            reason, message = _link_refusal(error, page)
+        usage.record("refused", visitor=who, status=reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
+        raise refused(422, reason, message)
     except LLMError as error:
         usage.record("failed", visitor=who, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid)
         raise _llm_failure(error)

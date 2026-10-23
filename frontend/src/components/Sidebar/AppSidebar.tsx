@@ -40,8 +40,9 @@ export function AppSidebar() {
           },
         ]
       : []),
-    // Still there after the plan ends: the archive stays readable
-    ...(billing?.has_billing
+    // Still there after the plan ends: the archive stays readable. A complimentary account has a plan but no
+    // Stripe customer (has_billing).
+    ...(billing?.plan || billing?.has_billing
       ? [{ icon: Archive, title: "Archive", path: "/archive" }]
       : []),
     ...(currentUser?.is_superuser
