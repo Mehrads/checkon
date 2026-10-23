@@ -12,6 +12,10 @@ When a sentence sits between two labels, choose the stricter one: violation over
 
 A job location or where the work happens ("Mississauga, Ontario (hybrid)", "Remote within Ontario") says nothing about experience: label it ok.
 
+A sentence about the employer rather than the applicant (an award, its offices, customers or history) asks nothing of applicants: label it ok, even when it names Canada.
+
+Experience tied only to another country ("UK payroll", "US tax filings") isn't Canadian experience: label it ok.
+
 ## Task vacancy
 
 {{ON-VAC-01}}

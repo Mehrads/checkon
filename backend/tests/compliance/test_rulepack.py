@@ -10,7 +10,7 @@ PACK_DIR = RULEPACKS_DIR / "CA-ON"
 
 
 def test_pack_label() -> None:
-    assert PACK.label == "CA-ON@1.2.0"
+    assert PACK.label == "CA-ON@1.2.1"
 
 
 def test_every_rule_cites_a_section() -> None:

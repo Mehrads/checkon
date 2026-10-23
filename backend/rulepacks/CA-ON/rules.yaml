@@ -11,7 +11,7 @@
 # messages and classifier examples. Only s. 8.3 (1) names the form; ss. 8.2, 8.4 and 8.5 say "in the posting".
 
 jurisdiction: CA-ON
-version: 1.2.0
+version: 1.2.1
 
 # Shared by every rule; a rule's own params override these.
 params:
@@ -191,7 +191,7 @@ rules:
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
-    version: 1.2.0
+    version: 1.2.1
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -226,6 +226,8 @@ rules:
       - {text: "Registered with the College of Nurses of Ontario", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
       - {text: "Legally eligible to work in Canada", label: ok, reason: "Work authorization, not experience."}
       - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
+      - {text: "Experience running UK and Irish payroll", label: ok, reason: "Experience with another country's payroll that the job needs; it isn't Canadian experience."}
+      - {text: "Named one of Canada's Best Workplaces in 2026", label: ok, reason: "An award for the employer, not something asked of applicants."}
     # The same prohibition on the application form: each question is read with its answer options. A required
     # question about Canadian experience fails; an optional one is a warning the employer can keep (Technical
     # Design §4, inputs).
@@ -248,6 +250,7 @@ rules:
         - {text: "Are you legally entitled to work in Canada? Options: Yes | No", label: ok, reason: "Work authorization, not experience."}
         - {text: "Are you registered with the College of Nurses of Ontario?", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
         - {text: "How many years of payroll experience do you have?", label: ok, reason: "Experience with no condition on where it was gained."}
+        - {text: "Briefly describe your experience running UK payroll", label: ok, reason: "Experience with another country's payroll that the job needs; it isn't Canadian experience."}
         - {text: "City of residence", label: ok, reason: "Contact details, not experience."}
         - {text: "Can you work on site in Mississauga three days a week?", label: ok, reason: "About the job's location and schedule, not experience."}
     tests: [tests/cex.yaml]
