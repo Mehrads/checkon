@@ -12,7 +12,7 @@ from sqlmodel import Session, col, delete, func, select
 
 from app.api.billing import PlanAccess
 from app.compliance.models import Context
-from app.models import Customer, User, Workspace
+from app.models import Audit, Customer, User, Workspace
 
 Wording = Literal["formal", "plain"]
 MAX_WORKSPACES = 100  # open at once, per customer
@@ -74,11 +74,12 @@ def wording(workspace: Workspace | None) -> Wording:
 
 
 def forget_profiles(session: Session, customer_id: uuid.UUID | None) -> None:
-    """When a customer's last user deletes their account, their company profiles go too. The billing records
-    stay, as the privacy page says. Call after deleting the user, before committing."""
+    """When a customer's last user deletes their account, their company profiles and careers page audits go too.
+    The billing records stay, as the privacy page says. Call after deleting the user, before committing."""
     if customer_id is None:
         return
     session.flush()
     users = session.exec(select(func.count()).select_from(User).where(User.customer_id == customer_id)).one()
     if users == 0:
+        session.exec(delete(Audit).where(col(Audit.customer_id) == customer_id))
         session.exec(delete(Workspace).where(col(Workspace.customer_id) == customer_id))

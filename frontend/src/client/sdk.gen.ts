@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, payConfirmPayData, payConfirmPayErrors, payConfirmPayResponses, payDeleteBandData, payDeleteBandErrors, payDeleteBandResponses, payReadBandsData, payReadBandsErrors, payReadBandsResponses, paySuggestPayData, paySuggestPayErrors, paySuggestPayResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
+import type { auditsCheckPostingData, auditsCheckPostingErrors, auditsCheckPostingResponses, auditsPreviewAuditData, auditsPreviewAuditErrors, auditsPreviewAuditResponses, auditsReadAuditData, auditsReadAuditErrors, auditsReadAuditResponses, auditsReadAuditsData, auditsReadAuditsErrors, auditsReadAuditsResponses, auditsReadPostingCheckData, auditsReadPostingCheckErrors, auditsReadPostingCheckResponses, auditsStartAuditData, auditsStartAuditErrors, auditsStartAuditResponses, billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, payConfirmPayData, payConfirmPayErrors, payConfirmPayResponses, payDeleteBandData, payDeleteBandErrors, payDeleteBandResponses, payReadBandsData, payReadBandsErrors, payReadBandsResponses, paySuggestPayData, paySuggestPayErrors, paySuggestPayResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -385,6 +385,101 @@ export class PayService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/pay/bands/{band_id}',
+            ...options
+        });
+    }
+}
+
+export class AuditsService {
+    /**
+     * Preview Audit
+     *
+     * The open postings on the board or careers page, for work in Ontario or anywhere in Canada, and the checks
+     * left in the plan. Nothing is checked or charged yet.
+     */
+    public static previewAudit<ThrowOnError extends boolean = true>(options: Options<auditsPreviewAuditData, ThrowOnError>) {
+        return (options.client ?? client).post<auditsPreviewAuditResponses, auditsPreviewAuditErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/preview',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Read Audits
+     *
+     * The customer's audits, newest first, for one workspace or all of them.
+     */
+    public static readAudits<ThrowOnError extends boolean = true>(options?: Options<auditsReadAuditsData, ThrowOnError>) {
+        return (options?.client ?? client).get<auditsReadAuditsResponses, auditsReadAuditsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/',
+            ...options
+        });
+    }
+    
+    /**
+     * Start Audit
+     *
+     * Start an audit of the postings picked from a preview. Their checks run one request each, from the browser:
+     * POST /audits/{id}/postings/{posting_id}/check.
+     */
+    public static startAudit<ThrowOnError extends boolean = true>(options: Options<auditsStartAuditData, ThrowOnError>) {
+        return (options.client ?? client).post<auditsStartAuditResponses, auditsStartAuditErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Check Posting
+     *
+     * Check one posting of the audit against the plan: read it from the board, then check it like a pasted posting
+     * for the audit's workspace. A posting already checked whose full check is still open isn't checked again.
+     */
+    public static checkPosting<ThrowOnError extends boolean = true>(options: Options<auditsCheckPostingData, ThrowOnError>) {
+        return (options.client ?? client).post<auditsCheckPostingResponses, auditsCheckPostingErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/{audit_id}/postings/{posting_id}/check',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Audit
+     */
+    public static readAudit<ThrowOnError extends boolean = true>(options: Options<auditsReadAuditData, ThrowOnError>) {
+        return (options.client ?? client).get<auditsReadAuditResponses, auditsReadAuditErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/{audit_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Posting Check
+     *
+     * A checked posting's full check, with its findings and fixes, while it's in memory (an hour).
+     */
+    public static readPostingCheck<ThrowOnError extends boolean = true>(options: Options<auditsReadPostingCheckData, ThrowOnError>) {
+        return (options.client ?? client).get<auditsReadPostingCheckResponses, auditsReadPostingCheckErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/audits/{audit_id}/postings/{posting_id}',
             ...options
         });
     }

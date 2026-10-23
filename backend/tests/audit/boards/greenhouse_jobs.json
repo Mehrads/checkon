@@ -1,0 +1,236 @@
+{
+ "jobs": [
+  {
+   "absolute_url": "https://boards.greenhouse.io/faire/jobs/8877587002?gh_jid=8877587002",
+   "internal_job_id": 6554934002,
+   "location": {
+    "name": "Kitchener-Waterloo, ON"
+   },
+   "metadata": [
+    {
+     "id": 4008562002,
+     "name": "Employment Type",
+     "value": "Temporary",
+     "value_type": "single_select"
+    }
+   ],
+   "id": 8877587002,
+   "updated_at": "2026-10-21T14:17:03-04:00",
+   "requisition_id": "1531",
+   "title": "Customer Experience Associate (3 Month Fixed-Term Contract)",
+   "company_name": "Faire",
+   "first_published": "2026-10-08T12:21:32-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+   "departments": [
+    {
+     "id": 4095738002,
+     "name": "Customer Success",
+     "child_ids": [],
+     "parent_id": 4045910002
+    }
+   ],
+   "offices": [
+    {
+     "id": 4000905002,
+     "name": "Kitchener-Waterloo, ON",
+     "location": "Waterloo, Ontario, Canada",
+     "child_ids": [],
+     "parent_id": 4049475002
+    },
+    {
+     "id": 4037984002,
+     "name": "Toronto, ON",
+     "location": "Toronto, Ontario, Canada",
+     "child_ids": [],
+     "parent_id": 4049475002
+    }
+   ],
+   "ai_disclaimer": null,
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8877587002/ai_opt_out"
+  },
+  {
+   "absolute_url": "https://boards.greenhouse.io/faire/jobs/8836851002?gh_jid=8836851002",
+   "internal_job_id": 6437600002,
+   "location": {
+    "name": "Remote - US"
+   },
+   "metadata": [
+    {
+     "id": 4008562002,
+     "name": "Employment Type",
+     "value": "Regular",
+     "value_type": "single_select"
+    }
+   ],
+   "id": 8836851002,
+   "updated_at": "2026-10-15T12:36:10-04:00",
+   "requisition_id": "1429",
+   "title": "Director, Global Equity",
+   "company_name": "Faire",
+   "first_published": "2026-09-23T10:06:02-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+   "departments": [
+    {
+     "id": 4064998002,
+     "name": "Accounting",
+     "child_ids": [],
+     "parent_id": null
+    }
+   ],
+   "offices": [
+    {
+     "id": 4000970002,
+     "name": "San Francisco, CA",
+     "location": "San Francisco, California, United States",
+     "child_ids": [],
+     "parent_id": 4049474002
+    },
+    {
+     "id": 4049474002,
+     "name": "USA",
+     "location": null,
+     "child_ids": [
+      4125760002,
+      4000970002,
+      4037708002,
+      4042965002,
+      4043067002,
+      4019098002
+     ],
+     "parent_id": null
+    }
+   ],
+   "ai_disclaimer": null,
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8836851002/ai_opt_out"
+  },
+  {
+   "absolute_url": "https://boards.greenhouse.io/faire/jobs/8821336002?gh_jid=8821336002",
+   "internal_job_id": 6529094002,
+   "location": {
+    "name": "Toronto, ON"
+   },
+   "metadata": [
+    {
+     "id": 4008562002,
+     "name": "Employment Type",
+     "value": "Regular",
+     "value_type": "single_select"
+    }
+   ],
+   "id": 8821336002,
+   "updated_at": "2026-09-18T17:11:05-04:00",
+   "requisition_id": "1504",
+   "title": "Growth Platform, Marketing Engineer",
+   "company_name": "Faire",
+   "first_published": "2026-09-18T17:11:05-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+   "departments": [
+    {
+     "id": 4002177002,
+     "name": "Marketing",
+     "child_ids": [
+      4105703002
+     ],
+     "parent_id": null
+    }
+   ],
+   "offices": [
+    {
+     "id": 4043067002,
+     "name": "New York City, NY",
+     "location": "New York, New York, United States",
+     "child_ids": [],
+     "parent_id": 4049474002
+    },
+    {
+     "id": 4000970002,
+     "name": "San Francisco, CA",
+     "location": "San Francisco, California, United States",
+     "child_ids": [],
+     "parent_id": 4049474002
+    },
+    {
+     "id": 4037984002,
+     "name": "Toronto, ON",
+     "location": "Toronto, Ontario, Canada",
+     "child_ids": [],
+     "parent_id": 4049475002
+    }
+   ],
+   "ai_disclaimer": null,
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8821336002/ai_opt_out"
+  },
+  {
+   "absolute_url": "https://boards.greenhouse.io/faire/jobs/8818108002?gh_jid=8818108002",
+   "internal_job_id": 6529094002,
+   "location": {
+    "name": "New York City, NY; San Francisco, CA"
+   },
+   "metadata": [
+    {
+     "id": 4008562002,
+     "name": "Employment Type",
+     "value": "Regular",
+     "value_type": "single_select"
+    }
+   ],
+   "id": 8818108002,
+   "updated_at": "2026-09-18T12:19:05-04:00",
+   "requisition_id": "1504",
+   "title": "Growth Platform, Marketing Engineer",
+   "company_name": "Faire",
+   "first_published": "2026-09-18T09:09:32-04:00",
+   "language": "en",
+   "application_deadline": null,
+   "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+   "departments": [
+    {
+     "id": 4002177002,
+     "name": "Marketing",
+     "child_ids": [
+      4105703002
+     ],
+     "parent_id": null
+    }
+   ],
+   "offices": [
+    {
+     "id": 4043067002,
+     "name": "New York City, NY",
+     "location": "New York, New York, United States",
+     "child_ids": [],
+     "parent_id": 4049474002
+    },
+    {
+     "id": 4000970002,
+     "name": "San Francisco, CA",
+     "location": "San Francisco, California, United States",
+     "child_ids": [],
+     "parent_id": 4049474002
+    },
+    {
+     "id": 4037984002,
+     "name": "Toronto, ON",
+     "location": "Toronto, Ontario, Canada",
+     "child_ids": [],
+     "parent_id": 4049475002
+    }
+   ],
+   "ai_disclaimer": null,
+   "include_ai_disclaimer": false,
+   "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8818108002/ai_opt_out"
+  }
+ ],
+ "meta": {
+  "total": 4
+ }
+}

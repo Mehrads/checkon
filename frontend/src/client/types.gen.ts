@@ -72,6 +72,153 @@ export type AnswersIn = {
 };
 
 /**
+ * AuditPostingPublic
+ */
+export type AuditPostingPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Location
+     */
+    location: string | null;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Where
+     */
+    where: 'ontario' | 'canada';
+    /**
+     * Status
+     */
+    status: 'queued' | 'checking' | 'compliant' | 'not_compliant' | 'needs_input' | 'not_applicable' | 'refused' | 'failed';
+    /**
+     * Issues
+     */
+    issues: Array<Issue>;
+    /**
+     * Note
+     */
+    note: string | null;
+    /**
+     * Checked At
+     */
+    checked_at: string | null;
+    /**
+     * Check Open
+     */
+    check_open: boolean;
+    final_status?: Status | null;
+};
+
+/**
+ * AuditPublic
+ */
+export type AuditPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Source
+     */
+    source: 'greenhouse' | 'lever' | 'ashby' | 'smartrecruiters' | 'page';
+    /**
+     * Board Name
+     */
+    board_name: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id: string | null;
+    /**
+     * Workspace Name
+     */
+    workspace_name: string | null;
+    /**
+     * Found
+     */
+    found: number;
+    /**
+     * Outside Ontario
+     */
+    outside_ontario: number;
+    /**
+     * Postings
+     */
+    postings: Array<AuditPostingPublic>;
+};
+
+/**
+ * AuditSummary
+ */
+export type AuditSummary = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Board Name
+     */
+    board_name: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id: string | null;
+    /**
+     * Workspace Name
+     */
+    workspace_name: string | null;
+    /**
+     * Postings
+     */
+    postings: number;
+    /**
+     * Statuses
+     */
+    statuses: {
+        [key: string]: number;
+    };
+};
+
+/**
+ * AuditsPublic
+ */
+export type AuditsPublic = {
+    /**
+     * Data
+     */
+    data: Array<AuditSummary>;
+    /**
+     * Count
+     */
+    count: number;
+};
+
+/**
  * BandPublic
  */
 export type BandPublic = {
@@ -415,6 +562,32 @@ export type FinalOut = {
 };
 
 /**
+ * FoundPublic
+ */
+export type FoundPublic = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Location
+     */
+    location: string | null;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Where
+     */
+    where: 'ontario' | 'canada';
+};
+
+/**
  * HTTPValidationError
  */
 export type HTTPValidationError = {
@@ -440,6 +613,17 @@ export type InspectIn = {
      * Workspace Id
      */
     workspace_id?: string | null;
+};
+
+/**
+ * Issue
+ */
+export type Issue = {
+    /**
+     * Rule
+     */
+    rule: string;
+    verdict: Verdict;
 };
 
 /**
@@ -738,6 +922,74 @@ export type PlanIn = {
 };
 
 /**
+ * PreviewIn
+ */
+export type PreviewIn = {
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Workspace Id
+     */
+    workspace_id?: string | null;
+};
+
+/**
+ * PreviewOut
+ */
+export type PreviewOut = {
+    /**
+     * Preview Id
+     */
+    preview_id: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Source
+     */
+    source: 'greenhouse' | 'lever' | 'ashby' | 'smartrecruiters' | 'page';
+    /**
+     * Board Name
+     */
+    board_name: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id: string;
+    /**
+     * Workspace Name
+     */
+    workspace_name: string;
+    /**
+     * Postings
+     */
+    postings: Array<FoundPublic>;
+    /**
+     * More
+     */
+    more: number;
+    /**
+     * Outside Ontario
+     */
+    outside_ontario: number;
+    /**
+     * Max Postings
+     */
+    max_postings: number;
+    /**
+     * Checks Left
+     */
+    checks_left: number;
+    /**
+     * Extra Checks Left
+     */
+    extra_checks_left: number;
+};
+
+/**
  * PrivateUserCreate
  */
 export type PrivateUserCreate = {
@@ -989,6 +1241,20 @@ export type Source = {
      * Licence Url
      */
     licence_url?: string | null;
+};
+
+/**
+ * StartIn
+ */
+export type StartIn = {
+    /**
+     * Preview Id
+     */
+    preview_id: string;
+    /**
+     * Posting Ids
+     */
+    posting_ids: Array<string>;
 };
 
 /**
@@ -2057,6 +2323,192 @@ export type payDeleteBandResponses = {
 };
 
 export type payDeleteBandResponse = payDeleteBandResponses[keyof payDeleteBandResponses];
+
+export type auditsPreviewAuditData = {
+    body: PreviewIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/audits/preview';
+};
+
+export type auditsPreviewAuditErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsPreviewAuditError = auditsPreviewAuditErrors[keyof auditsPreviewAuditErrors];
+
+export type auditsPreviewAuditResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreviewOut;
+};
+
+export type auditsPreviewAuditResponse = auditsPreviewAuditResponses[keyof auditsPreviewAuditResponses];
+
+export type auditsReadAuditsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Workspace Id
+         */
+        workspace_id?: string | null;
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/audits/';
+};
+
+export type auditsReadAuditsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsReadAuditsError = auditsReadAuditsErrors[keyof auditsReadAuditsErrors];
+
+export type auditsReadAuditsResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuditsPublic;
+};
+
+export type auditsReadAuditsResponse = auditsReadAuditsResponses[keyof auditsReadAuditsResponses];
+
+export type auditsStartAuditData = {
+    body: StartIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/audits/';
+};
+
+export type auditsStartAuditErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsStartAuditError = auditsStartAuditErrors[keyof auditsStartAuditErrors];
+
+export type auditsStartAuditResponses = {
+    /**
+     * Successful Response
+     */
+    201: AuditPublic;
+};
+
+export type auditsStartAuditResponse = auditsStartAuditResponses[keyof auditsStartAuditResponses];
+
+export type auditsCheckPostingData = {
+    body?: never;
+    path: {
+        /**
+         * Audit Id
+         */
+        audit_id: string;
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/audits/{audit_id}/postings/{posting_id}/check';
+};
+
+export type auditsCheckPostingErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsCheckPostingError = auditsCheckPostingErrors[keyof auditsCheckPostingErrors];
+
+export type auditsCheckPostingResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuditPostingPublic;
+};
+
+export type auditsCheckPostingResponse = auditsCheckPostingResponses[keyof auditsCheckPostingResponses];
+
+export type auditsReadAuditData = {
+    body?: never;
+    path: {
+        /**
+         * Audit Id
+         */
+        audit_id: string;
+    };
+    query?: never;
+    url: '/api/v1/audits/{audit_id}';
+};
+
+export type auditsReadAuditErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsReadAuditError = auditsReadAuditErrors[keyof auditsReadAuditErrors];
+
+export type auditsReadAuditResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuditPublic;
+};
+
+export type auditsReadAuditResponse = auditsReadAuditResponses[keyof auditsReadAuditResponses];
+
+export type auditsReadPostingCheckData = {
+    body?: never;
+    path: {
+        /**
+         * Audit Id
+         */
+        audit_id: string;
+        /**
+         * Posting Id
+         */
+        posting_id: string;
+    };
+    query?: never;
+    url: '/api/v1/audits/{audit_id}/postings/{posting_id}';
+};
+
+export type auditsReadPostingCheckErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type auditsReadPostingCheckError = auditsReadPostingCheckErrors[keyof auditsReadPostingCheckErrors];
+
+export type auditsReadPostingCheckResponses = {
+    /**
+     * Successful Response
+     */
+    200: CheckOut;
+};
+
+export type auditsReadPostingCheckResponse = auditsReadPostingCheckResponses[keyof auditsReadPostingCheckResponses];
 
 export type statsReadStatsData = {
     body?: never;

@@ -1,0 +1,400 @@
+{
+ "apiVersion": "1",
+ "jobs": [
+  {
+   "id": "7133d205-5421-4336-a8e2-6037b5f55073",
+   "title": "Senior Full-Stack Engineer, Internal Applications ",
+   "department": "Engineering & Infra",
+   "team": "Internal Applications",
+   "employmentType": "FullTime",
+   "location": "Toronto",
+   "shouldDisplayCompensationOnJobPostings": true,
+   "secondaryLocations": [
+    {
+     "location": "Canada",
+     "address": {
+      "postalAddress": {
+       "addressCountry": "Canada"
+      }
+     }
+    }
+   ],
+   "publishedAt": "2026-09-15T18:21:37.401+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressRegion": "Ontario",
+     "addressCountry": "Canada",
+     "addressLocality": "Toronto"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/cohere/7133d205-5421-4336-a8e2-6037b5f55073",
+   "applyUrl": "https://jobs.ashbyhq.com/cohere/7133d205-5421-4336-a8e2-6037b5f55073/application",
+   "descriptionHtml": "<h2>About the role</h2><p>You'll help our customers every day.</p><h3>What you'll do</h3><ul><li>Answer customer questions</li><li>Keep records up to date</li></ul><p>This posting is for an existing vacancy.</p>",
+   "descriptionPlain": "About the role\nYou'll help our customers every day.\n\nWhat you'll do\nAnswer customer questions\nKeep records up to date",
+   "compensation": {
+    "compensationTierSummary": "CA$215K – CA$295K • Offers Equity",
+    "scrapeableCompensationSalarySummary": "CA$215K - CA$295K",
+    "compensationTiers": [
+     {
+      "id": "3cc19628-39b9-49e9-9282-fab895e322b1",
+      "tierSummary": "Base Salary CA$215K – CA$295K • Offers Equity",
+      "title": "Canada",
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "c4cc7279-2bd6-4c94-8a98-0c98c903bed0",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       },
+       {
+        "id": "61607966-395b-4ca1-892e-de9247bc96aa",
+        "summary": "Base Salary CA$215K – CA$295K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "CAD",
+        "minValue": 215000,
+        "maxValue": 295000
+       }
+      ]
+     }
+    ],
+    "summaryComponents": [
+     {
+      "compensationType": "EquityPercentage",
+      "interval": "NONE",
+      "currencyCode": null,
+      "minValue": null,
+      "maxValue": null
+     },
+     {
+      "compensationType": "Salary",
+      "interval": "1 YEAR",
+      "currencyCode": "CAD",
+      "minValue": 215000,
+      "maxValue": 295000
+     }
+    ]
+   }
+  },
+  {
+   "id": "3136a5a5-06fd-4c82-8b72-a43467e6b128",
+   "title": "Member of Technical Staff, Modeling",
+   "department": "Modeling",
+   "team": "Modeling",
+   "employmentType": "FullTime",
+   "location": "London",
+   "shouldDisplayCompensationOnJobPostings": true,
+   "secondaryLocations": [
+    {
+     "location": "San Francisco",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "California",
+       "addressCountry": "United States",
+       "addressLocality": "San Francisco"
+      }
+     }
+    },
+    {
+     "location": "New York",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "New York",
+       "addressCountry": "United States",
+       "addressLocality": "New York"
+      }
+     }
+    },
+    {
+     "location": "Paris",
+     "address": {
+      "postalAddress": {
+       "addressCountry": "France",
+       "addressLocality": "Paris"
+      }
+     }
+    },
+    {
+     "location": "Toronto",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "Ontario",
+       "addressCountry": "Canada",
+       "addressLocality": "Toronto"
+      }
+     }
+    },
+    {
+     "location": "Montreal",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "Quebec ",
+       "addressCountry": "Canada",
+       "addressLocality": "Montreal"
+      }
+     }
+    }
+   ],
+   "publishedAt": "2024-11-01T16:06:43.318+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressRegion": "London",
+     "addressCountry": "United Kingdom",
+     "addressLocality": "London"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/cohere/3136a5a5-06fd-4c82-8b72-a43467e6b128",
+   "applyUrl": "https://jobs.ashbyhq.com/cohere/3136a5a5-06fd-4c82-8b72-a43467e6b128/application",
+   "descriptionHtml": "<h2>About the role</h2><p>You'll help our customers every day.</p><h3>What you'll do</h3><ul><li>Answer customer questions</li><li>Keep records up to date</li></ul><p>This posting is for an existing vacancy.</p>",
+   "descriptionPlain": "About the role\nYou'll help our customers every day.\n\nWhat you'll do\nAnswer customer questions\nKeep records up to date",
+   "compensation": {
+    "compensationTierSummary": "CA$250K – CA$535K • Offers Equity • Multiple Ranges",
+    "scrapeableCompensationSalarySummary": "CA$250K - CA$535K",
+    "compensationTiers": [
+     {
+      "id": "8a3cbd03-b280-43f3-ae5e-317d4dff2771",
+      "tierSummary": "Base Salary CA$295K – CA$535K • Offers Equity",
+      "title": "Canada - Toronto (GTA), Montreal",
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "e1664463-befc-483f-8d27-5a383f3175b2",
+        "summary": "Base Salary CA$295K – CA$535K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "CAD",
+        "minValue": 295000,
+        "maxValue": 535000
+       },
+       {
+        "id": "f08feab7-c112-473f-a11a-ef2b3c9214d7",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       }
+      ]
+     },
+     {
+      "id": "12fc2a9a-c6c6-4972-af59-7eecc4e03bb4",
+      "tierSummary": "Base Salary CA$250K – CA$460K • Offers Equity",
+      "title": "Canada",
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "6282ad0a-09f8-4c4c-b31f-96b2b6f8d6c4",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       },
+       {
+        "id": "9c45a31a-cf8f-400f-a570-02a16ee4e44c",
+        "summary": "Base Salary CA$250K – CA$460K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "CAD",
+        "minValue": 250000,
+        "maxValue": 460000
+       }
+      ]
+     },
+     {
+      "id": "08500dad-ba3e-4d55-ba70-9e7ad6943e0c",
+      "tierSummary": "Base Salary $205K – $380K • Offers Equity",
+      "title": "USA - California, New York and Washington",
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "78eb432f-5dbb-43c8-b031-08af0c9bbcd3",
+        "summary": "Base Salary $205K – $380K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "USD",
+        "minValue": 205000,
+        "maxValue": 380000
+       },
+       {
+        "id": "4029b7d3-1bc7-42c0-8a72-3498733e1c2c",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       }
+      ]
+     },
+     {
+      "id": "141e0f70-be43-4944-99e2-81ec56c84233",
+      "tierSummary": "Base Salary $175K – $325K • Offers Equity",
+      "title": "USA - All Other States",
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "72df3cc8-64c4-45b9-94b9-1660b62adb2b",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       },
+       {
+        "id": "588cf37c-fd74-470a-8fd8-59f1bc91a8f9",
+        "summary": "Base Salary $175K – $325K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "USD",
+        "minValue": 175000,
+        "maxValue": 325000
+       }
+      ]
+     }
+    ],
+    "summaryComponents": [
+     {
+      "minValue": 250000,
+      "maxValue": 535000,
+      "currencyCode": "CAD",
+      "interval": "1 YEAR",
+      "compensationType": "Salary"
+     },
+     {
+      "compensationType": "EquityPercentage",
+      "minValue": null,
+      "maxValue": null,
+      "interval": "1 YEAR"
+     }
+    ]
+   }
+  },
+  {
+   "id": "595a2d50-46a5-4ff9-af1c-d58cea9d8e68",
+   "title": "Revenue Enablement Manager - EMEA",
+   "department": "Revenue",
+   "team": "Revenue",
+   "employmentType": "FullTime",
+   "location": "Europe",
+   "shouldDisplayCompensationOnJobPostings": false,
+   "secondaryLocations": [
+    {
+     "location": "London",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "London",
+       "addressCountry": "United Kingdom",
+       "addressLocality": "London"
+      }
+     }
+    }
+   ],
+   "publishedAt": "2026-10-14T15:44:46.841+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "European Union"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/cohere/595a2d50-46a5-4ff9-af1c-d58cea9d8e68",
+   "applyUrl": "https://jobs.ashbyhq.com/cohere/595a2d50-46a5-4ff9-af1c-d58cea9d8e68/application",
+   "descriptionHtml": "<h2>About the role</h2><p>You'll help our customers every day.</p><h3>What you'll do</h3><ul><li>Answer customer questions</li><li>Keep records up to date</li></ul><p>This posting is for an existing vacancy.</p>",
+   "descriptionPlain": "About the role\nYou'll help our customers every day.\n\nWhat you'll do\nAnswer customer questions\nKeep records up to date",
+   "compensation": {
+    "compensationTierSummary": null,
+    "scrapeableCompensationSalarySummary": null,
+    "compensationTiers": [],
+    "summaryComponents": []
+   }
+  },
+  {
+   "id": "6d0f0753-ff22-46fd-90e9-08998914a8e7",
+   "title": "Solutions Architect - Public Sector",
+   "department": "Revenue",
+   "team": "Solutions Architecture",
+   "employmentType": "FullTime",
+   "location": "Washington, DC",
+   "shouldDisplayCompensationOnJobPostings": true,
+   "secondaryLocations": [],
+   "publishedAt": "2026-03-19T17:24:07.254+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Hybrid",
+   "address": {
+    "postalAddress": {
+     "addressRegion": "Washington, DC",
+     "addressCountry": "United States",
+     "addressLocality": "Washington, DC"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/cohere/6d0f0753-ff22-46fd-90e9-08998914a8e7",
+   "applyUrl": "https://jobs.ashbyhq.com/cohere/6d0f0753-ff22-46fd-90e9-08998914a8e7/application",
+   "descriptionHtml": "<h2>About the role</h2><p>You'll help our customers every day.</p><h3>What you'll do</h3><ul><li>Answer customer questions</li><li>Keep records up to date</li></ul><p>This posting is for an existing vacancy.</p>",
+   "descriptionPlain": "About the role\nYou'll help our customers every day.\n\nWhat you'll do\nAnswer customer questions\nKeep records up to date",
+   "compensation": {
+    "compensationTierSummary": "$215K – $250K • Offers Equity",
+    "scrapeableCompensationSalarySummary": "$215K - $250K",
+    "compensationTiers": [
+     {
+      "id": "d60790f3-60d4-4bc7-af47-0fe55f19bdc5",
+      "tierSummary": "On-Target Earnings (OTE) Compensation Range. Actual OTE will depend on individual performance. $215K – $250K • Offers Equity",
+      "title": null,
+      "additionalInformation": null,
+      "components": [
+       {
+        "id": "c4893b0b-306e-449d-ba63-733300cb7b4e",
+        "summary": "On-Target Earnings (OTE) Compensation Range. Actual OTE will depend on individual performance. $215K – $250K",
+        "compensationType": "Salary",
+        "interval": "1 YEAR",
+        "currencyCode": "USD",
+        "minValue": 215000,
+        "maxValue": 250000
+       },
+       {
+        "id": "eeca273d-caa7-4758-8e5a-5060a600d1eb",
+        "summary": "Offers Equity",
+        "compensationType": "EquityPercentage",
+        "interval": "NONE",
+        "currencyCode": null,
+        "minValue": null,
+        "maxValue": null
+       }
+      ]
+     }
+    ],
+    "summaryComponents": [
+     {
+      "compensationType": "Salary",
+      "interval": "1 YEAR",
+      "currencyCode": "USD",
+      "minValue": 215000,
+      "maxValue": 250000
+     },
+     {
+      "compensationType": "EquityPercentage",
+      "interval": "NONE",
+      "currencyCode": null,
+      "minValue": null,
+      "maxValue": null
+     }
+    ]
+   }
+  }
+ ]
+}

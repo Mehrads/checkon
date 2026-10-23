@@ -22,6 +22,9 @@ import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutProfileRouteImport } from './routes/_layout/profile'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutStatsRouteImport } from './routes/_layout/stats'
+import { Route as LayoutAuditsIndexRouteImport } from './routes/_layout/audits.index'
+import { Route as LayoutAuditsAuditIdIndexRouteImport } from './routes/_layout/audits.$auditId.index'
+import { Route as LayoutAuditsAuditIdPostingIdRouteImport } from './routes/_layout/audits.$auditId.$postingId'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -87,6 +90,23 @@ const LayoutStatsRoute = LayoutStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutAuditsIndexRoute = LayoutAuditsIndexRouteImport.update({
+  id: '/audits/',
+  path: '/audits/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutAuditsAuditIdIndexRoute =
+  LayoutAuditsAuditIdIndexRouteImport.update({
+    id: '/audits/$auditId/',
+    path: '/audits/$auditId/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
+const LayoutAuditsAuditIdPostingIdRoute =
+  LayoutAuditsAuditIdPostingIdRouteImport.update({
+    id: '/audits/$auditId/$postingId',
+    path: '/audits/$auditId/$postingId',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -101,6 +121,9 @@ export interface FileRoutesByFullPath {
   '/profile': typeof LayoutProfileRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
+  '/audits/': typeof LayoutAuditsIndexRoute
+  '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
+  '/audits/$auditId/': typeof LayoutAuditsAuditIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/check': typeof CheckRoute
@@ -115,6 +138,9 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
   '/': typeof LayoutIndexRoute
+  '/audits': typeof LayoutAuditsIndexRoute
+  '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
+  '/audits/$auditId': typeof LayoutAuditsAuditIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +157,9 @@ export interface FileRoutesById {
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/stats': typeof LayoutStatsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/audits/': typeof LayoutAuditsIndexRoute
+  '/_layout/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
+  '/_layout/audits/$auditId/': typeof LayoutAuditsAuditIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +176,9 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/stats'
+    | '/audits/'
+    | '/audits/$auditId/$postingId'
+    | '/audits/$auditId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/check'
@@ -161,6 +193,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/'
+    | '/audits'
+    | '/audits/$auditId/$postingId'
+    | '/audits/$auditId'
   id:
     | '__root__'
     | '/_layout'
@@ -176,6 +211,9 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/stats'
     | '/_layout/'
+    | '/_layout/audits/'
+    | '/_layout/audits/$auditId/$postingId'
+    | '/_layout/audits/$auditId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -282,6 +320,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutStatsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/audits/': {
+      id: '/_layout/audits/'
+      path: '/audits'
+      fullPath: '/audits/'
+      preLoaderRoute: typeof LayoutAuditsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/audits/$auditId/': {
+      id: '/_layout/audits/$auditId/'
+      path: '/audits/$auditId'
+      fullPath: '/audits/$auditId/'
+      preLoaderRoute: typeof LayoutAuditsAuditIdIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/audits/$auditId/$postingId': {
+      id: '/_layout/audits/$auditId/$postingId'
+      path: '/audits/$auditId/$postingId'
+      fullPath: '/audits/$auditId/$postingId'
+      preLoaderRoute: typeof LayoutAuditsAuditIdPostingIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
@@ -291,6 +350,9 @@ interface LayoutRouteChildren {
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutStatsRoute: typeof LayoutStatsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutAuditsIndexRoute: typeof LayoutAuditsIndexRoute
+  LayoutAuditsAuditIdPostingIdRoute: typeof LayoutAuditsAuditIdPostingIdRoute
+  LayoutAuditsAuditIdIndexRoute: typeof LayoutAuditsAuditIdIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -299,6 +361,9 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutStatsRoute: LayoutStatsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutAuditsIndexRoute: LayoutAuditsIndexRoute,
+  LayoutAuditsAuditIdPostingIdRoute: LayoutAuditsAuditIdPostingIdRoute,
+  LayoutAuditsAuditIdIndexRoute: LayoutAuditsAuditIdIndexRoute,
 }
 
 const LayoutRouteWithChildren =

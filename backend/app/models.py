@@ -345,3 +345,41 @@ class PayPostingSearch(SQLModel, table=True):
     location: str = Field(primary_key=True, max_length=255)  # as the employer-size cache keys it
     result: dict[str, Any] = Field(sa_column=Column(JSON, nullable=False))  # a PostingSearch
     searched_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+
+
+class Audit(SQLModel, table=True):
+    """A careers page audit (PRD FR13): the open Ontario postings on a customer's job board or careers page, each
+    checked against the plan for one workspace. The page's address and each posting's title, place, link and
+    result; never the posting text.
+    """
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+    customer_id: uuid.UUID = Field(foreign_key="customer.id", nullable=False, ondelete="CASCADE", index=True)
+    workspace_id: uuid.UUID | None = Field(default=None, foreign_key="workspace.id", ondelete="SET NULL", index=True)
+    user_id: uuid.UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
+    url: str = Field(max_length=2048)  # the address the customer entered
+    source: str = Field(max_length=16)  # greenhouse, lever, ashby, smartrecruiters, or page (a careers page)
+    board: str = Field(max_length=2048)  # the board's name at the ATS; for a careers page, the page read
+    board_name: str | None = Field(default=None, max_length=255)  # the company's name, when the board gives it
+    found: int  # open postings on the board, anywhere
+    outside_ontario: int  # of those, the ones for work elsewhere, left out
+
+
+class AuditPosting(SQLModel, table=True):
+    """One posting in an audit: what the board lists publicly, and the check's result. Never the posting text."""
+
+    __tablename__ = "audit_posting"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    audit_id: uuid.UUID = Field(foreign_key="audit.id", nullable=False, ondelete="CASCADE", index=True)
+    position: int  # order in the report
+    external_id: str = Field(max_length=2048)  # the board's id for the posting; a careers page's: its address
+    title: str = Field(max_length=255)
+    location: str | None = Field(default=None, max_length=255)
+    url: str = Field(max_length=2048)  # the posting's public page
+    where: str = Field(max_length=16)  # ontario, or canada (Canada-wide, which may be filled in Ontario)
+    status: str = Field(default="queued", max_length=32)  # queued, checking, a report status, refused or failed
+    issues: list[dict[str, str]] = Field(default_factory=list, sa_column=Column(JSON))  # [{rule, verdict}] to act on
+    note: str | None = Field(default=None, max_length=255)  # why it wasn't checked
+    check_id: str | None = Field(default=None, max_length=64)  # the full check, in memory for an hour
+    checked_at: datetime | None = None  # when the check started (status checking) or finished

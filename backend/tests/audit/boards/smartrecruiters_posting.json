@@ -1,0 +1,12 @@
+{
+ "id": "744000012345671", "name": "Warehouse Associate",
+ "company": {"identifier": "NorthwindLogistics", "name": "Northwind Logistics"},
+ "location": {"city": "Mississauga", "region": "ON", "country": "ca", "remote": false, "fullLocation": "Mississauga, ON, Canada"},
+ "jobAd": {"sections": {
+  "companyDescription": {"title": "Company Description", "text": "<p>Northwind moves freight across Ontario.</p>"},
+  "jobDescription": {"title": "Job Description", "text": "<ul><li>Pick and pack orders</li><li>Load trucks safely</li></ul>"},
+  "qualifications": {"title": "Qualifications", "text": "<p>Able to lift 50 lb.</p>"},
+  "additionalInformation": {"title": "Additional Information", "text": "<p>Pay: $19.00 - $21.00 an hour.</p>"}
+ }},
+ "postingUrl": "https://jobs.smartrecruiters.com/NorthwindLogistics/744000012345671-warehouse-associate"
+}

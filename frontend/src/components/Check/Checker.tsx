@@ -57,7 +57,8 @@ const FREE_NOTE =
  * full-width band; in the signed-in app (`app`) everything stacks inside the page. A signed-in customer's
  * check counts against their plan and starts from their company `profile` (the API reads the sign-in), which
  * on Agency is the picked `client`'s; `editProfile` renders the link to change it. `onChecked` runs after each
- * check and after fixes are applied. */
+ * check and after fixes are applied. `opened` shows a check made elsewhere (a posting from a careers page audit)
+ * without the paste form, and writes its fixes as it opens. */
 export function Checker({
   intro,
   layout = "hero",
@@ -66,6 +67,7 @@ export function Checker({
   profile,
   editProfile,
   client = false,
+  opened,
 }: {
   intro?: ReactNode
   layout?: "hero" | "app"
@@ -74,11 +76,14 @@ export function Checker({
   profile?: WorkspacePublic
   editProfile?: (label: string) => ReactNode
   client?: boolean
+  opened?: CheckOut
 }) {
   const hero = layout === "hero"
   const [text, setText] = useState("")
-  const [check, setCheck] = useState<CheckOut | null>(null)
-  const [choices, setChoices] = useState<Choices>({})
+  const [check, setCheck] = useState<CheckOut | null>(opened ?? null)
+  const [choices, setChoices] = useState<Choices>(() =>
+    opened?.refinement ? defaultChoices(opened.refinement) : {},
+  )
   const [final, setFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [refusal, setRefusal] = useState<string | null>(null)
@@ -160,11 +165,24 @@ export function Checker({
     onError: fail,
   })
 
+  const refineOpened = useRef(false)
+  useEffect(() => {
+    if (
+      opened &&
+      !opened.refinement &&
+      opened.report.status !== "not_applicable" &&
+      !refineOpened.current
+    ) {
+      refineOpened.current = true
+      refine.mutate(opened.check_id)
+    }
+  }, [opened, refine.mutate])
+
   const checkId = check?.check_id
   useEffect(() => {
-    if (checkId)
+    if (checkId && !opened)
       results.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [checkId])
+  }, [checkId, opened])
   useEffect(() => {
     if (final)
       editor.current?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -175,7 +193,11 @@ export function Checker({
   return (
     <>
       {/* #check is the public page's hero (landing.css gives it the photo); the app's checker isn't */}
-      <section id={hero ? "check" : undefined} className="scroll-mt-20">
+      <section
+        id={hero ? "check" : undefined}
+        className="scroll-mt-20"
+        hidden={Boolean(opened)}
+      >
         <div
           className={cn(
             hero &&
@@ -245,7 +267,10 @@ export function Checker({
       {(check || error || busy) && (
         <section
           ref={results}
-          className={cn("scroll-mt-20", hero ? "border-t bg-muted/30" : "pt-6")}
+          className={cn(
+            "scroll-mt-20",
+            hero ? "border-t bg-muted/30" : !opened && "pt-6",
+          )}
         >
           <div
             className={cn(

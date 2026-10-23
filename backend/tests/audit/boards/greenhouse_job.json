@@ -1,0 +1,70 @@
+{
+ "absolute_url": "https://boards.greenhouse.io/faire/jobs/8821336002?gh_jid=8821336002",
+ "internal_job_id": 6529094002,
+ "location": {
+  "name": "Toronto, ON"
+ },
+ "metadata": [
+  {
+   "id": 4008562002,
+   "name": "Employment Type",
+   "value": "Regular",
+   "value_type": "single_select"
+  }
+ ],
+ "id": 8821336002,
+ "updated_at": "2026-09-18T17:11:05-04:00",
+ "requisition_id": "1504",
+ "title": "Growth Platform, Marketing Engineer",
+ "pay_input_ranges": [
+  {
+   "min_cents": 9000000,
+   "max_cents": 11000000,
+   "currency_type": "CAD",
+   "title": "Toronto pay range",
+   "blurb": "<p>Pay depends on experience.</p>",
+   "description": null
+  }
+ ],
+ "company_name": "Faire",
+ "first_published": "2026-09-18T17:11:05-04:00",
+ "language": "en",
+ "application_deadline": null,
+ "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+ "departments": [
+  {
+   "id": 4002177002,
+   "name": "Marketing",
+   "child_ids": [
+    4105703002
+   ],
+   "parent_id": null
+  }
+ ],
+ "offices": [
+  {
+   "id": 4043067002,
+   "name": "New York City, NY",
+   "location": "New York, New York, United States",
+   "child_ids": [],
+   "parent_id": 4049474002
+  },
+  {
+   "id": 4000970002,
+   "name": "San Francisco, CA",
+   "location": "San Francisco, California, United States",
+   "child_ids": [],
+   "parent_id": 4049474002
+  },
+  {
+   "id": 4037984002,
+   "name": "Toronto, ON",
+   "location": "Toronto, Ontario, Canada",
+   "child_ids": [],
+   "parent_id": 4049475002
+  }
+ ],
+ "ai_disclaimer": "<p>We use AI to screen applications for this job.</p>",
+ "include_ai_disclaimer": true,
+ "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8821336002/ai_opt_out"
+}

@@ -1,4 +1,4 @@
-import { Building2, ChartColumn, Home, Users } from "lucide-react"
+import { Building2, ChartColumn, Home, ScanSearch, Users } from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
@@ -25,6 +25,7 @@ export function AppSidebar() {
     ...baseItems,
     ...(billing?.plan
       ? [
+          { icon: ScanSearch, title: "Careers page audit", path: "/audits" },
           {
             icon: Building2,
             title: canCreate ? "Client workspaces" : "Company profile",

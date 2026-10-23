@@ -1,0 +1,10 @@
+{
+ "offset": 2, "limit": 100, "totalFound": 3,
+ "content": [
+  {"id": "744000012345673", "name": "Payroll Specialist", "uuid": "a1b2c3d4-0000-4000-8000-000000000003",
+   "refNumber": "REF103", "company": {"identifier": "NorthwindLogistics", "name": "Northwind Logistics"},
+   "releasedDate": "2026-10-03T14:00:00.000Z",
+   "location": {"city": "", "region": "", "country": "ca", "remote": true, "fullLocation": "Remote, Canada"},
+   "ref": "https://api.smartrecruiters.com/v1/companies/NorthwindLogistics/postings/744000012345673"}
+ ]
+}

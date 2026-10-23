@@ -47,7 +47,8 @@ function PrivacyPage() {
             <strong>Your posting.</strong> Sent to our AI provider to run the
             check and held in memory for up to an hour so you can apply fixes.
             We don't save it, unless you tick "Share this posting" when
-            reporting a problem.
+            reporting a problem. A careers page audit reads each posting from
+            your public job board or careers page and handles it the same way.
           </li>
           <li>
             <strong>Searches.</strong> We search the web for the employer's name
@@ -67,9 +68,10 @@ function PrivacyPage() {
           <li>
             <strong>Your account, if you subscribe.</strong> Email, name,
             password (hashed) and sign-in codes (expire after 10 minutes). Also
-            your company profiles, client workspaces, confirmed pay ranges and
-            check history (date, job title and result, never the posting). Kept
-            until you delete your account.
+            your company profiles, client workspaces, confirmed pay ranges,
+            careers page audits (the page's address and each posting's title,
+            place, link and result) and check history (date, job title and
+            result, never the posting). Kept until you delete your account.
           </li>
           <li>
             <strong>Billing.</strong> Stripe takes your card; we never see it.
