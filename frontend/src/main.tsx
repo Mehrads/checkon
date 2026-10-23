@@ -23,12 +23,20 @@ client.setConfig({
 })
 
 const handleApiError = (error: Error) => {
-  if (
-    error instanceof AxiosError &&
-    [401, 403].includes(error.response?.status ?? 0)
-  ) {
+  if (!(error instanceof AxiosError)) return
+  const status = error.response?.status
+  if (status === 401 || status === 403) {
     localStorage.removeItem("access_token")
-    window.location.href = "/login"
+    // An expired sign-in (the API's 403 "Could not validate credentials") comes back to this page after logging
+    // in again; a page the plan doesn't include doesn't.
+    const expired =
+      status === 401 ||
+      error.response?.data?.detail === "Could not validate credentials"
+    const page = window.location.pathname + window.location.search
+    window.location.href =
+      expired && window.location.pathname !== "/login"
+        ? `/login?${new URLSearchParams({ redirect: page })}`
+        : "/login"
   }
 }
 const queryClient = new QueryClient({

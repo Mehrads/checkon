@@ -120,7 +120,7 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await page.waitForURL("/login")
 
   await page.goto("/settings")
-  await page.waitForURL("/login")
+  await page.waitForURL("/login?redirect=%2Fsettings")
 })
 
 test("Redirects to /login when token is wrong", async ({ page }) => {
@@ -129,6 +129,26 @@ test("Redirects to /login when token is wrong", async ({ page }) => {
     localStorage.setItem("access_token", "invalid_token")
   })
   await page.goto("/settings")
-  await page.waitForURL("/login")
-  await expect(page).toHaveURL("/login")
+  await page.waitForURL("/login?redirect=%2Fsettings")
+})
+
+test("A link to an account page logs in, then opens that page", async ({
+  page,
+}) => {
+  await page.goto("/archive?posting=abc")
+  await page.waitForURL(/\/login\?redirect=/)
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await submitLogIn(page, firstSuperuser)
+
+  await page.waitForURL("/archive?posting=abc")
+})
+
+test("The page after logging in is always on this site", async ({ page }) => {
+  await page.goto("/login?redirect=%2F%2Fexample.com")
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await submitLogIn(page, firstSuperuser)
+
+  await page.waitForURL("/")
 })

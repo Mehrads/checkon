@@ -19,7 +19,13 @@ const isLoggedIn = () => {
   )
 }
 
-const useAuth = () => {
+/** Where to go once signed in: the page of this site a visitor was sent to log in from (`/login?redirect=`), else
+ * the account page. Only a path here: never another site, or a `javascript:` link. */
+const afterLogin = (redirect?: string) =>
+  redirect?.startsWith("/") && !/^\/[/\\]/.test(redirect) ? redirect : "/"
+
+/** `next`: the `redirect` of /login, to go back to after the emailed code. */
+const useAuth = (next?: string) => {
   const navigate = useNavigate()
   const { showErrorToast } = useCustomToast()
 
@@ -47,7 +53,7 @@ const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: () => {
-      navigate({ to: "/" })
+      navigate({ href: afterLogin(next) })
     },
     onError: handleError.bind(showErrorToast),
   })
@@ -65,5 +71,5 @@ const useAuth = () => {
   }
 }
 
-export { isLoggedIn }
+export { afterLogin, isLoggedIn }
 export default useAuth

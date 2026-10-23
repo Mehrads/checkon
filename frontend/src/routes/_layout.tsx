@@ -14,12 +14,13 @@ import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
-  beforeLoad: async () => {
-    // v1 has no sign-up: visitors land on the free check; /login still works directly.
+  beforeLoad: async ({ location }) => {
+    // v1 has no sign-up: visitors land on the free check; /login still works directly. A link to another account
+    // page (the extension's "Open it", say) logs in first, then comes back to it.
     if (!isLoggedIn()) {
-      throw redirect({
-        to: "/check",
-      })
+      throw location.pathname === "/"
+        ? redirect({ to: "/check" })
+        : redirect({ to: "/login", search: { redirect: location.href } })
     }
   },
 })
