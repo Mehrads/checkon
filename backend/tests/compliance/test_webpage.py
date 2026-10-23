@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from app.compliance.webpage import html_to_text, posting_text
+from app.compliance.webpage import html_to_text, posting_text, workable_text
 
 DESCRIPTION = (
     "<p>We're growing. You'll run payroll for 400 employees across our Ontario sites.</p>"
@@ -98,3 +98,28 @@ def test_html_to_text_keeps_list_items_and_headings_on_their_own_lines() -> None
         "Duties\n• Run payroll\n• File remittances\n\nApply now."
     )
     assert html_to_text("<p>Line one<br>Line two&nbsp;here</p>") == "Line one\n\nLine two here"
+
+
+def workable(**changes: Any) -> dict[str, Any]:
+    return {
+        "title": "Payroll Specialist", "location": {"display": "Toronto, Ontario, Canada"}, "workplace": "on_site",
+        "description": DESCRIPTION, "requirements": None, "benefits": "<p>Health benefits from day one.</p>",
+        "salary_from": 27.5, "salary_to": 32, "salary_currency_iso_code": "CAD", "salary_frequency": "hour", **changes,
+    }  # fmt: skip
+
+
+def test_a_workable_posting_is_built_from_its_job_data() -> None:
+    text = workable_text(workable())
+    assert text.startswith("Payroll Specialist\n\nToronto, Ontario, Canada · On-site\n\nWe're growing.")
+    assert "Health benefits from day one." in text
+    assert text.endswith("Pay: $27.50 to $32 an hour.")
+
+
+def test_workable_pay_already_in_the_text_is_not_added_twice() -> None:
+    text = workable_text(workable(benefits="<p>The salary range is $55,000 - $70,000 CAD annually.</p>"))
+    assert "Pay:" not in text and "$55,000 - $70,000" in text
+
+
+def test_workable_data_with_little_text_has_no_posting() -> None:
+    assert workable_text(workable(description="<p>Apply now.</p>", benefits=None)) == ""
+    assert workable_text({"title": "Payroll Specialist", "location": "Toronto"}) == ""

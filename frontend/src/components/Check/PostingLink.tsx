@@ -11,6 +11,7 @@ export const LINK_REFUSALS = new Set([
   "too_long",
   "fetch_limit",
   "link_not_a_posting",
+  "posting_closed",
 ])
 
 export function host(url: string): string {

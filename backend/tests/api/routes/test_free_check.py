@@ -29,18 +29,23 @@ def limits(db: Session, per_week: int = 1, cap: Decimal = Decimal(5)) -> Postgre
     return PostgresLimits(db, DAY, per_week, cap, settings.SECRET_KEY)
 
 
+def new_ip() -> str:
+    """An address no earlier run used: the quota rows stay in a local test database for a week."""
+    return f"2001:db8::{secrets.token_hex(2)}:{secrets.token_hex(2)}"
+
+
 def test_quota_blocks_the_same_cookie_or_ip_for_a_week(db: Session) -> None:
-    cookie, ip = secrets.token_hex(8), f"203.0.113.{secrets.randbelow(250)}"
+    cookie, ip = secrets.token_hex(8), new_ip()
     guard = limits(db)
     assert guard.next_free_check(cookie, ip) is None
     guard.record_use(cookie, ip)
-    assert guard.next_free_check(cookie, "198.51.100.7") is not None  # same cookie, new IP
+    assert guard.next_free_check(cookie, new_ip()) is not None  # same cookie, new IP
     assert guard.next_free_check(secrets.token_hex(8), ip) is not None  # cleared cookies, same IP
-    assert guard.next_free_check(secrets.token_hex(8), "198.51.100.8") is None
+    assert guard.next_free_check(secrets.token_hex(8), new_ip()) is None
 
 
 def test_the_sample_audit_has_its_own_weekly_quota(db: Session) -> None:
-    cookie, ip = secrets.token_hex(8), f"203.0.113.{secrets.randbelow(250)}"
+    cookie, ip = secrets.token_hex(8), new_ip()
     sample = PostgresLimits(db, DAY, 1, Decimal(5), settings.SECRET_KEY, scope="sample-")
     limits(db).record_use(cookie, ip)  # the week's free check
     assert sample.next_free_check(cookie, ip) is None  # doesn't use up the sample audit

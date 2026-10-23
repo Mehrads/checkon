@@ -42,7 +42,10 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # The public pages, rendered to HTML at build time (frontend/src/prerender.tsx) so search engines and visitors get
 # the page before the app's scripts run. "/" is the public page for visitors too; the app shows the signed-in its
 # account page there, and index.html hides the rendered page from them meanwhile.
-PRERENDERED = {"/": "check.html", "/check": "check.html", "/privacy": "privacy.html", "/terms": "terms.html"}
+PRERENDERED = {
+    "/": "check.html", "/check": "check.html", "/privacy": "privacy.html", "/terms": "terms.html",
+    "/ontario-job-posting-requirements": "ontario-job-posting-requirements.html",
+}  # fmt: skip
 
 
 def _prerendered(name: str) -> Callable[[], FileResponse]:

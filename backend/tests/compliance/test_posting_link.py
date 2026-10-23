@@ -197,9 +197,75 @@ def test_is_public(address: str, public: bool) -> None:
 
 def test_unknown_hosts_and_errors_fail() -> None:
     assert refusal("https://nowhere.example.com/") == "fetch_failed"
-    assert refusal("https://jobs.example.com/missing", Server({})) == "fetch_failed"  # 404
     server = Server({"jobs.example.com/down": httpx.Response(503)})
     assert refusal("https://jobs.example.com/down", server) == "fetch_failed"
+
+
+@pytest.mark.parametrize("status", [404, 410])
+def test_a_missing_page_is_a_posting_that_may_have_closed(status: int) -> None:
+    server = Server({"jobs.example.com/gone": httpx.Response(status)})
+    assert refusal("https://jobs.example.com/gone", server) == "posting_closed"
+    assert refusal("https://jobs.example.com/never-was", Server({})) == "posting_closed"
+
+
+@pytest.mark.parametrize(
+    ("link", "redirect_to"),
+    [("https://job-boards.greenhouse.io/acme/jobs/1", "https://job-boards.greenhouse.io/acme?error=true"),
+     ("https://apply.workable.com/acme/j/OLD1", "https://apply.workable.com/acme/?not_found=true")],
+)  # fmt: skip
+def test_a_redirect_to_the_boards_not_found_page_is_a_closed_posting(link: str, redirect_to: str) -> None:
+    host = httpx.URL(link).host
+    server = Server({
+        f"{host}{httpx.URL(link).path}": redirect(redirect_to),
+        f"{host}{httpx.URL(redirect_to).path}": page("<main><h1>Open jobs</h1>" + "<p>Accountant</p>" * 60 + "</main>"),
+    })  # fmt: skip
+    assert refusal(link, server, {**DNS, host: ["93.184.216.40"]}) == "posting_closed"
+
+
+def test_a_redirect_to_a_page_with_no_posting_may_have_closed() -> None:
+    server = Server({"jobs.example.com/old": redirect("/home"), "jobs.example.com/home": page("<div id='app'></div>")})
+    assert refusal("https://jobs.example.com/old", server) == "posting_closed"
+
+
+# Workable builds its pages in the browser: the posting comes from its public job data.
+
+WORKABLE = {"apply.workable.com": ["93.184.216.50"]}
+WORKABLE_JOB = {
+    "title": "Payroll Specialist", "location": {"display": "Toronto, Ontario, Canada"}, "workplace": "hybrid",
+    "description": "<p>We're growing. You'll run payroll for 400 employees across our Ontario sites and help with "
+                   "year-end reporting, remittances and audits.</p>",
+    "requirements": "<ul><li>2+ years of payroll experience</li><li>CPP certification is an asset</li></ul>",
+    "benefits": "<p>This posting is for an existing vacancy. We do not use AI to screen applicants.</p>",
+    "salary_from": 60000, "salary_to": 80000, "salary_currency_iso_code": "CAD", "salary_frequency": "year",
+}  # fmt: skip
+
+
+def workable_server(job: dict | None = WORKABLE_JOB) -> Server:
+    shell = page("<html><body><div id='root'></div><script src='/app.js'></script></body></html>")
+    data = httpx.Response(200, json=job) if job is not None else httpx.Response(404)
+    return Server({
+        "apply.workable.com/j/AB12CD": redirect("/acme/j/AB12CD"),
+        "apply.workable.com/acme/j/AB12CD": shell,
+        "apply.workable.com/api/v2/accounts/acme/jobs/AB12CD": data,
+    })  # fmt: skip
+
+
+def test_a_workable_posting_is_read_from_its_job_data() -> None:
+    server = workable_server()
+    fetched = reader(server, WORKABLE).read("https://apply.workable.com/j/AB12CD")
+    assert fetched.url == "https://apply.workable.com/acme/j/AB12CD"
+    assert fetched.text.startswith("Payroll Specialist\n\nToronto, Ontario, Canada · Hybrid\n\nWe're growing.")
+    assert "• 2+ years of payroll experience" in fetched.text
+    assert fetched.text.endswith("Pay: $60,000 to $80,000 a year.")
+    assert [request.url.path for request in server.requests] == [
+        "/j/AB12CD", "/acme/j/AB12CD", "/api/v2/accounts/acme/jobs/AB12CD",
+    ]
+    # Pinned and checked like every other hop.
+    assert {(request.url.host, request.headers["host"]) for request in server.requests} == {("93.184.216.50", "apply.workable.com")}
+
+
+def test_a_workable_posting_removed_from_its_job_data_may_have_closed() -> None:
+    assert refusal("https://apply.workable.com/acme/j/AB12CD", workable_server(None), WORKABLE) == "posting_closed"
 
 
 def test_a_slow_server_fails() -> None:

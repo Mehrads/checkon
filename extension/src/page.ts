@@ -191,11 +191,20 @@ function readPostingInPage(): {
     return { text: fieldText(best), source: "field", editable: true }
   }
 
-  // 3. A published posting: the page's main content, read only.
+  // 3. A published posting: the page's main content, read only. An application form under the posting
+  //    (Greenhouse, Lever) isn't part of it, unless the form is all there is (a page wrapped in one form).
   const main =
     document.querySelector<HTMLElement>("main, article, [role=main]") ??
     document.body
-  const text = clean(main?.innerText ?? "")
+  let text = main?.innerText ?? ""
+  let withoutForms = text
+  for (const form of main?.querySelectorAll<HTMLElement>("form") ?? []) {
+    const part = form.innerText.trim()
+    if (part) withoutForms = withoutForms.replace(part, "")
+  }
+  withoutForms = withoutForms.replace(/\n{3,}/g, "\n\n")
+  if (clean(withoutForms).length >= 200) text = withoutForms
+  text = clean(text)
   return text.length >= 40 ? { text, source: "page", editable: false } : null
 }
 
@@ -333,6 +342,8 @@ function readFormInPage(): {
       )
         continue
       if (el instanceof HTMLInputElement && SKIP.has(el.type)) continue
+      // Custom dropdowns keep a hidden copy of the field for the browser's own required check.
+      if (el.closest("[aria-hidden=true]")) continue
       const required =
         (el as HTMLInputElement).required ||
         el.getAttribute("aria-required") === "true"
@@ -377,10 +388,14 @@ function readFormInPage(): {
           : []
       questions.push({ text: labelOf(el), required, options })
     }
-    // A labelled wrapper and its field (a combobox around an input) read as one question.
+    // A labelled wrapper and its field (a combobox around an input) read as one question, and a dropdown's
+    // placeholder ("Select...") isn't one.
+    const PLACEHOLDER =
+      /^[-–\s]*(please\s+)?(select|choose|pick)(\s+(one|an option))?[\s.…-]*$/i
     return questions.filter(
       (question, i) =>
         question.text &&
+        !PLACEHOLDER.test(question.text) &&
         !(
           i > 0 &&
           question.text === questions[i - 1].text &&

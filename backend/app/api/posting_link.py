@@ -7,10 +7,15 @@ answer, so a host can't switch to a private address between the check and the co
 followed by hand and checked the same way. The page must be HTML or plain text, arrive within the time limit,
 and stay under the size limit. When any of that fails, the user is asked to paste the posting instead.
 
+Workable builds its job pages in the browser, so the page itself has no posting text: its public job data is read
+instead, through the same checks. A link that leads nowhere (404 or 410) or to the board's "not found" or job list
+page (Greenhouse's `?error=true`, Workable's `?not_found=true`) is a posting that may have closed.
+
 The page is held in memory for the check only, like a pasted posting.
 """
 
 import ipaddress
+import json
 import re
 import socket
 import time
@@ -21,13 +26,16 @@ from dataclasses import dataclass
 
 import httpx
 
-from app.compliance.webpage import posting_text
+from app.compliance.webpage import posting_text, workable_text
 
 MAX_REDIRECTS = 5
 MAX_PAGE_BYTES = 2_000_000
 DEADLINE_SECONDS = 15.0  # the whole fetch, redirects included
 USER_AGENT = "Mozilla/5.0 (compatible; CheckON/1.0; +https://checkon.ca) posting check requested by a user"
 TYPES = ("text/html", "application/xhtml+xml", "text/plain")
+JSON_TYPES = ("application/json",)
+WORKABLE_JOB = re.compile(r"^/(?P<account>[^/]+)/j/(?P<code>[A-Za-z0-9]+)(?:/apply)?/?$")
+CLOSED_QUERY = {"error": "true", "not_found": "true"}  # Greenhouse and Workable after a closed posting
 DEFAULT_PORTS = {"http": 80, "https": 443}
 
 # PRD §10: we don't read these job sites, directly or through a redirect. SimplyHired is Indeed's.
@@ -44,6 +52,8 @@ REFUSALS = {
     "fetch_failed": f"We couldn't open that page. {PASTE}",
     "not_a_page": f"That link isn't a web page we can read. {PASTE}",
     "no_posting": f"We couldn't find a job posting on that page. {PASTE}",
+    "posting_closed": "We couldn't find that posting: it may have closed. Check the link, or paste the posting's "
+    "text instead.",
     "fetch_limit": "You've checked several links in a short time. Wait a while, or paste the posting's text instead.",
 }
 
@@ -108,25 +118,45 @@ class LinkReader:
         self.max_bytes = max_bytes
 
     def read(self, link: str) -> FetchedPosting:
-        url = first = self._parse(link)
+        first = self._parse(link)
         started = time.monotonic()
         with httpx.Client(
             transport=self.transport, follow_redirects=False, trust_env=False,
             headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml,text/plain;q=0.8"},
         ) as client:  # fmt: skip
-            for _ in range(MAX_REDIRECTS + 1):
-                addresses = self._addresses(url, started)
-                response = self._connect(client, url, addresses, started)
+            url, kind, page = self._get(client, first, started, TYPES)
+            redirected = url != first
+            if redirected and any(url.params.get(key) == value for key, value in CLOSED_QUERY.items()):
+                raise LinkRefused("posting_closed")
+            if (job := _workable_job(url)) is not None:
+                _, _, data = self._get(client, job, started, JSON_TYPES)
                 try:
-                    if response.is_redirect and (location := response.headers.get("location")):
-                        url = self._parse(str(url.join(location)))
-                        continue
-                    if response.status_code != 200:
-                        raise LinkRefused("fetch_failed")
-                    body = self._body(response, started)
-                finally:
-                    response.close()
-                return FetchedPosting(url=str(url), text=self._text(response, body), redirected=url != first)
+                    text = workable_text(json.loads(data))
+                except ValueError, AttributeError:
+                    raise LinkRefused("no_posting")
+            else:
+                text = page.strip() if kind == "text/plain" else posting_text(page)
+        if not text:
+            raise LinkRefused("posting_closed" if redirected else "no_posting")
+        return FetchedPosting(url=str(url), text=text, redirected=redirected)
+
+    def _get(self, client: httpx.Client, url: httpx.URL, started: float, types: tuple[str, ...]) -> tuple[httpx.URL, str, str]:
+        """The page at the end of the redirects: its address, content type and text."""
+        for _ in range(MAX_REDIRECTS + 1):
+            addresses = self._addresses(url, started)
+            response = self._connect(client, url, addresses, started)
+            try:
+                if response.is_redirect and (location := response.headers.get("location")):
+                    url = self._parse(str(url.join(location)))
+                    continue
+                if response.status_code in (404, 410):
+                    raise LinkRefused("posting_closed")
+                if response.status_code != 200:
+                    raise LinkRefused("fetch_failed")
+                body = self._body(response, started, types)
+            finally:
+                response.close()
+            return url, _kind(response), self._decode(response, body)
         raise LinkRefused("fetch_failed")  # too many redirects
 
     # Each hop
@@ -180,9 +210,8 @@ class LinkReader:
                 raise LinkRefused("fetch_failed")
         raise LinkRefused("fetch_failed")
 
-    def _body(self, response: httpx.Response, started: float) -> bytes:
-        kind = response.headers.get("content-type", "text/html").split(";", 1)[0].strip().lower()
-        if kind not in TYPES:
+    def _body(self, response: httpx.Response, started: float, types: tuple[str, ...]) -> bytes:
+        if _kind(response) not in types:
             raise LinkRefused("not_a_page")
         declared = response.headers.get("content-length", "")
         if declared.isdigit() and int(declared) > self.max_bytes:
@@ -201,20 +230,28 @@ class LinkReader:
             raise LinkRefused("fetch_failed")
         return b"".join(chunks)
 
-    def _text(self, response: httpx.Response, body: bytes) -> str:
-        charset = response.charset_encoding or "utf-8"
+    def _decode(self, response: httpx.Response, body: bytes) -> str:
         try:
-            page = body.decode(charset, errors="replace")
+            return body.decode(response.charset_encoding or "utf-8", errors="replace")
         except LookupError:
-            page = body.decode("utf-8", errors="replace")
-        kind = response.headers.get("content-type", "text/html").split(";", 1)[0].strip().lower()
-        text = page.strip() if kind == "text/plain" else posting_text(page)
-        if not text:
-            raise LinkRefused("no_posting")
-        return text
+            return body.decode("utf-8", errors="replace")
 
     def _left(self, started: float) -> float:
         return max(self.deadline - (time.monotonic() - started), 0.0)
 
     def _timeout(self, started: float) -> httpx.Timeout:
         return httpx.Timeout(min(5.0, max(self._left(started), 0.1)))
+
+
+def _kind(response: httpx.Response) -> str:
+    return str(response.headers.get("content-type", "text/html")).split(";", 1)[0].strip().lower()
+
+
+def _workable_job(url: httpx.URL) -> httpx.URL | None:
+    """Workable's public data for a job page on apply.workable.com (a /j/CODE link redirects to /ACCOUNT/j/CODE)."""
+    if url.raw_host.decode("ascii").lower() != "apply.workable.com":
+        return None
+    match = WORKABLE_JOB.match(url.path)
+    if match is None or match["account"] == "api":
+        return None
+    return httpx.URL(f"https://apply.workable.com/api/v2/accounts/{match['account']}/jobs/{match['code']}")

@@ -596,7 +596,7 @@ export function Pricing() {
   )
 }
 
-const QUESTIONS = [
+export const QUESTIONS = [
   {
     q: "Is this legal advice?",
     a: "No. CheckON checks your posting against Ontario's job posting requirements and shows where each finding comes from. For advice on your situation, talk to an employment lawyer.",
@@ -745,6 +745,12 @@ export function SiteFooter({ home = "" }: { home?: string }) {
               Contact
             </a>
           )}
+          <Link
+            to="/ontario-job-posting-requirements"
+            className="hover:text-foreground"
+          >
+            Ontario job posting requirements
+          </Link>
           <Link to="/privacy" className="hover:text-foreground">
             Privacy
           </Link>
