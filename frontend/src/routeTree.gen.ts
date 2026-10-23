@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as CheckRouteImport } from './routes/check'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OntarioJobPostingRequirementsRouteImport } from './routes/ontario-job-posting-requirements'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -41,6 +42,12 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OntarioJobPostingRequirementsRoute =
+  OntarioJobPostingRequirementsRouteImport.update({
+    id: '/ontario-job-posting-requirements',
+    path: '/ontario-job-posting-requirements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -135,6 +143,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -155,6 +164,7 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check'
     | '/login'
+    | '/ontario-job-posting-requirements'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
   to:
     | '/check'
     | '/login'
+    | '/ontario-job-posting-requirements'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -212,6 +224,7 @@ export interface FileRouteTypes {
     | '/_layout'
     | '/check'
     | '/login'
+    | '/ontario-job-posting-requirements'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -232,6 +245,7 @@ export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
   CheckRoute: typeof CheckRoute
   LoginRoute: typeof LoginRoute
+  OntarioJobPostingRequirementsRoute: typeof OntarioJobPostingRequirementsRoute
   PrivacyRoute: typeof PrivacyRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -260,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-job-posting-requirements': {
+      id: '/ontario-job-posting-requirements'
+      path: '/ontario-job-posting-requirements'
+      fullPath: '/ontario-job-posting-requirements'
+      preLoaderRoute: typeof OntarioJobPostingRequirementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -394,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   CheckRoute: CheckRoute,
   LoginRoute: LoginRoute,
+  OntarioJobPostingRequirementsRoute: OntarioJobPostingRequirementsRoute,
   PrivacyRoute: PrivacyRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,

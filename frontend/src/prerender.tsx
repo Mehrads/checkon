@@ -17,6 +17,7 @@ export const PAGES: Record<string, string> = {
   "/check": "check.html",
   "/privacy": "privacy.html",
   "/terms": "terms.html",
+  "/ontario-job-posting-requirements": "ontario-job-posting-requirements.html",
 }
 
 export async function render(path: string): Promise<string> {
