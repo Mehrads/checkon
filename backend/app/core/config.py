@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     # Our own addresses, comma-separated: they skip the weekly quota so the live check can be tested.
     # The rate limit, the origin check and the daily spend cap still apply to them.
     FREE_CHECK_ALLOWLIST_IPS: str = ""
+    # The free sample audit on the public site: the first postings of a careers page, findings only, on the same
+    # daily spend cap and allowlist as the free check, with its own weekly quota.
+    SAMPLE_AUDITS_PER_WEEK: int = 1
+    SAMPLE_AUDIT_POSTINGS: int = 3
 
     # Paid plans through Stripe Billing (infra/README.md, "Stripe"). Until the key and the three prices are
     # set, Checkout is off and the pricing page offers the contact form instead.

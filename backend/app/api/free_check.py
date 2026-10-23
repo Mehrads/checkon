@@ -112,17 +112,21 @@ class Limits(Protocol):
 
 
 class PostgresLimits:
-    """Weekly quota per cookie and per IP, and the day's spend, in Postgres. Keys are HMACs, not raw values."""
+    """Weekly quota per cookie and per IP, and the day's spend, in Postgres. Keys are HMACs, not raw values.
+    `scope` keeps another weekly quota (the sample audit's) apart from the free check's; the spend is shared."""
 
-    def __init__(self, session: Session, today: date, per_week: int, daily_cap: Decimal, secret: str) -> None:
+    def __init__(
+        self, session: Session, today: date, per_week: int, daily_cap: Decimal, secret: str, scope: str = ""
+    ) -> None:
         self.session = session
         self.today = today
         self.per_week = per_week
         self.daily_cap = daily_cap
         self.secret = secret.encode()
+        self.scope = scope
 
     def _keys(self, cookie: str, ip: str) -> list[str]:
-        return [hmac.new(self.secret, f"{kind}:{value}".encode(), hashlib.sha256).hexdigest()
+        return [hmac.new(self.secret, f"{self.scope}{kind}:{value}".encode(), hashlib.sha256).hexdigest()
                 for kind, value in (("cookie", cookie), ("ip", ip))]  # fmt: skip
 
     def next_free_check(self, cookie: str, ip: str) -> datetime | None:

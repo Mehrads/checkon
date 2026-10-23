@@ -16,6 +16,7 @@ import {
   SiteHeader,
   WhatYouGet,
 } from "@/components/Site/Landing"
+import { SampleAudit } from "@/components/Site/SampleAudit"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { loadAnalytics } from "@/lib/analytics"
 
@@ -52,6 +53,7 @@ function CheckPage() {
           <SampleFix />
           <HowItWorks />
           <ForTeams />
+          <SampleAudit />
           <Pricing />
           <Faq />
           <NextPosting />

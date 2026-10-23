@@ -25,6 +25,7 @@ import { BrowserFrame, Photo, Screenshot } from "./Media"
 
 const NAV = [
   { href: "#how", label: "How it works" },
+  { href: "#audit", label: "Careers page audit" },
   { href: "#teams", label: "Who it's for" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
@@ -80,7 +81,7 @@ export function SiteHeader() {
 }
 
 /** A short rule and a label above a heading. */
-function Kicker({
+export function Kicker({
   children,
   className,
   rule = "bg-brand",
@@ -102,7 +103,7 @@ function Kicker({
   )
 }
 
-function Heading({
+export function Heading({
   id,
   children,
   className,

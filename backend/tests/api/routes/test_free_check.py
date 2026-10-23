@@ -39,6 +39,15 @@ def test_quota_blocks_the_same_cookie_or_ip_for_a_week(db: Session) -> None:
     assert guard.next_free_check(secrets.token_hex(8), "198.51.100.8") is None
 
 
+def test_the_sample_audit_has_its_own_weekly_quota(db: Session) -> None:
+    cookie, ip = secrets.token_hex(8), f"203.0.113.{secrets.randbelow(250)}"
+    sample = PostgresLimits(db, DAY, 1, Decimal(5), settings.SECRET_KEY, scope="sample-")
+    limits(db).record_use(cookie, ip)  # the week's free check
+    assert sample.next_free_check(cookie, ip) is None  # doesn't use up the sample audit
+    sample.record_use(cookie, ip)
+    assert sample.next_free_check(cookie, ip) is not None
+
+
 def test_quota_stores_hashes_not_raw_values(db: Session) -> None:
     cookie, ip = secrets.token_hex(8), "203.0.113.99"
     limits(db).record_use(cookie, ip)

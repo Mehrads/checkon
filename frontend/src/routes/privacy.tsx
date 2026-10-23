@@ -47,8 +47,9 @@ function PrivacyPage() {
             <strong>Your posting.</strong> Sent to our AI provider to run the
             check and held in memory for up to an hour so you can apply fixes.
             We don't save it, unless you tick "Share this posting" when
-            reporting a problem. A careers page audit reads each posting from
-            your public job board or careers page and handles it the same way.
+            reporting a problem. A careers page audit, including the free
+            sample, reads each posting from your public job board or careers
+            page and handles it the same way.
           </li>
           <li>
             <strong>Searches.</strong> We search the web for the employer's name
@@ -57,8 +58,9 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>Cookie and IP address.</strong> Used to enforce the weekly
-            free check and stop abuse. We store only keyed hashes of them, not
-            the values, and delete them after about 8 days.
+            free check and free sample audit, and stop abuse. We store only
+            keyed hashes of them, not the values, and delete them after about 8
+            days.
           </li>
           <li>
             <strong>Usage records and feedback.</strong> What each check did,
