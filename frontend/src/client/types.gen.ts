@@ -486,6 +486,10 @@ export type BillingOut = {
      */
     has_billing: boolean;
     /**
+     * Complimentary
+     */
+    complimentary?: boolean;
+    /**
      * Plan
      */
     plan: 'starter' | 'agency' | null;

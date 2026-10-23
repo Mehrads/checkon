@@ -102,7 +102,9 @@ export function PlanCard({ billing }: { billing: BillingOut }) {
             <h2 className="font-display text-3xl leading-tight font-medium tracking-[-0.01em]">
               {billing.plan_name}
             </h2>
-            {pastDue ? (
+            {billing.complimentary ? (
+              <Badge variant="outline">Test account</Badge>
+            ) : pastDue ? (
               <Badge variant="destructive">Payment failed</Badge>
             ) : billing.cancel_at_period_end && billing.period_end ? (
               <Badge variant="outline">
@@ -113,22 +115,25 @@ export function PlanCard({ billing }: { billing: BillingOut }) {
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {price}/month · {billing.checks_included} checks a month · extra
-            checks $1 each
+            {billing.complimentary
+              ? `Complimentary, nothing is billed · ${billing.checks_included} checks a month`
+              : `${price}/month · ${billing.checks_included} checks a month · extra checks $1 each`}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {billing.plan && !billing.cancel_at_period_end && (
             <SwitchPlan billing={billing} />
           )}
-          <LoadingButton
-            variant="outline"
-            loading={portal.isPending}
-            onClick={() => portal.mutate()}
-          >
-            <CreditCard />
-            Manage billing
-          </LoadingButton>
+          {!billing.complimentary && (
+            <LoadingButton
+              variant="outline"
+              loading={portal.isPending}
+              onClick={() => portal.mutate()}
+            >
+              <CreditCard />
+              Manage billing
+            </LoadingButton>
+          )}
         </div>
       </div>
       {pastDue && (

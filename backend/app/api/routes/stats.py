@@ -12,16 +12,17 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from app.api.billing import active_plan
 from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import (
     ContactMessage,
-    CustomRequest,
     Customer,
+    CustomRequest,
     Feedback,
     FreeCheckSpend,
+    PaidCheck,
     UsageEvent,
     get_datetime_utc,
 )
@@ -109,10 +110,14 @@ def _percentile(values: list[float], share: float) -> float | None:
 
 
 def compute_stats(session: Session, now: datetime) -> StatsOut:
-    every = sorted(session.exec(select(UsageEvent)).all(), key=lambda e: e.at)
+    # Our complimentary test accounts are left out: their checks and the customer itself.
+    tests = set(session.exec(
+        select(PaidCheck.check_id).join(Customer, col(PaidCheck.customer_id) == Customer.id).where(col(Customer.complimentary))
+    ).all())  # fmt: skip
+    every = sorted((e for e in session.exec(select(UsageEvent)).all() if e.check_id not in tests), key=lambda e: e.at)
     events = [e for e in every if e.plan is None]  # free checks
     paid = [e for e in every if e.plan is not None]
-    customers = session.exec(select(Customer)).all()
+    customers = [customer for customer in session.exec(select(Customer)).all() if not customer.complimentary]
     requests = session.exec(select(CustomRequest.created_at)).all()
     contacts = session.exec(select(ContactMessage.created_at, ContactMessage.interest)).all()
     requests = [*requests, *(created for created, interest in contacts if interest == "custom")]

@@ -243,11 +243,16 @@ class UsageEvent(SQLModel, table=True):
 
 
 class Customer(SQLModel, table=True):
-    """One Stripe customer and its subscription. Its users share the plan's checks for the billing period."""
+    """One Stripe customer and its subscription. Its users share the plan's checks for the billing period.
+
+    A complimentary customer is our own test account (`python -m app.test_account`): a plan that stays active
+    with no Stripe customer or subscription behind it. Nothing is billed, and its checks are left out of the
+    usage stats.
+    """
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime = Field(default_factory=get_datetime_utc)
-    stripe_customer_id: str = Field(unique=True, max_length=255)
+    stripe_customer_id: str | None = Field(default=None, unique=True, max_length=255)  # None when complimentary
     email: str | None = Field(default=None, max_length=255)  # the email given at Checkout
     stripe_subscription_id: str | None = Field(default=None, max_length=255)
     plan: str | None = Field(default=None, max_length=16)  # starter or agency
@@ -255,6 +260,7 @@ class Customer(SQLModel, table=True):
     current_period_start: datetime | None = None
     current_period_end: datetime | None = None
     cancel_at_period_end: bool = False
+    complimentary: bool = False
 
 
 class PaidCheck(SQLModel, table=True):

@@ -228,7 +228,8 @@ export class BillingService {
      *
      * Switch between Starter and Agency now. The price difference for the rest of the period is invoiced
      * straight away, and the new plan's checks apply to the whole period. (Stripe's portal can't switch plans
-     * on a subscription with a usage-based price, so it happens here.)
+     * on a subscription with a usage-based price, so it happens here.) A complimentary account just switches,
+     * so both plans can be tested.
      */
     public static changePlan<ThrowOnError extends boolean = true>(options: Options<billingChangePlanData, ThrowOnError>) {
         return (options.client ?? client).post<billingChangePlanResponses, billingChangePlanErrors, ThrowOnError>({

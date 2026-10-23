@@ -186,9 +186,9 @@ def record_final_status(session: Session, check_id: str, status: str) -> None:
 def report_extra_checks(client: stripe.StripeClient, session: Session, customer_id: uuid.UUID) -> int:
     """Send the customer's unreported extra checks to the meter; returns how many went. A check that fails
     is retried after the customer's next check. Stripe ignores a repeated identifier, so a retry can't bill
-    twice."""
+    twice. A complimentary account has nothing to bill."""
     customer = session.get(Customer, customer_id)
-    if customer is None:
+    if customer is None or customer.complimentary or customer.stripe_customer_id is None:
         return 0
     pending = session.exec(
         select(PaidCheck)

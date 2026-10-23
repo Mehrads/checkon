@@ -145,8 +145,8 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
         if current_user.customer_id
         else None
     )
-    if active_plan(customer) and customer and not customer.cancel_at_period_end:
-        # Deleting the account wouldn't stop the subscription
+    if active_plan(customer) and customer and not customer.cancel_at_period_end and not customer.complimentary:
+        # Deleting the account wouldn't stop the subscription (a complimentary account has none)
         raise HTTPException(
             status_code=409,
             detail="Cancel your plan under Manage billing first, then delete your account.",

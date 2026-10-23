@@ -34,6 +34,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["billing"])
 
 StripeDep = Annotated[stripe.StripeClient, Depends(get_stripe)]
+OptionalStripeDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
+COMPLIMENTARY = "This is a complimentary test account: there's no billing to manage."
 PlanId = Literal["starter", "agency"]
 
 
@@ -48,6 +50,7 @@ class RedirectOut(BaseModel):
 class BillingOut(BaseModel):
     checkout_enabled: bool  # Stripe is set up, so plans can be bought here
     has_billing: bool  # a Stripe customer exists, so the customer portal opens
+    complimentary: bool = False  # our own test account: an active plan with nothing billed
     plan: PlanId | None  # the active plan
     plan_name: str | None
     status: str | None  # Stripe's subscription status, e.g. active, past_due, canceled
@@ -86,7 +89,8 @@ def _billing(session: SessionDep, customer: Customer | None) -> BillingOut:
     current = allowance(session, customer, plan, get_datetime_utc()) if customer and plan else None
     return BillingOut(
         checkout_enabled=settings.billing_enabled,
-        has_billing=customer is not None,
+        has_billing=customer is not None and customer.stripe_customer_id is not None,
+        complimentary=bool(customer and customer.complimentary),
         plan=plan.id if plan else None,  # type: ignore[arg-type]
         plan_name=plan.name if plan else None,
         status=customer.subscription_status if customer else None,
@@ -162,7 +166,7 @@ def start_checkout(body: PlanIn, session: SessionDep, user: OptionalUserDep, cli
     }
     if user:
         params["client_reference_id"] = str(user.id)
-    if customer:  # coming back after a plan ended: keep the same Stripe customer and invoices
+    if customer and customer.stripe_customer_id:  # back after a plan ended: the same Stripe customer and invoices
         params["customer"] = customer.stripe_customer_id
         params["customer_update"] = {"address": "auto", "name": "auto"}
     elif user:
@@ -179,7 +183,9 @@ def start_checkout(body: PlanIn, session: SessionDep, user: OptionalUserDep, cli
 def open_billing_portal(session: SessionDep, user: CurrentUser, client: StripeDep) -> Any:
     """Stripe's customer portal: card, invoices, cancelling."""
     customer = _customer(session, user)
-    if customer is None:
+    if customer is not None and customer.complimentary:
+        raise HTTPException(status_code=409, detail=COMPLIMENTARY)
+    if customer is None or customer.stripe_customer_id is None:
         raise HTTPException(status_code=404, detail="There's no billing account for this user.")
     try:
         portal = client.v1.billing_portal.sessions.create(
@@ -192,17 +198,26 @@ def open_billing_portal(session: SessionDep, user: CurrentUser, client: StripeDe
 
 
 @router.post("/billing/plan", response_model=BillingOut)
-def change_plan(body: PlanIn, session: SessionDep, user: CurrentUser, client: StripeDep) -> Any:
+def change_plan(body: PlanIn, session: SessionDep, user: CurrentUser, client: OptionalStripeDep) -> Any:
     """Switch between Starter and Agency now. The price difference for the rest of the period is invoiced
     straight away, and the new plan's checks apply to the whole period. (Stripe's portal can't switch plans
-    on a subscription with a usage-based price, so it happens here.)"""
+    on a subscription with a usage-based price, so it happens here.) A complimentary account just switches,
+    so both plans can be tested."""
     customer = _customer(session, user)
     current = active_plan(customer)
-    if customer is None or current is None or customer.stripe_subscription_id is None:
+    if customer is None or current is None:
         raise HTTPException(status_code=409, detail="There's no active plan to change.")
     if current.id == body.plan:
         raise HTTPException(status_code=409, detail=f"You're already on {current.name}.")
     target = plans()[body.plan]
+    if customer.complimentary:
+        customer.plan = target.id
+        session.add(customer)
+        session.commit()
+        return _billing(session, customer)
+    if customer.stripe_subscription_id is None:
+        raise HTTPException(status_code=409, detail="There's no active plan to change.")
+    client = client or get_stripe()
     try:
         subscription = client.v1.subscriptions.retrieve(customer.stripe_subscription_id)
         item = next(item for item in subscription.items.data if stripe_id(item.price) == current.price)

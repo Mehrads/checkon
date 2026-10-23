@@ -246,6 +246,18 @@ A failed renewal needs time to pass, which Stripe simulates with test clocks (Bi
 
 The app reads the secrets when an instance starts. After you add a new secret version, the next deploy or apply picks it up.
 
+### 9. A test account
+
+A complimentary account for trying every paid feature on the live site: an Agency plan (or Starter) that stays active with no Stripe customer behind it. Its checks count against the plan's allowance as usual, but nothing goes to Stripe's meter, **Manage billing** is hidden, **Switch plan** works without Stripe, and its checks and the account itself are left out of the admin stats. A user who pays through Stripe, or an admin, is never turned into one. Use an address you receive, since sign-in emails a code.
+
+On production, run the command in the migration job (its image is the one deployed, with the same settings and database). From a Terminal tab:
+
+```bash
+gcloud run jobs execute posting-checker-migrate --region northamerica-northeast2 --project compliance-512120 --account msoltani2001@gmail.com --wait --args=-c,"python -m app.test_account mehthon+checkon-test@gmail.com"
+```
+
+The first run creates the user and emails a "Set your password" link (or use **Forgot password**), then sign in as usual. Add `--plan starter` to switch plans from the command, or `--end` to switch the account off; running it again switches it back on. Locally: `uv run python -m app.test_account you@example.com` in `backend/` (the set-password link is printed in development).
+
 ## Browser extension
 
 The free check also runs in a Chrome and Edge side panel (`extension/`). The API only accepts extensions listed in `extension_ids` in `terraform.tfvars`: the unpacked build's fixed ID (`lfepfedddcabkigmmhbhacdllgljpdbe`), then the Chrome Web Store and Edge IDs once the listings exist. Add an ID and run `terraform apply`; it updates the service's `EXTENSION_IDS` setting in place. Building, loading and publishing are in `extension/README.md`.
