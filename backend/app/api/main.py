@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    archive,
     audits,
     billing,
     checks,
@@ -23,6 +24,7 @@ api_router.include_router(workspaces.router)
 api_router.include_router(pay.router)
 api_router.include_router(audits.router)
 api_router.include_router(sample_audits.router)
+api_router.include_router(archive.router)
 api_router.include_router(stats.router)
 api_router.include_router(login.router)
 api_router.include_router(users.router)

@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     FREE_CHECKS_PER_WEEK: int = 1
     FREE_CHECK_DAILY_SPEND_CAP_USD: Decimal = Decimal("5")
     FREE_CHECK_REQUESTS_PER_MINUTE: int = 30
+    # Posting links the server fetches per IP per hour, for free and paid checks alike. A link that can't be
+    # read uses no check, so this bounds the fetches a visitor can make.
+    LINK_FETCHES_PER_HOUR: int = 20
     # Proxies in front of the app that append to X-Forwarded-For (Cloud Run: 1). The client IP is
     # read that many entries from the right, so a client can't spoof it by sending its own header.
     TRUSTED_PROXY_HOPS: int = 0

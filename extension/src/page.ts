@@ -243,6 +243,173 @@ function writePostingInPage(html: string, text: string): boolean {
   return true
 }
 
+/** In the page: the application form's questions as text, one per line with " *" when required and its
+ * choices on "- " lines after it (the format the check reads). The selected text wins, for a form builder
+ * that shows its questions as text; else the form with the most visible fields. */
+function readFormInPage(): {
+  text: string
+  questions: number
+  source: "selection" | "form"
+} | null {
+  const clean = (value: string) => value.replace(/\s+/g, " ").trim()
+  const selected = window.getSelection()?.toString().trim() ?? ""
+  if (selected.length >= 10) {
+    const lines = selected.split(/\n+/).filter((line) => line.trim())
+    return { text: selected, questions: lines.length, source: "selection" }
+  }
+
+  const SKIP = new Set([
+    "hidden",
+    "submit",
+    "button",
+    "reset",
+    "image",
+    "search",
+  ])
+  const visible = (el: Element) => {
+    const box = el.getBoundingClientRect()
+    const style = getComputedStyle(el)
+    return (
+      (box.width > 0 || box.height > 0) &&
+      style.visibility !== "hidden" &&
+      style.display !== "none"
+    )
+  }
+  const textOf = (ids: string | null) =>
+    clean(
+      (ids ?? "")
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent ?? "")
+        .join(" "),
+    )
+  const labelOf = (el: HTMLElement): string => {
+    const labelled = textOf(el.getAttribute("aria-labelledby"))
+    if (labelled) return labelled
+    const labels = (el as HTMLInputElement).labels
+    if (labels?.length) return clean(labels[0].innerText)
+    const aria = clean(el.getAttribute("aria-label") ?? "")
+    if (aria) return aria
+    // A field without a label: the text of the nearest block above it that has some.
+    let node: HTMLElement | null = el
+    for (let depth = 0; node && depth < 4; depth++) {
+      let sibling = node.previousElementSibling
+      while (sibling) {
+        const text = clean((sibling as HTMLElement).innerText ?? "")
+        if (text && text.length <= 300) return text
+        sibling = sibling.previousElementSibling
+      }
+      node = node.parentElement
+    }
+    return clean(el.getAttribute("placeholder") ?? "")
+  }
+  /** The question for a group of radios or checkboxes: its fieldset legend or labelled group. */
+  const groupLabelOf = (el: HTMLElement): string => {
+    const group = el.closest<HTMLElement>(
+      "fieldset, [role=radiogroup], [role=group]",
+    )
+    if (group) {
+      const legend = group.querySelector("legend")
+      if (legend) return clean(legend.innerText)
+      const named =
+        textOf(group.getAttribute("aria-labelledby")) ||
+        clean(group.getAttribute("aria-label") ?? "")
+      if (named) return named
+    }
+    const container = el.closest("label")?.parentElement ?? el.parentElement
+    return container ? labelOf(container) : ""
+  }
+
+  type Question = { text: string; required: boolean; options: string[] }
+  const read = (root: ParentNode): Question[] => {
+    const questions: Question[] = []
+    const groups = new Map<string, Question>()
+    const fields = root.querySelectorAll<HTMLElement>(
+      "input, select, textarea, [role=radiogroup], [role=combobox]",
+    )
+    for (const el of fields) {
+      if (
+        !visible(el) &&
+        !(el instanceof HTMLInputElement && el.type === "radio")
+      )
+        continue
+      if (el instanceof HTMLInputElement && SKIP.has(el.type)) continue
+      const required =
+        (el as HTMLInputElement).required ||
+        el.getAttribute("aria-required") === "true"
+      if (
+        el instanceof HTMLInputElement &&
+        (el.type === "radio" || el.type === "checkbox")
+      ) {
+        const option = labelOf(el)
+        const name = el.name || option
+        const peers = el.name
+          ? root.querySelectorAll(`input[name="${CSS.escape(el.name)}"]`).length
+          : 1
+        if (peers <= 1 && el.type === "checkbox") {
+          if (option) questions.push({ text: option, required, options: [] })
+          continue
+        }
+        let group = groups.get(name)
+        if (!group) {
+          group = { text: groupLabelOf(el), required, options: [] }
+          groups.set(name, group)
+          questions.push(group)
+        }
+        group.required ||= required
+        if (option && option !== group.text) group.options.push(option)
+        continue
+      }
+      if (el.getAttribute("role") === "radiogroup") {
+        const options = [...el.querySelectorAll<HTMLElement>("[role=radio]")]
+          .map((radio) =>
+            clean(radio.innerText || radio.getAttribute("aria-label") || ""),
+          )
+          .filter(Boolean)
+        if (options.length)
+          questions.push({ text: labelOf(el), required, options })
+        continue
+      }
+      const options =
+        el instanceof HTMLSelectElement
+          ? [...el.options]
+              .filter((option) => option.value !== "" && clean(option.text))
+              .map((option) => clean(option.text))
+          : []
+      questions.push({ text: labelOf(el), required, options })
+    }
+    // A labelled wrapper and its field (a combobox around an input) read as one question.
+    return questions.filter(
+      (question, i) =>
+        question.text &&
+        !(
+          i > 0 &&
+          question.text === questions[i - 1].text &&
+          !question.options.length
+        ),
+    )
+  }
+
+  const forms = [...document.querySelectorAll("form")]
+    .map((form) => read(form))
+    .sort((a, b) => b.length - a.length)
+  const questions = forms[0]?.length ? forms[0] : read(document)
+  if (!questions.length) return null
+  const text = questions
+    .map(({ text, required, options }) => {
+      const star = /\*\s*$/.test(text)
+      const line = `${text.replace(/\s*\*\s*$/, "")}${required || star ? " *" : ""}`
+      return [line, ...options.map((option) => `- ${option}`)].join("\n")
+    })
+    .join("\n")
+  return { text, questions: questions.length, source: "form" }
+}
+
+export interface PageForm {
+  text: string
+  questions: number
+  source: "selection" | "form"
+}
+
 async function activeTabId(): Promise<number | undefined> {
   const [tab] = await chrome.tabs.query({
     active: true,
@@ -285,4 +452,23 @@ export async function writeToPage(
     args: [html, text],
   })
   return results.some(({ result }) => result === true)
+}
+
+/** Read the application form from the current tab: the frame with the most questions. Throws when Chrome won't
+ * let us read the page. */
+export async function readFormFromPage(): Promise<PageForm | null> {
+  const tabId = await activeTabId()
+  if (tabId === undefined) return null
+  const results = await chrome.scripting.executeScript({
+    target: { tabId, allFrames: true },
+    func: readFormInPage,
+  })
+  const found = results
+    .flatMap(({ result }) => (result ? [result] : []))
+    .sort(
+      (a, b) =>
+        Number(b.source === "selection") - Number(a.source === "selection") ||
+        b.questions - a.questions,
+    )
+  return found[0] ?? null
 }

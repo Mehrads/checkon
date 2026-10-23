@@ -8,16 +8,30 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_sizes, get_usage
+import httpx
+
+from app.api.free_check import RateLimiter, rate_limited
+from app.api.posting_link import LinkReader
+from app.api.routes.checks import (
+    get_limits,
+    get_link_limiter,
+    get_link_reader,
+    get_llm,
+    get_posting_date,
+    get_sizes,
+    get_usage,
+)
 from app.api.usage import visitor_hash
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
+from app.compliance.form import FormLabels
+from app.compliance.normalise import normalise
 from app.compliance.refiner import _Rewrite
 from app.main import app
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_employer import MemorySizes
 from tests.compliance.test_inspector import POSTING, extraction, labels
+from tests.compliance.test_posting_link import Server, page, redirect, resolver
 
 API = "/api/v1"
 
@@ -318,3 +332,219 @@ def test_refusals_are_recorded_for_the_same_visitor(
     ]
     # An error response can't set the cookie, so only the check and the later try share a visitor.
     assert usage.events[1]["visitor"] == usage.events[2]["visitor"]
+
+
+
+# A posting's link: read by the server with no network here (a scripted resolver and a mock transport)
+
+DNS = {"jobs.example.com": ["93.184.216.34"], "internal.example.com": ["10.0.0.7"]}
+
+
+@pytest.fixture
+def site() -> Generator[Server]:
+    server = Server({
+        "jobs.example.com/payroll": page(POSTING, "text/plain"),
+        "jobs.example.com/moved": redirect("http://internal.example.com/payroll"),
+        "jobs.example.com/long": page("Payroll duties. " * 600, "text/plain"),
+    })  # fmt: skip
+    app.dependency_overrides[get_link_reader] = lambda: LinkReader(resolver=resolver(DNS), transport=httpx.MockTransport(server))
+    app.dependency_overrides[get_link_limiter] = lambda: limiter
+    limiter = RateLimiter(20, window_seconds=3600)
+    yield server
+    app.dependency_overrides.pop(get_link_reader, None)
+    app.dependency_overrides.pop(get_link_limiter, None)
+
+
+def test_a_posting_link_is_read_and_checked_as_one_check(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, usage: MemoryUsage, site: Server
+) -> None:
+    llm.queue(Extraction, extraction()).queue(Classification, labels())
+    response = client.post(f"{API}/inspect", json={"url": "https://jobs.example.com/payroll", "meets_headcount_threshold": True})
+    assert response.status_code == 200, response.text
+    check = response.json()
+    assert check["url"] == "https://jobs.example.com/payroll"
+    assert check["text"] == normalise(POSTING).text
+    assert check["report"]["status"] == "not_compliant"
+    assert len(limits.uses) == 1
+    assert [e["kind"] for e in usage.events] == ["check"]
+    assert "jobs.example.com" not in str(usage.events)  # neither the posting nor its address is kept
+
+
+@pytest.mark.parametrize(
+    ("link", "reason"),
+    [
+        ("https://www.linkedin.com/jobs/view/123", "blocked_site"),
+        ("https://ca.indeed.com/viewjob?jk=1", "blocked_site"),
+        ("https://www.glassdoor.ca/job-listing/x", "blocked_site"),
+        ("http://169.254.169.254/latest/meta-data/", "unsafe_url"),
+        ("http://10.0.0.1/", "unsafe_url"),
+        ("http://internal.example.com/", "unsafe_url"),
+        ("https://jobs.example.com/moved", "unsafe_url"),  # a redirect to a private address
+        ("file:///etc/passwd", "bad_url"),
+        ("https://jobs.example.com/missing", "fetch_failed"),
+        ("https://jobs.example.com/long", "too_long"),
+    ],
+)  # fmt: skip
+def test_a_link_that_cant_be_read_asks_for_a_paste_and_uses_no_check(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, usage: MemoryUsage, site: Server, link: str, reason: str
+) -> None:
+    response = client.post(f"{API}/inspect", json={"url": link})
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert detail["reason"] == reason
+    assert reason == "bad_url" or "aste the posting" in detail["message"] or "aste just the posting" in detail["message"]
+    assert llm.calls == [] and limits.uses == []
+    assert [(e["kind"], e["status"]) for e in usage.events] == [("refused", reason)]
+    assert all(request.headers["host"] == "jobs.example.com" for request in site.requests)
+
+
+def test_links_are_rate_limited_per_address(client: TestClient, llm: FakeLLM, site: Server) -> None:
+    app.dependency_overrides[get_link_limiter] = lambda: limiter
+    limiter = RateLimiter(2, window_seconds=3600)
+    for _ in range(2):
+        assert client.post(f"{API}/inspect", json={"url": "https://jobs.example.com/missing"}).status_code == 422
+    response = client.post(f"{API}/inspect", json={"url": "https://jobs.example.com/missing"})
+    assert response.status_code == 429
+    assert response.json()["detail"]["reason"] == "fetch_limit"
+    assert len(site.requests) == 2
+
+
+def test_a_visitor_with_no_check_left_makes_no_fetch(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, site: Server
+) -> None:
+    limits.per_week = 1
+    inspect(client, llm)
+    response = client.post(f"{API}/inspect", json={"url": "https://jobs.example.com/payroll"})
+    assert response.status_code == 429 and response.json()["detail"]["reason"] == "quota"
+    assert site.requests == []
+
+
+@pytest.mark.parametrize("body", [{}, {"text": POSTING, "url": "https://jobs.example.com/payroll"}, {"url": ""}])
+def test_inspect_takes_text_or_a_link(client: TestClient, llm: FakeLLM, body: dict) -> None:
+    assert client.post(f"{API}/inspect", json=body).status_code == 422
+    assert llm.calls == []
+
+
+# The application form: one more check, on the same limits
+
+FORM = """Email *
+Do you have Canadian work experience? *
+- Yes
+- No
+Are you legally entitled to work in Canada?
+"""
+
+
+def inspect_without_canadian_experience(client: TestClient, llm: FakeLLM) -> dict:
+    found = labels()
+    for label in found["canadian_experience"]:
+        label["label"] = "ok"
+    llm.queue(Extraction, extraction()).queue(Classification, found)
+    return client.post(f"{API}/inspect", json={"text": POSTING, "meets_headcount_threshold": True}).json()
+
+
+def form_labels(*found: str) -> dict:
+    return {"questions": [{"question": n, "label": label, "reason": "r"} for n, label in enumerate(found, start=1)]}
+
+
+def check_form(client: TestClient, llm: FakeLLM, check_id: str, *found: str, form: str = FORM) -> dict:
+    llm.queue(FormLabels, form_labels(*found))
+    response = client.post(f"{API}/form", json={"check_id": check_id, "form": form})
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_the_form_is_checked_for_canadian_experience_as_a_second_check(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, usage: MemoryUsage
+) -> None:
+    first = inspect_without_canadian_experience(client, llm)
+    assert first["form_text"] is None and first["report"]["form_results"] == []
+
+    check = check_form(client, llm, first["check_id"], "ok", "violation", "ok")
+    assert verdicts(check["report"])["ON-CEX-01"] == "pass"  # the posting itself
+    [result] = check["report"]["form_results"]
+    assert (result["rule"], result["verdict"]) == ("ON-CEX-01", "fail")
+    assert "application form" in result["message"] and "s. 8.3 (1)" in result["citation"]
+    [(start, end)] = result["evidence"]
+    assert check["form_text"][start:end] == "Do you have Canadian work experience? *\n- Yes\n- No"
+    assert check["report"]["status"] == "not_compliant"
+    assert check["report"]["versions"]["form_hash"]
+    assert len(limits.uses) == 2  # the posting and the form
+    assert [(e["kind"], e.get("count")) for e in usage.events] == [("check", None), ("form", 3)]
+    # Only the form task's prompt and questions went to the model; the posting wasn't read again.
+    [call] = llm.calls_for(FormLabels)
+    assert "Do you have Canadian work experience?" in call.user and "Payroll" not in call.user
+
+
+def test_the_free_check_covers_the_posting_but_not_the_form(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits
+) -> None:
+    limits.per_week = 1
+    check = inspect(client, llm)
+    response = client.post(f"{API}/form", json={"check_id": check["check_id"], "form": FORM})
+    assert response.status_code == 429
+    assert response.json()["detail"] == {
+        "reason": "quota",
+        "message": "Checking the application form uses a second check, and you've used this week's free check. "
+        "Your next free check is available on October 26.",
+    }
+    assert llm.calls_for(FormLabels) == []
+
+
+def test_form_results_last_through_answers_fixes_and_the_final_text(client: TestClient, llm: FakeLLM) -> None:
+    check = inspect(client, llm)  # Canadian experience fails in the posting; AI use is asked
+    check = check_form(client, llm, check["check_id"], "ok", "violation", "ok")
+
+    check = client.post(f"{API}/answers", json={"check_id": check["check_id"], "answers": {"uses_ai_in_hiring": False}}).json()
+    assert [r["verdict"] for r in check["report"]["form_results"]] == ["fail"]
+
+    llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
+    llm.queue(Classification, {"canadian_experience": [{"sentence": 4, "label": "ok", "reason": "r"}], "vacancy": [], "ai": []})
+    check = client.post(f"{API}/refine", json={"check_id": check["check_id"]}).json()
+    assert [p["rule"] for p in check["refinement"]["patches"]] == ["ON-CEX-01"]  # the posting's sentence only
+    assert [r["verdict"] for r in check["refinement"]["report"]["form_results"]] == ["fail"]
+
+    final = client.post(f"{API}/patches/accept", json={"check_id": check["check_id"], "decisions": []}).json()
+    assert verdicts(final["report"])["ON-CEX-01"] == "pass"
+    assert [r["verdict"] for r in final["report"]["form_results"]] == ["fail"]
+    assert final["report"]["status"] == "not_compliant"  # the form still asks for Canadian experience
+
+
+def test_a_form_added_after_the_fixes_updates_them_from_the_cache(client: TestClient, llm: FakeLLM) -> None:
+    check = inspect(client, llm)
+    llm.queue(_Rewrite, {"sentence": "2+ years of payroll experience"})
+    llm.queue(Classification, {"canadian_experience": [{"sentence": 4, "label": "ok", "reason": "r"}], "vacancy": [], "ai": []})
+    client.post(f"{API}/refine", json={"check_id": check["check_id"]})
+    calls = len(llm.calls)
+    check = check_form(client, llm, check["check_id"], "ok", "ok", "ok", form=FORM.replace("Canadian ", ""))
+    assert len(llm.calls) == calls + 1  # the form's labels; the rewrite and its labels come from the cache
+    assert [r["verdict"] for r in check["refinement"]["report"]["form_results"]] == ["pass"]
+
+
+def test_an_optional_form_question_is_a_warning(client: TestClient, llm: FakeLLM) -> None:
+    first = inspect_without_canadian_experience(client, llm)
+    check = check_form(client, llm, first["check_id"], "violation", form="Years of experience in Canada (optional)")
+    assert [(r["verdict"], r["message"][:24]) for r in check["report"]["form_results"]] == [
+        ("warning", "An optional question in ")
+    ]
+
+
+def test_a_form_without_questions_or_for_an_excluded_posting_uses_no_check(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits
+) -> None:
+    check = inspect(client, llm)
+    response = client.post(f"{API}/form", json={"check_id": check["check_id"], "form": " \n\n "})
+    assert response.status_code == 422 and response.json()["detail"]["reason"] == "empty_form"
+
+    llm.queue(Extraction, extraction(internal_only=True)).queue(Classification, labels())
+    internal = client.post(f"{API}/inspect", json={"text": POSTING, "meets_headcount_threshold": True}).json()
+    assert internal["report"]["status"] == "not_applicable"
+    response = client.post(f"{API}/form", json={"check_id": internal["check_id"], "form": FORM})
+    assert response.status_code == 422 and response.json()["detail"]["reason"] == "not_applicable"
+    assert llm.calls_for(FormLabels) == [] and len(limits.uses) == 2  # the two postings only
+
+
+def test_the_form_is_capped_and_needs_a_live_check(client: TestClient, llm: FakeLLM) -> None:
+    check = inspect(client, llm)
+    assert client.post(f"{API}/form", json={"check_id": check["check_id"], "form": "x" * 4001}).status_code == 422
+    assert client.post(f"{API}/form", json={"check_id": "expired", "form": FORM}).status_code == 404

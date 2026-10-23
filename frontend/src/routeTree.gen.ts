@@ -19,6 +19,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutArchiveRouteImport } from './routes/_layout/archive'
 import { Route as LayoutProfileRouteImport } from './routes/_layout/profile'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutStatsRouteImport } from './routes/_layout/stats'
@@ -75,6 +76,11 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutArchiveRoute = LayoutArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutProfileRoute = LayoutProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/admin': typeof LayoutAdminRoute
+  '/archive': typeof LayoutArchiveRoute
   '/profile': typeof LayoutProfileRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/admin': typeof LayoutAdminRoute
+  '/archive': typeof LayoutArchiveRoute
   '/profile': typeof LayoutProfileRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/archive': typeof LayoutArchiveRoute
   '/_layout/profile': typeof LayoutProfileRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/stats': typeof LayoutStatsRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/admin'
+    | '/archive'
     | '/profile'
     | '/settings'
     | '/stats'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/admin'
+    | '/archive'
     | '/profile'
     | '/settings'
     | '/stats'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/welcome'
     | '/_layout/admin'
+    | '/_layout/archive'
     | '/_layout/profile'
     | '/_layout/settings'
     | '/_layout/stats'
@@ -299,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/archive': {
+      id: '/_layout/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof LayoutArchiveRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/profile': {
       id: '/_layout/profile'
       path: '/profile'
@@ -346,6 +365,7 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutArchiveRoute: typeof LayoutArchiveRoute
   LayoutProfileRoute: typeof LayoutProfileRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutStatsRoute: typeof LayoutStatsRoute
@@ -357,6 +377,7 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutArchiveRoute: LayoutArchiveRoute,
   LayoutProfileRoute: LayoutProfileRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutStatsRoute: LayoutStatsRoute,

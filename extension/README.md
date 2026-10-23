@@ -30,9 +30,10 @@ The unpacked ID comes from `unpacked-public-key.txt`. Only the public half of th
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `extension/dist`.
 3. Pin CheckON from the puzzle-piece menu.
 4. Open a job form, or any page with a posting, and click the CheckON icon. The side panel reads the posting: the selected text first, then the job description field, then the page.
-5. Click **Check this posting**, answer any questions, apply the fixes, then **Insert into page** (or copy).
+5. To check the application form too, open it and click **Read form** (on a page you haven't clicked the icon on, it asks for one icon click first). The questions, their choices and required marks appear in the panel; edit them if needed. The form uses one more check.
+6. Click **Check this posting**, answer any questions, apply the fixes, then **Insert into page** (or copy).
 
-You can also select text and right-click › **Check with CheckON**.
+You can also select text and right-click › **Check with CheckON**, or check a posting by its public link under **Link** (the server reads the page; not LinkedIn, Indeed or Glassdoor).
 
 Chrome lets the panel read a page only after you click the CheckON icon (or the menu item) on that page. After switching tabs, click the icon again and the open panel reads the new tab.
 
@@ -45,7 +46,7 @@ The Chrome Web Store asks why each permission is needed:
 | Permission | Why |
 | --- | --- |
 | `sidePanel` | The check runs in the browser's side panel |
-| `activeTab`, `scripting` | Read the posting from the current tab, and write the approved version back into the job form. Only after you click the CheckON icon or menu item, and only in that tab |
+| `activeTab`, `scripting` | Read the posting, or the application form's questions, from the current tab, and write the approved version back into the job form. Only after you click the CheckON icon or menu item, and only in that tab |
 | `contextMenus` | The right-click "Check with CheckON" item |
 | `storage` | Passes the right-click request to the side panel (session storage, cleared when the browser closes), and keeps a paying customer signed in (local storage, until they log out) |
 | `https://checkon.ca/*` | The check runs on CheckON's API |
@@ -54,6 +55,6 @@ The Chrome Web Store asks why each permission is needed:
 
 1. Create a Chrome Web Store developer account with your personal Google account: https://chrome.google.com/webstore/devconsole (one-time registration fee).
 2. Run `bun run --filter extension package` and upload `extension/checkon-extension.zip` as a new item.
-3. Fill in the listing: description, screenshots of the side panel, privacy policy URL `https://checkon.ca/privacy`, and the data disclosure. The extension sends the posting text you check to checkon.ca, and, for customers who log in, their email, password and sign-in code to checkon.ca's sign-in. It stores only the sign-in token. In the Web Store's data form that's "Personally identifiable information" (email) and "Authentication information"; neither is sold or used for anything but signing in.
+3. Fill in the listing: description, screenshots of the side panel, privacy policy URL `https://checkon.ca/privacy`, and the data disclosure. The extension sends the posting text you check, and any application form questions you read, to checkon.ca, and, for customers who log in, their email, password and sign-in code to checkon.ca's sign-in. It stores only the sign-in token. In the Web Store's data form that's "Personally identifiable information" (email) and "Authentication information"; neither is sold or used for anything but signing in.
 4. Copy the item's ID from the dashboard and add it to the API's allowed extensions (`EXTENSION_IDS`, see `infra/README.md`). Until then the store version gets "Requests must come from the checker's own page".
 5. Edge: upload the same zip at https://partner.microsoft.com/dashboard/microsoftedge and add its ID too.

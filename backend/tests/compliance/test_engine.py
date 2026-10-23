@@ -98,7 +98,7 @@ def test_gate_reason_is_the_report_message() -> None:
 
 
 def test_report_records_the_rule_pack_version() -> None:
-    assert report().versions == {"rule_pack": "CA-ON@1.1.1"}
+    assert report().versions == {"rule_pack": "CA-ON@1.2.0"}
 
 
 def test_process_rules_are_reminders_not_results() -> None:

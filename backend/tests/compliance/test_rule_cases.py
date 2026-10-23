@@ -42,7 +42,12 @@ def test_rule_case(case: dict[str, Any]) -> None:
     expect = dict(case["expect"])
     if "status" in expect:
         assert report.status == expect.pop("status"), report.message
-    results = {result.rule: result for result in report.results}
-    for rule, verdict in expect.items():
-        assert rule in results, f"{rule} missing from the report"
-        assert results[rule].verdict == verdict, f"{rule}: {results[rule].message}"
+    # `form:` holds the verdicts on the application form; a case without a form expects none.
+    on_form = expect.pop("form", {})
+    for name, verdicts, found in (("report", expect, report.results), ("form", on_form, report.form_results)):
+        results = {result.rule: result for result in found}
+        for rule, verdict in verdicts.items():
+            assert rule in results, f"{rule} missing from the {name} results"
+            assert results[rule].verdict == verdict, f"{rule}: {results[rule].message}"
+    if "form" not in case["facts"]:
+        assert report.form_results == []

@@ -10,7 +10,7 @@ PACK_DIR = RULEPACKS_DIR / "CA-ON"
 
 
 def test_pack_label() -> None:
-    assert PACK.label == "CA-ON@1.1.1"
+    assert PACK.label == "CA-ON@1.2.0"
 
 
 def test_every_rule_cites_a_section() -> None:
@@ -31,6 +31,20 @@ def test_classifier_examples_use_the_labels_the_classifier_accepts() -> None:
         for example in rule.examples:
             assert example["label"] in allowed, f"{rule_id}: {example}"
             assert example["text"] and example["reason"], f"{rule_id}: {example}"
+
+
+def test_form_blocks_resolve_and_use_the_form_classifier_labels() -> None:
+    """Only s. 8.3 (1) names the application form, so only ON-CEX-01 runs on it."""
+    from app.compliance.form import FormLabel
+
+    allowed = set(FormLabel.model_fields["label"].annotation.__args__)
+    with_form = [rule for rule in PACK.rules if rule.form]
+    assert [rule.id for rule in with_form] == ["ON-CEX-01"]
+    for rule in with_form:
+        assert rule.form.check in CHECKS and {"pass", "fail", "warning", "optional"} <= set(rule.form.messages)
+        assert rule.form.examples
+        for example in rule.form.examples:
+            assert example["label"] in allowed and example["text"] and example["reason"], example
 
 
 def test_checked_rules_resolve_to_a_check() -> None:

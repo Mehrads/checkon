@@ -358,7 +358,8 @@ def reinspect(c: _Context, patches: list[Patch]) -> tuple[Inspection, _Applied]:
     locations = [
         loc.model_copy(update={"span": moved(loc.span)}) for loc in base.facts.locations if not applied.touched(loc.span)
     ]
-    facts = build_facts(doc, base.extraction, labels, pay, title, locations, c.wording.placeholder)
+    # Patches change the posting only; the application form's questions keep their labels.
+    facts = build_facts(doc, base.extraction, labels, pay, title, locations, c.wording.placeholder, base.facts.form)
     report = versioned(evaluate(facts, c.ctx, c.pack, c.posting_date), c.ctx, doc, c.classify_settings)
     inspection = Inspection(
         document=doc, context=c.ctx, extraction=base.extraction, labels=labels, facts=facts, report=report

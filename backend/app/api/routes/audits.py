@@ -435,7 +435,7 @@ def check_posting(
         return _posting(row, store)
     state = store.add(CheckState(
         posting_date=today, ctx=inspection.context, inspection=inspection, plan=plan.plan.id,
-        workspace_id=workspace.id if workspace else None, wording=wording(workspace),
+        workspace_id=workspace.id if workspace else None, wording=wording(workspace), url=row.url,
     ))  # fmt: skip
     report = inspection.report
     title = inspection.facts.title.value if inspection.facts.title else row.title

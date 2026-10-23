@@ -89,6 +89,21 @@ class Requirement(_Model):
     reason: str | None = None
 
 
+class FormQuestion(_Model):
+    """One question of the posting's application form, with its answer options and its Canadian-experience label.
+
+    Spans point into the normalised form text. `required` is None when the form doesn't say.
+    """
+
+    id: int
+    text: str
+    span: Span  # the question and its options
+    options: list[str] = []
+    required: bool | None = None
+    cex_label: Literal["violation", "borderline", "ok"]
+    reason: str | None = None
+
+
 class Facts(_Model):
     """Inspector output after span verification. None means the text does not settle it."""
 
@@ -102,6 +117,7 @@ class Facts(_Model):
     internal_only: bool | None = None
     work_in_ontario: bool | None = None
     pay_placeholder: Span | None = None  # the wording-library placeholder, where pay is still to be added
+    form: list[FormQuestion] | None = None  # the application form's questions; None when no form was checked
 
 
 class ExpectedPay(_Model):
@@ -161,6 +177,9 @@ class Reminder(_Model):
 class Report(_Model):
     status: Status
     results: list[RuleResult]
+    # The rules that also cover the application form, run on its questions; empty when no form was checked.
+    # Their evidence points into the form text.
+    form_results: list[RuleResult] = []
     reminders: list[Reminder] = []  # empty when the rules don't apply to the posting
     message: str | None = None
     versions: dict[str, str]

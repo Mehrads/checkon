@@ -8,12 +8,12 @@ guarded against reaching our own network (SSRF):
 - redirects are followed by hand, and each new address is checked the same way;
 - responses are read up to a size cap, with timeouts, and without proxies from the environment.
 
-Every fetch also obeys the site's robots.txt for our user agent (RFC 9309), including its Crawl-delay. Python's
+The address checks are the posting link's (app/api/posting_link.py), so every server-side fetch refuses the same
+addresses. Every fetch also obeys the site's robots.txt for our user agent (RFC 9309), including its Crawl-delay. Python's
 urllib.robotparser isn't used: it applies the first rule that matches rather than the most specific one, and it
 ignores * and $ in paths, so a robots.txt that starts with "Allow: /" would let us read everything.
 """
 
-import ipaddress
 import json
 import re
 import socket
@@ -25,6 +25,8 @@ from urllib.parse import unquote
 
 import httpx
 
+from app.api.posting_link import is_public
+
 USER_AGENT = "CheckON/1.0 (+https://checkon.ca)"
 ROBOTS_AGENT = "CheckON"  # the name robots.txt rules are matched against
 MAX_BYTES = 16_000_000  # a big job board's JSON; pages are far smaller
@@ -33,7 +35,6 @@ ROBOTS_TTL = 3600.0  # seconds a robots.txt answer is reused
 MAX_REDIRECTS = 5
 MAX_CRAWL_DELAY = 10.0  # seconds; a longer Crawl-delay is refused rather than waited out
 TIMEOUT = httpx.Timeout(10.0, read=20.0)
-_NAT64 = ipaddress.ip_network("64:ff9b::/96")
 
 Resolve = Callable[[str, int], list[str]]
 
@@ -67,15 +68,8 @@ def resolve(host: str, port: int) -> list[str]:
 
 
 def public_address(address: str) -> bool:
-    """A globally reachable unicast address, looking inside the IPv6 forms that carry an IPv4 one."""
-    ip = ipaddress.ip_address(address.split("%")[0])
-    if isinstance(ip, ipaddress.IPv6Address):
-        embedded = ip.ipv4_mapped or ip.sixtofour or (ip.teredo[1] if ip.teredo else None)
-        if embedded is None and ip in _NAT64:
-            embedded = ipaddress.IPv4Address(int(ip) & 0xFFFFFFFF)
-        if embedded is not None:
-            return public_address(str(embedded))
-    return ip.is_global and not ip.is_multicast
+    """A globally reachable unicast address, IPv4 inside IPv6 included: the posting link's check."""
+    return is_public(address)
 
 
 def checked_url(url: str | httpx.URL) -> httpx.URL:
@@ -90,6 +84,8 @@ def checked_url(url: str | httpx.URL) -> httpx.URL:
         raise Blocked("Enter the address without a user name or password.")
     if parsed.port is not None:
         raise Blocked("Enter the address without a port number.")
+    if "." not in parsed.host and ":" not in parsed.host:  # "localhost", or a name only a private network knows
+        raise Blocked("That address isn't a public web page.")
     return parsed
 
 

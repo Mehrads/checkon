@@ -260,3 +260,18 @@ def canadian_experience(facts: Facts, ctx: Context, params: dict[str, Any]) -> O
     if borderline:
         return Outcome(Verdict.WARNING, evidence=borderline)
     return Outcome(Verdict.PASS)
+
+
+@check("canadian_experience_form")
+def canadian_experience_form(facts: Facts, ctx: Context, params: dict[str, Any]) -> Outcome:
+    """The application form's questions. A question the form doesn't mark optional counts as required."""
+    questions = facts.form or []
+    required = [q.span for q in questions if q.cex_label == "violation" and q.required is not False]
+    if required:
+        return Outcome(Verdict.FAIL, evidence=required)
+    flagged = sorted(q.span for q in questions if q.cex_label in ("violation", "borderline"))
+    if any(q.cex_label == "violation" for q in questions):
+        return Outcome(Verdict.WARNING, key="optional", evidence=flagged)
+    if flagged:
+        return Outcome(Verdict.WARNING, evidence=flagged)
+    return Outcome(Verdict.PASS)

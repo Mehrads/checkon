@@ -74,7 +74,7 @@ Rules are stored as versioned configuration with an effective date and a citatio
 | Surface             | What it does                                                                                                                                                           | Tier                         |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
 | Browser extension   | Side panel that reads the posting from any form or page (BambooHR, Workable, LinkedIn's job form, Indeed employer, a careers-page CMS) and checks it before publishing | Sign-up required; paid plans |
-| Web app             | Paste text (free and paid) or a URL (signed in); company profile, history, settings, archive                                                                                                       | Free tier + paid             |
+| Web app             | Paste text or a public posting link (free and paid), plus the application form's questions (one more check); company profile, history, settings, archive                                          | Free tier + paid             |
 | Native integrations | Connect to the HR system's API: pull openings, write fixes back, archive, 45-day reminders                                                                             | Paid / custom                |
 | API                 | For agencies and small ATS vendors to embed the checker                                                                                                                | Later                        |
 

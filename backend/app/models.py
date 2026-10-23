@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 from pydantic import EmailStr
-from sqlalchemy import JSON, Column, Text, UniqueConstraint
+from sqlalchemy import JSON, Column, LargeBinary, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -258,7 +258,8 @@ class Customer(SQLModel, table=True):
 
 
 class PaidCheck(SQLModel, table=True):
-    """A check that counted against a plan: the allowance and the customer's history. Never the posting text."""
+    """A check that counted against a plan: the allowance and the customer's history. Never the posting text,
+    which only the archive keeps (ArchivedPosting), when the workspace's archive is on."""
 
     __tablename__ = "paid_check"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -292,7 +293,42 @@ class Workspace(SQLModel, table=True):
     meets_headcount_threshold: bool | None = None  # "25 or more" without an exact figure; None when headcount is set
     uses_ai_in_hiring: bool | None = None  # AI screens, assesses or selects applicants, by them or a recruiter
     wording: str = Field(default="formal", max_length=16)  # the wording library's variant: formal or plain
+    archive_postings: bool = False  # the archive is on (FR11): each check's applied posting is kept
     updated_at: datetime | None = None  # when the profile was last saved
+
+
+class ArchivedPosting(SQLModel, table=True):
+    """A posting a paying customer applied fixes to, kept as their record (PRD FR11) when the workspace's archive
+    is on: the text as applied, or as they last saved it after editing, plus the application form's text and the
+    documents the posting links to (ArchivedFile). Deleted on `delete_on`, three years after the takedown date
+    the customer enters, and kept until they enter one. Goes with its check, its workspace and the customer.
+    """
+
+    __tablename__ = "archived_posting"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)  # when it was first saved
+    updated_at: datetime | None = None  # when a saved edit replaced the text
+    customer_id: uuid.UUID = Field(foreign_key="customer.id", nullable=False, ondelete="CASCADE", index=True)
+    workspace_id: uuid.UUID = Field(foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True)
+    paid_check_id: uuid.UUID = Field(foreign_key="paid_check.id", nullable=False, ondelete="CASCADE", unique=True)
+    title: str | None = Field(default=None, max_length=255)  # the job title, as the check read it
+    text: str = Field(sa_column=Column(Text, nullable=False))
+    application_form: str | None = Field(default=None, sa_column=Column(Text))  # pasted by the customer
+    taken_down_on: date | None = None  # the day the public could no longer see the posting
+    delete_on: date | None = Field(default=None, index=True)  # the day after the 3 years from taken_down_on
+
+
+class ArchivedFile(SQLModel, table=True):
+    """A document an archived posting links to, uploaded by the customer. Kept and deleted with the posting."""
+
+    __tablename__ = "archived_file"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+    posting_id: uuid.UUID = Field(foreign_key="archived_posting.id", nullable=False, ondelete="CASCADE", index=True)
+    name: str = Field(max_length=255)  # the uploaded file's name
+    content_type: str = Field(max_length=128)
+    size: int  # bytes
+    data: bytes = Field(sa_column=Column(LargeBinary, nullable=False))
 
 
 class StripeEvent(SQLModel, table=True):

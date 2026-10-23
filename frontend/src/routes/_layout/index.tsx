@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { PastChecks } from "@/components/Billing/PastChecks"
 import { NoPlanCard, PlanCard } from "@/components/Billing/PlanCard"
 import { Checker } from "@/components/Check/Checker"
+import { planNote } from "@/components/Check/labels"
 import { PageHeading } from "@/components/Common/PageHeading"
 import { Skeleton } from "@/components/ui/skeleton"
 import useAuth from "@/hooks/useAuth"
@@ -18,9 +19,6 @@ export const Route = createFileRoute("/_layout/")({
     ],
   }),
 })
-
-const PLAN_NOTE =
-  "Each check counts toward your plan. We keep the date, job title and result for your history, never the posting."
 
 /** The signed-in page: the plan and its checks this period, the checker, and past checks. */
 function Checks() {
@@ -45,7 +43,11 @@ function Checks() {
       )}
       <Checker
         layout="app"
-        note={onPlan ? PLAN_NOTE : undefined}
+        note={
+          billing?.plan_name
+            ? planNote(billing.plan_name, Boolean(profile?.archive_postings))
+            : undefined
+        }
         onChecked={refresh}
         profile={profile}
         client={canCreate}

@@ -95,11 +95,11 @@ The Inspector turns a posting into verified facts, then runs each rule as a pure
 
 **Inputs: posting text and application form**
 
-Every check takes the posting and, when the user supplies it, its application form (phase 3: pasted form questions; later: the form URL or the ATS; v1 checks the posting only). The form is normalised into questions with a type (free text, yes/no, options) and stable ids.
+Every check takes the posting and, when the user supplies it, its application form: questions pasted on the website, or read from the page by the extension (`app/compliance/form.py`). The form is normalised into questions with their answer options, a required or optional mark, and stable ids. It is checked as one more check after the posting (product decision, October 22, 2026); the form URL or the ATS come later.
 
 - Rules on the form: ON-CEX-01 on every question and answer option ("Do you have Canadian work experience?", a required field "Years of experience in Canada"); the form is also archived with the posting.
 - Pay, vacancy and AI rules apply to the posting text only.
-- Findings point to a question id; the Refiner rewords or removes that question.
+- Findings point to the question in the form text, in the report's `form_results`. The Refiner doesn't patch the form yet: the message says to remove or reword the question.
 - A required question, or an answer option that screens applicants on Canadian experience, is a `fail`. An optional question stays optional: it is shown as a non-blocking `warning` the employer can keep.
 
 **Languages: English, French and bilingual**
@@ -390,7 +390,7 @@ All logic runs behind one HTTPS API; the web app and the extension are thin clie
 
 **Free check: misuse prevention**
 
-The free check is one posting (and its form, once forms ship in phase 3) per week, and it can only do that one job: it is not a general rewriter, chatbot or bulk tool. Every limit is enforced on the server; the browser only carries a signed token. v1 ships a lean subset of these controls (`04-V1-Scope.md`, section 4); the rest follow when abuse data shows the need.
+The free check is one posting per week (its application form is a second check, so it needs a plan), and it can only do that one job: it is not a general rewriter, chatbot or bulk tool. Every limit is enforced on the server; the browser only carries a signed token. v1 ships a lean subset of these controls (`04-V1-Scope.md`, section 4); the rest follow when abuse data shows the need.
 
 | Misuse | Control |
 | --- | --- |
@@ -402,6 +402,7 @@ The free check is one posting (and its form, once forms ship in phase 3) per wee
 | Prompt injection to use our model as a chatbot | No chat surface; LLM outputs are schema-bound labels and single-sentence patches (section 7) |
 | Endless edits on one free check | One credit per week, covering one inspect-and-refine; re-checking edited patches requires sign-up |
 | Very long inputs to raise our cost | 8,000 characters for the posting, 4,000 for the form |
+| A posting link used to make our server fetch other pages | http and https on the default ports only; every address the host resolves to must be public, checked before connecting and on every redirect, and the connection goes to the checked address; no LinkedIn, Indeed or Glassdoor; 2 MB and 15 seconds per fetch; 20 links per IP per hour; checked after the quota, so a visitor with no check left can't fetch (`app/api/posting_link.py`) |
 | A sudden spike in free use | Daily spend cap for the free tier; when reached, free checks pause with a sign-up message, paid checks continue |
 
 **Monitoring:** checks per fingerprint, IP range and network are logged without storing the posting text; alerts fire on unusual patterns (many fingerprints from one range, repeated near-identical postings), and limits are tuned from that data.
@@ -418,7 +419,7 @@ In the target state the customer never copies anything: every channel below norm
 | The customer's careers page or public ATS job board (Greenhouse, Lever, Ashby, SmartRecruiters) | Daily scheduled fetch | New or failing postings flagged; fixes ready to approve |
 | Browser extension | Posting form or posting page detected | Inline badge on open and before submit |
 | Email forward | Posting forwarded to the company's unique address | Report emailed back, nothing to install |
-| Paste | Manual | Free tier |
+| Paste or a public posting link | Manual | Free tier and paid; a link is read once by the server, from JSON-LD `JobPosting` data or the page's main content (`app/compliance/webpage.py`), and the user is asked to paste when it can't be read |
 
 - Only the customer's own postings are fetched; LinkedIn and Indeed postings are checked only through the extension while the user views their own posting.
 - Each posting is hashed; a re-check runs only when the text or the rule pack changes.
@@ -430,6 +431,7 @@ In the target state the customer never copies anything: every channel below norm
 - TLS everywhere, encryption at rest, tenant isolation by organisation, audit log of every report and accepted patch.
 - Posting text from anonymous checks is kept only as long as needed to return the result (plus hashed cache keys), unless the user opts in to help improve the product.
 - Archive entries are immutable: posting text, application form if supplied, accepted version, timestamp, content hash, report versions; kept 3 years after the posting closes.
+- **As built (October 2026, paid plans, FR11):** the archive is off until the customer turns it on per workspace (`workspace.archive_postings`). Applying fixes on a paid check in such a workspace saves the final text to `archived_posting` (one per `paid_check`); "Save edits to the archive" in the editor replaces it, so there is no version history. The customer can add the application form's text and up to 5 documents (PDF, DOCX, PNG, JPG, 10 MB each, `archived_file`, stored in Postgres, not Cloud Storage). Deletion is 3 years after the takedown date the customer enters (`delete_on`); with no date the posting is kept. Reads skip due postings and a purge runs after checks and archive requests, at most every 10 minutes per process. Rows cascade with the check, the workspace and the customer, so deleting the account deletes the archive. Cloud SQL's encryption at rest only; no content hash or retention lock. After the plan ends the archive is read-only: view, zip download per workspace, mark taken down and delete. Free checks never reach it.
 - No candidate personal data in v1; the 45-day reminders later store interview dates and an internal reference only.
 
 ## 12. Starting repo, stack, deployment and feedback
@@ -575,7 +577,7 @@ Self-hosting Langfuse adds its own database, ClickHouse, Redis and storage, whic
 | --- | --- |
 | First release | Inspector + Refiner + free paste check, English postings only. Extension, sign-up, pay suggestions and integrations follow |
 | Fix flow | Suggest a patch; the user accepts, rejects or edits it; an edited span is re-checked on its own (section 5) |
-| Inputs | Posting text in v1; the application form is checked from phase 3 |
+| Inputs | Posting text or a public posting link; the application form's questions, checked as one more check (October 22, 2026) |
 | Optional form questions | An optional question about Canadian experience stays optional: non-blocking warning, not a fail |
 | Languages | English first. French and bilingual postings after launch, scheduled by demand (share of French postings in free checks and the data-report crawl); issues are then fixed in both languages |
 | Bilingual compliance | Both language versions must pass (from the French release) |
@@ -584,7 +586,7 @@ Self-hosting Langfuse adds its own database, ClickHouse, Redis and storage, whic
 
 The usage data behind the BambooHR pick is global, not Ontario-specific. The data-report crawl of Ontario careers pages detects which ATS serves each page, which confirms or changes the pick before any integration work starts.
 
-**Still open:** how the application form is supplied after v1 (URL or ATS), who is the second golden-set labeller and what it costs, and the cost of a French lawyer review of the wording library.
+**Still open:** whether the application form can also come from its URL or the ATS, who is the second golden-set labeller and what it costs, and the cost of a French lawyer review of the wording library.
 
 **Sources:** [O. Reg. 476/24, Rules and Exemptions re Job Postings](https://www.ontario.ca/laws/regulation/240476)
 

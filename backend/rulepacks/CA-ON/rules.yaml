@@ -7,9 +7,11 @@
 # effective_to is the last day a rule is in force; null means it is still in force.
 # Process rules carry a reminder: one plain line the report lists after the findings.
 # Messages and questions are str.format templates. Numbers render as 50,000, so write the $ in the text.
+# A content rule with a `form` block also runs on the posting's application form, with that block's check,
+# messages and classifier examples. Only s. 8.3 (1) names the form; ss. 8.2, 8.4 and 8.5 say "in the posting".
 
 jurisdiction: CA-ON
-version: 1.1.1
+version: 1.2.0
 
 # Shared by every rule; a rule's own params override these.
 params:
@@ -189,7 +191,7 @@ rules:
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
-    version: 1.1.0
+    version: 1.2.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -197,7 +199,9 @@ rules:
     source_url: https://www.ontario.ca/laws/statute/00e41
     check: canadian_experience
     params: {}
-    interpretation: true  # "Ontario experience", "preferred" and knowledge-of-Canadian-rules wording are borderline
+    # "Ontario experience", "preferred" and knowledge-of-Canadian-rules wording are borderline; on the form, a
+    # question not marked optional counts as required, and an optional one is a warning
+    interpretation: true
     reviewed_by: null
     fix: {type: replace_span, writer: llm, guidance: "Ask for the skill, knowledge or licence itself, and remove any condition on where experience was gained."}
     messages:
@@ -222,6 +226,30 @@ rules:
       - {text: "Registered with the College of Nurses of Ontario", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
       - {text: "Legally eligible to work in Canada", label: ok, reason: "Work authorization, not experience."}
       - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
+    # The same prohibition on the application form: each question is read with its answer options. A required
+    # question about Canadian experience fails; an optional one is a warning the employer can keep (Technical
+    # Design §4, inputs).
+    form:
+      check: canadian_experience_form
+      messages:
+        pass: "No question in your application form asks about Canadian experience."
+        fail: "Your application form asks about Canadian experience. Remove the question, or ask about the skill instead of where it was gained."
+        optional: "An optional question in your application form asks about Canadian experience. Applicants can skip it, but consider removing it."
+        warning: "Some questions in your application form may read as a Canadian experience requirement. Consider rewording them."
+      # Classifier labels: violation, borderline, ok.
+      examples:
+        - {text: "Do you have Canadian work experience? Options: Yes | No", label: violation, reason: "Asks whether experience was gained in Canada."}
+        - {text: "How many years of work experience do you have in Canada?", label: violation, reason: "Asks for experience gained in Canada."}
+        - {text: "Years of experience. Options: None | Less than 2 years in Canada | 2+ years in Canada", label: violation, reason: "The options sort applicants by Canadian experience."}
+        - {text: "Where did you gain most of your work experience? Options: Canada | Outside Canada", label: violation, reason: "The options sort applicants by where their experience was gained."}
+        - {text: "Did you graduate from a Canadian college or university?", label: violation, reason: "A Canadian education credential; the guide counts education credentials as Canadian experience."}
+        - {text: "Do you have an established network of clients in Canada?", label: violation, reason: "The guide counts an established Canadian professional network or client base as Canadian experience."}
+        - {text: "Do you have experience with Ontario payroll legislation?", label: borderline, reason: "Knowledge of Ontario rules, which may be read as Canadian experience."}
+        - {text: "Are you legally entitled to work in Canada? Options: Yes | No", label: ok, reason: "Work authorization, not experience."}
+        - {text: "Are you registered with the College of Nurses of Ontario?", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
+        - {text: "How many years of payroll experience do you have?", label: ok, reason: "Experience with no condition on where it was gained."}
+        - {text: "City of residence", label: ok, reason: "Contact details, not experience."}
+        - {text: "Can you work on site in Mississauga three days a week?", label: ok, reason: "About the job's location and schedule, not experience."}
     tests: [tests/cex.yaml]
 
   # Process rules: not checked from posting text. The report lists them as reminders; the reminder and archive
