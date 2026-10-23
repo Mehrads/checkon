@@ -1,0 +1,62 @@
+id: adv-21-construction-pm-sections-reordered
+slice: adversarial
+variant_of: syn-mix-02-construction-pm-three-fails
+purpose: >-
+  Original syn-mix-02-construction-pm-three-fails with its sections in an unusual order: offer and vacancy statement
+  first, then requirements, duties, the opportunity, and the company intro near the end.
+context:
+  uses_ai_in_hiring: true
+text: |
+  PROJECT MANAGER - COMMERCIAL CONSTRUCTION
+  Toronto, ON | Full-time | Hybrid (site and office)
+
+  What we offer
+  - Salary: $85,000 to $145,000 per year, depending on experience
+  - Car allowance, phone and laptop
+  - Group benefits, RRSP matching and 4 weeks' vacation
+
+  This posting is for an existing vacancy.
+
+  What you'll need
+  - A degree in civil engineering, construction management or a related field
+  - Minimum 5 years of Canadian construction experience managing commercial or institutional projects over
+    $20 million
+  - Strong knowledge of CCDC contracts and the Construction Act's prompt payment rules
+  - Proficiency with Procore, MS Project or P6, and Bluebeam
+  - Excellent negotiation and written communication skills
+  - PMP or Gold Seal certification is an asset
+
+  What you'll be responsible for
+  - Own the project budget, schedule and cash flow, and report on them monthly
+  - Tender and award trade packages, negotiate subcontracts and manage change orders
+  - Lead client, consultant and trade meetings
+  - Manage risk, claims and the RFI and submittal process
+  - Champion safety on site with the superintendent and our health and safety team
+  - Close out the project: deficiencies, commissioning, warranties and lessons learned
+
+  The opportunity
+  We're looking for a Project Manager to lead a $70 million laboratory fit-out in downtown Toronto from
+  preconstruction to handover. You'll lead a team of a project coordinator, a site superintendent and an assistant
+  superintendent, and you'll be the client's main point of contact.
+
+  Who we are
+  Don Valley Builders Ltd. is a general contractor and construction manager with 260 employees. For 35 years we've
+  delivered offices, labs, schools and hospital renovations across the Greater Toronto Area, with annual volume of
+  about $400 million.
+
+  Don Valley Builders welcomes applications from all qualified candidates and provides accommodation on request.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  Range width is $60,000, over the $50,000 limit (Reg. s. 4), and the top is below $200,000, so no exemption. The
+  employer screens with an AI ranking tool and says nothing. "Knowledge of CCDC contracts and the Construction Act" is
+  knowledge of Ontario/Canadian contract law and could itself be read as borderline, but the violation already decides
+  the CEX label. Lawyer: none beyond Q8d on the knowledge bullet. Adversarial: labels must equal
+  syn-mix-02-construction-pm-three-fails's.

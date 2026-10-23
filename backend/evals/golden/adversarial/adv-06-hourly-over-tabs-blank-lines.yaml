@@ -1,0 +1,50 @@
+id: adv-06-hourly-over-tabs-blank-lines
+slice: adversarial
+variant_of: syn-pay02-06-hourly-40h-over
+purpose: >-
+  Original syn-pay02-06-hourly-40h-over with extra blank lines between sections and tabs before the bullets, the intro
+  and the hourly figures.
+context:
+  uses_ai_in_hiring: false
+  hours_per_week: 40
+text: |
+  Industrial Electrician
+  Sarnia, ON
+
+
+
+  	Lambton Polymer Products operates a resin compounding plant with 300 employees.
+
+
+
+  What you'll do:
+  	- Maintain and troubleshoot motors, drives, PLCs and plant electrical distribution
+  	- Follow lockout and arc-flash safe work procedures
+  	- Plan and complete preventive maintenance
+
+
+
+  What you need:
+  	- 442A Construction and Maintenance Electrician certificate
+  	- Experience with Allen-Bradley PLCs
+  	- Full-time, averaging 40 hours per week on a 12-hour rotating shift schedule
+
+
+
+  Hourly rate:		$31.40 - $55.50
+
+
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $24.10 x 40 h x 52 weeks = $50,128, over the limit by $128. The unit is in the label ("Hourly rate"), not after the
+  figures. Adversarial: labels must equal syn-pay02-06-hourly-40h-over's.

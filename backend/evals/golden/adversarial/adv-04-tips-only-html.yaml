@@ -1,0 +1,44 @@
+id: adv-04-tips-only-html
+slice: adversarial
+variant_of: syn-pay01-20-tips-only
+purpose: >-
+  Original syn-pay01-20-tips-only written as raw HTML (<h1>, <p>, <ul>/<li>, <strong> on the earnings line).
+context:
+  uses_ai_in_hiring: false
+text: |
+  <h1>Bartender</h1>
+  <p>Toronto, ON (King West)</p>
+
+  <p>Velvet Room Group runs five cocktail bars and two restaurants in downtown Toronto, with 230 staff.</p>
+
+  <h3>What you'll do</h3>
+  <ul>
+  <li>Make classic and house cocktails at volume</li>
+  <li>Keep the bar stocked, clean and ready for service</li>
+  <li>Look after guests and keep the line moving on busy nights</li>
+  </ul>
+
+  <h3>What you need</h3>
+  <ul>
+  <li>2+ years of bartending experience in a high-volume bar</li>
+  <li>Smart Serve certification</li>
+  <li>Thursday to Saturday night availability</li>
+  </ul>
+
+  <p><strong>Earnings:</strong> our bartenders take home $300 - $450 in tips on a typical weekend night.</p>
+
+  <p>This posting is for an existing vacancy.</p>
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  ESA s. 1 (1) (d) excludes tips and other gratuities from wages, and compensation means wages (O. Reg. 476/24, s. 2
+  (2)), so the posting states no expected compensation. For the product team: the extractor has no "tips" kind (wage,
+  commission, bonus, equity, benefits), so it may read this range as a wage and pass ON-PAY-01; the nightly unit isn't
+  one CheckON knows either. Adversarial: labels must equal syn-pay01-20-tips-only's.

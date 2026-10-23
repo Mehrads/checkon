@@ -1,0 +1,37 @@
+id: adv-10-missing-caps-headings
+slice: adversarial
+variant_of: syn-vac-10-missing
+purpose: >-
+  Original syn-vac-10-missing with the title and section headings in ALL CAPS.
+context:
+  uses_ai_in_hiring: false
+text: |
+  OFFICE ADMINISTRATOR
+  Owen Sound, ON
+
+  Georgian Shores Property Management manages 3,000 rental units across Grey and Bruce counties, with 70 staff.
+
+  WHAT YOU'LL DO
+  - Answer phones and emails from tenants and owners
+  - Process rent payments and keep tenant files up to date
+  - Schedule maintenance requests and follow up with contractors
+
+  WHAT YOU NEED
+  - 2+ years of office administration experience
+  - Strong skills in Word, Excel and Outlook
+  - A friendly, calm manner with the public
+
+  Salary: $46,000 - $52,000 per year
+
+  Interested? Send your resume and a short cover letter through our careers page.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: fail
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Adversarial: labels must equal syn-vac-10-missing's.

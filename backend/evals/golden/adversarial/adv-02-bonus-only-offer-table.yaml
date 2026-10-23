@@ -1,0 +1,43 @@
+id: adv-02-bonus-only-offer-table
+slice: adversarial
+variant_of: syn-pay01-08-bonus-only
+purpose: >-
+  Original syn-pay01-08-bonus-only with the 'What we offer' list (the discretionary bonus) as a markdown table.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Store Manager
+  Barrie, ON
+
+  Northern Trail Outfitters is a 40-store outdoor retailer. Our Barrie store needs a Store Manager to lead a team of 18.
+
+  Responsibilities
+  - Hit sales and margin targets and manage the store budget
+  - Hire, schedule, coach and develop the team
+  - Keep the store merchandised to company standards
+
+  Requirements
+  - 3+ years managing a retail store or department
+  - Experience with scheduling and inventory systems
+  - Weekend and holiday availability
+
+  | What we offer | |
+  | --- | --- |
+  | Annual bonus | up to $8,000, at management's discretion |
+  | Employee discount | 30% |
+  | Benefits | Health, dental and vision |
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  ESA s. 1 (1) (e) excludes bonuses that are at the employer's discretion and not tied to hours, production or
+  efficiency. The bonus here is stated to be discretionary, so no wages are disclosed. ON-PAY-02 has no wage range to
+  check. Adversarial: labels must equal syn-pay01-08-bonus-only's.
