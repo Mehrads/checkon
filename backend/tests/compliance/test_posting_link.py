@@ -65,7 +65,7 @@ def refusal(link: str, server: Server | None = None, table: dict[str, list[str]]
 def test_reads_the_posting_and_connects_to_the_checked_address() -> None:
     server = Server({"jobs.example.com/payroll": page()})
     fetched = reader(server).read("https://jobs.example.com/payroll#apply")
-    assert fetched.url == "https://jobs.example.com/payroll"
+    assert fetched.url == "https://jobs.example.com/payroll" and not fetched.redirected
     assert fetched.text.startswith("Payroll Specialist\n")
     assert "• 2+ years of payroll experience\n• Excellent communication skills" in fetched.text
     assert "Home · Careers" not in fetched.text and "© Example" not in fetched.text
@@ -140,7 +140,7 @@ def test_redirects_to_public_pages_are_followed_and_pinned_again() -> None:
         "careers.example.org/payroll": page(),
     })  # fmt: skip
     fetched = reader(server).read("http://jobs.example.com/old")
-    assert fetched.url == "https://careers.example.org/payroll"
+    assert fetched.url == "https://careers.example.org/payroll" and fetched.redirected
     assert [(r.url.host, r.headers["host"]) for r in server.requests] == [
         ("93.184.216.34", "jobs.example.com"),
         ("93.184.216.35", "careers.example.org"),  # IPv4 first

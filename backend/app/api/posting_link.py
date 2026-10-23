@@ -61,6 +61,7 @@ class LinkRefused(Exception):
 class FetchedPosting:
     url: str  # the page the posting was read from, after redirects
     text: str
+    redirected: bool = False  # the link led somewhere else, such as a closed posting's job list
 
 
 Resolver = Callable[[str, int], list[str]]
@@ -107,7 +108,7 @@ class LinkReader:
         self.max_bytes = max_bytes
 
     def read(self, link: str) -> FetchedPosting:
-        url = self._parse(link)
+        url = first = self._parse(link)
         started = time.monotonic()
         with httpx.Client(
             transport=self.transport, follow_redirects=False, trust_env=False,
@@ -125,7 +126,7 @@ class LinkReader:
                     body = self._body(response, started)
                 finally:
                     response.close()
-                return FetchedPosting(url=str(url), text=self._text(response, body))
+                return FetchedPosting(url=str(url), text=self._text(response, body), redirected=url != first)
         raise LinkRefused("fetch_failed")  # too many redirects
 
     # Each hop

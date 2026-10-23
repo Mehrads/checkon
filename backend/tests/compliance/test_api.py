@@ -346,6 +346,8 @@ def site() -> Generator[Server]:
         "jobs.example.com/payroll": page(POSTING, "text/plain"),
         "jobs.example.com/moved": redirect("http://internal.example.com/payroll"),
         "jobs.example.com/long": page("Payroll duties. " * 600, "text/plain"),
+        "jobs.example.com/closed": redirect("/board"),
+        "jobs.example.com/board": page("Open jobs: Payroll Specialist, Accountant, Office Manager. " * 5, "text/plain"),
     })  # fmt: skip
     app.dependency_overrides[get_link_reader] = lambda: LinkReader(resolver=resolver(DNS), transport=httpx.MockTransport(server))
     app.dependency_overrides[get_link_limiter] = lambda: limiter
@@ -396,6 +398,26 @@ def test_a_link_that_cant_be_read_asks_for_a_paste_and_uses_no_check(
     assert llm.calls == [] and limits.uses == []
     assert [(e["kind"], e["status"]) for e in usage.events] == [("refused", reason)]
     assert all(request.headers["host"] == "jobs.example.com" for request in site.requests)
+
+
+@pytest.mark.parametrize(
+    ("link", "kind", "message"),
+    [
+        ("https://jobs.example.com/closed", "multiple_postings", "That link opens a list of jobs, not one posting. The posting may have closed."),
+        ("https://jobs.example.com/payroll", "not_a_posting", "That link opens a page that isn't a job posting. Check"),
+    ],
+)  # fmt: skip
+@pytest.mark.usefixtures("site")
+def test_a_link_to_a_list_of_jobs_or_another_page_asks_for_the_posting(
+    client: TestClient, llm: FakeLLM, limits: MemoryLimits, link: str, kind: str, message: str
+) -> None:
+    llm.queue(Extraction, extraction(input_kind=kind))
+    response = client.post(f"{API}/inspect", json={"url": link})
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert detail["reason"] == "link_not_a_posting"
+    assert detail["message"].startswith(message) and detail["message"].endswith("paste the posting's text instead.")
+    assert limits.uses == []
 
 
 def test_links_are_rate_limited_per_address(client: TestClient, llm: FakeLLM, site: Server) -> None:

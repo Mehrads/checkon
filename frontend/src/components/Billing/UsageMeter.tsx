@@ -44,11 +44,15 @@ export function UsageMeter({
             <span className="tabular-nums">{included}</span> checks this period
           </p>
         )}
-        {billing.period_end && (
-          <p className="text-muted-foreground">
-            {billing.cancel_at_period_end ? "Ends" : "Renews"}{" "}
-            {formatDay(billing.period_end)}
-          </p>
+        {billing.complimentary ? (
+          <p className="text-muted-foreground">In the last 30 days</p>
+        ) : (
+          billing.period_end && (
+            <p className="text-muted-foreground">
+              {billing.cancel_at_period_end ? "Ends" : "Renews"}{" "}
+              {formatDay(billing.period_end)}
+            </p>
+          )
         )}
       </div>
       <div
