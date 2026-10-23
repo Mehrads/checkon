@@ -1,0 +1,51 @@
+id: syn-ai-17-no-ai-for-decisions
+slice: synthetic
+purpose: >-
+  AI scores and orders applications, but the posting only says "AI never makes hiring decisions" and that a person
+  reads every application. That denies AI selection without disclosing AI screening, so ON-AI-01 fails.
+context:
+  uses_ai_in_hiring: true
+text: |
+  QC Laboratory Analyst I
+  Credit Valley Pharmaceuticals, Mississauga, ON
+
+  Credit Valley Pharmaceuticals manufactures generic oral solid dose medicines for the Canadian and export markets.
+  Our Mississauga site employs about 520 people.
+
+  Job summary
+  The QC Analyst I tests raw materials, in-process samples and finished products against approved methods and
+  specifications, in a GMP laboratory.
+
+  Responsibilities
+  • Perform HPLC, GC, dissolution, Karl Fischer and wet chemistry testing
+  • Record results accurately in laboratory notebooks and LIMS
+  • Calibrate and maintain lab instruments
+  • Take part in OOS investigations and laboratory housekeeping
+  • Follow GMP, SOPs and safety requirements
+
+  Qualifications
+  • B.Sc. in chemistry, biochemistry or a related science
+  • 0 to 2 years of experience in a GMP or GLP laboratory (co-op terms count)
+  • Hands-on HPLC experience
+  • Good documentation habits and attention to detail
+
+  Salary: $55,000 to $63,000 per year
+  Shift: Monday to Friday, 7:00 am to 3:30 pm
+
+  At Credit Valley, AI never makes hiring decisions. Every application is read by a member of our talent team.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer uses an AI resume score to order the queue the talent team reads; that is AI used to screen or assess,
+  even if a person selects. The sentence reassures about decisions and says nothing of screening, so no disclosure.
+  A classifier may read it as no_ai (CheckON: fail, "contradicts") or none (CheckON: fail); either way the label is
+  fail. Lawyer: does s. 8.4 (1) cover AI that only orders applications for human review?

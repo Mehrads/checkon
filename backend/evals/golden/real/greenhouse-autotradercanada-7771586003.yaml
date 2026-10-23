@@ -1,0 +1,132 @@
+id: greenhouse-autotradercanada-7771586003
+slice: real
+source:
+  url: https://job-boards.greenhouse.io/autotradercanada/jobs/7771586003
+  board: greenhouse
+  employer: AutoTrader.ca
+  location: Toronto, ON (Canada)
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Software Engineer
+  Toronto, ON (Canada)
+
+  At AutoScout24, we’re excited to be hiring for our Canadian company, Trader Corporation — a key part of our international family.
+  As the Canadian arm of Europe’s largest online car marketplace, Trader Corporation plays a vital role in transforming how people buy, sell, and finance vehicles. With well-known brands like AutoTrader.ca, AutoSync, and Dealertrack Canada, Trader Corporation is driving digital innovation in the automotive industry — now reaching over 25 million Canadians every month.
+
+  This role will be within the Dealertrack Canada team, the country’s leading automotive financing portal, processing over 6.5 million credit applications annually.
+
+  Level: IC3 (Mid-Level Individual Contributor)
+  Employment type: Full-time
+
+  Build The Future Of Automotive Financing
+
+  Dealertrack Canada is the country's leading automotive financing portal, helping dealers, lenders, and consumers move through vehicle financing with greater speed, trust, and confidence. As part of Trader Corporation and AutoScout24 Group, we are connected to one of the largest automotive marketplaces in the world while working on deeply Canadian fintech problems.
+
+  Our Fintech engineering teams are modernizing platforms that support millions of credit applications annually. We work on systems for credit application processing, lender and dealer workflows, fraud prevention, risk assessment, customer support, and operational decision-making.
+
+  We are looking for a Software Engineer who wants to grow with a product engineering team that is raising the bar on reliability, automation, AI-assisted delivery, and service ownership.
+
+  Why This Role Matters
+
+  Automotive financing is changing. Dealers and lenders expect faster decisions, better integrations, stronger fraud controls, cleaner data, and more reliable digital workflows. Our platforms sit in the middle of that ecosystem.
+
+  In this role, you will help build and modernize the software that powers those workflows. You will not just close tickets. You will learn the domain, understand the customer and operational impact of your work, contribute to solution design, ship production software, and help the team improve how we build and operate systems.
+
+  What You’ll Do:
+
+  Ship Clean, Reliable Software
+
+  • Implement new features and modules using clean, effective, and testable code.
+  • Create and maintain simple services using team and platform standards.
+  • Write unit tests and contribute to automation that improves release confidence.
+  • Improve the code you touch so it becomes easier to understand, operate, and extend.
+
+  Help Shape The Solution
+
+  • Understand the business problem, customer outcome, risks, dependencies, and first deliverable slice before starting implementation.
+  • Contribute to technical design discussions with senior engineers.
+  • Raise unclear requirements, technical risks, data questions, or integration concerns early.
+  • Explain your design and implementation choices clearly to your team.
+
+  Own The Work Beyond The Pull Request
+
+  • Take responsibility for your work from implementation through release, monitoring, support, and follow-up.
+  • Monitor and analyze team services to detect issues and improve reliability.
+  • Participate in support workflows for services owned by the team.
+  • Use incidents, support feedback, and production signals to improve future delivery.
+
+  Build Quality In
+
+  • Treat testing, observability, security, and maintainability as part of engineering delivery.
+  • Think about critical paths and the checks that give the team confidence a change is safe to ship.
+  • Suggest practical code-quality improvements in code reviews.
+  • Include security and privacy best practices when planning and building features.
+
+  Grow With The Team
+
+  • Pair with engineers, participate actively in code reviews, and share what you learn.
+  • Use AI tools responsibly to improve speed, code quality, documentation, testing, and analysis.
+  • Build stronger domain understanding across automotive financing, fraud prevention, risk decisioning, customer support, and dealer/lender workflows.
+  • Help create the kind of engineering culture where teams move faster because ownership, quality, and clarity are strong.
+
+  What We’re Looking For:
+
+  • Solid experience building production software with modern engineering practices.
+  • Strong fundamentals in clean code, testing, debugging, and maintainable design.
+  • Experience with .NET / C#, or strong willingness to work deeply in a .NET backend environment.
+  • Experience with TypeScript and modern frontend development, ideally React and/or Next.js.
+  • Ability to build modules or simple services from scratch while following existing patterns and standards.
+  • Ability to contribute to technical design discussions and explain trade-offs clearly.
+  • Comfort with production systems, monitoring, incident response, and learning from operational feedback.
+  • Product-minded engineering judgment: you care about the customer and business problem, not only the implementation task.
+  • Quality mindset: you see tests, automation, observability, and maintainability as part of your job.
+  • Security-aware mindset, especially in systems that handle financing, risk, integrations, or sensitive customer data.
+  • Clear communication, constructive code-review habits, and willingness to ask for or offer help.
+  • Practical, responsible use of AI tools while staying accountable for the final output.
+
+  What Success Looks Like
+
+  In this role, a successful IC3 engineer will:
+
+  • Deliver well-tested features and modules that solve clear customer or business problems.
+  • Contribute meaningfully to design discussions for specific services, features, integrations, and data flows.
+  • Help the team clarify requirements, risks, dependencies, and acceptance criteria before and during delivery.
+  • Operate team-owned services responsibly, using monitoring, support feedback, and production learning to improve reliability.
+  • Raise the quality of team implementation through code reviews, testing, documentation, automation, and shared learning.
+  • Build increasing domain understanding of automotive financing, fraud prevention, risk decisioning, customer/support intake, and Dealertrack Canada workflows.
+
+  What's In It For You?
+
+  We understand that there is life at work and life outside of work. Here are a few benefits we all benefit from that support us to be our creative best.
+
+  Benefits from Day 1
+
+  • Gym discounts
+  • Employee and Family Assistance program
+  • Virtual wellness events
+  • Conferences & training budget
+  • Regular internal training programs
+
+  Financial planning
+
+  • Let us help you invest in your future with 3% matching towards your pension and multiple forms of income protection.
+
+  Competitive salary
+
+  • Annual bonus structure
+  • 3% CPP matching
+
+  ---
+
+  The base salary range for this position is CAD 110,000 – CAD 140,000.
+
+  This range reflects the expected compensation at the time of posting. The final offer may vary and can be higher based on relevant skills, experience, location, and market conditions. Based on the role the total rewards package may also include benefits, bonus, and other employee offerings.
+
+  Use of Artificial Intelligence in Hiring: We use artificial intelligence (“AI”) in our hiring process, including to screen, assess, or select applicants for this position.
+  Vacancy Status: This job posting is for an existing vacancy.
+
+  Use of Artificial Intelligence in Hiring: We use artificial intelligence (“AI”) in our hiring process, including to screen, assess, or select applicants for this position.
+
+  Vacancy Status: This job posting is for an existing vacancy.
+labels: {}

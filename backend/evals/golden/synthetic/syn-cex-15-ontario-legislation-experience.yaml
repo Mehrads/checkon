@@ -1,0 +1,47 @@
+id: syn-cex-15-ontario-legislation-experience
+slice: synthetic
+purpose: >-
+  "Experience applying Ontario employment standards and OHSA requirements" as a required bullet: experience tied
+  to Ontario law, a borderline warning.
+context:
+  uses_ai_in_hiring: true
+text: |
+  HR Generalist
+  Grand Valley Packaging Ltd., Kitchener, Ontario
+
+  Grand Valley Packaging prints and converts folding cartons for food and pharmaceutical brands. We have 410
+  employees on three shifts and a five-person HR team.
+
+  Responsibilities
+  - Advise supervisors on attendance, discipline and accommodation cases
+  - Run full-cycle recruitment for hourly and salaried roles
+  - Lead onboarding and the new-hire safety orientation
+  - Manage WSIB claims and return-to-work plans
+  - Support the joint health and safety committee and keep training records current
+  - Help prepare for collective bargaining with our union
+
+  Qualifications
+  - Degree or diploma in human resources, or a related field
+  - 3+ years as an HR generalist, ideally in a unionized manufacturing setting
+  - Experience applying Ontario employment standards and OHSA requirements
+  - CHRP or CHRL designation, or working towards it
+
+  Salary: $68,000 - $78,000 per year, with benefits and a pension.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  The rule pack labels the form question "Experience with Ontario payroll legislation?" borderline. Applying Ontario
+  law can only be done on Ontario workplaces, so "experience applying" is closer to Ontario experience than
+  "knowledge of" is. CHRP/CHRL are designations. Lawyer: is experience applying Ontario statutes a requirement
+  related to Canadian experience (fail) or borderline (warning)?

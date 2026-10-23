@@ -1,0 +1,78 @@
+id: lever-syntronic-19090018-31a4-4c1c-9463-96f0a58f4292
+slice: real
+source:
+  url: https://jobs.lever.co/syntronic/19090018-31a4-4c1c-9463-96f0a58f4292
+  board: lever
+  location: Kanata, ON
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Embedded Linux BSP Developer
+  Kanata, ON / Software / Full-Time
+
+  Join Syntronic: Where Your Innovation Shapes the Future
+  At Syntronic, we don't just follow industry trends—we set them! Join us in partnering with visionary companies and the brightest minds to turn ground-breaking ideas into reality. Imagine working on cutting-edge telecom advancements, pioneering automotive tech, life-saving healthcare innovations, and next-gen industrial automation. Our projects are diverse, impactful, and at the forefront of technological innovation. Be a part of something extraordinary!
+
+  Who are we?:
+  Syntronic is a global leader in design and development, specializing in electronics, electro-mechanics, and software. We’re not just a company; we’re a community of innovators. Our teams work on projects that define the future—from creating state-of-the-art communication systems and autonomous vehicles to advancing IoT solutions that revolutionize everyday life. At Syntronic, your work will make a real difference.
+
+  What we're looking for:
+  We are seeking individuals who want to:
+  ·        Collaborate with top-tier clients on transformative, cutting-edge projects.
+  ·        Engage with and learn from industry leaders
+  ·        Innovate from concept to completion, ensuring high standards.
+  ·        Gain international experience on global projects.
+  ·        Thrive in an entrepreneurial environment that supports new ideas.
+  ·        Explore multiple sectors like telecommunications, automotive, healthcare, and industrial automation.
+
+
+  We are looking for an Embedded BSP Developer to support the design, development, integration, and maintenance of low-level software for ARM-based automotive platforms. This role focuses on board support packages, bootloaders, secure boot, Linux/QNX-based embedded systems, kernel drivers, board bring-up, and production-level troubleshooting. The ideal candidate has strong low-level C experience, understands how software interacts with hardware, and can work across the bootchain, operating system, device drivers, and hardware interfaces to deliver reliable embedded software for production programs.
+
+  What you'll do
+  • Design, develop, integrate, and maintain BSP software for ARM-based embedded platforms.
+  • Develop and debug low-level software components including bootloaders, secure boot features, Linux kernel components, QNX platform components, device trees, and board-level drivers.
+  • Support board bring-up activities, including boot debugging, hardware interface validation, driver integration, and low-level system troubleshooting.
+  • Develop and troubleshoot drivers for interfaces such as UART, I2C, SPI, CAN/CAN FD, Ethernet, USB, GPIO, eMMC, NAND, NOR, PMIC, and other platform peripherals.
+  • Work with embedded Linux build systems and platform tooling, including Yocto, OpenEmbedded, BitBake, Git-based workflows, Jenkins, Python, and shell scripting.
+  • Support secure boot and embedded security features, including image signing, hardware root of trust, fuse provisioning, key management, and update reliability.
+  • Investigate complex software and hardware issues using boot logs, kernel logs, crash dumps, JTAG, oscilloscopes, logic analyzers, and other debugging tools.
+  • Create and maintain software design documentation, participate in design reviews, and support product verification, validation, and release activities.
+  • Collaborate with hardware, software, systems, test, manufacturing, and production teams to resolve issues and deliver reliable embedded software across product generations.
+
+  What you'll need to get the job done
+  • Bachelor’s degree in Computer Science, Computer Engineering, Electrical/Computer Engineering, or a related technical discipline.
+  • 8+ years of professional embedded software development experience, including BSP and bootloader development for Linux, QNX, or similar embedded operating systems.
+  • Strong low-level C programming and debugging experience, with exposure to assembly language.
+  • Experience with ARM-based processors or SoCs, including ARM A-series, M-series, or similar embedded processor families.
+  • Hands-on experience completing board bring-up activities, including bootchain debugging, driver integration, and hardware/software validation.
+  • Experience developing or debugging device drivers, device trees, platform drivers, interrupt handling, memory mapping, file systems, power management, and hardware interfaces.
+  • Ability to read electronic schematics and use debugging tools such as JTAG, oscilloscopes, logic analyzers, and low-level software diagnostics.
+  • Experience with embedded Linux build systems such as Yocto, OpenEmbedded, or BitBake.
+  • Familiarity with version control and software delivery workflows using Git, GitHub, Jenkins, repo manifests, pull requests, or similar tools.
+  • Strong troubleshooting skills, with the ability to identify root cause and resolve issues across software, hardware, and system boundaries.
+
+  What will make us REALLY love you
+  • Experience designing or implementing custom bootloaders, secure boot flows, A/B boot mechanisms, OTA update reliability, or production software update systems.
+  • Familiarity with embedded security concepts such as SHE, HSM, TrustZone, hardware root of trust, image signing, key provisioning, and cryptographic algorithms such as RSA, AES, SHA, or DES.
+  • Experience with automotive embedded platforms, telematics control units, infotainment systems, connectivity modules, or other vehicle-connected software.
+  • Experience with automotive Ethernet, including 100BASE-T1, 1000BASE-T1, TC10 sleep/wake, Ethernet PHY integration, or related diagnostics.
+  • Experience with eMMC, NAND, NOR memory controllers, flash management, partition table design, dm-verity, SELinux, Fastboot, UEFI/EDK2, or similar platform technologies.
+  • Awareness of automotive software standards or practices such as ISO 26262, AUTOSAR concepts, or production release discipline.
+  • Experience debugging production or field issues using pstore, minidumps, kernel logs, crash dumps, field diagnostics, or manufacturing test tools.
+  • Experience using AI-assisted development tools to support code review, refactoring, driver integration, security analysis, test generation, or embedded software troubleshooting.
+
+  $95,000 - 115,000
+  This posting is for an active vacancy.
+  #Syntronicp1
+
+
+  What you’ll love about us:
+  At Syntronic, our employees are our greatest asset. We foster innovation, collaboration, and excellence, offering opportunities for personal and professional growth. Join a global community that values creativity and diversity.
+
+  Ready to Shape the Future with Us?
+  If you’re ready to elevate your career and be part of a team that’s making a real impact, we want to hear from you. Apply today and embark on your journey with Syntronic, where your ideas and innovations can truly make a difference.
+
+  We may use artificial intelligence (AI) tools to support parts of the hiring process, such as reviewing applications, analyzing resumes, or assessing responses. These tools assist our recruitment team but do not replace human judgment. Final hiring decisions are ultimately made by humans. If you would like more information about how your data is processed, please contact us.
+
+  $95,000 - $115,000 CAD per year
+labels: {}

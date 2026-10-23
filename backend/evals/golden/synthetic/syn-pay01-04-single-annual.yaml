@@ -1,0 +1,36 @@
+id: syn-pay01-04-single-annual
+slice: synthetic
+purpose: >-
+  A single annual salary figure, written as a sentence rather than a "Salary:" line.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Payroll Administrator
+  London, ON
+
+  Forest City Mutual Insurance is hiring a Payroll Administrator to join a team of four supporting 650 employees.
+
+  Key responsibilities
+  1. Process bi-weekly payroll for salaried and hourly staff
+  2. Reconcile payroll accounts and prepare year-end slips
+  3. Answer employee questions about pay, deductions and benefits
+
+  Qualifications
+  1. A payroll certification (such as the PCP) or working toward one
+  2. 2+ years of payroll experience in a multi-site organization
+  3. Strong Excel skills
+
+  The salary for this position is $64,000 per year.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide says a figure or a range is enough; a single figure has no width, so ON-PAY-02 passes.

@@ -1,0 +1,42 @@
+id: syn-cex-01-canadian-experience-bullet
+slice: synthetic
+purpose: >-
+  The plainest violation: "Minimum 3 years of Canadian experience in freight dispatch" as a requirement bullet.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Transportation Dispatcher
+  Meadowvale Freight Lines - Mississauga, ON
+
+  Meadowvale Freight Lines runs 180 tractors on regional lanes within Ontario out of our Mississauga terminal. Our
+  dispatch office runs 24/7 and we're adding a day-shift dispatcher.
+
+  Responsibilities
+  - Assign loads to drivers and owner-operators and build efficient trip plans
+  - Track trucks in real time and update customers on delays
+  - Keep drivers within hours-of-service limits
+  - Handle breakdowns, detours and weather problems as they come up
+  - Enter trips and paperwork in our TMS
+
+  Requirements
+  - Minimum 3 years of Canadian experience in freight dispatch
+  - Working knowledge of a TMS (McLeod, TMW or similar)
+  - Calm under pressure and clear on the phone
+  - Able to work 7:00 am to 7:00 pm on a 4-on, 4-off rotation
+
+  Compensation
+  - Salary: $55,000 - $63,000 per year
+  - Group benefits and a company RRSP
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  A requirement conditioned on where experience was gained, in the words s. 8.3 (1) names. Lawyer: none on the label.

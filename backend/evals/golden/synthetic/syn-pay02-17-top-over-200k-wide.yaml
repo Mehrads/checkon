@@ -1,0 +1,38 @@
+id: syn-pay02-17-top-over-200k-wide
+slice: synthetic
+purpose: >-
+  A $60,000-wide range ending at $205,000: exempt on its face, so the width limit doesn't apply.
+context:
+  uses_ai_in_hiring: false
+text: |
+  General Manager, Mine Operations
+  Timmins, ON
+
+  Porcupine Ridge Gold operates an underground gold mine with 650 employees and contractors.
+
+  You will
+  - Lead mining, maintenance, processing and technical services
+  - Own the site's safety performance, budget and production plan
+  - Build strong relationships with neighbouring communities and First Nations
+
+  You bring
+  - Degree in mining engineering or a related discipline
+  - 15+ years in underground mining, including 5 in a senior site role
+  - A strong safety leadership record
+
+  Base salary: $145,000 - $205,000 per year, plus annual bonus and relocation support.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  O. Reg. 476/24, s. 3, para. 2: the range ends above $200,000, so s. 8.2 (1) doesn't apply and neither does the
+  width limit in s. 8.2 (3), even though $60,000 would otherwise fail. The context has no employer answer on the
+  exemption (law review Q11 covers the case where the employer says pay is not above $200,000).

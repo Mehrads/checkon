@@ -1,0 +1,45 @@
+id: syn-mix-07-store-manager-no-wages-ontario-asset
+slice: synthetic
+purpose: >-
+  Pay section lists only a discretionary bonus, RRSP matching and a discount (no wages, ON-PAY-01 fails) and
+  "Ontario retail management experience is an asset" (ON-CEX-01 warning).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Store Manager - Intercity Shopping Centre, Thunder Bay
+  Northern Trail Outfitters
+
+  Northern Trail Outfitters sells outdoor clothing, camping and paddling gear from 22 stores in Ontario and
+  Manitoba. Our Thunder Bay store is one of our busiest, with a team of 30 that grows to 45 in the summer.
+
+  As Store Manager you'll lead the whole store: hiring and coaching your team, hitting sales and margin targets,
+  running inventory and visual merchandising standards, and making sure every customer gets advice they can trust
+  before a trip.
+
+  You should have:
+  - 3+ years managing a retail store or a large department
+  - A track record of building teams and growing sales
+  - Comfort with retail KPIs, scheduling tools and P&L reports
+  - Ontario retail management experience is an asset
+  - A love of the outdoors (and the gear to prove it) helps
+
+  What we offer:
+  - An annual discretionary bonus
+  - RRSP matching up to 4%
+  - 40% off gear, plus pro deals from our brands
+  - Two paid "adventure days" a year
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  A discretionary bonus, RRSP matching and discounts are excluded from wages (ESA s. 1 (1) (e), (g); guide), so no
+  expected compensation is stated; with no wages there is no range to check. "Ontario ... experience is an asset" is
+  the README's borderline example. Lawyer: Q8b, as in syn-cex-11.

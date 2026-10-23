@@ -1,0 +1,34 @@
+id: oos-08-small-bakery-under-25
+slice: out_of_scope
+purpose: >-
+  A public posting for a specific job in Ontario from an employer with fewer than 25 employees. ON-APPL-01 is not
+  applicable; ON-APPL-02 passes; every content rule is not applicable despite missing pay and vacancy lines.
+context:
+  meets_headcount_threshold: false
+  uses_ai_in_hiring: false
+text: |
+  Bakery Assistant - Leslieville
+  Crumb & Co. Bakery, Queen St E, Toronto
+
+  We're a neighbourhood bakery (14 of us!) known for sourdough, cardamom buns and too many cookies. We're looking for
+  a bakery assistant to help in the kitchen and behind the counter.
+
+  You'll help mix, shape and bake, pack wholesale orders for local cafés, serve customers and keep the kitchen
+  spotless. Early starts (5 am) four days a week, one of them on the weekend.
+
+  Bakery or kitchen experience is great but not required. You need to be able to lift 25 kg bags of flour and stand
+  for long shifts.
+
+  Pay depends on experience. Send us a note about yourself through the form on our website.
+labels:
+  ON-APPL-01: not_applicable
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  Reg. s. 1: Part III.1 doesn't apply to an employer with fewer than 25 employees on the day the posting is posted.
+  The text's "14 of us" agrees with the context. Lawyer: none on the labels.

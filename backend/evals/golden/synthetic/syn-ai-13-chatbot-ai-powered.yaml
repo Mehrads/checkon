@@ -1,0 +1,46 @@
+id: syn-ai-13-chatbot-ai-powered
+slice: synthetic
+purpose: >-
+  Chatbot screening described as an "AI-powered hiring assistant" that texts screening questions; AI is used. A
+  disclosure, so ON-AI-01 passes. Casual restaurant tone.
+context:
+  uses_ai_in_hiring: true
+text: |
+  LINE COOK - FULL TIME
+  Fire & Fennel, Princess Street, Kingston
+
+  We're a busy wood-fired kitchen (one of 9 Fire & Fennel restaurants in Ontario) and we're short a line cook
+  for our dinner service. If you're fast, clean and like a loud kitchen, come cook with us.
+
+  The job
+  - Work the grill or sauté station on dinner service, Wednesday to Sunday
+  - Prep your station from our recipes and keep it stocked through the night
+  - Follow food safety and allergy procedures to the letter
+  - Help close: clean down, label, rotate
+
+  You
+  - 1+ year on a line in a full-service restaurant
+  - Food Handler Certificate (or get it in your first 30 days; we pay for it)
+  - Can stand for long shifts and lift 50 lb
+  - Show up on time and have your team's back
+
+  Pay: $18.75 - $21.00/hour based on experience, plus a share of the tip pool
+  Perks: staff meal every shift, 50% off when you dine with us, benefits after 6 months
+
+  How it works: after you apply, our AI-powered hiring assistant will text you a few screening questions about your
+  availability and kitchen experience. Our chef reads every result and calls the best fits for a trial shift.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The chatbot asks the questions and the results decide who gets a trial shift, so it screens; "AI-powered" names AI.
+  Tips are excluded from wages, but the hourly range is stated. Lawyer: is a chatbot that only collects answers
+  (without scoring them) "using AI to screen"? Here the employer said yes, so the label doesn't turn on it.

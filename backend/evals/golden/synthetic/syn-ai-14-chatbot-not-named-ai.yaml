@@ -1,0 +1,46 @@
+id: syn-ai-14-chatbot-not-named-ai
+slice: synthetic
+purpose: >-
+  AI chatbot screening described only as "Riley, our virtual hiring assistant": no AI wording, so not a
+  disclosure and ON-AI-01 fails.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Seasonal Sales Associate - Holiday 2026
+  Bayfield Department Stores, Georgian Mall, Barrie ON
+
+  Get into the holiday spirit with Bayfield! We're hiring a seasonal sales associate for our Georgian Mall store,
+  November 9, 2026 to January 10, 2027.
+
+  What you'll do:
+  -> Greet customers and help them find gifts across home, beauty and apparel
+  -> Run the cash and process returns and exchanges
+  -> Restock and tidy the floor during and after rushes
+  -> Gift wrap (we'll teach you the Bayfield fold)
+
+  What you need:
+  -> Availability for evenings and weekends, including Boxing Day
+  -> A smile and patience during the busiest weeks of the year
+  -> Retail or customer service experience is nice, but not required
+
+  Pay: $18.50 to $19.50 an hour, plus a 30% associate discount
+  Hours: 20 to 35 hours a week
+
+  Apply in 2 minutes: after you apply, Riley, our virtual hiring assistant, will message you to ask a few questions
+  about your availability and experience and book your interview.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Riley is a large-language-model chatbot that scores answers and decides who gets an interview slot, so the
+  employer uses AI to screen. "Virtual hiring assistant" tells an applicant they're talking to software, not that
+  the software is AI. Lawyer: is naming a virtual assistant or chatbot a "statement disclosing the use of the
+  artificial intelligence", or must the statement say AI? This is the boundary we're least sure of in the AI set.

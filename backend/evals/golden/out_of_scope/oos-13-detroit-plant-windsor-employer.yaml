@@ -1,0 +1,41 @@
+id: oos-13-detroit-plant-windsor-employer
+slice: out_of_scope
+purpose: >-
+  A Windsor-based employer posting a job at its Detroit, Michigan plant: an Ontario employer and an Ontario job
+  board, but the work is performed outside Ontario.
+context:
+  meets_headcount_threshold: true
+  uses_ai_in_hiring: true
+text: |
+  Maintenance Technician - Detroit, MI Plant
+  Ambassador Precision Castings
+
+  Ambassador Precision Castings makes aluminum castings for the auto industry, with our head office and two plants
+  in Windsor, Ontario and a third plant in Detroit, Michigan, just across the bridge.
+
+  We're hiring a maintenance technician for our Detroit plant (afternoon shift).
+
+  Responsibilities
+  - Repair and maintain die casting machines, trim presses and robots
+  - Troubleshoot hydraulic, pneumatic and electrical systems
+  - Complete preventive maintenance and keep records in our CMMS
+
+  Requirements
+  - 3+ years of industrial maintenance experience
+  - Journeyman card or equivalent trade experience
+  - Must be authorized to work in the United States
+
+  Pay: US$32.00 - US$38.00 per hour, plus shift premium.
+  All work is performed at our Detroit, MI facility.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  The employer has 25 or more employees in Ontario, but the job is in Michigan, so Reg. s. 2 (1) (d)(i) excludes it.
+  The posting says so plainly ("All work is performed at our Detroit, MI facility"). Lawyer: none on the labels.

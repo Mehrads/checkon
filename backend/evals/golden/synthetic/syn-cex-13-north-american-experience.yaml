@@ -1,0 +1,46 @@
+id: syn-cex-13-north-american-experience
+slice: synthetic
+purpose: >-
+  "5+ years of North American B2B sales experience required": a place condition wider than Canada. Labelled a
+  warning; the lawyer may say fail.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Regional Sales Manager - Industrial Packaging
+  Concord, ON (field-based, Ontario territory)
+  Vellore Packaging Systems Inc.
+
+  Vellore makes stretch film, strapping and packaging equipment for warehouses and food plants. We have 320 employees
+  and plants in Concord and Cambridge.
+
+  Role
+  Grow our business with manufacturers and distributors across Ontario: find new accounts, run equipment trials,
+  negotiate supply agreements and look after a book of about 60 existing customers.
+
+  Requirements
+  • 5+ years of North American B2B sales experience required, ideally in packaging, industrial supplies or
+    capital equipment
+  • A track record of hitting a territory quota
+  • Comfortable with Salesforce and building a weekly pipeline report
+  • Valid driver's licence; travel within Ontario about 3 days a week
+
+  Compensation
+  • Base salary: $90,000 - $110,000
+  • Company car, expense account and phone
+  • Group benefits and a pension plan with company match
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  Unsure. A U.S. seller meets it without Canadian experience, so it isn't a Canadian experience requirement on its
+  face, but it shuts out experience from everywhere outside the continent and reads as a stand-in. The law review
+  records the classifier giving borderline for one phrasing and ok for another (Q8c). Lawyer: is "North American
+  experience required" a requirement related to Canadian experience (fail), borderline (warning), or fine (pass)?

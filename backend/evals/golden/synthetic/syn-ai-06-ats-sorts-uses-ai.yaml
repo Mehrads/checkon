@@ -1,0 +1,50 @@
+id: syn-ai-06-ats-sorts-uses-ai
+slice: synthetic
+purpose: >-
+  AI is used; the posting says the applicant tracking system "sorts and ranks applications automatically" without
+  naming AI. Not a disclosure, so ON-AI-01 fails.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Unit Clerk - Medicine (Temporary Full-Time, 12 months)
+  Thames Valley Regional Health Centre, London, Ontario
+  Union: OPSEU Local 141
+
+  Position summary
+  The Unit Clerk is the first point of contact on a 34-bed medicine unit. You coordinate the flow of
+  information between patients, families, physicians and the care team, and keep the unit's records accurate.
+
+  Duties
+  - Transcribe and process physician orders in the electronic health record
+  - Book tests, consults and transfers, and track discharges
+  - Answer the unit phone and greet visitors
+  - Maintain patient charts and order supplies
+
+  Qualifications
+  - Medical terminology course (completed)
+  - 1 year of clerical experience in a hospital or clinic setting
+  - Keyboarding of 45 words per minute
+  - Strong organizational skills and attention to detail
+  - Basic Life Support (BLS) certification within 3 months of hire
+
+  Rate of pay: $26.10 - $28.40 per hour (as per the collective agreement)
+  Hours: 75 hours bi-weekly, days and evenings, every third weekend
+
+  Please apply online. Our applicant tracking system sorts and ranks applications automatically before they
+  reach the hiring manager, so answer every screening question.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer's ATS module gives each applicant a match score (AI), so a disclosure is required. The sentence
+  describes automatic ranking but never says AI, which on CheckON's reading is not a disclosure. Lawyer (Q7a, Q7b):
+  does a sentence that describes automated ranking count as disclosing AI when the ranking is in fact AI? Is a
+  public hospital outside the Crown exemption (O. Reg. 285/01, s. 2.1)? We assume it is.

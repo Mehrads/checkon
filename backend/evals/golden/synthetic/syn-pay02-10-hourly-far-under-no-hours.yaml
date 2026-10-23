@@ -1,0 +1,36 @@
+id: syn-pay02-10-hourly-far-under-no-hours
+slice: synthetic
+purpose: >-
+  A narrow hourly range with no hours given: within the limit at any plausible hours, so no hours are needed.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Grocery Clerk
+  Thunder Bay, ON
+
+  Superior Fresh Market is a regional grocer with 14 stores and 1,100 employees. Our Memorial Avenue store is hiring a grocery clerk.
+
+  What you'll do
+  - Stock shelves and rotate product
+  - Build displays and keep aisles tidy
+  - Help customers find what they need
+
+  What you need
+  - Friendly with customers
+  - Able to lift up to 40 lb
+  - Availability for early mornings and weekends
+
+  Pay: $18.50 - $20.00 per hour
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width $1.50 an hour: $3,120 a year at 40 hours, $4,680 at 60. Asking for hours here would be noise.

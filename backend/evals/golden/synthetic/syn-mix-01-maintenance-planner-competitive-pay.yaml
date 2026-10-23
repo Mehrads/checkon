@@ -1,0 +1,65 @@
+id: syn-mix-01-maintenance-planner-competitive-pay
+slice: synthetic
+purpose: >-
+  A long food-manufacturing posting with "competitive wages" and no figure (ON-PAY-01 fails) and no vacancy
+  statement (ON-VAC-01 fails). AI not used, no Canadian experience wording.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Maintenance Planner
+  Speedvale Dairy Co-operative - Guelph, Ontario
+  Full-time, permanent | Day shift
+
+  About Speedvale Dairy
+  Speedvale is a farmer-owned dairy co-operative that has processed milk in Guelph since 1952. Today we make
+  fluid milk, cream, yogurt and butter for grocery and food service customers in Ontario, with 380 employees at
+  our Guelph plant. We're investing $60 million in new filling and packaging lines over the next three years,
+  and we need a planner to help our maintenance team keep pace.
+
+  The role
+  Reporting to the Maintenance Manager, the Maintenance Planner organizes the work of a team of 22 millwrights
+  and electricians across three shifts. You'll make sure the right job is done at the right time, with the right
+  parts and the right people, so the plant keeps running and our sanitation windows aren't lost.
+
+  What you'll do
+  - Plan and schedule preventive, predictive and corrective maintenance in our CMMS (SAP PM)
+  - Build job plans with task steps, labour estimates, parts lists and safety requirements
+  - Coordinate shutdown and sanitation windows with production and quality
+  - Work with stores to make sure parts and materials are on hand before work starts
+  - Track backlog, schedule compliance and PM completion, and report weekly
+  - Review completed work orders for history and failure codes, and suggest improvements to PM tasks
+  - Help plan the installation of new equipment during our expansion
+
+  What you bring
+  - A diploma in mechanical engineering technology or an industrial trade certificate (433A or 309A)
+  - 3+ years planning or scheduling maintenance in a food, beverage or pharmaceutical plant
+  - Strong SAP PM (or similar CMMS) skills and advanced Excel
+  - An understanding of food safety programs (HACCP, SQF) and lockout/tagout
+  - A calm, organized approach when plans change at 6 am
+  - Planning and scheduling certification (for example, the Marshall Institute) is an asset
+
+  What we offer
+  - Competitive wages and a full benefits package from your first day
+  - Defined contribution pension with a 5% company match
+  - Annual patronage profit-sharing payment
+  - Free dairy products (yes, really)
+  - Training budget and tuition support
+
+  Speedvale Dairy is an equal opportunity employer. If you need an accommodation during the recruitment process,
+  please tell us and we'll work with you.
+
+  Apply by November 15, 2026.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: fail
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  "Competitive wages" names wages but gives no amount or range, so s. 8.2 (1) is not met. The profit-sharing payment
+  is tied to company results, not to the employee's hours, production or efficiency, so it isn't wages either. The
+  apply-by date is not a vacancy statement (rule pack example). Lawyer: is profit-sharing a discretionary bonus
+  (excluded from wages) or wages that also need a figure?

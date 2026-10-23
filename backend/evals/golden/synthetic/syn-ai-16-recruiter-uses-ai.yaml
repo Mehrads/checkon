@@ -1,0 +1,50 @@
+id: syn-ai-16-recruiter-uses-ai
+slice: synthetic
+purpose: >-
+  A staffing agency posts for a client and discloses that the agency uses AI to screen and rank applicants; AI is
+  used on the client's behalf. A disclosure, so ON-AI-01 passes.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Project Coordinator - Commercial Construction
+  Vaughan, ON | Permanent, full-time | Posted by Harbourline Staffing
+
+  Harbourline Staffing is recruiting for this role on behalf of our client, a general contractor with about 200
+  employees that builds warehouses, schools and medical office buildings across the GTA.
+
+  The opportunity
+  Join a project team delivering a $45M industrial build in Vaughan. You'll support the Project Manager and Site
+  Superintendent from preconstruction through closeout.
+
+  Responsibilities
+  - Track RFIs, submittals and change orders, and chase answers from consultants
+  - Prepare meeting minutes and distribute drawings and revisions
+  - Update the project schedule and cost reports
+  - Collect closeout documents, warranties and as-builts
+
+  Requirements
+  - Diploma or degree in construction management, civil engineering technology or a related program
+  - 1 to 3 years in construction administration or project coordination
+  - Comfortable with Procore (or similar), Bluebeam and Excel
+  - Occasional site visits; you'll need safety boots and a hard hat
+
+  Salary: $60,000 - $70,000 per year, plus a car allowance and group benefits
+
+  Harbourline uses AI tools to screen and rank applications for this search on our client's behalf. A Harbourline
+  recruiter reviews every shortlist before anything is shared with the client.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide says the duty applies where a recruiting firm screens on the employer's behalf, and the employer stays
+  responsible. The disclosure names the agency, not the employer, as the user of AI. Lawyer: is that enough, or
+  must the statement say AI is used for the employer's position? For headcount, does the client's count decide
+  (law review Q9b)? The context assumes the client has 25 or more employees in Ontario.

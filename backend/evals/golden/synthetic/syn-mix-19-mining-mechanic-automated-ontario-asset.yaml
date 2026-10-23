@@ -1,0 +1,46 @@
+id: syn-mix-19-mining-mechanic-automated-ontario-asset
+slice: synthetic
+purpose: >-
+  A northern mining posting with "screened by an automated system" while AI is used (ON-AI-01 fails) and "experience
+  in Northern Ontario mining operations is an asset" (ON-CEX-01 warning). A trade licence is allowed.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Heavy Equipment Mechanic - Underground
+  Copper Cliff Mining Services | Sudbury, ON
+  Rotation: 7 days on / 7 days off, 12-hour shifts
+
+  Copper Cliff Mining Services provides contract mining and equipment maintenance to mines across the Sudbury Basin.
+  We employ 520 people underground and in our shops.
+
+  Your role
+  Maintain and repair underground mobile equipment (scooptrams, haul trucks, jumbo drills and bolters) in our
+  underground shop and at the face. Diagnose hydraulic, electrical and engine faults, carry out PMs, and keep
+  equipment records up to date.
+
+  What you need
+  - 310T Truck and Coach Technician or 421A Heavy Duty Equipment Technician Certificate of Qualification
+  - 3+ years repairing heavy mobile equipment
+  - Underground Common Core, or willingness to complete it before starting
+  - Experience in Northern Ontario mining operations is an asset
+
+  Pay: $42.00 - $48.00 per hour, plus a northern allowance, a production bonus and overtime after 44 hours a week.
+  Fly-in options for candidates outside Sudbury.
+
+  Applications are screened by an automated system, and our maintenance superintendent reviews the shortlist.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  The automated screen is an AI ranking tool (context), and "automated system" doesn't disclose AI (law review Q7a).
+  The trade certificates and Underground Common Core are licensing and training. Northern Ontario experience is an
+  Ontario-tied asset (warning). The production bonus is wages without a figure; the hourly range keeps ON-PAY-01
+  clean (Q4b). Lawyer: Q7a, Q8b.

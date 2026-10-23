@@ -1,0 +1,38 @@
+id: syn-cex-11-ontario-experience-asset
+slice: synthetic
+purpose: >-
+  "Experience estimating in the Ontario residential market is an asset", in prose: borderline wording, a warning.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Estimator, Residential Construction
+  Simcoe Shores Developments - Barrie, ON
+
+  We build single-family homes and townhouses in Barrie, Innisfil and Orillia: about 250 homes a year, with a team of
+  70 in the office and on site.
+
+  As our Estimator, you'll price new home models and options from architectural drawings, get and compare trade
+  quotes, build budgets for each phase, and track costs against them once construction starts. You'll work with
+  purchasing and the sales office on option pricing, and keep our cost database current as material prices move.
+
+  We need someone with three or more years of estimating or quantity surveying experience, strong Excel skills, and
+  the ability to read drawings and specifications quickly. Experience estimating in the Ontario residential market is
+  an asset. A diploma in construction engineering technology or a related field is preferred.
+
+  Salary: $65,000 to $78,000 a year, with benefits, a cell phone, and a discount on a Simcoe Shores home.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  The README's own borderline example, in a different trade. Ontario is in Canada, so an Ontario-only asset ranks
+  applicants by Canadian experience, but it is an asset tied to a market rather than "Canadian experience" in words.
+  Lawyer (law review Q8a, Q8b): if "Canadian experience is an asset" is a violation (syn-cex-07), is an Ontario
+  asset also a violation rather than a warning?

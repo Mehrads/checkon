@@ -1,0 +1,38 @@
+id: syn-pay02-01-width-exactly-50k
+slice: synthetic
+purpose: >-
+  An annual range exactly $50,000 wide ($85,000 to $135,000, the guide's own permitted example): the limit is
+  inclusive.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Senior Business Analyst
+  Ottawa, ON
+
+  Rideau Health Software builds scheduling and records systems used by 120 clinics. We have 340 employees and are hiring a Senior Business Analyst for our hospital products team.
+
+  What you'll do
+  - Run requirements workshops with clinical and IT staff
+  - Write user stories and acceptance criteria and keep the backlog clean
+  - Test releases with users before they ship
+
+  What you bring
+  - 5+ years as a business analyst on software projects
+  - Experience with healthcare workflows is an asset
+  - Clear writing and facilitation skills
+
+  Salary range: $85,000 to $135,000 per year, based on experience.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  O. Reg. 476/24, s. 4: "shall not exceed" $50,000, so exactly $50,000 is allowed. The guide uses this very range
+  as one that may be included.

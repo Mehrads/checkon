@@ -1,0 +1,39 @@
+id: syn-pay02-14-up-to
+slice: synthetic
+purpose: >-
+  A salary given only as a maximum ("up to $90,000 a year"), written as a sentence.
+context:
+  uses_ai_in_hiring: false
+text: |
+  HR Generalist
+  Kitchener, ON
+
+  Grand Ridge Credit Union has 19 branches and 380 employees. Our people team is hiring an HR Generalist.
+
+  What you'll do
+  - Support managers with hiring, performance and employee relations
+  - Run onboarding and keep employee files accurate
+  - Help plan our annual engagement survey and training calendar
+
+  What you bring
+  - Post-secondary education in human resources or a related field
+  - 3+ years of generalist HR experience
+  - CHRP designation or progress toward it
+
+  We pay up to $90,000 a year for this role, depending on experience.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (law review Q1). Labelled per the README: open-ended, so ON-PAY-02 fail. Note the guide allows
+  "up to a certain amount" for sales commissions; this is a salary, and an "up to" salary implies a range from an
+  unstated floor that could be more than $50,000 below the top. A professional designation is not Canadian
+  experience.

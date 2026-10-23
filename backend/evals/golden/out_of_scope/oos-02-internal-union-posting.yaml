@@ -1,0 +1,42 @@
+id: oos-02-internal-union-posting
+slice: out_of_scope
+purpose: >-
+  A plant posting under the collective agreement, open to bargaining-unit employees only, with Canadian experience
+  wording that must not be flagged.
+context:
+  uses_ai_in_hiring: false
+text: |
+  JOB POSTING - BARGAINING UNIT ONLY
+  Posting No. 26-114
+  Bronte Creek Assembly, Oakville Plant
+
+  Classification: Material Handler (Hi-Lo), Department 42 - Shipping
+  Shift: Afternoons
+  Rate: Group 3, per the collective agreement
+
+  This vacancy is posted in accordance with Article 14 (Job Postings) of the collective agreement between Bronte
+  Creek Assembly and Unifor Local 1290. Only employees in the bargaining unit at the Oakville Plant may apply.
+  Applications must be submitted to the Human Resources office on the posting form by 3:00 pm on the closing date.
+
+  Requirements
+  - Current hi-lo licence (plant certification)
+  - Completion of the trial period in the classification
+  - Canadian warehouse experience preferred
+
+  Posted: October 19, 2026
+  Closing: October 26, 2026
+
+  The senior qualified applicant will be awarded the position.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  A collective-agreement posting is the clearest internal-only case. "Canadian warehouse experience preferred" would
+  be a problem in a public posting; it's out of scope here, though it may still raise a Human Rights Code question
+  outside CheckON. Lawyer: none on the labels.

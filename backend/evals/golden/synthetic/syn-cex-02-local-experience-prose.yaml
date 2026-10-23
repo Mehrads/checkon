@@ -1,0 +1,42 @@
+id: syn-cex-02-local-experience-prose
+slice: synthetic
+purpose: >-
+  "Local experience is a must", written in prose in a construction posting: a rephrased Canadian experience
+  requirement.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Site Superintendent - Residential Low-Rise
+  Ottawa, ON
+  Carleton Ridge Homes
+
+  Carleton Ridge Homes has built more than 3,000 homes in Ottawa's west end and Kanata. We're starting a new
+  220-unit townhouse community in Stittsville next spring and need a superintendent to run it.
+
+  You'll be the builder on site. That means running the daily schedule for framing, mechanical and finishing
+  trades, keeping the site safe and inspection-ready, catching quality problems before the homeowner does, and
+  keeping the project manager in the loop. You'll lead weekly trade meetings and walk every home before closing.
+
+  We're looking for someone with at least five years supervising residential construction. Local experience is a
+  must: you'll need to have run sites here before and know how things are done locally. You should be comfortable
+  with scheduling software, have your Working at Heights and supervisor health and safety training, and hold a
+  valid driver's licence.
+
+  The salary for this position is $85,000 to $105,000 a year, with a company vehicle, fuel card and a phone.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  "Local experience" in a posting for an Ottawa job means experience gained in Ottawa, which can only be Canadian
+  experience; the rule pack's example labels it a violation. The safety training is certification, not experience.
+  Lawyer: would "familiarity with local suppliers and trades" (knowledge, no experience condition) be different?

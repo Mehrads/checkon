@@ -1,0 +1,40 @@
+id: syn-mix-03-psw-home-care-local-experience
+slice: synthetic
+purpose: >-
+  A home-care PSW posting with a vague vacancy line ("we hire throughout the year", ON-VAC-01 warning) and "local
+  home care experience required" (ON-CEX-01 fails). Pay and AI are clean.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Personal Support Worker - Community (Hamilton East)
+  Bayfront Home Care Services
+
+  Bayfront Home Care sends PSWs and nurses into clients' homes across Hamilton and Burlington. We're a team of 450,
+  and our clients are mostly seniors who want to stay at home safely.
+
+  What you'll do: help clients with bathing, dressing, meals, medication reminders and light housekeeping; notice
+  and report changes in their health; and keep accurate visit notes in our mobile app. You'll have a regular route of
+  clients in Hamilton East so you get to know them.
+
+  What you need: a PSW certificate from a recognized program, a valid driver's licence and a reliable vehicle, and
+  current CPR and First Aid. Local home care experience required. You should be patient, dependable and comfortable
+  working on your own.
+
+  Pay: $22.00 to $25.50 per hour, plus mileage between visits and paid travel time.
+  Shifts: full-time and part-time routes available, weekdays and alternate weekends.
+
+  Applications are reviewed as they come in and we hire throughout the year.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The last line says how applications are handled, not whether this job is vacant now: vague, like the rule pack's
+  "we accept applications for this role on an ongoing basis". "Local home care experience required" is the rule
+  pack's "local work experience" violation. Mileage is an expense allowance, not wages. Lawyer (Q6a): is "we hire
+  throughout the year" a weak statement (warning) or no statement (fail)?

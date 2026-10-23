@@ -1,0 +1,28 @@
+id: oos-04-now-hiring-sign
+slice: out_of_scope
+purpose: >-
+  A "Now hiring, all positions" help-wanted sign with no specific position: excluded by Reg. s. 2 (1) (b).
+context:
+  uses_ai_in_hiring: false
+text: |
+  NOW HIRING!
+
+  Join the team at Harvest Table Family Restaurant - Barrie (Bayfield St)
+
+  All positions - full-time & part-time
+  Flexible hours • Free staff meals • Fun team
+
+  Apply inside, or scan the QR code at the door to apply online.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  "All positions" names no defined function, so it is a general help-wanted sign (Reg. s. 2 (1) (b)). Harvest Table
+  has 5 restaurants and 140 staff (context default). Lawyer: once the sign lists positions ("servers, cooks,
+  dishwashers"), does it become a posting for specific positions, or several postings at once?

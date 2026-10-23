@@ -1,0 +1,38 @@
+id: syn-vac-14-future-need
+slice: synthetic
+purpose: >-
+  A not-existing statement in other words: "This posting is to fill a future need; no position is open at this
+  time."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Claims Service Representative
+  Collingwood, ON
+
+  Nottawasaga Mutual Insurance has 220 employees and is opening a second service office in Collingwood in 2027.
+
+  We are posting this role early to plan for that office. This posting is to fill a future need; no position is open at this time.
+
+  What you'll do
+  - Take first notice of loss calls from policyholders
+  - Set up claim files and assign them to adjusters
+  - Keep customers updated as claims move forward
+
+  What you need
+  - 1+ year of customer service experience, ideally in insurance or banking
+  - Clear phone and writing skills
+  - Comfort with several systems at once
+
+  Salary: $48,000 - $54,000 per year
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  "No position is open at this time" plainly says there is no existing vacancy. Lawyer (Q6c): enough without
+  the words "existing vacancy"?

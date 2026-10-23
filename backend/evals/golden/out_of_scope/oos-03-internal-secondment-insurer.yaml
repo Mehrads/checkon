@@ -1,0 +1,44 @@
+id: oos-03-internal-secondment-insurer
+slice: out_of_scope
+purpose: >-
+  An internal 12-month secondment open to permanent employees only, written like a full public posting, with a wide
+  range and AI used but not disclosed. Out of scope, so no content rule applies.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Internal Opportunity: Senior Business Analyst, Claims Transformation (12-month secondment)
+  Hillcrest Mutual Group - Kitchener, ON (hybrid)
+
+  This opportunity is open only to permanent employees of Hillcrest Mutual Group who have completed their
+  probationary period. Please speak with your manager before applying. Secondments are subject to your current
+  leader's approval.
+
+  About the opportunity
+  Our Claims Transformation program is replacing our claims system over the next two years. We're looking for a
+  Senior Business Analyst to join the program on secondment and help map today's processes and design tomorrow's.
+
+  What you'll do
+  - Run workshops with adjusters and claims leaders to document current processes
+  - Write user stories and acceptance criteria with the product owner
+  - Support testing and training as features are released
+
+  What you bring
+  - 4+ years of business analysis or claims experience at Hillcrest
+  - Strong facilitation and writing skills
+  - Experience with Jira and Confluence is an asset
+
+  Salary band: $78,000 - $135,000 (your current salary will be reviewed against the band)
+
+  Apply through Workday under "Internal Careers" by November 3, 2026.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  Restricted to existing employees in the first sentence, so Reg. s. 2 (1) (c) applies. The $57,000-wide band and
+  missing AI statement would fail a public posting. Lawyer: none on the labels.

@@ -1,0 +1,39 @@
+id: syn-vac-20-metadata-field
+slice: synthetic
+purpose: >-
+  The statement is a field in a job details block ("Vacancy status: Existing"), not a sentence.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Financial Analyst
+  Simcoe, ON
+
+  Norfolk Orchard Cider Co. makes cider and juice for grocery chains and has 260 employees.
+
+  Job ID: 26-0412
+  Department: Finance
+  Employment type: Full-time, permanent
+  Vacancy status: Existing
+  Salary: $68,000 - $80,000 per year
+
+  What you'll do
+  - Build monthly forecasts and variance reports for operations
+  - Analyze product and customer margins
+  - Support the annual budget
+
+  What you need
+  - Degree in accounting, finance or economics
+  - 2+ years of FP&A or cost accounting experience
+  - Strong Excel and reporting skills
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Lawyer (Q6c): is a labelled field "Vacancy status: Existing" a "statement disclosing whether the posting is for
+  an existing vacancy"? Labelled pass: it says so plainly, just not in a sentence.

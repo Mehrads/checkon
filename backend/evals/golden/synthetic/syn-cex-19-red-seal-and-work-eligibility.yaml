@@ -1,0 +1,47 @@
+id: syn-cex-19-red-seal-and-work-eligibility
+slice: synthetic
+purpose: >-
+  An Ontario Certificate of Qualification or Red Seal, "legally eligible to work in Canada", and experience with no
+  place condition, all as bullets: a pass.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Industrial Electrician
+  Cambridge, ON - Hespeler Road plant
+  Brightfield Foods
+
+  Brightfield Foods bakes bread and buns for grocery and food service customers across Ontario and Quebec. Our
+  Cambridge bakery runs 24/5 with 350 employees.
+
+  The job
+  Keep our mixing, proofing, oven and packaging lines running safely and efficiently. You'll troubleshoot and
+  repair electrical and controls problems, carry out preventive maintenance, and help install and commission new
+  equipment.
+
+  You'll need
+  - Certificate of Qualification as an Industrial Electrician (442A) or Red Seal endorsement
+  - 5+ years maintaining PLC-controlled production equipment (Allen-Bradley preferred)
+  - Experience with VFDs, servo drives and motor controls
+  - Legally eligible to work in Canada
+  - Available for rotating 12-hour shifts, including nights and weekends
+
+  Pay: $40.00 - $46.50 per hour, plus a $2.00 per hour night shift premium and a yearly tool allowance.
+  Benefits from day one, a pension with company match, and paid training on our equipment.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The 442A Certificate of Qualification and Red Seal are trade certifications (licensing), and work eligibility is
+  work authorization, not experience; both are the rule pack's "ok" examples. Lawyer: none on the label. Is
+  "legally eligible to work in Canada" ever a problem under the Human Rights Code (citizenship) even though it's
+  fine under s. 8.3? That's outside CheckON's scope but worth a line.

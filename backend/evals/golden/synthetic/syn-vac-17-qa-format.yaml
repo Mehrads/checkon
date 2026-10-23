@@ -1,0 +1,40 @@
+id: syn-vac-17-qa-format
+slice: synthetic
+purpose: >-
+  The statement as a question and answer in a "Quick facts" list: "Is this an existing vacancy? Yes."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Dispatcher
+  Cobourg, ON
+
+  Lakeport Towing & Recovery has 75 staff and a fleet of 40 tow trucks.
+
+  Quick facts
+  - Is this an existing vacancy? Yes.
+  - Employment type: permanent, full-time
+  - Shifts: rotating days, evenings and weekends
+
+  What you'll do
+  - Take roadside assistance and towing calls from motor clubs and police
+  - Assign calls to drivers and track them to completion
+  - Keep records accurate for billing
+
+  What you need
+  - 1+ year of dispatch or call centre experience
+  - Calm under pressure and quick on a keyboard
+  - Good map reading and sense of direction
+
+  Pay: $21.00 - $24.00 per hour
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  A question with its answer discloses the vacancy as plainly as a sentence. The answer "Yes." is split from
+  the question by sentence splitting, so a reader has to see both together.

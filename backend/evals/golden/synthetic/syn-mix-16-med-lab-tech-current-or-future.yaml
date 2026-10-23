@@ -1,0 +1,50 @@
+id: syn-mix-16-med-lab-tech-current-or-future
+slice: synthetic
+purpose: >-
+  A hospital posting with "experience in a Canadian hospital laboratory" (ON-CEX-01 fails) next to an allowed
+  CMLTO registration, and the common "may be used to fill current or future vacancies" line (ON-VAC-01 warning).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Medical Laboratory Technologist - Core Lab (Permanent Full-Time)
+  Algoma District Hospital, Sault Ste. Marie, Ontario
+  Posting #2026-0419 | OPSEU Local 650 | Closing date: November 6, 2026
+
+  Department overview
+  Our core laboratory runs 24/7 and performs about 1.6 million tests a year in chemistry, hematology, coagulation
+  and transfusion medicine for the hospital and for community clinics across the Algoma district.
+
+  Duties
+  • Perform routine and specialized testing in chemistry, hematology and transfusion medicine
+  • Run quality control and act on results that fall outside limits
+  • Maintain, calibrate and troubleshoot analyzers
+  • Report critical values to physicians and nurses promptly
+  • Train students and new staff
+
+  Qualifications
+  • Current registration with the College of Medical Laboratory Technologists of Ontario (CMLTO)
+  • CSMLS General Medical Laboratory Technologist certification, or equivalent
+  • Minimum 2 years of experience in a Canadian hospital laboratory
+  • Experience with Roche and Sysmex analyzers is an asset
+  • Able to work rotating days, evenings, nights and weekends
+
+  Rate of pay: $38.50 - $45.20 per hour, as per the OPSEU collective agreement.
+
+  This competition may be used to fill current or future vacancies.
+
+  Algoma District Hospital is an equal opportunity employer. Accommodations are available on request.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  CMLTO registration is a regulatory requirement and CSMLS certification is a certification, both outside s. 8.3;
+  the Canadian hospital experience bullet is a violation. "Current or future vacancies" is widely used in Ontario
+  public-sector postings and doesn't say whether this posting is for an existing vacancy. Lawyer (Q6a): is "may be
+  used to fill current or future vacancies" a statement under s. 8.5 (1) (a), a vague one (warning), or none (fail)?
+  This wording is common enough that the answer matters.

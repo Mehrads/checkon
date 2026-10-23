@@ -1,0 +1,40 @@
+id: syn-pay02-07-hourly-hours-decide-pass
+slice: synthetic
+purpose: >-
+  An hourly range that is over the limit at 40 hours but within it at the job's 37.5 hours ($25 an hour wide).
+context:
+  uses_ai_in_hiring: false
+  hours_per_week: 37.5
+text: |
+  Registered Respiratory Therapist
+  Sudbury, ON
+
+  Northern Lakes Health Centre is a 400-bed teaching hospital serving the northeast. Our respiratory therapy department is adding a full-time RRT.
+
+  Responsibilities
+  - Manage ventilated patients in the ICU and emergency department
+  - Attend codes and high-risk deliveries
+  - Teach patients and families about home oxygen and inhalers
+
+  Qualifications
+  - Diploma or degree in respiratory therapy
+  - Registration as a Registered Respiratory Therapist in good standing
+  - ACLS and NRP certificates
+
+  Schedule: full-time, 37.5 hours per week, 12-hour rotating days and nights
+  Wage: $30.00 - $55.00 per hour
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $25 x 37.5 h x 52 = $48,750 (pass); at the 40-hour default it would be $52,000 (fail). The hours are in the
+  posting and in the context. Lawyer (law review Q2): is "an amount equivalent to $50,000 annually" measured at
+  the job's own hours?

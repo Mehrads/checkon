@@ -1,0 +1,51 @@
+id: syn-ai-11-says-no-ai-but-uses
+slice: synthetic
+purpose: >-
+  The posting says "We do not use AI to screen, assess or select applicants" while the employer does: a false
+  statement, so ON-AI-01 fails.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Claims Adjuster, Property (Personal Lines)
+  Forest City Mutual Insurance - London, ON
+
+  Forest City Mutual has insured homes, farms and cars in Southwestern Ontario since 1889. We're a member-owned
+  insurer with about 400 employees, and we're growing our property claims team.
+
+  About the role
+  You'll handle residential property claims from first notice of loss to settlement: water damage, fire, theft and
+  wind. Most files are handled by phone and video; about one day a week is on site.
+
+  Responsibilities
+  - Investigate claims, confirm coverage and set reserves
+  - Inspect damage in person or by video, and review contractor estimates
+  - Negotiate and settle claims within your authority
+  - Write clear file notes and explain decisions to members in plain language
+  - Spot possible fraud and refer files to our special investigations unit
+
+  Qualifications
+  - 2+ years of property claims experience, or a related degree or diploma and a strong interest in claims
+  - Chartered Insurance Professional (CIP) designation, completed or in progress
+  - Valid G driver's licence and a reliable vehicle (we pay mileage)
+  - Strong writing and negotiation skills
+
+  Salary: $60,000 to $72,000 a year, with benefits and a pension plan.
+
+  Our hiring promise: we do not use AI to screen, assess or select applicants. Every application is reviewed by a
+  member of our HR team.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer's ATS runs an AI resume-scoring add-on the HR team forgot about. A statement that AI isn't used is
+  not a disclosure of its use. The CIP and driver's licence are certification and licensing, not experience.
+  Lawyer: beyond s. 8.4 (1), does a false "we don't use AI" statement raise anything else (for example
+  misrepresentation to applicants) that the report should mention?

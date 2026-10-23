@@ -1,0 +1,39 @@
+id: syn-pay02-15-starting-at
+slice: synthetic
+purpose: >-
+  An hourly starting rate ("starting at $22.00 per hour") with raises later and no maximum.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Customer Service Representative
+  Oshawa, ON
+
+  Durham Home Energy installs and services furnaces, air conditioners and water heaters for 90,000 customers, with 350 employees.
+
+  What you'll do:
+  - Answer customer calls and book service appointments
+  - Explain rental agreements and protection plans
+  - Follow up on billing questions
+
+  What you need:
+  - 1+ year of customer service experience; call centre experience preferred
+  - A clear, friendly phone manner
+  - Comfort with a CRM and several screens at once
+
+  Pay: starting at $22.00 per hour, with increases at 6 and 12 months.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (law review Q1). Labelled per the README's reading of open-ended pay (a minimum with no
+  maximum): ON-PAY-02 fail. A reasonable alternative reading is that $22.00 is the single expected rate at hire
+  and the raises are later changes, which would pass both pay rules. The extractor may also read it either way
+  (min only, or min = max).

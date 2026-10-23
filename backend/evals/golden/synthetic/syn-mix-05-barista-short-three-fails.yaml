@@ -1,0 +1,31 @@
+id: syn-mix-05-barista-short-three-fails
+slice: synthetic
+purpose: >-
+  A very short posting with no pay (ON-PAY-01), no vacancy statement (ON-VAC-01) and AI used with no disclosure
+  (ON-AI-01). Still a specific position.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Barista - Full Time
+  Ironwood Coffee Roasters, Westboro (Richmond Rd), Ottawa
+
+  We're looking for a full-time barista to join our Westboro café. You'll pull shots, steam milk, keep the bar
+  spotless and chat with our regulars. Barista experience preferred but we'll train the right person.
+
+  Must be available weekends and early mornings (6 am opens).
+
+  Apply online with your resume and availability.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: fail
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Ironwood has 6 cafés and 80 staff (context default: 25 or more). The hiring platform's chatbot scores applicants,
+  so AI is used. Short enough to look like a help-wanted sign, but it names one defined function at one location, so
+  it is a specific position (guide). Lawyer: none on the labels; confirm that a three-line ad naming one role is a
+  publicly advertised job posting rather than a help-wanted sign.

@@ -1,0 +1,40 @@
+id: syn-vac-18-current-and-future-vacancies
+slice: synthetic
+purpose: >-
+  The common public-sector line "This competition may be used to fill current and future vacancies."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Medical Laboratory Technologist
+  Pembroke, ON
+
+  Upper Valley Health Centre is a community hospital with 1,100 staff across two sites.
+
+  What you'll do
+  - Perform tests in chemistry, hematology and transfusion medicine
+  - Run quality control and maintain analyzers
+  - Report critical results to physicians and nurses
+
+  What you need
+  - Medical laboratory science diploma or degree
+  - Registration as a medical laboratory technologist in good standing
+  - Willing to work rotating shifts, including nights
+
+  Pay: $39.00 - $47.00 per hour
+  Posting number: MLT-2026-114
+
+  This competition may be used to fill current and future vacancies.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (Q6a). "May be used to fill current and future vacancies" suggests there may be a current
+  vacancy but doesn't say whether this posting is for one. Labelled warning (vague). It could be read as an
+  existing-vacancy statement (pass) or as no clear statement (fail). Worth settling, since many hospital and
+  municipal postings use this line.

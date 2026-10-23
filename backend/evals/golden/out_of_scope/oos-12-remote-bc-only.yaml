@@ -1,0 +1,40 @@
+id: oos-12-remote-bc-only
+slice: out_of_scope
+purpose: >-
+  A remote job that must be done from British Columbia, posted by an insurer based in Toronto: outside Ontario.
+context:
+  meets_headcount_threshold: true
+  uses_ai_in_hiring: false
+text: |
+  Claims Specialist, Auto (Remote - British Columbia)
+  Lakeview General Insurance
+
+  Lakeview General is a national property and casualty insurer headquartered in Toronto. We're growing our Western
+  claims team and hiring a claims specialist to handle auto claims for our British Columbia customers.
+
+  Location: remote. You must live and work in British Columbia. Occasional travel within B.C. for complex losses.
+
+  Responsibilities
+  - Investigate and settle auto physical damage and accident benefit claims
+  - Work with repair shops, appraisers and customers by phone and video
+  - Keep clear file notes and meet service standards
+
+  Qualifications
+  - 2+ years of auto claims experience
+  - CIP designation, completed or in progress
+  - A valid driver's licence
+
+  Salary: $62,000 to $74,000 a year. This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  A compliant-looking posting that is still out of scope: the work is performed in British Columbia. Tests that the
+  checker says "doesn't apply" rather than "compliant". Lawyer: none on the labels. A remote posting open to "anywhere
+  in Canada" is the harder case (CheckON asks); it isn't this one.

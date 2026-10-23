@@ -1,0 +1,38 @@
+id: syn-pay01-14-placeholder-xx
+slice: synthetic
+purpose: >-
+  A template pay line with "$XX,XXX - $XX,XXX" left unfilled.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Civil Engineering Technologist
+  Kingston, ON
+
+  Limestone Engineering Group is a 90-person consulting firm working on roads, bridges and water projects for municipalities in the region.
+
+  Responsibilities:
+  * Prepare Civil 3D drawings for road and servicing designs
+  * Carry out field inspections and record construction progress
+  * Help prepare quantity estimates and tender documents
+
+  Qualifications:
+  * Diploma in civil engineering technology
+  * 3+ years of design or inspection experience
+  * Valid driver's licence
+
+  Salary range: $XX,XXX - $XX,XXX per year
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: needs_input
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  A placeholder, so needs_input per the README. For the product team: CheckON detects only the library
+  placeholder; here the extractor may return no pay (ON-PAY-01 fail) or misread the X's. No figures, so
+  ON-PAY-02 has nothing to check.

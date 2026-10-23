@@ -1,0 +1,43 @@
+id: syn-ai-19-video-interview-scoring
+slice: synthetic
+purpose: >-
+  One-way video interviews "scored with the help of artificial intelligence"; AI is used to assess. A disclosure,
+  so ON-AI-01 passes.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Customer Success Representative
+  Ledgerly (Markham, Ontario) | Hybrid
+
+  Ledgerly makes bookkeeping software for small businesses. Our Markham support hub (120 people) helps owners
+  get their books right without an accountant on speed dial.
+
+  In this role, you'll help new customers set up Ledgerly, answer how-to questions by chat, email and phone, and
+  turn tricky cases into help-centre articles.
+
+  You'll be great here if you:
+  - Have 1+ year in customer support, ideally for software
+  - Understand basic bookkeeping (debits, credits, reconciliations), or are keen to learn
+  - Write clearly and kindly
+  - Stay organized across many open conversations
+
+  Compensation: $50,000 - $57,000 base salary. Health and dental benefits, and a home-office budget.
+
+  Our process: apply online, then complete a short recorded video interview (3 questions, about 10 minutes).
+  Responses are scored with the help of artificial intelligence and then reviewed by our hiring team, who invite
+  the strongest candidates to a live interview.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Scoring video answers is assessing applicants, and the statement names AI. Lawyer: is a disclosure that names one
+  stage (video scoring) enough if AI is also used elsewhere, for example to rank resumes? The guide says it is
+  enough to state that AI is used to screen, assess or select, so we read a stage-specific statement as sufficient.

@@ -1,0 +1,39 @@
+id: syn-pay01-11-commission-percent-no-figure
+slice: synthetic
+purpose: >-
+  Commission only, stated as a percentage of each sale with no dollar figure.
+context:
+  uses_ai_in_hiring: false
+text: |
+  New Home Sales Associate
+  Aurora, ON
+
+  Castlegate Homes builds townhome and detached communities north of Toronto, with 140 employees and four active sales centres.
+
+  What you'll do:
+  - Staff our Aurora sales centre and walk buyers through models and site plans
+  - Prepare agreements of purchase and sale and track deposits
+  - Work with the construction team to keep buyers updated
+
+  What you need:
+  - Registration as a real estate salesperson, in good standing
+  - Strong presentation and follow-up skills
+  - Weekend availability
+
+  Compensation: commission only, 1.5% of the purchase price on every home you sell, paid on closing.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (law review Q4c). Labelled pass on the guide's statement that "where a monetary amount cannot
+  be provided, the employer may provide information about how the compensation would be earned", and commission
+  is wages. CheckON fails this posting: the extractor finds no dollar amount, so ON-PAY-01 is fail. If the lawyer
+  says a dollar figure is required, change ON-PAY-01 to fail. ON-PAY-02: no range of figures, so not_applicable.

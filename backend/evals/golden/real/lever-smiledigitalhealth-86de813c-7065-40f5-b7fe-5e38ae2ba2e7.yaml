@@ -1,0 +1,74 @@
+id: lever-smiledigitalhealth-86de813c-7065-40f5-b7fe-5e38ae2ba2e7
+slice: real
+source:
+  url: https://jobs.lever.co/smiledigitalhealth/86de813c-7065-40f5-b7fe-5e38ae2ba2e7
+  board: lever
+  location: Toronto, Ontario
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Senior Cloud Security Engineer (Remote Ontario)
+  Toronto, Ontario / OH - Health Data Fabric / Full Time
+
+  Working for a company like Smile Digital Health means supporting our mandate for #BetterGlobalHealth. We strive towards this goal every day, and the results can be seen in the impact of our innovative health data platform and data management solutions, which are used in over 20 countries.  We were #19 on Deloitte's Technology Fast 50 Ranking for 2024!
+
+  Smile Digital Health makes it easy for healthcare stakeholders to collect and exchange data with our leading FHIR-based data liberation platform.
+
+  At its heart, the Smile platform enables people and organizations to better manage healthcare data.  We help generate and liberate structured healthcare data to ensure effective delivery across care teams and health systems bringing  #BetterGlobalHealth to patients everyday!
+
+  Apply today and find plenty of reasons to SMILE!
+
+
+  The Senior Cloud Security Engineer is responsible for designing, automating and deploying production grade services on behalf of the customers to a variety of clouds such as AWS, Azure, OCI and GCP.
+
+  This role combines strategic security architecture with hands-on operational execution owning cloud security posture management (CSPM), threat detection and response, application security testing (SAST/DAST), and RBAC governance. The successful candidate works closely with DevOps, Platform Engineering, and Development teams to embed security throughout the software delivery lifecycle and ensure all environments meet healthcare-grade compliance requirements
+
+  Responsibilities:
+  • Design, implement, and continuously improve cloud security architecture and controls across Azure-based environments.
+  • Lead threat modelling, vulnerability assessments, and security architecture reviews for cloud-native and hybrid infrastructure.
+  • Own and operate cloud security posture management (CSPM) using Prisma Cloud — configure policies, monitor posture, triage findings, and drive remediation with engineering teams.
+  • Deploy, tune, and manage Microsoft Defender for Cloud (and related Defender suite products) across Azure subscriptions; investigate alerts and drive incident response.
+  • Integrate SAST and DAST tooling into CI/CD pipelines; triage findings, define severity thresholds, and partner with developers to close vulnerabilities prior to production release.
+  • Own the RBAC governance process: design role models, conduct periodic access reviews, enforce least-privilege principles, and document role assignments across Azure and application layers.
+  • Collaborate with DevOps and Platform Engineering teams to embed security controls (secrets management, image scanning, policy-as-code) into DevOps pipelines and IaC workflows (Terraform, Ansible).
+  • Act as SME for security compliance frameworks relevant to healthcare data (SOC 2, HIPAA, ISO 27001, PHIPA/PHIPPA); map controls and support audits.
+  • Provide Level 3 escalation for security incidents; participate in on-call rotation for incident response and forensic triage.
+  • Lead and educate internal teams and clients on cloud security best practices, secure-by-design patterns, and zero-trust principles.
+  • Document security runbooks, post-incident reviews, threat models, and lessons learned; maintain a living security knowledge base.
+  • Ensure all working hours are accurately reported in the Time tracking system; the majority of hours are expected to be billed to client engagements.
+  • Comply with all privacy, security, and confidentiality policies; hold all PHI and confidential information in strict confidence throughout and after employment.
+
+  Requirements :
+  • 7+ years of hands-on experience in cloud security, with the majority of that experience focused on Microsoft Azure (Azure Security Center, Azure Policy, Azure AD / Entra ID, Key Vault, NSGs, Private Endpoints, Defender for Cloud).
+  • Proven, production-level experience with Prisma Cloud (CSPM/CWPP) — policy management, alert triage, and remediation workflows.
+  • Hands-on experience with Microsoft Defender for Cloud and the broader Microsoft Defender suite (Defender for Servers, Containers, Identity, Endpoint).
+  • Practical experience implementing and operating SAST and DAST tools (e.g., MEND, SonarQube,GitHub Advanced Security, OWASP ZAP, Burp Suite) within CI/CD pipelines.
+  • Deep familiarity with DevOps pipeline security securing GitHub Actions / Azure DevOps pipelines, secrets management (Azure Key Vault, HashiCorp Vault), container image scanning, and supply-chain security.
+  • Strong RBAC design and governance experience, building and enforcing role models, access review processes, and least-privilege controls across Azure and multi-tier application stacks.
+  • Solid IaC experience with Terraform and/or Ansible; ability to write and review security-hardened infrastructure code.
+  • Experience with Kubernetes / OpenShift and container security (runtime protection, admission controllers, image policies).
+  • Solid understanding of networking fundamentals as they apply to cloud security: VNets, NSGs, Azure Firewall, Private Link, Zero Trust network segmentation.
+  • Demonstrated knowledge of compliance frameworks applicable to healthcare (SOC 2, HIPAA, ISO 27001, PHIPA); experience supporting audits and mapping technical controls.
+  • Professional cloud or security certifications preferred (e.g., AZ-500, MS-500, SC-200, CCSP, CISSP, or equivalent).
+  • Excellent written and verbal communication skills; ability to convey complex security concepts to both technical and non-technical stakeholders
+
+  Smile discloses that artificial intelligence (AI) may be used in portions of the recruitment and selection process, such as resume screening or application assessment. All hiring decisions are ultimately made by qualified human decision-makers, and AI tools are used to support — not replace — fair and equitable hiring practices.
+  This position is a new role, created to support Smile’s continued growth and commitment to operational excellence.
+
+
+  Some of the benefits we offer:
+  * Remote Work Environment
+  * Flexible Time Away From Work Policy including PTO, Personal and Sick Days
+  * Competitive Salary and Health/Medical Benefits
+  * RRSP/TFSA/401K Employee Contribution
+  * Life and Disability
+  * Employee Assistance Program
+  * FHIR Study Program and Skillsoft Learning
+  * Super HAPI Fun Club
+
+  Smile's core values include respect, inclusion, embracing our differences, and celebrating shared values because our people are the foundation of our success. We are big on creating a sense of belonging and empowering each other to bring our authentic selves to work.  We are dedicated to fostering a workplace that values diversity, equity, and inclusion.
+
+  We welcome and encourage candidates of all backgrounds to apply. Candidates are encouraged to inform us if they wish to discuss or require accommodations during interviews or while working at Smile.
+
+  $120,000 - $130,000 CAD per year
+labels: {}

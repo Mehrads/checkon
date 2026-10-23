@@ -1,0 +1,37 @@
+id: syn-pay01-19-table-line
+slice: synthetic
+purpose: >-
+  The pay is a cell in a pipe-separated table line near the top of the posting, not a sentence.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Delivery Driver - DZ Licence
+  Pickering, ON
+
+  Eastway Building Supply delivers lumber, drywall and roofing to job sites across Durham Region. We have 210 employees at five yards.
+
+  Position | Location | Schedule | Pay
+  Delivery Driver (DZ) | Pickering yard | Monday-Friday, 6:00 a.m. start | $27.50-$30.00/hr
+
+  Duties
+  - Load and deliver building materials using a boom truck or truck-mounted forklift
+  - Inspect your truck daily and complete logbooks
+  - Treat customers and job site crews with respect
+
+  Requirements
+  - Valid DZ licence with a clean abstract
+  - 2+ years of commercial driving experience
+  - Able to work outdoors in all weather
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width $2.50 an hour, $5,200 a year at 40 hours. A driver's licence class is a licence, not experience.

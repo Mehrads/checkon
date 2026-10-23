@@ -1,0 +1,37 @@
+id: syn-pay02-12-monthly-under
+slice: synthetic
+purpose: >-
+  A monthly range within the limit once annualised ($4,000 a month wide: $48,000 a year).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Site Superintendent - Mid-Rise Residential
+  Whitby, ON
+
+  Lakeshore Ridge Construction builds mid-rise condominiums and rental buildings in Durham Region, with 160 employees.
+
+  Responsibilities
+  - Run day-to-day site operations on a 9-storey wood-frame building
+  - Coordinate trades, deliveries and inspections
+  - Keep the site safe and the schedule on track
+
+  Requirements
+  - 7+ years in residential construction, including 3 as a superintendent
+  - Working at heights and first aid training
+  - Able to read drawings and specifications
+
+  Salary: $6,500 - $10,500 per month, plus a vehicle allowance.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $4,000 x 12 = $48,000. A vehicle allowance is a travelling allowance, not wages (ESA s. 1 (1) (f)), so it
+  doesn't enter the range.

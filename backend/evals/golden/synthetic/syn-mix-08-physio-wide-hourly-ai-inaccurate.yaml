@@ -1,0 +1,48 @@
+id: syn-mix-08-physio-wide-hourly-ai-inaccurate
+slice: synthetic
+purpose: >-
+  An hourly range of $40 to $70 at 40 hours a week ($62,400 wide, ON-PAY-02 fails) and an AI disclosure from an
+  employer that doesn't use AI (ON-AI-01 warning). Registration with the College of Physiotherapists is allowed.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Registered Physiotherapist - Full Time
+  Ridgeview Physiotherapy & Wellness (Richmond Hill clinic)
+
+  Ridgeview has 18 clinics across York Region with 260 clinicians and staff. Our Richmond Hill clinic treats
+  orthopaedic, sports and motor vehicle accident patients, and we're adding a full-time physiotherapist.
+
+  What you'll do
+  * Assess and treat a caseload of orthopaedic and post-surgical patients
+  * Build home exercise programs and track progress
+  * Work with our chiropractors, massage therapists and kinesiologists on shared patients
+  * Keep clear, timely clinical notes in our EMR
+
+  Requirements
+  * Registration (or eligibility for registration) with the College of Physiotherapists of Ontario
+  * Strong manual therapy and exercise prescription skills
+  * New graduates and experienced physiotherapists are both welcome
+  * Acupuncture or pelvic health training is an asset
+
+  Compensation
+  * $40.00 - $70.00 per hour, depending on experience and caseload
+  * Full-time, 40 hours a week; evening and Saturday shifts on a rotation
+  * $1,200 annual continuing education allowance and paid College fees
+
+  We use AI tools to help screen applications.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: warning
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $30 an hour × 40 hours × 52 weeks = $62,400, over the limit with room to spare, so the hours question doesn't
+  arise; the top is $145,600 a year, so no exemption. The AI line is a template sentence; the clinic director
+  screens by hand, so warning (over-disclosure). Lawyer: Q2 (hourly conversion) doesn't affect the label here; Q7 on
+  inaccurate AI statements, as in syn-ai-12.

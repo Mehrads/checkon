@@ -1,0 +1,36 @@
+id: syn-pay01-03-monthly-range
+slice: synthetic
+purpose: >-
+  Pay stated as a monthly range, with "paid semi-monthly" next to it; the unit is still per month.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Executive Assistant to the President
+  Markham, ON
+
+  Halvorsen Precision Components is a family-owned manufacturer of machined parts for the aerospace and medical sectors, with 310 employees across two plants.
+
+  The role
+  Our President needs a sharp, discreet assistant to manage a demanding calendar, prepare board materials and keep projects moving between the plants.
+
+  You have
+  - 5+ years supporting a senior executive
+  - Advanced skills in Outlook, Word, Excel and PowerPoint
+  - Excellent judgment with confidential information
+
+  Salary: $5,400 to $6,200 per month, paid semi-monthly.
+  Hours: Monday to Friday, 8:30 a.m. to 4:30 p.m.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width $800 a month, $9,600 a year at 12 months. A reader that took "semi-monthly" as the unit would halve or
+  double the figures; either way the range stays far inside the limit.

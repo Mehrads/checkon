@@ -1,0 +1,40 @@
+id: syn-pay01-07-salary-plus-unquantified-commission
+slice: synthetic
+purpose: >-
+  A base salary range plus "uncapped commission" with no rate or amount for the commission.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Account Executive, Commercial Fleet
+  Mississauga, ON
+
+  Maple Route Telematics sells GPS fleet tracking to trucking, construction and municipal fleets. We have 170 employees and are hiring an Account Executive to grow our commercial book in the western GTA.
+
+  What you'll do
+  • Prospect fleet operators and run discovery calls and demos
+  • Build proposals and close new accounts
+  • Hand new customers to onboarding and stay their main contact for the first year
+
+  What we're looking for
+  • 2+ years of B2B sales experience, ideally SaaS or telematics
+  • A track record of meeting quota
+  • Valid driver's licence and access to a vehicle
+
+  Base salary: $55,000 - $65,000 per year, plus uncapped commission.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Lawyer (law review Q4b): the guide says that when the package has more than one type of compensation the
+  employer must include information about each type. Is "plus uncapped commission", with no rate or expected
+  amount, enough information about the commission, or does ON-PAY-01 fail for the missing commission figure?
+  Labelled pass on the reading that the salary range satisfies s. 8.2 (1) and the commission is at least named.
+  CheckON passes it too.

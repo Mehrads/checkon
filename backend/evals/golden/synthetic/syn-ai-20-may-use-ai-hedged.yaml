@@ -1,0 +1,44 @@
+id: syn-ai-20-may-use-ai-hedged
+slice: synthetic
+purpose: >-
+  A hedged statement ("We may use AI tools at some stages of our hiring process") with AI used. Read as a
+  disclosure, so ON-AI-01 passes; the hedge goes to the lawyer.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Accounts Payable Clerk
+  Lakeridge Auto Group - Head Office, Oshawa ON
+
+  Lakeridge Auto Group runs 11 car and truck dealerships east of Toronto. Our head-office finance team handles
+  payables for every store.
+
+  Responsibilities
+  Match invoices to purchase orders and receiving records, and code them to the right store and account. Run
+  the weekly cheque and EFT payment runs. Reconcile vendor statements and follow up on discrepancies. Answer
+  vendor and dealership questions about payments. Help with month-end accruals.
+
+  Qualifications
+  Diploma in accounting or business, or equivalent work experience. 2+ years in accounts payable, ideally in a
+  multi-location business. Strong Excel skills (VLOOKUP, pivot tables). Experience with a dealership management
+  system such as CDK or PBS is an asset.
+
+  Salary: $47,000 to $53,000 per year
+  Hours: Monday to Friday, 8:30 am to 5:00 pm, on site
+
+  We may use AI tools at some stages of our hiring process.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer uses AI to rank resumes for every posting. The statement says AI "may" be used somewhere in hiring,
+  not that it is used to screen, assess or select. We label pass because it tells applicants AI is in play. Lawyer:
+  does a hedged "may use" statement that doesn't name screening, assessing or selecting satisfy s. 8.4 (1)? If not,
+  this is a fail, and CheckON would need a "vague disclosure" label like the vacancy rule's.

@@ -1,0 +1,33 @@
+id: oos-05-always-looking-for-talent
+slice: out_of_scope
+purpose: >-
+  A careers-page "we're always looking for talented people" blurb inviting resumes: a general recruitment campaign
+  with no specific position (Reg. s. 2 (1) (a)).
+context:
+  uses_ai_in_hiring: true
+text: |
+  Careers at Brightwater Engineering
+
+  Don't see the right role on our job board? We're always looking for talented people.
+
+  Brightwater Engineering has grown from a two-person consultancy to a team of 350 engineers, scientists and
+  project managers in Toronto, Ottawa and London. We design water and wastewater systems that keep communities
+  healthy, and we're proud of a culture where people stay for decades.
+
+  If you're passionate about water and want to be part of our story, send us your resume and tell us what you'd
+  like to do. We keep every resume on file for 12 months and will reach out when a role that fits opens up.
+
+  Submit your resume through our general application form.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  The guide gives "we are always looking for talent" as a campaign that doesn't advertise a specific position. The
+  employer uses AI to sort general applications, but s. 8.4 only applies to a publicly advertised job posting.
+  Lawyer: none on the labels.

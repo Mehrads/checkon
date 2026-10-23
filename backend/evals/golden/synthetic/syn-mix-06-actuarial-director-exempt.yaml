@@ -1,0 +1,62 @@
+id: syn-mix-06-actuarial-director-exempt
+slice: synthetic
+purpose: >-
+  A senior insurance posting whose range ends above $200,000 (both pay rules not applicable), with a Canadian
+  university degree requirement (ON-CEX-01 fails) and a vague vacancy line (ON-VAC-01 warning). AI disclosed.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Director, Actuarial Pricing - Group Benefits
+  Grand Erie Life Assurance Company
+  Waterloo, Ontario (hybrid, 2 days a week in office)
+
+  About Grand Erie Life
+  Grand Erie Life has provided life, health and disability insurance to Canadians for more than 120 years. We
+  insure more than 3 million people through 9,000 employer plans, and employ 2,400 people, most of them at our
+  head office in Waterloo.
+
+  About the role
+  The Director, Actuarial Pricing leads a team of 14 actuaries and analysts responsible for pricing group life,
+  health, dental and disability products. You'll set pricing strategy with the business, sign off on large-case
+  quotes, and lead the modernization of our pricing models and tools.
+
+  Key responsibilities
+  - Lead, coach and develop a team of managers, actuaries and actuarial students
+  - Own pricing methods and assumptions for new business and renewals
+  - Present pricing results and recommendations to the executive committee
+  - Partner with underwriting, sales and finance on profitability and growth targets
+  - Oversee the move of our pricing models to a cloud-based platform
+  - Represent pricing in regulatory and audit reviews
+
+  What you bring
+  - Fellow of the Society of Actuaries (FSA) and Fellow of the Canadian Institute of Actuaries (FCIA)
+  - Degree in actuarial science, mathematics or statistics from a recognized Canadian university
+  - 10+ years of actuarial experience, including 4+ years leading teams
+  - Deep knowledge of group benefits pricing and experience rating
+  - Strong communication skills with senior and non-technical audiences
+
+  Compensation
+  - Base salary: $185,000 - $230,000
+  - Annual incentive plan target of 25% of base salary
+  - Pension, flexible benefits and 5 weeks' vacation
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  Depending on business needs, we may fill this role later in 2027.
+
+  Grand Erie Life is committed to an inclusive, barrier-free recruitment process. Accommodation is available on
+  request for candidates taking part in all aspects of selection.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The range ends above $200,000, so Reg. s. 3 exempts the posting from s. 8.2 (1) and the width limit; the width is
+  $45,000 anyway. The FSA and FCIA are professional designations (outside s. 8.3); the Canadian university degree is
+  an education credential (a violation). "We may fill this role later" doesn't say whether it is vacant now. Lawyer:
+  is the FCIA, a Canadian body's fellowship, purely a professional designation? We say yes.

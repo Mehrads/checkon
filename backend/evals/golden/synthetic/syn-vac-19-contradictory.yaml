@@ -1,0 +1,39 @@
+id: syn-vac-19-contradictory
+slice: synthetic
+purpose: >-
+  Two statements that contradict each other (template left in): "is for" at the top, "is not for" at the end.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Inside Sales Representative
+  Bolton, ON
+
+  Humber Station Industrial Supply distributes fasteners and tools to 4,000 manufacturers, with 150 employees.
+
+  This posting is for an existing vacancy.
+
+  What you'll do
+  - Quote and enter orders for phone and email customers
+  - Source special-order items from suppliers
+  - Grow sales with existing accounts
+
+  What you need
+  - 2+ years of inside sales or customer service in industrial distribution
+  - Product knowledge of fasteners, tools or safety supplies
+  - Strong follow-up habits
+
+  Salary: $50,000 - $58,000 per year
+
+  This posting is not for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer. Contradictory statements don't disclose either way. Labelled warning, which is what CheckON
+  gives (conflicting statements count as vague); a lawyer may say neither statement counts, so fail.

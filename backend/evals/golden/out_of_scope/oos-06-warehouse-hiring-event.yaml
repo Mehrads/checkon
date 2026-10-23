@@ -1,0 +1,35 @@
+id: oos-06-warehouse-hiring-event
+slice: out_of_scope
+purpose: >-
+  A hiring-event flyer for "a variety of warehouse roles" with no defined position: a general recruitment campaign.
+  Mentions pay and Canadian experience, which must not be checked.
+context:
+  uses_ai_in_hiring: false
+text: |
+  HIRING EVENT - Saturday, November 7, 2026, 10 am to 3 pm
+  Escarpment Distribution Centre, 8300 Regional Rd 25, Milton, ON
+
+  We're growing for the holiday season and hiring for a variety of warehouse roles across all shifts!
+
+  - Walk-in interviews, no appointment needed
+  - Pay starting at $19.00/hour, with premiums for nights and weekends
+  - Weekly pay and benefits for permanent staff
+  - Free shuttle from Milton GO station
+
+  Bring your resume and two pieces of ID. Canadian work experience is an asset.
+
+  Can't make it? Apply online and choose "Milton DC - general application".
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  Unsure where the line is. "A variety of warehouse roles" names a category, not "a defined function that an
+  individual performs" (guide), so we read it as a general campaign. Lawyer: if the flyer listed "pickers, packers
+  and forklift operators", would each named role be a specific position, making the flyer several postings that
+  must each meet the rules? The open-ended "starting at $19.00" and the Canadian experience line would both fail then.

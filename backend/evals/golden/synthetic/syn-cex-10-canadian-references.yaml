@@ -1,0 +1,41 @@
+id: syn-cex-10-canadian-references
+slice: synthetic
+purpose: >-
+  "Two references from Canadian employers", in prose: a requirement that can only be met with Canadian work
+  experience.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Night Cleaning Supervisor
+  Pinnacle Facility Services - London, Ontario
+
+  Pinnacle cleans office towers, schools and medical buildings across Southwestern Ontario, with 600 staff. We're
+  looking for a night supervisor for our downtown London office accounts.
+
+  You'll lead crews of 8 to 12 cleaners across three buildings: assigning areas, checking quality, training new
+  staff on our methods and chemicals, ordering supplies, and fixing problems before the client notices. You'll be
+  our client's main contact at night, and you'll fill in on cleaning tasks when someone calls in sick.
+
+  You should have at least two years of commercial cleaning experience, including some time leading a crew. WHMIS
+  training is required (we can provide it), and you need a valid driver's licence to move between sites. Please
+  include two references from Canadian employers with your application.
+
+  The pay is $21.50 to $24.00 an hour for 40 hours a week (Sunday to Thursday, 6:00 pm to 2:30 am), with a
+  vehicle allowance and benefits after probation.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The posting never says "Canadian experience", but references from Canadian employers presuppose it. Lawyer: is a
+  reference requirement a requirement related to Canadian experience under s. 8.3 (1)? We say yes. Would asking
+  for references "from employers we can contact" (no place) be fine?

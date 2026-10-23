@@ -1,0 +1,35 @@
+id: syn-pay01-06-competitive-salary
+slice: synthetic
+purpose: >-
+  "Competitive salary" with no figure: no wages stated, so pay disclosure fails and there is no range to check.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Marketing Coordinator
+  Oakville, ON
+
+  Brightwater Home Products designs and sells kitchenware through 1,200 retail partners. Our marketing team is growing and we need a coordinator to keep campaigns on schedule.
+
+  In this role you will:
+  - Coordinate product launches across email, social and retail channels
+  - Brief designers and copywriters and track deliverables
+  - Report on campaign results every month
+
+  You bring:
+  - A diploma or degree in marketing, communications or a related field
+  - 2 years of marketing experience, ideally in consumer products
+  - Strong organization and writing skills
+
+  We offer a competitive salary, a comprehensive benefits package and a hybrid schedule (three days in the office).
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: ''

@@ -1,0 +1,44 @@
+id: syn-mix-18-psw-instructor-ontario-required
+slice: synthetic
+purpose: >-
+  A private-college instructor posting that requires PSW experience "in Ontario" (required, not an asset, so
+  ON-CEX-01 fails) and gives no pay figure (ON-PAY-01 fails). Says plainly there is no existing vacancy (a pass).
+context:
+  uses_ai_in_hiring: true
+text: |
+  Instructor, Personal Support Worker Program (Part-Time, Contract)
+  Danforth Career College - Toronto, ON
+
+  Danforth Career College trains personal support workers, medical office assistants and pharmacy assistants at
+  three campuses in Toronto. We have 140 staff and instructors.
+
+  We're looking for instructors to teach classroom and lab courses in our PSW program, which follows the Ontario PSW
+  program standard. You'll teach one or two courses per intake (day or evening classes), assess students in the lab,
+  and support them before their clinical placements.
+
+  Requirements
+  - Registered Nurse or Registered Practical Nurse in good standing with the College of Nurses of Ontario
+  - A minimum of 3 years working as a PSW or nurse in Ontario long-term care or home care
+  - Teaching or training experience with adult learners is an asset
+  - Strong communication skills and patience
+
+  Compensation is based on qualifications and teaching experience.
+
+  This posting is not for an existing vacancy. We are building a pool of instructors for our January and May 2027
+  intakes.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  Ontario experience as a requirement necessarily requires Canadian experience, so we label it fail, unlike
+  "Ontario experience is an asset" (warning). The CNO registration is allowed. The talent-pool statement is plain:
+  "not for an existing vacancy". Lawyer (Q8b): is required Ontario experience a violation even though the README
+  treats an Ontario asset as borderline?

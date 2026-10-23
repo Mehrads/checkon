@@ -1,0 +1,48 @@
+id: syn-cex-05-canadian-degree
+slice: synthetic
+purpose: >-
+  A Canadian education credential ("degree from a Canadian university") next to a registration requirement (EIT
+  with PEO) that is allowed. The degree fails the rule.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Civil Designer (EIT) - Municipal Infrastructure
+  Kitchener, ON
+  Conestoga Valley Engineering Ltd.
+
+  Conestoga Valley Engineering designs roads, watermains and stormwater systems for municipalities across Waterloo
+  Region and Wellington County. We are 170 engineers, technologists and planners.
+
+  The role
+  Join our municipal team to design road reconstruction and servicing projects from concept through tender and
+  construction.
+
+  Responsibilities
+  - Prepare grading, servicing and stormwater designs in Civil 3D
+  - Run hydraulic and stormwater calculations under senior review
+  - Prepare quantity estimates and tender documents
+  - Attend site meetings and review contractor submissions during construction
+
+  Qualifications
+  - Bachelor's degree in Civil Engineering from a Canadian university
+  - Registered as an Engineer-in-Training (EIT) with Professional Engineers Ontario
+  - 1 to 3 years of municipal design experience (co-op terms count)
+  - Proficiency in AutoCAD Civil 3D
+  - Strong written communication
+
+  Salary: $68,000 to $78,000 per year. Paid PEO fees and a professional development budget.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The guide lists education credentials as Canadian experience and excludes licensing or registration, so the
+  degree bullet fails and the EIT bullet is fine. Lawyer: would "a degree from a Canadian university or equivalent"
+  cure it, or is naming the Canadian degree as the default still a requirement related to Canadian experience?

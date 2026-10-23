@@ -1,0 +1,39 @@
+id: syn-pay02-13-open-ended-plus
+slice: synthetic
+purpose: >-
+  An open-ended salary ("$70,000+"): pay is disclosed, but there is no maximum, so it isn't a range within the
+  limit.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Senior Accountant
+  Burlington, ON
+
+  Halcyon Dental Partners provides finance, HR and IT support to 45 dental clinics, with 600 employees.
+
+  You will
+  - Prepare monthly financial statements for a group of clinics
+  - Own account reconciliations and the month-end close calendar
+  - Support the annual audit and tax filings
+
+  You have
+  - CPA designation
+  - 3+ years of accounting experience after designation
+  - Advanced Excel; experience with multi-entity accounting is an asset
+
+  Salary: $70,000+ depending on experience
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (law review Q1). Labelled per the README: open-ended pay is information about expected
+  compensation (ON-PAY-01 pass) but has no upper end, so it can't be shown to be within $50,000 (ON-PAY-02 fail).
+  The other reading is that "$70,000+" is a single expected figure and passes both.
