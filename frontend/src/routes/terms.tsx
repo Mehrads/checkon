@@ -5,7 +5,7 @@ import { pageHead } from "@/lib/seo"
 
 // Every statement about plans and billing here describes what the code and the Stripe setup do
 // (backend/app/api/billing.py, infra/README.md "Stripe"); change this page when they change.
-const DRAFTED = "October 21, 2026"
+const DRAFTED = "October 23, 2026"
 
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
@@ -189,9 +189,10 @@ function TermsPage() {
       <Part title="Your postings">
         <p>
           You keep all rights to the postings you check. You let us process them
-          only to run the check and show you the results. Only paste postings
-          you're allowed to share with us. How we handle them, including what we
-          keep, is in our <PageLink to="/privacy">privacy policy</PageLink>.
+          only to run the check, show you the results and, if you turn it on,
+          keep them in your archive. Only paste postings you're allowed to share
+          with us. How we handle them, including what we keep, is in our{" "}
+          <PageLink to="/privacy">privacy policy</PageLink>.
         </p>
       </Part>
 
