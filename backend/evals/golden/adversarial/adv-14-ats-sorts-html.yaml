@@ -1,0 +1,56 @@
+id: adv-14-ats-sorts-html
+slice: adversarial
+variant_of: syn-ai-06-ats-sorts-uses-ai
+purpose: >-
+  Original syn-ai-06-ats-sorts-uses-ai written as raw HTML (<h2>, <h3>, <p>, <ul>/<li>, <br>, <strong> on the pay and
+  hours lines).
+context:
+  uses_ai_in_hiring: true
+text: |
+  <h2>Unit Clerk - Medicine (Temporary Full-Time, 12 months)</h2>
+  <p>Thames Valley Regional Health Centre, London, Ontario<br>
+  Union: OPSEU Local 141</p>
+
+  <h3>Position summary</h3>
+  <p>The Unit Clerk is the first point of contact on a 34-bed medicine unit. You coordinate the flow of
+  information between patients, families, physicians and the care team, and keep the unit's records accurate.</p>
+
+  <h3>Duties</h3>
+  <ul>
+    <li>Transcribe and process physician orders in the electronic health record</li>
+    <li>Book tests, consults and transfers, and track discharges</li>
+    <li>Answer the unit phone and greet visitors</li>
+    <li>Maintain patient charts and order supplies</li>
+  </ul>
+
+  <h3>Qualifications</h3>
+  <ul>
+    <li>Medical terminology course (completed)</li>
+    <li>1 year of clerical experience in a hospital or clinic setting</li>
+    <li>Keyboarding of 45 words per minute</li>
+    <li>Strong organizational skills and attention to detail</li>
+    <li>Basic Life Support (BLS) certification within 3 months of hire</li>
+  </ul>
+
+  <p><strong>Rate of pay:</strong> $26.10 - $28.40 per hour (as per the collective agreement)<br>
+  <strong>Hours:</strong> 75 hours bi-weekly, days and evenings, every third weekend</p>
+
+  <p>Please apply online. Our applicant tracking system sorts and ranks applications automatically before they
+  reach the hiring manager, so answer every screening question.</p>
+
+  <p>This posting is for an existing vacancy.</p>
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer's ATS module gives each applicant a match score (AI), so a disclosure is required. The sentence
+  describes automatic ranking but never says AI, which on CheckON's reading is not a disclosure. Lawyer (Q7a, Q7b):
+  does a sentence that describes automated ranking count as disclosing AI when the ranking is in fact AI? Is a public
+  hospital outside the Crown exemption (O. Reg. 285/01, s. 2.1)? We assume it is. Adversarial: labels must equal
+  syn-ai-06-ats-sorts-uses-ai's.
