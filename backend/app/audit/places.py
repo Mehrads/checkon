@@ -1,5 +1,6 @@
 """Where a board posting's work is: in Ontario, somewhere in Canada that may be Ontario (remote or Canada-wide), or
-elsewhere. Read from the board's location fields, never the posting text, so it costs nothing to decide.
+elsewhere. Read from the board's location fields, never the posting text, so it costs nothing to decide. When the
+location says only Canada, the job title can name the place: "Pharmacist - Trail, BC".
 
 Many Ontario place names are also places elsewhere (London, Hamilton, Waterloo, Windsor…). On its own, only a
 short list of names that mean Ontario counts, unless another province follows the name; any Ontario place counts
@@ -55,6 +56,14 @@ _NOISE = re.compile(
     re.IGNORECASE,
 )
 _CANADA_CODES = {"ca", "can", "canada"}
+_REMOTE = re.compile(r"\b(?:remote|flexible)\b", re.IGNORECASE)
+_TITLE_PART = re.compile(r"\s+[-–—|@]\s+|[()\[\]]|:\s")
+# A title part that ends in a province: "Trail, BC", "Calgary AB", "Simcoe, Ontario", "Alberta". A code needs a
+# town before it, since "QC" or "PE" alone is more often quality control or phys ed.
+_ENDS_IN_PROVINCE = re.compile(
+    rf"(?:^|[\s,])(?:ontario|ont\.|{_PROVINCE_NAMES})\s*$|\S[\s,]+(?:(?-i:ON)|{_PROVINCE_CODES})\.?\s*$",
+    re.IGNORECASE,
+)
 
 
 @cache
@@ -80,18 +89,34 @@ def _in_ontario(location: str, canada: bool) -> bool:
     return any(segment in ontario_places() for segment in _segments(location))
 
 
-def where(locations: list[str], *, remote: bool = False, country: str | None = None) -> Where:
+def _title_places(title: str) -> list[str]:
+    """The parts of a job title that name a place by its province, or by a name that means Ontario."""
+    parts = [part.strip() for part in _TITLE_PART.split(title)]
+    return [
+        part for part in parts
+        if _ENDS_IN_PROVINCE.search(part) or any(segment in ONTARIO_CITIES for segment in _segments(part))
+    ]  # fmt: skip
+
+
+def where(
+    locations: list[str], *, remote: bool = False, country: str | None = None, title: str | None = None
+) -> Where:
     """`country` is a structured country field (a code such as "CA", or a name), which settles names like London.
-    `remote` marks a posting open to anywhere in its country. A Canada-wide posting may be filled in Ontario."""
+    `remote` marks a posting open to anywhere in its country. A Canada-wide posting may be filled in Ontario,
+    unless it isn't remote and its `title` names the place."""
     in_canada = (country or "").strip().lower() in _CANADA_CODES
     texts = [location for location in locations if location and location.strip()]
     if any(_in_ontario(location, in_canada or bool(_CANADA.search(location))) for location in texts):
         return "ontario"
-    if any(_CANADA.search(location) and not _OTHER_PROVINCE.search(location) for location in texts):
-        return "canada"  # "Remote - Canada", "Canada", "US or Canada"
-    if in_canada and (remote or not texts):
-        return "canada"
-    return "elsewhere"
+    canada_wide = any(_CANADA.search(location) and not _OTHER_PROVINCE.search(location) for location in texts)
+    if not canada_wide and not (in_canada and (remote or not texts)):
+        return "elsewhere"
+    only_canada = not any(_REMOTE.search(text) for text in texts) and all(
+        segment in _CANADA_CODES for text in texts for segment in _segments(text)
+    )  # fmt: skip
+    if title and not remote and only_canada and (places := _title_places(title)):
+        return where(places, country="CA")  # "Canada", on site: "Pharmacist - Trail, BC"
+    return "canada"  # "Remote - Canada", "Canada", "US or Canada"
 
 
 def vague(location: str | None) -> bool:
