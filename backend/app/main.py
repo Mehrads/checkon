@@ -2,9 +2,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 import sentry_sdk
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import FileResponse, Response
 from fastapi.routing import APIRoute
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
@@ -45,7 +47,26 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 PRERENDERED = {
     "/": "check.html", "/check": "check.html", "/privacy": "privacy.html", "/terms": "terms.html",
     "/ontario-job-posting-requirements": "ontario-job-posting-requirements.html",
+    # One page per rule (frontend/src/components/Site/rules), in English and French
+    "/ontario-pay-transparency-job-posting": "ontario-pay-transparency-job-posting.html",
+    "/ontario-canadian-experience-job-posting": "ontario-canadian-experience-job-posting.html",
+    "/ontario-ai-disclosure-job-posting": "ontario-ai-disclosure-job-posting.html",
+    "/ontario-existing-vacancy-job-posting": "ontario-existing-vacancy-job-posting.html",
+    "/ontario-45-day-interview-response": "ontario-45-day-interview-response.html",
+    "/ontario-job-posting-record-keeping": "ontario-job-posting-record-keeping.html",
+    "/fr/ontario-transparence-salariale-offre-emploi": "fr-ontario-transparence-salariale-offre-emploi.html",
+    "/fr/ontario-experience-canadienne-offre-emploi": "fr-ontario-experience-canadienne-offre-emploi.html",
+    "/fr/ontario-divulgation-ia-offre-emploi": "fr-ontario-divulgation-ia-offre-emploi.html",
+    "/fr/ontario-poste-vacant-existant-offre-emploi": "fr-ontario-poste-vacant-existant-offre-emploi.html",
+    "/fr/ontario-reponse-45-jours-entrevue": "fr-ontario-reponse-45-jours-entrevue.html",
+    "/fr/ontario-conservation-offres-emploi": "fr-ontario-conservation-offres-emploi.html",
 }  # fmt: skip
+
+# The app's own pages (frontend/src/routes): its shell, index.html, which keeps them out of search results.
+APP_PAGES = (
+    "/login", "/recover-password", "/reset-password", "/welcome", "/admin", "/archive", "/profile", "/settings",
+    "/stats", "/audits", "/audits/{audit_id}", "/audits/{audit_id}/{posting_id}",
+)  # fmt: skip
 
 
 def _prerendered(name: str) -> Callable[[], FileResponse]:
@@ -58,9 +79,21 @@ def _prerendered(name: str) -> Callable[[], FileResponse]:
     return page
 
 
-for page_path, page_file in PRERENDERED.items():
+for page_path, page_file in [*PRERENDERED.items(), *((path, "index.html") for path in APP_PAGES)]:
     app.add_api_route(
         page_path, _prerendered(page_file), methods=["GET", "HEAD"], include_in_schema=False, tags=["pages"]
     )
 
-app.frontend("/", directory=FRONTEND_DIR)
+# Any other address the build's files don't have is a 404 (below), so search engines don't take it for a page. In
+# development there may be no build (the tests, CI's backend job); production refuses to start without one.
+if FRONTEND_DIR.is_dir() or settings.FASTAPI_ENV != "development":
+    app.frontend("/", directory=FRONTEND_DIR, fallback=None)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def not_found_page(request: Request, exc: StarletteHTTPException) -> Response:
+    """Outside the API, "not found" is the build's 404.html: the app's not-found page, kept out of search results."""
+    page = FRONTEND_DIR / "404.html"
+    if exc.status_code == 404 and not request.url.path.startswith(settings.API_V1_STR) and page.is_file():
+        return FileResponse(page, status_code=404, media_type="text/html")
+    return await http_exception_handler(request, exc)

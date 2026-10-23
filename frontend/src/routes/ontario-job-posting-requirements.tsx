@@ -4,12 +4,16 @@ import { ArrowRight } from "lucide-react"
 import { Appearance } from "@/components/Common/Appearance"
 import { JsonLd, ORGANIZATION } from "@/components/Site/JsonLd"
 import { Brand, SiteFooter } from "@/components/Site/Landing"
-import { List, Part } from "@/components/Site/Legal"
+import { List, PageLink, Part } from "@/components/Site/Legal"
+import { RuleLinks } from "@/components/Site/RulePage"
+import { RULES } from "@/components/Site/rules/en"
+import { RULES as RULES_FR } from "@/components/Site/rules/fr"
 import { Button } from "@/components/ui/button"
 import { pageHead, SITE } from "@/lib/seo"
 
 // Plain words only, no section numbers (marketing copy). Every statement matches the rule pack
-// (backend/rulepacks/CA-ON/rules.yaml) and docs/law-review-2026-10.md; change this page when they change.
+// (backend/rulepacks/CA-ON/rules.yaml) and docs/law-review-2026-10.md; change this page when they change. Each rule
+// has its own page with the sections cited (components/Site/rules), linked from here.
 const UPDATED = "2026-10-23"
 const MINISTRY_GUIDE =
   "https://www.ontario.ca/document/your-guide-employment-standards-act-0/requirements-related-publicly-advertised-job"
@@ -115,24 +119,32 @@ function Requirements() {
             <li>
               <strong>The expected pay or a pay range.</strong> A range can be
               at most $50,000 a year wide. Postings where the expected pay is
-              above $200,000 a year are exempt.
+              above $200,000 a year are exempt.{" "}
+              <PageLink to={RULES.pay.path}>More on pay ranges</PageLink>
             </li>
             <li>
               <strong>Whether the job is an existing vacancy.</strong> Say
               plainly whether you're filling a vacancy that exists now or not,
-              for example "This posting is for an existing vacancy."
+              for example "This posting is for an existing vacancy."{" "}
+              <PageLink to={RULES.vacancy.path}>
+                More on the vacancy statement
+              </PageLink>
             </li>
             <li>
               <strong>
                 Whether you use AI to screen, assess or select applicants.
               </strong>{" "}
               If you, or a recruiter working for you, use AI tools to screen,
-              assess or select applicants, the posting must say so.
+              assess or select applicants, the posting must say so.{" "}
+              <PageLink to={RULES.ai.path}>More on AI disclosure</PageLink>
             </li>
             <li>
               <strong>No Canadian experience requirement</strong>, in the
               posting or its application form. Ask for the skill or the years of
-              experience, not where the experience was gained.
+              experience, not where the experience was gained.{" "}
+              <PageLink to={RULES.cex.path}>
+                More on Canadian experience
+              </PageLink>
             </li>
           </List>
         </Part>
@@ -143,15 +155,32 @@ function Requirements() {
               <strong>Tell interviewed applicants where things stand.</strong>{" "}
               Within 45 days of an interview (or the last one), tell each
               applicant you interviewed whether a hiring decision has been made,
-              in person, in writing, or by email, text or a portal update.
+              in person, in writing, or by email, text or a portal update.{" "}
+              <PageLink to={RULES.interview.path}>
+                More on the 45-day rule
+              </PageLink>
             </li>
             <li>
               <strong>Keep records for three years.</strong> Keep a copy of each
               posting and any application form for three years after the posting
               comes down, and what you told each interviewed applicant for three
-              years.
+              years.{" "}
+              <PageLink to={RULES.records.path}>
+                More on record keeping
+              </PageLink>
             </li>
           </List>
+        </Part>
+
+        <Part title="Each rule in detail">
+          <p>
+            What the law says, with the sections, wording you can copy and a
+            before and after.{" "}
+            <PageLink to={RULES_FR.pay.path}>
+              <span lang="fr-CA">Aussi en français.</span>
+            </PageLink>
+          </p>
+          <RuleLinks lang="en" />
         </Part>
 
         <Part title="Check your posting">

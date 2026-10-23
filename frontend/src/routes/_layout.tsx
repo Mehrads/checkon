@@ -11,9 +11,11 @@ import {
 import { isLoggedIn } from "@/hooks/useAuth"
 import { useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
+import { noindex } from "@/lib/seo"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
+  head: noindex,
   beforeLoad: async ({ location }) => {
     // v1 has no sign-up: visitors land on the free check; /login still works directly. A link to another account
     // page (the extension's "Open it", say) logs in first, then comes back to it.

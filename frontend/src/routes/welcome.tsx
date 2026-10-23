@@ -8,10 +8,11 @@ import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import { Button } from "@/components/ui/button"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { track } from "@/lib/analytics"
+import { noindex } from "@/lib/seo"
 
 export const Route = createFileRoute("/welcome")({
   component: Welcome,
-  head: () => ({ meta: [{ title: "Welcome - CheckON" }] }),
+  head: () => ({ meta: [{ title: "Welcome - CheckON" }, ...noindex().meta] }),
 })
 
 // Stripe sends the webhook within seconds; stop asking after this long.

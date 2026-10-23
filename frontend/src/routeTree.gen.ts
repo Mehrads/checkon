@@ -12,7 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as CheckRouteImport } from './routes/check'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as Ontario45DayInterviewResponseRouteImport } from './routes/ontario-45-day-interview-response'
+import { Route as OntarioAiDisclosureJobPostingRouteImport } from './routes/ontario-ai-disclosure-job-posting'
+import { Route as OntarioCanadianExperienceJobPostingRouteImport } from './routes/ontario-canadian-experience-job-posting'
+import { Route as OntarioExistingVacancyJobPostingRouteImport } from './routes/ontario-existing-vacancy-job-posting'
+import { Route as OntarioJobPostingRecordKeepingRouteImport } from './routes/ontario-job-posting-record-keeping'
 import { Route as OntarioJobPostingRequirementsRouteImport } from './routes/ontario-job-posting-requirements'
+import { Route as OntarioPayTransparencyJobPostingRouteImport } from './routes/ontario-pay-transparency-job-posting'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -24,6 +30,12 @@ import { Route as LayoutArchiveRouteImport } from './routes/_layout/archive'
 import { Route as LayoutProfileRouteImport } from './routes/_layout/profile'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutStatsRouteImport } from './routes/_layout/stats'
+import { Route as FrOntarioConservationOffresEmploiRouteImport } from './routes/fr/ontario-conservation-offres-emploi'
+import { Route as FrOntarioDivulgationIaOffreEmploiRouteImport } from './routes/fr/ontario-divulgation-ia-offre-emploi'
+import { Route as FrOntarioExperienceCanadienneOffreEmploiRouteImport } from './routes/fr/ontario-experience-canadienne-offre-emploi'
+import { Route as FrOntarioPosteVacantExistantOffreEmploiRouteImport } from './routes/fr/ontario-poste-vacant-existant-offre-emploi'
+import { Route as FrOntarioReponse45JoursEntrevueRouteImport } from './routes/fr/ontario-reponse-45-jours-entrevue'
+import { Route as FrOntarioTransparenceSalarialeOffreEmploiRouteImport } from './routes/fr/ontario-transparence-salariale-offre-emploi'
 import { Route as LayoutAuditsIndexRouteImport } from './routes/_layout/audits.index'
 import { Route as LayoutAuditsAuditIdIndexRouteImport } from './routes/_layout/audits.$auditId.index'
 import { Route as LayoutAuditsAuditIdPostingIdRouteImport } from './routes/_layout/audits.$auditId.$postingId'
@@ -42,10 +54,46 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Ontario45DayInterviewResponseRoute =
+  Ontario45DayInterviewResponseRouteImport.update({
+    id: '/ontario-45-day-interview-response',
+    path: '/ontario-45-day-interview-response',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OntarioAiDisclosureJobPostingRoute =
+  OntarioAiDisclosureJobPostingRouteImport.update({
+    id: '/ontario-ai-disclosure-job-posting',
+    path: '/ontario-ai-disclosure-job-posting',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OntarioCanadianExperienceJobPostingRoute =
+  OntarioCanadianExperienceJobPostingRouteImport.update({
+    id: '/ontario-canadian-experience-job-posting',
+    path: '/ontario-canadian-experience-job-posting',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OntarioExistingVacancyJobPostingRoute =
+  OntarioExistingVacancyJobPostingRouteImport.update({
+    id: '/ontario-existing-vacancy-job-posting',
+    path: '/ontario-existing-vacancy-job-posting',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OntarioJobPostingRecordKeepingRoute =
+  OntarioJobPostingRecordKeepingRouteImport.update({
+    id: '/ontario-job-posting-record-keeping',
+    path: '/ontario-job-posting-record-keeping',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OntarioJobPostingRequirementsRoute =
   OntarioJobPostingRequirementsRouteImport.update({
     id: '/ontario-job-posting-requirements',
     path: '/ontario-job-posting-requirements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const OntarioPayTransparencyJobPostingRoute =
+  OntarioPayTransparencyJobPostingRouteImport.update({
+    id: '/ontario-pay-transparency-job-posting',
+    path: '/ontario-pay-transparency-job-posting',
     getParentRoute: () => rootRouteImport,
   } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -103,6 +151,42 @@ const LayoutStatsRoute = LayoutStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => LayoutRoute,
 } as any)
+const FrOntarioConservationOffresEmploiRoute =
+  FrOntarioConservationOffresEmploiRouteImport.update({
+    id: '/fr/ontario-conservation-offres-emploi',
+    path: '/fr/ontario-conservation-offres-emploi',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FrOntarioDivulgationIaOffreEmploiRoute =
+  FrOntarioDivulgationIaOffreEmploiRouteImport.update({
+    id: '/fr/ontario-divulgation-ia-offre-emploi',
+    path: '/fr/ontario-divulgation-ia-offre-emploi',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FrOntarioExperienceCanadienneOffreEmploiRoute =
+  FrOntarioExperienceCanadienneOffreEmploiRouteImport.update({
+    id: '/fr/ontario-experience-canadienne-offre-emploi',
+    path: '/fr/ontario-experience-canadienne-offre-emploi',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FrOntarioPosteVacantExistantOffreEmploiRoute =
+  FrOntarioPosteVacantExistantOffreEmploiRouteImport.update({
+    id: '/fr/ontario-poste-vacant-existant-offre-emploi',
+    path: '/fr/ontario-poste-vacant-existant-offre-emploi',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FrOntarioReponse45JoursEntrevueRoute =
+  FrOntarioReponse45JoursEntrevueRouteImport.update({
+    id: '/fr/ontario-reponse-45-jours-entrevue',
+    path: '/fr/ontario-reponse-45-jours-entrevue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FrOntarioTransparenceSalarialeOffreEmploiRoute =
+  FrOntarioTransparenceSalarialeOffreEmploiRouteImport.update({
+    id: '/fr/ontario-transparence-salariale-offre-emploi',
+    path: '/fr/ontario-transparence-salariale-offre-emploi',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LayoutAuditsIndexRoute = LayoutAuditsIndexRouteImport.update({
   id: '/audits/',
   path: '/audits/',
@@ -125,7 +209,13 @@ export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-45-day-interview-response': typeof Ontario45DayInterviewResponseRoute
+  '/ontario-ai-disclosure-job-posting': typeof OntarioAiDisclosureJobPostingRoute
+  '/ontario-canadian-experience-job-posting': typeof OntarioCanadianExperienceJobPostingRoute
+  '/ontario-existing-vacancy-job-posting': typeof OntarioExistingVacancyJobPostingRoute
+  '/ontario-job-posting-record-keeping': typeof OntarioJobPostingRecordKeepingRoute
   '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
+  '/ontario-pay-transparency-job-posting': typeof OntarioPayTransparencyJobPostingRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -136,6 +226,12 @@ export interface FileRoutesByFullPath {
   '/profile': typeof LayoutProfileRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
+  '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
+  '/fr/ontario-divulgation-ia-offre-emploi': typeof FrOntarioDivulgationIaOffreEmploiRoute
+  '/fr/ontario-experience-canadienne-offre-emploi': typeof FrOntarioExperienceCanadienneOffreEmploiRoute
+  '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
+  '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
+  '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
   '/audits/': typeof LayoutAuditsIndexRoute
   '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
   '/audits/$auditId/': typeof LayoutAuditsAuditIdIndexRoute
@@ -143,7 +239,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-45-day-interview-response': typeof Ontario45DayInterviewResponseRoute
+  '/ontario-ai-disclosure-job-posting': typeof OntarioAiDisclosureJobPostingRoute
+  '/ontario-canadian-experience-job-posting': typeof OntarioCanadianExperienceJobPostingRoute
+  '/ontario-existing-vacancy-job-posting': typeof OntarioExistingVacancyJobPostingRoute
+  '/ontario-job-posting-record-keeping': typeof OntarioJobPostingRecordKeepingRoute
   '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
+  '/ontario-pay-transparency-job-posting': typeof OntarioPayTransparencyJobPostingRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -154,6 +256,12 @@ export interface FileRoutesByTo {
   '/profile': typeof LayoutProfileRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
+  '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
+  '/fr/ontario-divulgation-ia-offre-emploi': typeof FrOntarioDivulgationIaOffreEmploiRoute
+  '/fr/ontario-experience-canadienne-offre-emploi': typeof FrOntarioExperienceCanadienneOffreEmploiRoute
+  '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
+  '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
+  '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
   '/': typeof LayoutIndexRoute
   '/audits': typeof LayoutAuditsIndexRoute
   '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
@@ -164,7 +272,13 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/check': typeof CheckRoute
   '/login': typeof LoginRoute
+  '/ontario-45-day-interview-response': typeof Ontario45DayInterviewResponseRoute
+  '/ontario-ai-disclosure-job-posting': typeof OntarioAiDisclosureJobPostingRoute
+  '/ontario-canadian-experience-job-posting': typeof OntarioCanadianExperienceJobPostingRoute
+  '/ontario-existing-vacancy-job-posting': typeof OntarioExistingVacancyJobPostingRoute
+  '/ontario-job-posting-record-keeping': typeof OntarioJobPostingRecordKeepingRoute
   '/ontario-job-posting-requirements': typeof OntarioJobPostingRequirementsRoute
+  '/ontario-pay-transparency-job-posting': typeof OntarioPayTransparencyJobPostingRoute
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -175,6 +289,12 @@ export interface FileRoutesById {
   '/_layout/profile': typeof LayoutProfileRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/stats': typeof LayoutStatsRoute
+  '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
+  '/fr/ontario-divulgation-ia-offre-emploi': typeof FrOntarioDivulgationIaOffreEmploiRoute
+  '/fr/ontario-experience-canadienne-offre-emploi': typeof FrOntarioExperienceCanadienneOffreEmploiRoute
+  '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
+  '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
+  '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/audits/': typeof LayoutAuditsIndexRoute
   '/_layout/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
@@ -186,7 +306,13 @@ export interface FileRouteTypes {
     | '/'
     | '/check'
     | '/login'
+    | '/ontario-45-day-interview-response'
+    | '/ontario-ai-disclosure-job-posting'
+    | '/ontario-canadian-experience-job-posting'
+    | '/ontario-existing-vacancy-job-posting'
+    | '/ontario-job-posting-record-keeping'
     | '/ontario-job-posting-requirements'
+    | '/ontario-pay-transparency-job-posting'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -197,6 +323,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/stats'
+    | '/fr/ontario-conservation-offres-emploi'
+    | '/fr/ontario-divulgation-ia-offre-emploi'
+    | '/fr/ontario-experience-canadienne-offre-emploi'
+    | '/fr/ontario-poste-vacant-existant-offre-emploi'
+    | '/fr/ontario-reponse-45-jours-entrevue'
+    | '/fr/ontario-transparence-salariale-offre-emploi'
     | '/audits/'
     | '/audits/$auditId/$postingId'
     | '/audits/$auditId/'
@@ -204,7 +336,13 @@ export interface FileRouteTypes {
   to:
     | '/check'
     | '/login'
+    | '/ontario-45-day-interview-response'
+    | '/ontario-ai-disclosure-job-posting'
+    | '/ontario-canadian-experience-job-posting'
+    | '/ontario-existing-vacancy-job-posting'
+    | '/ontario-job-posting-record-keeping'
     | '/ontario-job-posting-requirements'
+    | '/ontario-pay-transparency-job-posting'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -215,6 +353,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/stats'
+    | '/fr/ontario-conservation-offres-emploi'
+    | '/fr/ontario-divulgation-ia-offre-emploi'
+    | '/fr/ontario-experience-canadienne-offre-emploi'
+    | '/fr/ontario-poste-vacant-existant-offre-emploi'
+    | '/fr/ontario-reponse-45-jours-entrevue'
+    | '/fr/ontario-transparence-salariale-offre-emploi'
     | '/'
     | '/audits'
     | '/audits/$auditId/$postingId'
@@ -224,7 +368,13 @@ export interface FileRouteTypes {
     | '/_layout'
     | '/check'
     | '/login'
+    | '/ontario-45-day-interview-response'
+    | '/ontario-ai-disclosure-job-posting'
+    | '/ontario-canadian-experience-job-posting'
+    | '/ontario-existing-vacancy-job-posting'
+    | '/ontario-job-posting-record-keeping'
     | '/ontario-job-posting-requirements'
+    | '/ontario-pay-transparency-job-posting'
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
@@ -235,6 +385,12 @@ export interface FileRouteTypes {
     | '/_layout/profile'
     | '/_layout/settings'
     | '/_layout/stats'
+    | '/fr/ontario-conservation-offres-emploi'
+    | '/fr/ontario-divulgation-ia-offre-emploi'
+    | '/fr/ontario-experience-canadienne-offre-emploi'
+    | '/fr/ontario-poste-vacant-existant-offre-emploi'
+    | '/fr/ontario-reponse-45-jours-entrevue'
+    | '/fr/ontario-transparence-salariale-offre-emploi'
     | '/_layout/'
     | '/_layout/audits/'
     | '/_layout/audits/$auditId/$postingId'
@@ -245,12 +401,24 @@ export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
   CheckRoute: typeof CheckRoute
   LoginRoute: typeof LoginRoute
+  Ontario45DayInterviewResponseRoute: typeof Ontario45DayInterviewResponseRoute
+  OntarioAiDisclosureJobPostingRoute: typeof OntarioAiDisclosureJobPostingRoute
+  OntarioCanadianExperienceJobPostingRoute: typeof OntarioCanadianExperienceJobPostingRoute
+  OntarioExistingVacancyJobPostingRoute: typeof OntarioExistingVacancyJobPostingRoute
+  OntarioJobPostingRecordKeepingRoute: typeof OntarioJobPostingRecordKeepingRoute
   OntarioJobPostingRequirementsRoute: typeof OntarioJobPostingRequirementsRoute
+  OntarioPayTransparencyJobPostingRoute: typeof OntarioPayTransparencyJobPostingRoute
   PrivacyRoute: typeof PrivacyRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   WelcomeRoute: typeof WelcomeRoute
+  FrOntarioConservationOffresEmploiRoute: typeof FrOntarioConservationOffresEmploiRoute
+  FrOntarioDivulgationIaOffreEmploiRoute: typeof FrOntarioDivulgationIaOffreEmploiRoute
+  FrOntarioExperienceCanadienneOffreEmploiRoute: typeof FrOntarioExperienceCanadienneOffreEmploiRoute
+  FrOntarioPosteVacantExistantOffreEmploiRoute: typeof FrOntarioPosteVacantExistantOffreEmploiRoute
+  FrOntarioReponse45JoursEntrevueRoute: typeof FrOntarioReponse45JoursEntrevueRoute
+  FrOntarioTransparenceSalarialeOffreEmploiRoute: typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -276,11 +444,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ontario-45-day-interview-response': {
+      id: '/ontario-45-day-interview-response'
+      path: '/ontario-45-day-interview-response'
+      fullPath: '/ontario-45-day-interview-response'
+      preLoaderRoute: typeof Ontario45DayInterviewResponseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-ai-disclosure-job-posting': {
+      id: '/ontario-ai-disclosure-job-posting'
+      path: '/ontario-ai-disclosure-job-posting'
+      fullPath: '/ontario-ai-disclosure-job-posting'
+      preLoaderRoute: typeof OntarioAiDisclosureJobPostingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-canadian-experience-job-posting': {
+      id: '/ontario-canadian-experience-job-posting'
+      path: '/ontario-canadian-experience-job-posting'
+      fullPath: '/ontario-canadian-experience-job-posting'
+      preLoaderRoute: typeof OntarioCanadianExperienceJobPostingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-existing-vacancy-job-posting': {
+      id: '/ontario-existing-vacancy-job-posting'
+      path: '/ontario-existing-vacancy-job-posting'
+      fullPath: '/ontario-existing-vacancy-job-posting'
+      preLoaderRoute: typeof OntarioExistingVacancyJobPostingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-job-posting-record-keeping': {
+      id: '/ontario-job-posting-record-keeping'
+      path: '/ontario-job-posting-record-keeping'
+      fullPath: '/ontario-job-posting-record-keeping'
+      preLoaderRoute: typeof OntarioJobPostingRecordKeepingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ontario-job-posting-requirements': {
       id: '/ontario-job-posting-requirements'
       path: '/ontario-job-posting-requirements'
       fullPath: '/ontario-job-posting-requirements'
       preLoaderRoute: typeof OntarioJobPostingRequirementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ontario-pay-transparency-job-posting': {
+      id: '/ontario-pay-transparency-job-posting'
+      path: '/ontario-pay-transparency-job-posting'
+      fullPath: '/ontario-pay-transparency-job-posting'
+      preLoaderRoute: typeof OntarioPayTransparencyJobPostingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -360,6 +570,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutStatsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/fr/ontario-conservation-offres-emploi': {
+      id: '/fr/ontario-conservation-offres-emploi'
+      path: '/fr/ontario-conservation-offres-emploi'
+      fullPath: '/fr/ontario-conservation-offres-emploi'
+      preLoaderRoute: typeof FrOntarioConservationOffresEmploiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ontario-divulgation-ia-offre-emploi': {
+      id: '/fr/ontario-divulgation-ia-offre-emploi'
+      path: '/fr/ontario-divulgation-ia-offre-emploi'
+      fullPath: '/fr/ontario-divulgation-ia-offre-emploi'
+      preLoaderRoute: typeof FrOntarioDivulgationIaOffreEmploiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ontario-experience-canadienne-offre-emploi': {
+      id: '/fr/ontario-experience-canadienne-offre-emploi'
+      path: '/fr/ontario-experience-canadienne-offre-emploi'
+      fullPath: '/fr/ontario-experience-canadienne-offre-emploi'
+      preLoaderRoute: typeof FrOntarioExperienceCanadienneOffreEmploiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ontario-poste-vacant-existant-offre-emploi': {
+      id: '/fr/ontario-poste-vacant-existant-offre-emploi'
+      path: '/fr/ontario-poste-vacant-existant-offre-emploi'
+      fullPath: '/fr/ontario-poste-vacant-existant-offre-emploi'
+      preLoaderRoute: typeof FrOntarioPosteVacantExistantOffreEmploiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ontario-reponse-45-jours-entrevue': {
+      id: '/fr/ontario-reponse-45-jours-entrevue'
+      path: '/fr/ontario-reponse-45-jours-entrevue'
+      fullPath: '/fr/ontario-reponse-45-jours-entrevue'
+      preLoaderRoute: typeof FrOntarioReponse45JoursEntrevueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ontario-transparence-salariale-offre-emploi': {
+      id: '/fr/ontario-transparence-salariale-offre-emploi'
+      path: '/fr/ontario-transparence-salariale-offre-emploi'
+      fullPath: '/fr/ontario-transparence-salariale-offre-emploi'
+      preLoaderRoute: typeof FrOntarioTransparenceSalarialeOffreEmploiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_layout/audits/': {
       id: '/_layout/audits/'
       path: '/audits'
@@ -415,12 +667,30 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   CheckRoute: CheckRoute,
   LoginRoute: LoginRoute,
+  Ontario45DayInterviewResponseRoute: Ontario45DayInterviewResponseRoute,
+  OntarioAiDisclosureJobPostingRoute: OntarioAiDisclosureJobPostingRoute,
+  OntarioCanadianExperienceJobPostingRoute:
+    OntarioCanadianExperienceJobPostingRoute,
+  OntarioExistingVacancyJobPostingRoute: OntarioExistingVacancyJobPostingRoute,
+  OntarioJobPostingRecordKeepingRoute: OntarioJobPostingRecordKeepingRoute,
   OntarioJobPostingRequirementsRoute: OntarioJobPostingRequirementsRoute,
+  OntarioPayTransparencyJobPostingRoute: OntarioPayTransparencyJobPostingRoute,
   PrivacyRoute: PrivacyRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
+  FrOntarioConservationOffresEmploiRoute:
+    FrOntarioConservationOffresEmploiRoute,
+  FrOntarioDivulgationIaOffreEmploiRoute:
+    FrOntarioDivulgationIaOffreEmploiRoute,
+  FrOntarioExperienceCanadienneOffreEmploiRoute:
+    FrOntarioExperienceCanadienneOffreEmploiRoute,
+  FrOntarioPosteVacantExistantOffreEmploiRoute:
+    FrOntarioPosteVacantExistantOffreEmploiRoute,
+  FrOntarioReponse45JoursEntrevueRoute: FrOntarioReponse45JoursEntrevueRoute,
+  FrOntarioTransparenceSalarialeOffreEmploiRoute:
+    FrOntarioTransparenceSalarialeOffreEmploiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

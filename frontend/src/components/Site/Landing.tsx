@@ -723,14 +723,20 @@ export function ContactSection() {
   )
 }
 
-/** `home` prefixes the in-page anchors, for pages other than the checker. */
-export function SiteFooter({ home = "" }: { home?: string }) {
+/** `home` prefixes the in-page anchors, for pages other than the checker; `note` is the line under the logo. */
+export function SiteFooter({
+  home = "",
+  note = "Ontario job posting compliance. Not legal advice.",
+}: {
+  home?: string
+  note?: string
+}) {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-end sm:justify-between sm:px-6">
         <div className="space-y-3">
           <Brand href={`${home}#check`} />
-          <p>Ontario job posting compliance. Not legal advice.</p>
+          <p>{note}</p>
         </div>
         <p className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {CONTACT_EMAIL ? (

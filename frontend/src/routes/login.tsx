@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { afterLogin, isLoggedIn } from "@/hooks/useAuth"
+import { noindex } from "@/lib/seo"
 
 const formSchema = z.object({
   username: z.email({ message: "Invalid email address" }),
@@ -53,11 +54,7 @@ export const Route = createFileRoute("/login")({
     }
   },
   head: () => ({
-    meta: [
-      {
-        title: "Log in - CheckON",
-      },
-    ],
+    meta: [{ title: "Log in - CheckON" }, ...noindex().meta],
   }),
 })
 
