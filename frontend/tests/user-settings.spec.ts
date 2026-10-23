@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
 import { createUser } from "./utils/privateApi.ts"
 import { randomEmail, randomPassword } from "./utils/random"
 import { logInUser, logOutUser } from "./utils/user"
@@ -221,15 +220,24 @@ test("User can switch between theme modes", async ({ page }) => {
   await expect(page.locator("html")).toHaveClass(/light/)
 })
 
-test("Selected mode is preserved across sessions", async ({ page }) => {
-  await page.goto("/settings")
+test.describe("Theme across sessions", () => {
+  test.use({ storageState: { cookies: [], origins: [] } })
 
-  await page.getByTestId("theme-button").click()
-  await page.getByTestId("dark-mode").click()
-  await expect(page.locator("html")).toHaveClass(/dark/)
+  test("Selected mode is preserved across sessions", async ({ page }) => {
+    const email = randomEmail()
+    const password = randomPassword()
 
-  await logOutUser(page)
-  await logInUser(page, firstSuperuser, firstSuperuserPassword)
+    await createUser({ email, password })
+    await logInUser(page, email, password)
+    await page.goto("/settings")
 
-  await expect(page.locator("html")).toHaveClass(/dark/)
+    await page.getByTestId("theme-button").click()
+    await page.getByTestId("dark-mode").click()
+    await expect(page.locator("html")).toHaveClass(/dark/)
+
+    await logOutUser(page)
+    await logInUser(page, email, password)
+
+    await expect(page.locator("html")).toHaveClass(/dark/)
+  })
 })

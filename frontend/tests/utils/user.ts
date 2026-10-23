@@ -1,7 +1,11 @@
 import { expect, type Page } from "@playwright/test"
 import { latestEmailId, waitForEmailHtml } from "./mailpit"
 
-/** Clicks "Log In" on the filled-in form, then enters the code emailed to `email`. */
+/**
+ * Clicks "Log In" on the filled-in form, then enters the code emailed to `email`.
+ * Parallel sign-ins to one account can read each other's codes, so tests that sign
+ * in use a user of their own; only one signs in as the superuser.
+ */
 export async function submitLogIn(page: Page, email: string) {
   const query = `to:${email} subject:"sign-in code"`
   const skipId = await latestEmailId({ request: page.request, query })
