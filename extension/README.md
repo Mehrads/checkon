@@ -31,9 +31,20 @@ The unpacked ID comes from `unpacked-public-key.txt`. Only the public half of th
 3. Pin CheckON from the puzzle-piece menu.
 4. Open a job form, or any page with a posting, and click the CheckON icon. The side panel reads the posting: the selected text first, then the job description field, then the page.
 5. To check the application form too, open it and click **Read form** (on a page you haven't clicked the icon on, it asks for one icon click first). The questions, their choices and required marks appear in the panel; edit them if needed. The form uses one more check.
-6. Click **Check this posting**, answer any questions, apply the fixes, then **Insert into page** (or copy).
+6. Click **Check this posting** and answer any questions. The problems are highlighted on the page: accept or skip each fix there (see below), or apply them in the panel and **Insert into page** (or copy).
 
 You can also select text and right-click › **Check with CheckON**, or check a posting by its public link under **Link** (the server reads the page; not LinkedIn, Indeed or Glassdoor).
+
+## Fixes on the page
+
+After a check, each problem is highlighted in yellow where it sits in the posting on the page, and a small card beside it shows the fix:
+
+- **Accept** writes that fix into the job form right away. It's typed in the way you would (select the text, then insert), so the form's own editor and its undo (Ctrl+Z / ⌘Z) see it. Accepted fixes turn green.
+- **Skip** leaves the text as it is. **Accept all**, on the page or in the panel, does the rest in one go (pay ranges you have to pick, and optional fixes, are left for you).
+- A problem CheckON can't fix shows its card with **Fix this yourself**.
+- On a page CheckON can't edit (a published posting), the cards offer **Copy fix** instead.
+
+The side panel stays the summary: it counts what's fixed and skipped, and its fix list follows the choices made on the page. **Hide highlights** takes everything off the page. Highlights use the CSS Custom Highlight API (a textarea gets a see-through copy with the marks), so the form isn't touched until you accept a fix. The code is `src/overlay.ts`, injected with the same `activeTab` and `scripting` permissions, and `src/OnPage.tsx`.
 
 Chrome lets the panel read a page only after you click the CheckON icon (or the menu item) on that page. After switching tabs, click the icon again and the open panel reads the new tab.
 
@@ -46,7 +57,7 @@ The Chrome Web Store asks why each permission is needed:
 | Permission | Why |
 | --- | --- |
 | `sidePanel` | The check runs in the browser's side panel |
-| `activeTab`, `scripting` | Read the posting, or the application form's questions, from the current tab, and write the approved version back into the job form. Only after you click the CheckON icon or menu item, and only in that tab |
+| `activeTab`, `scripting` | Read the posting, or the application form's questions, from the current tab, highlight the problems in it, and write the fixes you accept back into the job form. Only after you click the CheckON icon or menu item, and only in that tab |
 | `contextMenus` | The right-click "Check with CheckON" item |
 | `storage` | Passes the right-click request to the side panel (session storage, cleared when the browser closes), and keeps a paying customer signed in (local storage, until they log out) |
 | `https://checkon.ca/*` | The check runs on CheckON's API |

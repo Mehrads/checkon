@@ -35,6 +35,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { AccountBar, SignIn, useAccount } from "./Account"
+import { OnPageStatus, useOnPage } from "./OnPage"
 import {
   type PagePosting,
   readFormFromPage,
@@ -94,6 +95,8 @@ export function Panel() {
   const [checkedForm, setCheckedForm] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [posting, setPosting] = useState<PagePosting | null>(null)
+  // The page the current check's text came from: its problems are highlighted there.
+  const [checked, setChecked] = useState<PagePosting | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [reading, setReading] = useState(false)
   const [check, setCheck] = useState<CheckOut | null>(null)
@@ -239,6 +242,7 @@ export function Panel() {
       setError(null)
       setFormError(null)
       setCheckedForm(null)
+      setChecked(input === "text" ? posting : null)
       setCheck(null)
       setFinal(null)
       setToSave({})
@@ -309,6 +313,9 @@ export function Panel() {
     check && check.report.status !== "not_applicable" && form !== checkedForm
       ? () => checkForm.mutate({ checkId: check.check_id, questions: form })
       : undefined
+  const onPage = useOnPage(checked, check, (decision) =>
+    setChoices((choices) => ({ ...choices, [decision.patch_id]: decision })),
+  )
   const insert = posting?.editable
     ? (html: string, plain: string) => writeToPage(posting, html, plain)
     : undefined
@@ -490,6 +497,7 @@ export function Panel() {
           {check && (
             <>
               <Summary checkId={check.check_id} report={check.report} />
+              {checked && onPage.count > 0 && <OnPageStatus onPage={onPage} />}
               <Questions
                 questions={check.questions}
                 pending={answer.isPending}

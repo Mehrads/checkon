@@ -83,11 +83,13 @@ export default defineConfig(({ mode }) => ({
       input: {
         sidepanel: path.resolve(dir, "sidepanel.html"),
         background: path.resolve(dir, "src/background.ts"),
+        // Injected into the posting's page for the on-page mode: one plain script, no imports.
+        overlay: path.resolve(dir, "src/overlay.ts"),
       },
       output: {
         entryFileNames: (chunk) =>
-          chunk.name === "background"
-            ? "background.js"
+          chunk.name === "background" || chunk.name === "overlay"
+            ? `${chunk.name}.js`
             : "assets/[name]-[hash].js",
       },
     },
