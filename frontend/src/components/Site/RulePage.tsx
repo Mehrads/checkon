@@ -338,18 +338,23 @@ function CopyButton({
   words: Words
 }) {
   const [copied, setCopied] = useState(false)
-  const copy = async () => {
+  const copy = async (button: HTMLButtonElement) => {
     try {
       await navigator.clipboard.writeText(text)
     } catch {
-      // No clipboard permission (an embedded or older browser): copy through a selection instead
+      // No clipboard permission (an embedded browser such as the Claude app's pane, or an older one): copy through a
+      // hidden selection instead, then give the focus back to the button
       const area = Object.assign(document.createElement("textarea"), {
         value: text,
+        readOnly: true,
       })
+      Object.assign(area.style, { position: "fixed", top: "0", opacity: "0" })
       document.body.append(area)
+      area.focus({ preventScroll: true })
       area.select()
       const done = document.execCommand("copy")
       area.remove()
+      button.focus({ preventScroll: true })
       if (!done) return
     }
     setCopied(true)
@@ -361,7 +366,7 @@ function CopyButton({
       variant="outline"
       size="sm"
       aria-label={label}
-      onClick={copy}
+      onClick={(event) => copy(event.currentTarget)}
     >
       {copied ? <Check /> : <Copy />}
       <span aria-live="polite">{copied ? words.copied : words.copy}</span>

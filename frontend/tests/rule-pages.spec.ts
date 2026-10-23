@@ -66,6 +66,28 @@ test("Copy puts the wording on the clipboard", async ({ page, context }) => {
   )
 })
 
+test("Copy still works where the clipboard API is refused", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read"])
+  // Like the Claude desktop app's browser pane, which refuses clipboard writes but allows the copy command
+  await page.addInitScript(() => {
+    navigator.clipboard.writeText = () =>
+      Promise.reject(
+        new DOMException("Write permission denied.", "NotAllowedError"),
+      )
+  })
+  await page.goto("/ontario-existing-vacancy-job-posting")
+  const button = page.getByRole("button", { name: "Copy: Talent pool" })
+  await button.click()
+  await expect(button).toContainText("Copied")
+  await expect(button).toBeFocused()
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "This posting is not for an existing vacancy. We're collecting applications for future openings.",
+  )
+})
+
 test("The landing page and the guide link to the rule pages", async ({
   page,
 }) => {
