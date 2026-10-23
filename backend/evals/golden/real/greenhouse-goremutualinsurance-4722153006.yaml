@@ -1,0 +1,84 @@
+id: greenhouse-goremutualinsurance-4722153006
+slice: real
+source:
+  url: https://job-boards.greenhouse.io/goremutualinsurance/jobs/4722153006
+  board: greenhouse
+  employer: Gore Mutual Insurance
+  location: Cambridge, Ontario, Canada; Toronto, Ontario, Canada
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Lead Data Engineer
+  Cambridge, Ontario, Canada; Toronto, Ontario, Canada
+
+  At Gore Mutual, we’ve always set ourselves apart as a modern mutual that does good. Now, we’re proudly building on that legacy to transform our company—and our industry—for the better.
+
+  Effective January 1, 2026, Gore has joined Beneva—the country’s largest mutual insurance company—as part of its Property & Casualty operations in Ontario and Western Canada. During 2026, Gore will combine its operations with Unica Insurance, Beneva’s Ontario-based subsidiary specializing in niche commercial and personal insurance, creating a stronger, more diversified mutual insurer with greater scale and long-term stability.
+
+  Every decision and investment remains anchored in long-term benefits to customers, members, and communities. Come join us.
+
+  This position requires a strong technical background and is responsible for designing, developing and maintaining scalable data infrastructure on the Databricks lakehouse, the enterprise single source of truth. It plays a pivotal role in enabling data-driven decision making across the enterprise and in providing technical leadership to the data engineering team, with a focus on delivering business value. This role requires close collaboration with cross-functional stakeholders, IT and data science teams.
+
+  What will you do in this role:
+
+  Data Modelling, Infrastructure and Design
+
+  • Develop and maintain scalable, reliable, and resilient systems to evolve and mature our data infrastructure and tech stack.
+  • Develop configuration driven, scalable, efficient, and robust data pipelines spanning policy, billing, claims and finance data to support reporting, pricing and analytics.
+  • Develop and implement data quality checks within pipelines to ensure the integrity and accuracy of incoming data.
+
+  Data Strategy
+
+  • Collaborate with cross-functional teams, including data scientists, data product owners, and business stakeholders to understand their data requirements, prioritize work by business value, and deliver high-quality data pipeline solutions, including build-versus-buy recommendations where appropriate.
+
+  Automating Data Management Processes and Handling Data Security
+
+  • Automate data management processes and handle data security.
+  • Ensure that security protocols and best practices are in place to protect against potential security threats.
+
+  Testing and Optimizing Data Platform
+
+  • Optimize data pipelines to ensure efficient data flow.
+  • Ensure that the data extracted from sources is accurate, complete, and usable. This might involve checking for missing values, inconsistent formats, or anomalies that could indicate errors.
+  • Test the efficiency and speed of data pipelines and databases. This can help identify bottlenecks and optimize performance.
+  • Verify that different components of the data infrastructure work together as expected. This includes checking that data flows correctly from sources to databases, and from databases to applications.
+
+  Maintenance of Data Platform
+
+  • Regularly check the health and performance of the data platform. This can involve tracking metrics like query times, error rates, and resource usage.
+  • Identify and resolve issues that arise in the data platform. This can involve debugging code, optimizing queries, or adjusting configurations.
+  • Keep the data platform and engineering practices up to date with the latest technologies and security patches, including AI-assisted development (coding agents, context engineering and agent skills) where it improves delivery and quality.
+  • Implement strategies to protect data from loss or corruption. This can involve regular backups, redundancy measures, and disaster recovery plan
+
+  What you need to succeed in this role:
+
+  • Bachelor’s or Master’s degree in Computer Science, Data Engineering, Software Engineering or a related field.
+  • A minimum of 5-8 years of relevant experience as a data engineer is required. This includes experience in data engineering, data system development, or related roles, with demonstrated ownership of initiatives end to end and experience mentoring other engineers.
+  • Strong understanding of data structures, data modeling, and software architecture, with sound judgment on when to build and when to buy.
+  • Deep, hands-on knowledge of Azure Databricks (Unity Catalog, Delta Lake, Lakeflow/Jobs, compute and cost optimization) and related Microsoft Azure services (DevOps, Azure Storage, Key Vault, etc.)
+  • Strong problem-solving and critical-thinking abilities, with a high sense of ownership and a focus on delivering business value and return on investment.
+  • Experience with software design patterns, test-driven development (TDD), CI/CD and operating data pipelines as production systems (data quality, observability, incident response).
+  • Proficiency in Python, including a strong grasp of Object Oriented and Functional programming paradigms.
+  • A solid understanding of Spark concepts and distributed systems, including data transformations, DataFrames, and Spark SQL; experience with dbt and Airflow is an asset.
+  • Excellent SQL skills and expertise in database management and tuning.
+  • Hands-on experience with coding agents, context engineering and the agent skill development lifecycle, and continuous learning on the latest advancements in Azure Databricks and data engineering.
+  • Strong communication and collaboration skills, including mentoring and growing other engineers.
+
+  #LI-Hybrid
+
+  The expected base salary range for this position is $91,500 - $147,500. Depending on your relevant experience, skills, qualifications, market conditions and business needs, base compensation may vary. You have the potential to earn more through Gore Mutual’s discretionary bonus program which gives you an opportunity to increase your total compensation, provided the business meets its performance targets and you meet your individual goals.
+
+  Please note: This range reflects the expected base salary for this role but may not represent the full compensation range for all experience and skill levels. During the recruitment process, we will discuss and consider how your unique qualifications align with the broader range for this position.
+
+  Gore Mutual is proud to offer a comprehensive total rewards package which includes extended health and dental benefits, disability insurance, retirement plan matching, paid time off, recognition and perk programs.
+
+  This posting pertains to an existing vacancy that is actively being filled.
+
+  Accessibility for applicants
+
+  Gore Mutual Insurance Company is committed to providing accommodations for people with disabilities during all phases of the recruiting process, including the application process.
+
+  If you require accommodation because of a disability, we will work with you to meet your needs. Contact us and a human resources representative will consult with you to determine an appropriate accommodation.
+
+  Should you request an accommodation during the interview process, please notify your Talent Acquisition Consultant.
+labels: {}

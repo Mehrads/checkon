@@ -1,0 +1,40 @@
+id: syn-cex-20-experience-no-place
+slice: synthetic
+purpose: >-
+  Long experience asked for with no place condition, said outright ("wherever you gained it"), and an on-site work
+  location: a pass that mentions place without conditioning experience on it.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Operations Manager, Distribution Centre
+  Caledon, Ontario
+  Peel Valley Distribution
+
+  We run a 600,000 sq. ft. distribution centre in Caledon that ships home furnishings to 120 retail stores and
+  directly to online customers. About 300 people work here across three shifts.
+
+  You'll run the building day to day with four shift managers reporting to you: inbound, storage, picking and
+  shipping. You'll own the labour plan, safety results, service levels and the operating budget, and you'll lead our
+  next big project, a new conveyor and sortation system going live next year.
+
+  You've led warehouse or distribution operations for at least seven years, including managing other managers.
+  Wherever you gained that experience, in Canada or elsewhere, we want to hear from you: what matters to us is that
+  you've run a high-volume operation and built teams people want to stay on. You know a warehouse management
+  system well, you're comfortable with labour and productivity data, and you've led an automation project before.
+  The role is on site in Caledon five days a week.
+
+  Salary: $98,000 to $118,000 a year, with benefits and a pension.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The word "Canada" appears only to say place doesn't matter; the work location is about where the job is, not where
+  experience was gained. A false-positive test for the classifier. Lawyer: none on the label.

@@ -1,0 +1,45 @@
+id: syn-mix-12-payroll-three-warnings
+slice: synthetic
+purpose: >-
+  Three warnings and no failures: Ontario payroll experience as an asset (ON-CEX-01), a vague vacancy line
+  (ON-VAC-01) and an AI disclosure from an employer that doesn't use AI (ON-AI-01).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Payroll Administrator
+  Credit River Logistics Group - Mississauga, ON
+
+  Credit River Logistics Group runs warehousing and trucking for retailers and manufacturers, with 900 employees
+  in Ontario. Our payroll team of four pays hourly, salaried and owner-operator staff every two weeks.
+
+  Responsibilities
+  - Process bi-weekly payroll for about 450 employees in Ceridian Dayforce
+  - Enter new hires, terminations and changes, and issue Records of Employment
+  - Calculate vacation, public holiday and overtime pay
+  - Reconcile payroll to the general ledger and prepare remittances
+  - Prepare year-end T4s and answer employees' pay questions
+
+  Requirements
+  - 2+ years of full-cycle payroll experience
+  - Payroll Compliance Practitioner (PCP) certification, or working towards it
+  - Strong Excel skills and attention to detail
+  - Experience processing Ontario payroll (EHT, WSIB, vacation and public holiday pay) is an asset
+
+  Pay: $58,000 to $66,000 a year, with benefits and RRSP matching.
+
+  We use AI tools to help screen applications.
+
+  We may hire for this role in the coming months.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: warning
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  Tests that three warnings don't add up to a failure. The PCP is a certification. "We may hire for this role" is
+  the rule pack's vague example. The AI line came from an old template; HR screens by hand. Lawyer: Q6a (vague
+  vacancy), Q8b (Ontario experience asset) and whether an untrue AI statement matters.

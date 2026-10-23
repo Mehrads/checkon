@@ -1,0 +1,36 @@
+id: syn-mix-10-snow-plow-talent-pool
+slice: synthetic
+purpose: >-
+  A short talent-pool posting for a specific role that hints there is no vacancy without saying so (ON-VAC-01
+  warning) and "experience plowing through an Ontario winter is an asset" (ON-CEX-01 warning). Two warnings.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Snow Plow Operator - Winter 2026/27
+  Evergreen Grounds Ltd. - Markham, ON
+
+  Evergreen Grounds looks after 300 commercial properties across York Region. We're building a pool of plow
+  operators for the 2026/27 winter season; calls go out as snow-clearing contracts are confirmed in November.
+
+  The job: clear parking lots and laneways with a pickup-mounted plow or a loader, on call 24/7 during snow events.
+
+  You need a valid G licence (DZ an asset) and a clean abstract, and you must be reachable by phone overnight.
+  Experience plowing through an Ontario winter is an asset.
+
+  Pay: $24.00 - $30.00 per hour, with a minimum 4-hour call-out.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  Unsure on the vacancy label. A talent pool for a defined function is still a specific position (rule pack
+  applicability tests), so the rules apply. "We're building a pool ... calls go out as contracts are confirmed"
+  signals there is no vacancy yet but doesn't state it, as the guide requires ("must state that there is no existing
+  vacancy"). We call it vague (warning); it could equally be read as no statement (fail). The licence lines are
+  licensing; "an Ontario winter" ties experience to Ontario, the README's borderline example. Lawyer: Q6a and Q6c
+  (must the statement say "existing vacancy"?) and Q8b.

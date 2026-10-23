@@ -1,0 +1,39 @@
+id: syn-vac-03-open-now
+slice: synthetic
+purpose: >-
+  An existing vacancy said without the statute's words: "The position is open now, and we plan to interview
+  this month."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Service Plumber
+  Ajax, ON
+
+  Bayly Street Plumbing & Drain has 85 technicians and office staff serving homes and businesses in Durham Region.
+
+  What you'll do
+  - Diagnose and repair leaks, drains and water heaters
+  - Install fixtures and replace water lines
+  - Explain options and pricing to customers on site
+
+  What you need
+  - 306A Plumber certificate of qualification
+  - 3+ years of residential service experience
+  - A clean driver's abstract
+
+  Pay: $38.00 - $45.00 per hour, plus a company van and tools
+
+  The position is open now, and we plan to interview this month.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Lawyer (law review Q6b, Q6c): is "the position is open now" a statement that the posting is for an existing
+  vacancy (the guide: a position "imminently available for a qualified candidate to fill"), without the words
+  "existing vacancy"? Labelled pass, matching the rule pack's example "This role is currently open."

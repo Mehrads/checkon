@@ -1,0 +1,36 @@
+id: syn-mix-14-az-driver-short
+slice: synthetic
+purpose: >-
+  A short trucking posting with weekly pay (clean), "Canadian highway driving experience" (ON-CEX-01 fails) and no
+  vacancy statement (ON-VAC-01 fails).
+context:
+  uses_ai_in_hiring: false
+text: |
+  AZ DRIVER - REGIONAL (HOME DAILY)
+  Brampton terminal | Peel Haulage Inc.
+
+  Regional dedicated runs within Southern Ontario, home every night. Drop-and-hook, no touch freight. 2023 and
+  newer Volvo tractors.
+
+  REQUIREMENTS:
+  - Valid AZ licence with a clean abstract and CVOR
+  - 2+ years of Canadian highway driving experience
+  - Able to pass a pre-employment drug and alcohol test
+
+  PAY: $1,650 - $1,950 per week, based on experience. Benefits after 3 months.
+
+  Apply online or visit our terminal on Steeles Ave.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: fail
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  $300 a week × 52 = $15,600 wide. The AZ licence is licensing; the experience bullet conditions on Canada. Carriers
+  often cite insurers' demands for Canadian driving experience. Lawyer: s. 8.3 (2) allows prescribed exceptions but
+  none exist; is there any defence for an insurer-driven requirement, or is it simply a violation? We say violation.
+  Peel Haulage has 140 employees (context default).

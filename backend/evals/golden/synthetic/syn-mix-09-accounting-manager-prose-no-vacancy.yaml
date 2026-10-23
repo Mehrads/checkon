@@ -1,0 +1,52 @@
+id: syn-mix-09-accounting-manager-prose-no-vacancy
+slice: synthetic
+purpose: >-
+  A long, prose-heavy posting with "Canadian accounting experience" inside a sentence (ON-CEX-01 fails) and no
+  vacancy statement (ON-VAC-01 fails). AI disclosed; pay clean.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Accounting Manager
+  Humber Bay Industrial Supply, Etobicoke, ON
+
+  Humber Bay Industrial Supply has distributed fasteners, cutting tools and safety products to manufacturers and
+  contractors since 1978. We have 210 employees, six branches in Southern Ontario and annual revenue of about
+  $160 million. Our finance team is small and close-knit, and we're looking for an Accounting Manager to lead it
+  through a period of growth.
+
+  Reporting to our CFO, you'll manage a team of five (two accountants, two AP/AR clerks and a payroll
+  administrator) and own the monthly close, our year-end audit and our reporting to the bank. You'll also be a big
+  part of choosing and implementing our next ERP system, which we expect to start in the spring.
+
+  A typical month for you means reviewing the team's journal entries and reconciliations, preparing the monthly
+  financial package for our leadership team, reviewing inventory costing and rebates, and keeping our controls in
+  shape. Each year you'll prepare the year-end file for our auditors, work with our tax advisors on the corporate
+  return, and build the annual budget with branch managers.
+
+  The ideal candidate is a CPA who brings 5+ years of Canadian accounting experience, including at least two years
+  managing people. You're comfortable in a distribution or manufacturing business where inventory matters, you
+  know your way around an ERP and Excel, and you can explain a variance to a branch manager without losing them. You
+  care about getting things right, and about the people who do the work.
+
+  We offer a salary of $95,000 to $115,000, a 10% annual bonus target based on company results, a defined
+  contribution pension with company matching, and four weeks of vacation. We're in the office at our Etobicoke head
+  office four days a week.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  Humber Bay Industrial Supply welcomes and encourages applications from people with disabilities. Accommodations
+  are available on request for candidates taking part in all aspects of the selection process.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: fail
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The violation sits mid-sentence in prose ("The ideal candidate is a CPA who brings 5+ years of Canadian accounting
+  experience"), a test for the requirement extractor. "Ideal candidate" is softer than "must", but it is still the
+  stated requirement. Lawyer: is "the ideal candidate brings" a requirement under s. 8.3 (1), or closer to "an
+  asset"? We read it as a requirement.

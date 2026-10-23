@@ -1,0 +1,59 @@
+id: syn-ai-15-eeo-paragraph-buried
+slice: synthetic
+purpose: >-
+  AI is used and the disclosure sits in the middle of a long equal-opportunity and accommodation paragraph at the
+  end. Still a disclosure in the posting, so ON-AI-01 passes.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Quality Engineering Technologist
+  Detroit River Components Ltd. - Windsor, Ontario (Plant 2, on site)
+
+  Detroit River Components stamps and welds structural parts for North American vehicle assembly plants. Our
+  Windsor operation has 650 employees across two plants.
+
+  Position overview
+  Reporting to the Quality Manager, you'll support launches and daily quality for our robotic welding lines:
+  running measurement studies, leading containment when a defect escapes, and keeping our customer-specific
+  requirements and PPAP documentation current.
+
+  Key responsibilities
+  1. Run CMM and checking-fixture measurements and interpret the results
+  2. Lead 8D problem solving for internal and customer concerns
+  3. Prepare and maintain PPAP packages, control plans and PFMEAs
+  4. Audit layered process checks on the floor and coach operators
+  5. Support new-part launches from prototype to production
+
+  Qualifications
+  1. Diploma in mechanical or manufacturing engineering technology, or a related field
+  2. 2+ years in quality for automotive or another high-volume manufacturer
+  3. Working knowledge of IATF 16949 and core tools (APQP, PPAP, FMEA, MSA, SPC)
+  4. Comfortable reading GD&T drawings
+  5. Certified Quality Technician (ASQ) or OACETT certification is an asset
+
+  Compensation: $62,000 - $72,000 annually, plus overtime eligibility and a $1.25 per hour afternoon premium.
+
+  This posting is for an existing vacancy.
+
+  Detroit River Components is an equal opportunity employer and values diversity in our workplace. We welcome
+  applicants of every background, and we make hiring decisions without regard to race, ancestry, place of origin,
+  colour, ethnic origin, citizenship, creed, sex, sexual orientation, gender identity, gender expression, age,
+  marital status, family status or disability. Please note that we use artificial intelligence to help screen and
+  assess applications for this position, and that a member of our talent team reviews every recommendation it makes.
+  If you need an accommodation at any stage of the recruitment process, tell us when we contact you and we will
+  work with you to meet your needs, in line with the Accessibility for Ontarians with Disabilities Act and the
+  Ontario Human Rights Code.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Section 8.4 (1) asks only that the statement be included in the posting; it says nothing about where. The test is
+  whether the extractor finds a disclosure buried in boilerplate. "North American vehicle assembly plants" describes
+  the customers, not a condition on the applicant. Lawyer: is there any prominence requirement, for example that
+  the statement not be hidden in legal text?

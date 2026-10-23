@@ -6,11 +6,16 @@ thinking off, explicit effort, no tools.
 
 The one exception is a cited web search (`cite`, for pay suggestions): structured output can't carry the
 search's citations, so it returns the model's cited sentences with the link and page text each one cites.
+
+Each call's model, tokens, cost and stop reason can go to a trace (app/core/tracing.py); the prompt and the answer
+never do.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Any, Protocol, TypeVar
+from functools import partial
+from typing import Any, Protocol, TypeVar, cast
 
 import anthropic
 import pydantic
@@ -82,6 +87,11 @@ PRICES_PER_MTOK = {
 WEB_SEARCH_USD = Decimal("0.01")  # $10 per 1,000 searches, on top of the result tokens
 
 
+def cost(model: str, input_tokens: int, output_tokens: int, searches: int = 0) -> Decimal:
+    price_in, price_out = PRICES_PER_MTOK.get(model, PRICES_PER_MTOK["claude-sonnet-5-5"])
+    return (price_in * input_tokens + price_out * output_tokens) / Decimal(1_000_000) + WEB_SEARCH_USD * searches
+
+
 @dataclass
 class SpendMeter:
     """Adds up what the calls of one request cost, from the token counts the API reports."""
@@ -89,36 +99,71 @@ class SpendMeter:
     usd: Decimal = Decimal(0)
 
     def add(self, model: str, input_tokens: int, output_tokens: int, searches: int = 0) -> None:
-        price_in, price_out = PRICES_PER_MTOK.get(model, PRICES_PER_MTOK["claude-sonnet-5-5"])
-        self.usd += (price_in * input_tokens + price_out * output_tokens) / Decimal(1_000_000)
-        self.usd += WEB_SEARCH_USD * searches
+        self.usd += cost(model, input_tokens, output_tokens, searches)
+
+
+class ModelCall(Protocol):
+    def finish(self, *, model: str, usage: dict[str, int], usd: Decimal, stop_reason: str | None) -> None: ...
+    def fail(self, error: str) -> None: ...
+
+
+class CallTrace(Protocol):
+    """Where each call is reported (app/core/tracing.py): the step and model, then tokens, cost and stop reason."""
+
+    def start(self, step: str, model: str) -> ModelCall: ...
+
+
+USAGE_FIELDS = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
+
+
+def _searches(usage: Any) -> int:
+    server = getattr(usage, "server_tool_use", None)
+    return (getattr(server, "web_search_requests", None) or 0) if server else 0
 
 
 class AnthropicLLM:
-    def __init__(self, client: anthropic.Anthropic | None = None, meter: SpendMeter | None = None) -> None:
+    def __init__(
+        self, client: anthropic.Anthropic | None = None, meter: SpendMeter | None = None, trace: CallTrace | None = None
+    ) -> None:
         self.client = client or anthropic.Anthropic()
         self.meter = meter
+        self.trace = trace
 
-    def _count(self, response: Any, settings: ModelSettings) -> None:
+    def _send(self, step: str, settings: ModelSettings, request: Callable[[], Any]) -> Any:
+        """Makes one API request, then counts and traces what it cost."""
+        call = self.trace.start(step, settings.model) if self.trace else None
+        try:
+            response = request()
+        except Exception as error:
+            if call is not None:
+                call.fail(type(error).__name__)  # the name only: a schema error's message quotes the model's answer
+            raise
         usage = getattr(response, "usage", None)
-        if self.meter is not None and usage is not None:
-            server = getattr(usage, "server_tool_use", None)
-            searches = (getattr(server, "web_search_requests", None) or 0) if server else 0
-            model = getattr(response, "model", None) or settings.model
-            self.meter.add(model, usage.input_tokens, usage.output_tokens, searches)
+        model = getattr(response, "model", None) or settings.model
+        usd = Decimal(0)
+        if usage is not None:
+            usd = cost(model, usage.input_tokens, usage.output_tokens, _searches(usage))
+            if self.meter is not None:
+                self.meter.usd += usd
+        if call is not None:
+            counts = {name: getattr(usage, name, None) for name in USAGE_FIELDS} | {"web_searches": _searches(usage)}
+            call.finish(
+                model=model, usage={name: n for name, n in counts.items() if isinstance(n, int)}, usd=usd,
+                stop_reason=getattr(response, "stop_reason", None),
+            )  # fmt: skip
+        return response
 
     def cite(self, *, system: str, user: str, settings: ModelSettings, tools: list[dict[str, Any]]) -> Cited:
         """One search request, not retried: a second run would search, and cost, again. An answer cut off by
         max_tokens or the server's tool loop keeps the sentences it had cited."""
         try:
-            response = self.client.messages.create(  # type: ignore[call-overload]  # settings hold plain dicts
+            response = self._send("cite", settings, lambda: self.client.messages.create(  # type: ignore[call-overload]
                 model=settings.model, max_tokens=settings.max_tokens, system=system,
                 messages=[{"role": "user", "content": user}], thinking=settings.thinking,
                 output_config={"effort": settings.effort}, tools=tools,
-            )  # fmt: skip
+            ))  # fmt: skip
         except anthropic.APIError as error:
             raise LLMError(f"API error: {error}") from error
-        self._count(response, settings)
         if response.stop_reason == "refusal":
             raise LLMError("the model declined the request")
         cited = Cited()
@@ -153,18 +198,12 @@ class AnthropicLLM:
             if tools:  # server tools only (web search); results are untrusted data like the posting
                 request["tools"] = tools
             try:
-                if settings.fallbacks:
-                    response = self.client.beta.messages.parse(
-                        **request, betas=["server-side-fallback-2026-07-01"], fallbacks="default"
-                    )
-                else:
-                    response = self.client.messages.parse(**request)
+                response = self._send(schema.__name__.lstrip("_"), settings, partial(self._parse, request, settings))
             except (pydantic.ValidationError, ValueError) as error:
                 problem = f"output failed the schema: {error}"
                 continue
             except anthropic.APIError as error:  # the SDK has already retried 429s and 5xx
                 raise LLMError(f"API error: {error}") from error
-            self._count(response, settings)
             if response.stop_reason == "refusal":
                 raise LLMError("the model declined the request")
             if response.stop_reason == "max_tokens":
@@ -176,5 +215,10 @@ class AnthropicLLM:
             if response.parsed_output is None:
                 problem = "no structured output in the response"
                 continue
-            return response.parsed_output
+            return cast(T, response.parsed_output)
         raise LLMError(problem)
+
+    def _parse(self, request: dict[str, Any], settings: ModelSettings) -> Any:
+        if settings.fallbacks:
+            return self.client.beta.messages.parse(**request, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+        return self.client.messages.parse(**request)

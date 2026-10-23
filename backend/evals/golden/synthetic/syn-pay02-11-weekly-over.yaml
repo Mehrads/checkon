@@ -1,0 +1,37 @@
+id: syn-pay02-11-weekly-over
+slice: synthetic
+purpose: >-
+  A weekly range over the limit once annualised ($1,000 a week wide: $52,000 a year).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Regional Truck Driver - AZ
+  Milton, ON
+
+  Halton Line Freight runs 300 trucks hauling dry van freight for manufacturers and retailers.
+
+  What you'll do
+  - Run regional loads between our Milton terminal and customers within a day's drive
+  - Complete pre-trip inspections and electronic logs
+  - Deliver on time and keep customers informed
+
+  What you need
+  - AZ licence with a clean abstract
+  - 2+ years of tractor-trailer experience
+  - Able to be away up to two nights a week
+
+  Pay: $1,400 - $2,400 per week, depending on miles and lanes
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $1,000 x 52 = $52,000. Over at 52 weeks and at 52.14. The routes are kept inside a day's drive so that work
+  outside Ontario (Reg. s. 2 (1) (d)) doesn't come into it.

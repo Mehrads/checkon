@@ -8,6 +8,7 @@ import html
 import logging
 import time
 import uuid
+from collections.abc import Generator
 from dataclasses import replace
 from datetime import date, datetime
 from decimal import Decimal
@@ -25,6 +26,7 @@ from fastapi import (
     Request,
     Response,
 )
+from langfuse import Langfuse
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.api.archive import purge_soon, save_applied
@@ -66,10 +68,11 @@ from app.compliance.llm import (
     SpendMeter,
     StructuredLLM,
 )
-from app.compliance.models import Context, Question, Report, Status, Verdict
+from app.compliance.models import Context, Question, Report, RuleResult, Status, Verdict
 from app.compliance.refiner import Patch, Refinement, finalize, refine
 from app.compliance.rulepack import RulePack, load_pack
 from app.core.config import settings
+from app.core.tracing import RequestTrace, langfuse_client
 from app.models import ContactMessage, CustomRequest, Feedback, Message, ResearchAnswer
 
 MAX_POSTING_CHARS = 8000
@@ -98,11 +101,23 @@ def _anthropic_client(api_key: str) -> anthropic.Anthropic:
     return anthropic.Anthropic(api_key=api_key)
 
 
-def get_llm() -> StructuredLLM:
+def get_trace(request: Request, langfuse: Annotated[Langfuse | None, Depends(langfuse_client)]) -> Generator[RequestTrace]:
+    """The request's trace, named after its route; it ends after the response is sent."""
+    trace = RequestTrace(langfuse, getattr(request.scope.get("endpoint"), "__name__", request.url.path))
+    try:
+        yield trace
+    finally:
+        trace.end()
+
+
+TraceDep = Annotated[RequestTrace, Depends(get_trace, scope="request")]
+
+
+def get_llm(trace: TraceDep) -> StructuredLLM:
     """A fresh wrapper per request, so its meter counts only this request's spend."""
     if not settings.ANTHROPIC_API_KEY:
         raise HTTPException(status_code=503, detail="The checker isn't configured: ANTHROPIC_API_KEY is not set.")
-    return AnthropicLLM(_anthropic_client(settings.ANTHROPIC_API_KEY), meter=SpendMeter())
+    return AnthropicLLM(_anthropic_client(settings.ANTHROPIC_API_KEY), meter=SpendMeter(), trace=trace)
 
 
 @cache
@@ -120,8 +135,8 @@ def get_limits(session: SessionDep, today: Annotated[date, Depends(get_posting_d
     )
 
 
-def get_usage(session: SessionDep) -> Usage:
-    return PostgresUsage(session)
+def get_usage(session: SessionDep, trace: TraceDep) -> Usage:
+    return PostgresUsage(session, trace)
 
 
 def get_sizes(session: SessionDep) -> SizeCache:
@@ -245,6 +260,11 @@ def _llm_failure(error: LLMError) -> HTTPException:
     return HTTPException(status_code=502, detail=f"We couldn't check this posting right now. Try again. ({error})")
 
 
+def _verdicts(results: list[RuleResult]) -> dict[str, str]:
+    """Rule id to verdict, for the trace (the verdict mix per rule, Technical Design §12)."""
+    return {result.rule: result.verdict.value for result in results}
+
+
 def _spent(llm: StructuredLLM) -> Decimal:
     meter = getattr(llm, "meter", None)
     return meter.usd if meter is not None else Decimal(0)
@@ -334,6 +354,7 @@ def inspect_posting(
     body: InspectIn, request: Request, response: Response, background: BackgroundTasks, session: SessionDep,
     store: StoreDep, llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep,
     sizes: SizesDep, plan: PlanDep, meter: MeterDep, reader: LinkReaderDep, link_limiter: LinkLimiterDep,
+    trace: TraceDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
     paid = plan.plan.id if plan else None
@@ -381,6 +402,7 @@ def inspect_posting(
         "check", check_id=state.id, visitor=who, status=inspection.report.status.value,
         duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid,
     )  # fmt: skip
+    trace.note(rules=_verdicts(inspection.report.results), link=url is not None)
     background.add_task(purge_soon)  # archived postings past their three years, whoever's check this is
     return _out(state)
 
@@ -394,7 +416,7 @@ FORM_REFUSALS = {
 @router.post("/form", response_model=CheckOut)
 def check_form(
     body: FormIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
-    llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep,
+    llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep, trace: TraceDep,
 ) -> Any:  # fmt: skip
     """Check the posting's application form against the rules that cover it (ESA s. 8.3 (1)): one more check,
     on the same limits as the posting's."""
@@ -446,6 +468,7 @@ def check_form(
         "form", check_id=state.id, visitor=who, status=status.value, duration_ms=elapsed_ms(started),
         usd=_spent(llm), count=len(questions), plan=paid,
     )  # fmt: skip
+    trace.note(rules=_verdicts(report.form_results))
     return _out(state)
 
 

@@ -1,0 +1,38 @@
+id: syn-pay02-16-top-exactly-200k-wide
+slice: synthetic
+purpose: >-
+  A $55,000-wide range ending at exactly $200,000: not exempt (not "more than" $200,000), so the width limit
+  applies and fails.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Director, Pharmacy Services
+  Belleville, ON
+
+  Moira River Health Network runs three hospital sites with 2,400 staff. We are recruiting a Director to lead pharmacy services across all three sites.
+
+  Responsibilities
+  - Lead 60 pharmacists and pharmacy technicians across three sites
+  - Own medication safety, drug budgets and formulary decisions
+  - Lead the pharmacy part of our accreditation program
+
+  Qualifications
+  - Registration as a pharmacist in good standing
+  - Master's degree in pharmacy, health administration or business
+  - 7+ years of hospital pharmacy experience, including 3 in leadership
+
+  Salary range: $145,000 - $200,000 per year
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  O. Reg. 476/24, s. 3 exempts only a range ending at "more than $200,000", so this range is covered; its width
+  is $55,000. A hospital is not a Crown agency for O. Reg. 285/01, s. 2.1 (assumed; Q9d if the lawyer disagrees).

@@ -484,6 +484,8 @@ Note: the template's frontend uses TypeScript. Keep it: it is the same React, an
 
 Langfuse self-hosting runs several data stores (PostgreSQL, ClickHouse, Redis and blob storage), so it costs more to run than our own app at first. If that cost matters before revenue, start on Langfuse Cloud with posting text masked in traces, and move to self-hosted with the same SDK later.
 
+**As built (2026-10-23):** Langfuse Cloud, US region, Hobby plan, **metadata only** rather than masked text: each request that calls the model is a trace named after its route, with the kind, status, plan, check id and verdict per rule, and a generation per model call with its step, model, tokens, cost, latency and stop reason. No prompt, posting or model answer is ever set on an observation, and the client exports only its own spans (`backend/app/core/tracing.py`; a test fails if a posting's words reach an exported span). Not built yet: feedback as trace scores, the annotation queue, and the golden set as a Langfuse dataset. The golden set stays in the repo (`backend/evals/golden/`) and its runner writes its own report, so posting text never goes to Langfuse.
+
 **Database (PostgreSQL)**
 
 | Table | Holds |

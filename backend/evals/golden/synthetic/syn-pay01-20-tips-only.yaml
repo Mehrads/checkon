@@ -1,0 +1,39 @@
+id: syn-pay01-20-tips-only
+slice: synthetic
+purpose: >-
+  Only expected tips are given, as a dollar range per night; tips aren't wages, so no pay is disclosed.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Bartender
+  Toronto, ON (King West)
+
+  Velvet Room Group runs five cocktail bars and two restaurants in downtown Toronto, with 230 staff.
+
+  What you'll do
+  - Make classic and house cocktails at volume
+  - Keep the bar stocked, clean and ready for service
+  - Look after guests and keep the line moving on busy nights
+
+  What you need
+  - 2+ years of bartending experience in a high-volume bar
+  - Smart Serve certification
+  - Thursday to Saturday night availability
+
+  Earnings: our bartenders take home $300 - $450 in tips on a typical weekend night.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  ESA s. 1 (1) (d) excludes tips and other gratuities from wages, and compensation means wages (O. Reg. 476/24,
+  s. 2 (2)), so the posting states no expected compensation. For the product team: the extractor has no "tips"
+  kind (wage, commission, bonus, equity, benefits), so it may read this range as a wage and pass ON-PAY-01;
+  the nightly unit isn't one CheckON knows either.

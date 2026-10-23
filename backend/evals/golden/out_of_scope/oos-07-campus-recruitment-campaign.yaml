@@ -1,0 +1,36 @@
+id: oos-07-campus-recruitment-campaign
+slice: out_of_scope
+purpose: >-
+  A campus recruitment campaign inviting graduates to register interest across practice areas, with roles to be
+  posted later: no specific position.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Campus Recruitment 2027 - Start your career with Pemberton Hale LLP
+
+  Graduating in 2027? Pemberton Hale is one of Canada's largest accounting and advisory firms, with 2,800 people in
+  14 offices, including Toronto, Ottawa, Waterloo and London.
+
+  Every year we welcome hundreds of new graduates into our Audit & Assurance, Tax, and Advisory practices. You'll
+  learn from experienced professionals, get support on your path to your CPA, and work with clients in every
+  industry.
+
+  How it works
+  1. Register your interest by November 30 and tell us which practices and cities interest you.
+  2. Meet us at campus events this fall.
+  3. Specific roles, with full details and pay, will be posted in January 2027. We'll email you when they open.
+
+  We look forward to meeting you!
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  The campaign names practice areas, not a defined function, and says specific roles come later. The January
+  postings will be in scope. Lawyer: none on the labels; confirm that naming practice areas (Audit, Tax, Advisory)
+  doesn't make this a posting for specific positions.

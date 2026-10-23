@@ -1,0 +1,46 @@
+id: syn-cex-09-ontario-college-diploma
+slice: synthetic
+purpose: >-
+  An ECE diploma "from an Ontario college" (a Canadian education credential, so a violation) next to RECE
+  registration with the College of Early Childhood Educators (a registration, allowed).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Registered Early Childhood Educator - Toddler Room
+  Little Acorns Child Care Centres, Ottawa (Orléans site)
+  Permanent full-time, 37.5 hours/week
+
+  Little Acorns is a non-profit with 11 child care centres and 230 staff across Ottawa. Our Orléans centre has a
+  toddler room of 15 children and three educators.
+
+  Responsibilities:
+  - Plan and run a play-based program that follows How Does Learning Happen?
+  - Observe and document each child's development and share it with families
+  - Keep the room safe, clean and welcoming
+  - Work with the team on daily routines, meals, naps and outdoor play
+
+  Qualifications:
+  - Diploma in Early Childhood Education from an Ontario college
+  - Registered with the College of Early Childhood Educators (RECE) and in good standing
+  - Standard First Aid and CPR Level C
+  - Clear vulnerable sector check (completed within the last 6 months)
+  - Experience with toddlers is an asset
+
+  Wage: $24.50 - $27.75 per hour, including the provincial wage enhancement. Benefits, pension and paid
+  professional learning days.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The RECE line is a registration requirement, which the guide excludes. The diploma line requires an Ontario
+  credential; the College registers applicants with credentials from elsewhere after an assessment, so the Ontario
+  condition is the employer's, not the regulator's. Lawyer: is a provincial (Ontario) credential condition a
+  "requirement related to Canadian experience"? We say yes, since an Ontario diploma is a Canadian credential.

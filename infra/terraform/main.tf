@@ -25,6 +25,8 @@ locals {
     STRIPE_PRICE_AGENCY      = var.stripe_price_agency
     STRIPE_PRICE_EXTRA_CHECK = var.stripe_price_extra_check
     STRIPE_AUTOMATIC_TAX     = tostring(var.stripe_automatic_tax)
+    # Langfuse traces, metadata only (infra/README.md, "Langfuse"). Off while the keys are `replace-me`.
+    LANGFUSE_BASE_URL = var.langfuse_base_url
   }
 
   # Settings read from Secret Manager
@@ -36,6 +38,8 @@ locals {
     SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
     STRIPE_SECRET_KEY        = google_secret_manager_secret.manual["stripe-secret-key"].secret_id
     STRIPE_WEBHOOK_SECRET    = google_secret_manager_secret.manual["stripe-webhook-secret"].secret_id
+    LANGFUSE_PUBLIC_KEY      = google_secret_manager_secret.manual["langfuse-public-key"].secret_id
+    LANGFUSE_SECRET_KEY      = google_secret_manager_secret.manual["langfuse-secret-key"].secret_id
   }
 }
 
@@ -155,7 +159,10 @@ resource "google_secret_manager_secret_version" "generated" {
 }
 
 resource "google_secret_manager_secret" "manual" {
-  for_each  = toset(["anthropic-api-key", "smtp-password", "stripe-secret-key", "stripe-webhook-secret"])
+  for_each = toset([
+    "anthropic-api-key", "smtp-password", "stripe-secret-key", "stripe-webhook-secret", "langfuse-public-key",
+    "langfuse-secret-key",
+  ])
   secret_id = "${local.name}-${each.value}"
   replication {
     user_managed {

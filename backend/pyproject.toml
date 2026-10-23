@@ -24,6 +24,7 @@ dependencies = [
     "pysbd>=0.3.4",
     "pyyaml>=6.0",
     "stripe>=16.0.0,<17",
+    "langfuse>=5.0.4",
 ]
 
 [dependency-groups]

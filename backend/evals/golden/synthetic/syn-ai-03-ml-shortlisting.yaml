@@ -1,0 +1,46 @@
+id: syn-ai-03-ml-shortlisting
+slice: synthetic
+purpose: >-
+  The disclosure says "machine learning" instead of "artificial intelligence"; AI is used. Retail management
+  posting, written in second person.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Assistant Store Manager
+  Haldane Home & Hardware, Heartland Town Centre, Mississauga, ON
+
+  Love the buzz of a busy store on a Saturday morning? As Assistant Store Manager, you'll run the floor
+  alongside our Store Manager: scheduling a team of about 45, keeping shelves full and stockrooms tidy, and
+  making sure every customer leaves with what they came in for.
+
+  You'll:
+  • Open and close the store, including cash and safe procedures
+  • Build weekly schedules within the labour budget
+  • Lead seasonal resets (garden centre in spring, holiday in the fall)
+  • Coach department supervisors and handle escalated customer concerns
+  • Keep the store safe: daily walks, incident reports, and health and safety committee meetings
+
+  You've got:
+  • 2+ years in retail management (assistant manager, department manager or similar)
+  • Experience with labour scheduling and sales reporting
+  • Flexibility to work evenings, weekends and some holidays
+
+  What we offer: a salary of $54,000 to $62,000, a 20% employee discount, and health, dental and vision benefits.
+
+  How we hire: we use a machine learning tool to help shortlist candidates for interviews. A member of our
+  district team reviews every shortlist.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Machine learning is a machine-based system that infers from input to generate recommendations, so it falls in
+  the Reg. s. 2 (1) definition and the sentence discloses AI used to select. Lawyer: is naming "machine learning"
+  without the words "artificial intelligence" a statement "disclosing the use of the artificial intelligence"?

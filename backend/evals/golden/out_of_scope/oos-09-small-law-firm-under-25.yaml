@@ -1,0 +1,41 @@
+id: oos-09-small-law-firm-under-25
+slice: out_of_scope
+purpose: >-
+  A small law firm (under 25 employees) posting with "Canadian law firm experience required" and no pay. The size
+  exemption means nothing is checked.
+context:
+  meets_headcount_threshold: false
+  uses_ai_in_hiring: false
+text: |
+  Law Clerk - Real Estate
+  Moreau Linden LLP, Hamilton, Ontario
+
+  Moreau Linden is a boutique real estate and wills and estates firm in downtown Hamilton. We're looking for an
+  experienced real estate law clerk to support two lawyers on residential and small commercial transactions.
+
+  Responsibilities
+  - Open files and manage transactions from agreement of purchase and sale to closing
+  - Prepare closing documents, statements of adjustments and reporting letters
+  - Conduct title searches and register documents through Teraview
+  - Communicate with clients, realtors, lenders and other law offices
+
+  Requirements
+  - Law clerk diploma
+  - 3+ years of Canadian law firm experience in real estate
+  - Teraview, Unity and The Conveyancer proficiency
+  - Strong organizational skills and a calm manner on busy closing days
+
+  Salary based on experience. Please send your resume and cover letter through our website.
+labels:
+  ON-APPL-01: not_applicable
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  The firm has 11 people. Part III.1 doesn't apply, so the Canadian experience requirement isn't an ESA breach,
+  although it may still raise a Human Rights Code question that CheckON doesn't check. Lawyer: should CheckON show
+  a note on such wording even when the rules don't apply?

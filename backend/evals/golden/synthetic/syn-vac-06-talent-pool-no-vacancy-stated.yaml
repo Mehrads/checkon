@@ -1,0 +1,38 @@
+id: syn-vac-06-talent-pool-no-vacancy-stated
+slice: synthetic
+purpose: >-
+  A talent pool for a specific role that says plainly there is no existing vacancy.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Personal Support Worker - Casual Pool
+  Cornwall, ON
+
+  Riverbend Home Care has 450 staff providing home care in Cornwall and the surrounding counties.
+
+  We are building a pool of casual Personal Support Workers for upcoming client needs. There is no existing vacancy at this time; we will contact candidates from the pool as shifts open.
+
+  What you'll do
+  - Help clients with bathing, dressing, meals and mobility
+  - Record care notes and report changes to the care coordinator
+  - Travel between client homes in your area
+
+  What you need
+  - Personal Support Worker certificate
+  - Valid driver's licence and access to a vehicle
+  - Flexible availability
+
+  Pay: $22.50 per hour, plus mileage
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide: if the posting is not for an existing vacancy, the employer must state that there is no existing
+  vacancy; this one does. A pool for a named role is still a specific position (rulepacks tests/applicability.yaml,
+  "talent pool for a specific role"). Mileage is a travel allowance, not wages; the single hourly figure is the pay.

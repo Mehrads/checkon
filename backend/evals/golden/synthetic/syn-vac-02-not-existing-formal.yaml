@@ -1,0 +1,37 @@
+id: syn-vac-02-not-existing-formal
+slice: synthetic
+purpose: >-
+  The formal "not existing" statement, for a store that opens next year.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Pharmacy Assistant
+  Sault Ste. Marie, ON
+
+  Lockview Pharmacy Group runs nine community pharmacies in Sault Ste. Marie and Elliot Lake with 125 staff. We are opening a tenth location in spring 2027 and are accepting applications now.
+
+  What you'll do
+  - Enter prescriptions and prepare them for pharmacist review
+  - Manage inventory and returns
+  - Serve customers at the dispensary counter
+
+  What you need
+  - Pharmacy assistant certificate or 1+ year of pharmacy experience
+  - Accuracy and attention to detail
+  - Availability for evenings and weekends
+
+  Pay: $19.50 - $22.00 per hour
+
+  This posting is not for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  s. 8.5 (1) (a) asks whether the posting is for an existing vacancy "or not"; saying it is not satisfies the
+  rule. A specific position for a future store is still a public posting (ON-APPL-02 pass).

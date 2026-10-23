@@ -1,0 +1,46 @@
+id: syn-cex-04-canadian-workplace-familiarity
+slice: synthetic
+purpose: >-
+  "Familiarity with the Canadian workplace and office culture" as a bullet: a coded substitute for Canadian
+  experience.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Legal Administrative Assistant - Litigation
+  Ashdown Pryce LLP, Toronto (Bay Street), hybrid
+
+  Ashdown Pryce is a full-service business law firm with 140 lawyers and 210 staff. Our litigation group is looking
+  for an administrative assistant to support two partners and an associate.
+
+  What you'll do
+  • Manage busy calendars, court dates and limitation reminders
+  • Format and proofread correspondence, pleadings and facta
+  • Open files, run conflict searches and keep electronic files organized
+  • Docket time and prepare draft accounts
+  • Coordinate meetings, travel and courier deliveries
+
+  What you'll need
+  • 2+ years as an administrative or legal assistant
+  • Advanced Word and Outlook; experience with a document management system
+  • Excellent spelling and grammar, and a sharp eye for detail
+  • Familiarity with the Canadian workplace and office culture
+  • A law clerk or legal assistant diploma is an asset
+
+  Salary: $48,000 - $55,000, plus overtime when the team is in trial, and a full benefits package.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The rule pack labels "Familiarity with the Canadian workplace" a violation; it is the classic euphemism the OHRC
+  policy names. Lawyer: is "familiarity" (not "experience") still a requirement "related to Canadian experience"
+  under s. 8.3 (1)? We say yes, since the only way to be familiar with a Canadian workplace is to have worked in one.

@@ -1,0 +1,38 @@
+id: syn-pay02-03-guide-example-over
+slice: synthetic
+purpose: >-
+  The guide's own example of a range that can't be used ($85,000 to $140,000, width $55,000), in a law firm
+  posting where the range depends on year of call.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Associate Lawyer, Commercial Real Estate
+  London, ON
+
+  Thames & Carling LLP is a full-service firm with 95 lawyers and staff in London and Woodstock. Our real estate group is hiring an associate.
+
+  You will
+  - Manage commercial purchase, sale and leasing files from offer to closing
+  - Draft and review agreements, leases and financing documents
+  - Work directly with clients and senior partners
+
+  You have
+  - 3 to 6 years of practice, with a focus on commercial real estate
+  - A licence to practise law, in good standing
+  - Strong drafting skills and an organized approach to a busy file load
+
+  Salary: $85,000 to $140,000, depending on year of call.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide: "$85,000 to $135,000 may be included ... $85,000 to $140,000 cannot". No unit is written, but a
+  lawyer's salary in this range is plainly yearly. A licence to practise is a licensing requirement (ON-CEX-01 pass).

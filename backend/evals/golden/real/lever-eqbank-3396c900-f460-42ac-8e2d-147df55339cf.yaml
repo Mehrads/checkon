@@ -1,0 +1,116 @@
+id: lever-eqbank-3396c900-f460-42ac-8e2d-147df55339cf
+slice: real
+source:
+  url: https://jobs.lever.co/eqbank/3396c900-f460-42ac-8e2d-147df55339cf
+  board: lever
+  location: Toronto
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Staff Engineer (AI & Engineering)
+  Toronto / AI COE / Full Time
+
+  We are looking for a Staff Engineer, AI & Engineering who can bridge deep software engineering expertise with practical AI implementation. This role is ideal for a senior technical leader who has built scalable software systems and has experience leveraging AI technologies to solve complex business problems.
+  You will partner closely with Engineering, Product, Data, and Technology leaders to design and deliver modern, resilient, and intelligent solutions. While experience with AI and machine learning technologies is important, this role is fundamentally an engineering leadership position focused on architecture, platform development, system design, and software delivery excellence.
+  This is a hands-on role requiring strong technical depth, architectural thinking and the ability to influence engineering direction across multiple teams.
+
+  What You Will Be Responsible For:
+  You will play a lead technical role in designing and delivering AI-enabled solutions across the enterprise.
+
+  1. Build & Ship AI Applications (Primary Focus)
+
+  • Design, develop, and deploy AI-powered applications and workflows
+  • Write production-quality code across:
+
+  • Backend services and APIs
+  • AI orchestration layers and agents
+  • Enterprise integrations
+  • Rapidly prototype solutions and iterate them into scalable production systems
+  • Own delivery end-to-end: build, test, deploy, monitor, and improve
+
+  2. Design Practical, Scalable AI Systems
+
+  • Translate use cases into clear, implementable system designs
+  • Make architecture decisions that balance:
+
+  • Speed of delivery
+  • Scalability and reliability
+  • Cost and operational efficiency
+  • Define patterns for:
+
+  • API-first integrations
+  • AI orchestration and workflows
+  • Reusable services and components
+  • Ensure systems are simple enough to build quickly, but structured enough to scale
+
+  3. Integrate AI into Real Enterprise Workflows
+
+  • Embed LLM capabilities into products, internal tools, and business processes
+  • Build and maintain APIs and system integrations
+  • Implement agent workflows and orchestration logic that solve real operational problems
+  • Optimize systems for performance, resilience, and cost efficiency
+
+  4. Partner with Business & Deliver Outcomes
+
+  • Work directly with stakeholders to understand problems and validate solutions
+  • Translate requirements into working software quickly (days/weeks, not months)
+  • Iterate based on feedback and usage to drive measurable impact
+
+  5. Contribute to Engineering Standards & Reuse
+
+  • Build and contribute to shared libraries, templates, and services
+  • Establish practical patterns based on real implementations
+  • Help evolve internal platforms through code and working solutions, not just design artifacts
+
+  6. Build Within a Governed AI Environment
+
+  • Implement secure and reliable AI solutions in practice, including:
+
+  • Prompt safety and validation
+  • Injection/misuse prevention
+  • Observability and traceability
+  • Align implementations with enterprise security, privacy, and compliance requirements
+
+  Technology Environment
+
+  • Cloud & Platform: Microsoft ecosystem (Azure)
+  • AI Models: Claude and other enterprise-approved LLMs
+  • Architecture Style: API-first, event-driven, and modular services
+  • Core Focus:
+
+  • AI application engineering
+  • Orchestration and agent workflows
+  • Enterprise integrations
+
+  What you bring:
+  Hands-On Engineering Strength (Critical)
+
+  •
+
+  8+ years of software engineering experience building and delivering scalable, production-grade applications and platforms.Demonstrated success leading complex technical initiatives from design through deployment and ongoing operations.Strong engineering fundamentals with the ability to influence technical direction across teams and organizations.
+
+  System Design & Architecture Judgment
+
+  •
+
+  Deep expertise in designing scalable, resilient, and maintainable software architectures.
+
+  • Experience making trade-offs across:
+
+  • delivery speed vs scalability
+  • simplicity vs flexibility
+  • Can move fluidly between coding and design thinking
+
+  AI / GenAI Development
+
+  •
+
+  3+ years of hands-on experience building and deploying AI/Generative AI solutions in production environments.
+
+  • Strong understanding of:
+
+  • Prompt design and evaluation
+  • Agent-based workflows and orchestration
+  • Integrating AI into production systems
+  • Ability to debug, tune, and improve AI behavior in code
+labels: {}

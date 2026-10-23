@@ -1,0 +1,45 @@
+id: syn-ai-08-ai-skill-uses-ai
+slice: synthetic
+purpose: >-
+  AI is used to screen, but the only AI wording in the posting is a job skill ("comfort using AI writing and image
+  tools"). Not a disclosure, so ON-AI-01 fails.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Marketing Coordinator
+  Maple & Main Foods, Toronto (Liberty Village), hybrid 3 days in office
+
+  Maple & Main makes snacks and sauces sold in more than 4,000 grocery stores. Our marketing team of 12 is
+  looking for a coordinator to keep campaigns moving from brief to shelf.
+
+  What you'll own
+  - Coordinating launch calendars for new products and seasonal promotions
+  - Writing first drafts of social posts, retailer sell sheets and newsletter copy
+  - Briefing our design agency and tracking proofs through approval
+  - Pulling weekly performance reports for paid social and email
+  - Managing samples and materials for trade shows
+
+  What you bring
+  - 1 to 3 years of marketing experience, in-house or agency
+  - A diploma or degree in marketing, communications or a related field, or equivalent experience
+  - Comfort using AI writing and image tools (for example ChatGPT, Copilot or Midjourney) to speed up drafts
+  - Strong writing and an eye for detail
+  - Experience with Meta Ads Manager and an email platform such as Klaviyo is an asset
+
+  Salary range: $52,000 - $60,000 per year
+  Plus: 3 weeks' vacation, health spending account, and snacks. So many snacks.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  A skill requirement says nothing about how applicants are screened. The employer uses AI resume scoring, so the
+  posting needs a disclosure it doesn't have. Lawyer: none on the label; confirm that a skill mention can't stand in
+  for the s. 8.4 (1) statement however close to the hiring section it sits.

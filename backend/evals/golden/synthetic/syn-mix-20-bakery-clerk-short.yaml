@@ -1,0 +1,31 @@
+id: syn-mix-20-bakery-clerk-short
+slice: synthetic
+purpose: >-
+  A short grocery posting with pay stated but no vacancy statement (ON-VAC-01 fails) and AI used with nothing said
+  (ON-AI-01 fails).
+context:
+  uses_ai_in_hiring: true
+text: |
+  Bakery Clerk (Part-Time)
+  Cataraqui Fresh Market - Gardiners Rd, Kingston
+
+  Help bake, package and display fresh bread, buns and pastries in our in-store bakery. Early mornings (5 am
+  starts) and weekends. No experience needed; we train on the job. Food Handler Certificate an asset.
+
+  $18.25 - $19.50/hour, 15 to 25 hours a week. Employee discount and flexible scheduling.
+
+  Apply online at our careers page.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: fail
+  ON-AI-01: fail
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Cataraqui Fresh Market has 4 stores and 260 staff (context default). The careers page runs an AI pre-screen
+  questionnaire, so the posting needs a disclosure. Lawyer: none on the labels; if the careers page linked from the
+  posting carried the disclosure, would that count as "in the posting" (the guide treats linked documents as part of
+  the posting)?

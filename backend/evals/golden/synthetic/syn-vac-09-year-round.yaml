@@ -1,0 +1,38 @@
+id: syn-vac-09-year-round
+slice: synthetic
+purpose: >-
+  A rephrasing of "ongoing basis": "Applications for this role are accepted year-round."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Greenhouse Production Worker
+  Leamington, ON
+
+  Erie Shore Greenhouses grows tomatoes and cucumbers under 90 acres of glass, with 600 employees.
+
+  What you'll do
+  - Plant, prune, train and harvest crops
+  - Check plants for pests and report problems to your lead
+  - Keep rows and walkways clean
+
+  What you need
+  - Able to work in warm conditions and stand for long periods
+  - Comfortable with repetitive tasks
+  - Available for a 6:00 a.m. start, Monday to Saturday
+
+  Pay: $18.75 - $19.75 per hour
+
+  Applications for this role are accepted year-round.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Lawyer (Q6a): like "applications accepted on an ongoing basis" (a rule-pack example labelled vague), it doesn't
+  say whether there is a vacancy now. Labelled warning; the stricter reading is fail. The hourly range is $1 wide,
+  so the six-day week can't push it near the width limit.

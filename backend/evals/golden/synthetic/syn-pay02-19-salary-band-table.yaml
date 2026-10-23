@@ -1,0 +1,39 @@
+id: syn-pay02-19-salary-band-table
+slice: synthetic
+purpose: >-
+  A salary band laid out as a minimum / midpoint / maximum table, $500 over the limit ($82,500 to $133,000).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Senior Land Use Planner
+  Newmarket, ON
+
+  Ridgeline Planning Partners is a planning and urban design firm with 120 staff, working for developers and municipalities across the GTA.
+
+  Responsibilities
+  - Lead official plan and zoning amendment applications
+  - Prepare planning justification reports and present at public meetings
+  - Mentor junior planners
+
+  Qualifications
+  - Degree in urban planning or a related field
+  - RPP designation, or eligible within one year
+  - 6+ years of land use planning experience
+
+  Salary band (Grade 7)
+  Minimum | Midpoint | Maximum
+  $82,500 | $107,750 | $133,000
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width from minimum to maximum is $50,500. The midpoint is not a separate pay figure. A professional
+  registration (RPP) is a licensing requirement, not Canadian experience.

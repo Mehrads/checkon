@@ -1,0 +1,39 @@
+id: syn-pay01-13-placeholder-add-pay
+slice: synthetic
+purpose: >-
+  A hand-written pay placeholder ("[add pay]") that is not the wording library's placeholder.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Accounts Payable Clerk
+  Windsor, ON
+
+  Riverside Auto Parts supplies stampings and assemblies to vehicle plants, with 450 employees at two Windsor plants. Our finance team of 12 needs an Accounts Payable Clerk.
+
+  You will
+  - Match invoices to purchase orders and receiving records
+  - Run weekly cheque and EFT payment batches
+  - Reconcile vendor statements and resolve discrepancies
+
+  You have
+  - 2+ years of accounts payable experience
+  - Working knowledge of an ERP system (we use SAP)
+  - Strong attention to detail
+
+  Salary: [add pay]
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: needs_input
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Labelled needs_input per the README ("a pay placeholder such as [add pay]"). For the product team, not the
+  lawyer: CheckON only recognises the library placeholder "[Pay range: add before publishing]"
+  (inspector.build_facts), so it reads this posting as having no pay and gives ON-PAY-01 fail. Expect a mismatch
+  until other placeholders are detected.

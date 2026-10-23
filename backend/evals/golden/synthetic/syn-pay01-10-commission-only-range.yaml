@@ -1,0 +1,40 @@
+id: syn-pay01-10-commission-only-range
+slice: synthetic
+purpose: >-
+  A commission-only job that states the expected commission as a dollar range ($40,000 wide).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Outside Sales Representative - Home Renovation
+  Hamilton, ON
+
+  Ironbridge Windows & Doors has installed more than 60,000 window and door systems across the Golden Horseshoe since 1994, and employs 220 people. We are adding a sales representative to our Hamilton showroom.
+
+  The job
+  - Meet homeowners at pre-booked in-home appointments (no cold calling)
+  - Measure, quote and close window and door projects
+  - Follow up with customers from quote to installation
+
+  About you
+  - Confident presenting to homeowners and handling objections
+  - Valid driver's licence and a reliable vehicle
+  - Evening and Saturday availability
+
+  Pay: this is a commission-only position. Representatives in their first year typically earn $50,000 to $90,000 in commission.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Commission is wages (ESA s. 1 (1); the guide lists commission as compensation), so pay is disclosed. ON-PAY-02
+  labelled pass because a range of expected commission is a range of expected compensation and this one is
+  $40,000 wide. CheckON gives ON-PAY-02 not_applicable here (it applies the width limit to base pay only), so
+  this case will score a mismatch on ON-PAY-02; both readings are compliant. Lawyer (law review Q4a): does the
+  $50,000 limit apply to a range of expected commission?

@@ -1,0 +1,38 @@
+id: syn-vac-07-talent-pool-kept-on-file
+slice: synthetic
+purpose: >-
+  A specific job whose only vacancy-related line is "Applications will be kept on file for our talent pool."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Member Service Representative
+  Chatham, ON
+
+  Kent Harvest Credit Union has 12 branches and 210 employees across Chatham-Kent and Windsor-Essex.
+
+  What you'll do
+  - Process deposits, withdrawals and bill payments
+  - Open accounts and explain our everyday banking products
+  - Spot members' needs and refer them to our advisors
+
+  What you need
+  - 1+ year of cash handling or customer service experience
+  - Comfort with numbers and attention to detail
+  - Availability for some Saturdays
+
+  Pay: $20.00 - $23.00 per hour
+
+  Applications will be kept on file for our talent pool.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Uncertain; lawyer (Q6a). The line hints that this may be a talent pool but doesn't say whether a vacancy exists
+  now, so labelled warning (vague). It could also be read as no statement at all (fail): the rule-pack test
+  "talent pool for a specific role that doesn't say there is no vacancy" expects fail when no statement is found.

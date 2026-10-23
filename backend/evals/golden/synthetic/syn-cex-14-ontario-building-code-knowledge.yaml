@@ -1,0 +1,40 @@
+id: syn-cex-14-ontario-building-code-knowledge
+slice: synthetic
+purpose: >-
+  "A working knowledge of the Ontario Building Code", in prose: knowledge of Ontario rules, labelled a warning by
+  analogy to knowledge of Canadian tax rules.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Architectural Technologist
+  Brennan Okafor Architects Inc. - Toronto (Queen St W), hybrid
+
+  Brennan Okafor Architects is a 45-person practice designing schools, libraries and mid-rise housing for public
+  and non-profit clients.
+
+  We're looking for an Architectural Technologist to join our housing studio. You'll develop design drawings into
+  permit and construction sets in Revit, coordinate with structural and mechanical consultants, prepare building
+  code analyses and permit applications, and answer contractor questions during construction.
+
+  You'll need a diploma or degree in architectural technology or architecture, three or more years producing
+  construction documents for multi-unit residential buildings, and strong Revit skills. You'll also need a working
+  knowledge of the Ontario Building Code and experience preparing permit drawings. A BCIN qualification is an asset.
+
+  Salary: $60,000 to $72,000 a year. We offer four weeks' vacation, paid OAA/OAAAS dues, and a learning budget.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  Unsure, and we lean towards pass. Knowing the code that governs the buildings you draw is a core skill and can be
+  learned from the code itself; "experience preparing permit drawings" has no place condition, and the BCIN is a
+  registration. We label warning only to stay consistent with the README's "knowledge of Canadian tax rules".
+  Lawyer: is knowledge of an Ontario statute or code a requirement related to Canadian experience? If not, this and
+  syn-cex-12 should both be pass.

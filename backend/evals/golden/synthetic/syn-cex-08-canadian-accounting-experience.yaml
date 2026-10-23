@@ -1,0 +1,44 @@
+id: syn-cex-08-canadian-accounting-experience
+slice: synthetic
+purpose: >-
+  "3+ years of Canadian accounting experience" next to an allowed CPA requirement: the experience bullet fails. Pairs
+  with syn-cex-17 (experience with Canadian GAAP, a pass).
+context:
+  uses_ai_in_hiring: true
+text: |
+  Staff Accountant
+  Halton Precision Plastics - Burlington, Ontario
+
+  Halton Precision Plastics molds parts for appliance, medical and automotive customers. We have 280 employees and a
+  finance team of eight.
+
+  Responsibilities
+  - Prepare month-end journal entries, accruals and balance sheet reconciliations
+  - Maintain the fixed asset register and amortization schedules
+  - Reconcile intercompany accounts with our U.S. affiliate
+  - Prepare HST returns and support the year-end audit
+  - Help improve our close checklist and reporting in Excel and Power BI
+
+  Requirements
+  - CPA designation, or enrolled in the CPA PEP program
+  - 3+ years of Canadian accounting experience
+  - Strong Excel skills; experience with an ERP such as Epicor or SAP Business One
+  - Manufacturing or cost accounting experience is an asset
+
+  Salary: $62,000 - $72,000 per year, plus paid CPA dues and study days.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The rule pack's own violation example in a full posting. The CPA designation is a certification and HST returns are
+  a duty, not a requirement. Lawyer: none on the label.

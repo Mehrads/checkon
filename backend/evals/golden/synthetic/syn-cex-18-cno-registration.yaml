@@ -1,0 +1,39 @@
+id: syn-cex-18-cno-registration
+slice: synthetic
+purpose: >-
+  Registration with the College of Nurses of Ontario, in prose, plus experience with no place condition: a pass.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Registered Practical Nurse - Long-Term Care (Permanent Part-Time)
+  Otonabee Gardens Long-Term Care Home, Peterborough
+
+  Otonabee Gardens is a 160-bed long-term care home and part of a not-for-profit group of seven homes in eastern
+  Ontario. We're looking for an RPN to join our team on the second floor, a 32-resident home area for people living
+  with dementia.
+
+  As an RPN with us, you'll give medications and treatments, assess and monitor residents, update care plans with
+  the interdisciplinary team, and lead and support our personal support workers on your shift. You'll get to know
+  residents and their families well, and you'll be part of a team that takes the time to do things right.
+
+  You hold a current Certificate of Registration with the College of Nurses of Ontario as a Registered Practical
+  Nurse, and you have current CPR. Experience in long-term care, geriatrics or dementia care is an asset, and new
+  graduates are welcome to apply. You'll work 8-hour shifts, about 0.6 FTE, with every second weekend.
+
+  Wage: $31.50 to $36.80 per hour, based on years of nursing experience. Percentage in lieu of benefits for
+  part-time staff, and a pension plan.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The rule pack's own "ok" example: a registration requirement, which the guide excludes. Part-time at about 22.5
+  hours a week; the hourly range is $5.30 wide, so the width is far under the limit at any hours. Lawyer: none on the
+  CEX label. Is a long-term care home run by a not-for-profit ever within the Crown exemption? We assume not.

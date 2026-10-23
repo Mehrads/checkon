@@ -1,0 +1,39 @@
+id: oos-10-startup-under-25
+slice: out_of_scope
+purpose: >-
+  A 12-person startup's engineering posting with a wide range, AI used without a disclosure and no vacancy line.
+  Under 25 employees, so ON-APPL-01 is not applicable and nothing is checked.
+context:
+  meets_headcount_threshold: false
+  uses_ai_in_hiring: true
+text: |
+  Founding Backend Engineer
+  Kestrel Robotics - Toronto (MaRS Discovery District), in office
+
+  We're Kestrel, a 12-person robotics startup building autonomous inventory robots for grocery stores. We've raised
+  our seed round, we're live in 9 stores, and we need our first dedicated backend engineer.
+
+  What you'll do
+  - Design and build the APIs and data pipelines between our robots and our cloud platform
+  - Own reliability: monitoring, on-call and incident reviews
+  - Work directly with our founders and customers to decide what to build next
+
+  What we're looking for
+  - 5+ years building backend systems in Python or Go
+  - Experience with PostgreSQL, message queues and a major cloud provider
+  - You like ambiguity and shipping fast
+
+  Compensation: $140,000 - $195,000 base, plus meaningful equity.
+labels:
+  ON-APPL-01: not_applicable
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  The $55,000-wide range and missing AI and vacancy statements would all fail for a larger employer. Lawyer: Reg.
+  s. 1 counts employees "on the day the publicly advertised job posting is posted"; if the startup crosses 25 while
+  the posting is still up, does the posting have to be brought into line?

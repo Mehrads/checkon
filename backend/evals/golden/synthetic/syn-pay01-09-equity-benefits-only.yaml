@@ -1,0 +1,40 @@
+id: syn-pay01-09-equity-benefits-only
+slice: synthetic
+purpose: >-
+  A startup posting that gives stock options, benefits and a learning budget but no salary.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Founding Product Designer
+  Waterloo, ON
+
+  Lumen Ledger is a 30-person startup building bookkeeping software for independent clinics. We closed our Series A in the spring and need our first full-time designer.
+
+  You'll:
+  - Own the design of our web app, from research to shipped screens
+  - Build our design system with the engineering team
+  - Talk to clinic owners every week
+
+  You have:
+  - 4+ years of product design experience on web apps
+  - A portfolio that shows your process, not just final screens
+  - Comfort working on a small team with loose ends
+
+  What you get:
+  - Meaningful equity: 0.25% - 0.40% in stock options
+  - Full health and dental coverage from day one
+  - A $2,000 yearly learning budget
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide excludes stock options; benefit-plan contributions are excluded by ESA s. 1 (1) (g); a learning
+  budget is an expense, not wages. 30 employees, so the size threshold is met.

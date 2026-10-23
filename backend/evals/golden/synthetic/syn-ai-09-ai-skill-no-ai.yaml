@@ -1,0 +1,52 @@
+id: syn-ai-09-ai-skill-no-ai
+slice: synthetic
+purpose: >-
+  An AI product company that doesn't use AI on applicants: AI appears as the product, as a job skill and as a
+  note that the posting was drafted with AI help. None is a hiring disclosure, so ON-AI-01 passes with no warning.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Conversation Designer
+  Lumen Labs - Waterloo, ON (hybrid, office on King St N)
+
+  Lumen Labs builds an AI assistant that answers patients' questions for dental and physiotherapy clinics. More
+  than 2,000 clinics use it to handle bookings, reminders and after-hours questions. We are 85 people, most of us in
+  Waterloo.
+
+  The role
+  As our second conversation designer, you'll shape how the assistant talks: what it says, how it recovers when it
+  misunderstands, and when it hands a conversation to a human. You'll work with our machine learning engineers to
+  turn conversation transcripts into better prompts, test sets and guardrails.
+
+  You will
+  - Write and test dialogue flows and prompts for new clinic workflows
+  - Review conversation logs each week and turn failure patterns into fixes
+  - Build evaluation sets with our ML team and track quality over releases
+  - Run usability sessions with clinic staff
+
+  You have
+  - 2+ years in conversation design, UX writing or content design
+  - Hands-on experience writing prompts for large language models and judging their output
+  - A portfolio showing dialogue or product writing
+  - Comfort reading simple analytics and spreadsheets
+
+  Salary: $78,000 to $95,000 a year, plus stock options and a $1,500 learning budget.
+
+  A note on this posting: we drafted it with help from our own assistant, and our people team reviewed every
+  word.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Tests over-reading: the product sentence, the LLM skill and the "drafted with help from our assistant" note are
+  all about AI but none says AI screens, assesses or selects applicants. If the classifier reads any as uses_ai,
+  CheckON gives a warning the law doesn't call for. Lawyer: none on the label; confirm that AI used to write the
+  posting is outside s. 8.4 (1).

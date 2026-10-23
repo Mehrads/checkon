@@ -1,0 +1,37 @@
+id: syn-pay01-01-hourly-range
+slice: synthetic
+purpose: >-
+  Pay stated as an hourly range, far under the width limit at any plausible hours, so no hours are needed.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Warehouse Associate - Day Shift
+  Brampton, ON
+
+  Northline Distribution runs a 400,000 sq. ft. fulfilment centre serving retailers across the GTA. We're adding an associate to our inbound team.
+
+  What you'll do
+  - Unload trailers and check shipments against packing lists
+  - Pick, pack and stage orders for outbound carriers
+  - Keep aisles and docks clean and safe
+
+  What you bring
+  - Able to lift up to 50 lb throughout a shift
+  - Forklift certification is an asset (we also train)
+  - Reliable attendance and a safety-first attitude
+
+  Pay: $21.50 - $24.00 per hour
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width $2.50 an hour: $5,200 a year at 40 hours, and under $8,000 even at 60 hours, so the hours can't change
+  the answer.

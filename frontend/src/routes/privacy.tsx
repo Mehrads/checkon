@@ -11,7 +11,7 @@ import {
 import { pageHead } from "@/lib/seo"
 
 // Every statement here describes what the code does; change this page when that changes.
-const DRAFTED = "October 22, 2026"
+const DRAFTED = "October 23, 2026"
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -154,10 +154,16 @@ function PrivacyPage() {
             <strong>Umami Cloud</strong> (visit counts): page visits and a few
             actions.
           </li>
+          <li>
+            <strong>Langfuse</strong> (monitoring): for each check, which AI
+            model ran, how long it took, what it cost and the result per rule.
+            Never your posting, the AI's answers or anything that identifies
+            you.
+          </li>
         </List>
         <p>
-          Anthropic is in the United States, and other providers may process
-          data outside Canada, where it's subject to local laws.
+          Anthropic and Langfuse are in the United States, and other providers
+          may process data outside Canada, where it's subject to local laws.
         </p>
       </Part>
 

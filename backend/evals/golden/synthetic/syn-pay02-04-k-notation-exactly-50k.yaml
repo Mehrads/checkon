@@ -1,0 +1,38 @@
+id: syn-pay02-04-k-notation-exactly-50k
+slice: synthetic
+purpose: >-
+  A range in "K" shorthand exactly $50,000 wide ($130K-$180K), with an unquantified bonus on top.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Senior DevOps Engineer
+  Toronto, ON (hybrid)
+
+  Finchley Analytics builds pricing software for grocery retailers. 180 people, offices in Toronto and Halifax; this role works from Toronto.
+
+  What you'll do
+  → Run our Kubernetes clusters on AWS and keep them healthy
+  → Improve our CI/CD pipelines and cut build times
+  → Lead incident reviews and on-call improvements
+
+  What you've done
+  → 5+ years in DevOps, SRE or platform engineering
+  → Terraform and Kubernetes in production
+  → Good habits around security and cost
+
+  Comp: $130K-$180K base + annual bonus
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width exactly $50,000 once "K" is expanded; the top ($180,000) is under the exemption. The annual bonus has no
+  figure and doesn't widen the base range. Lawyer (law review Q4b, minor): is a bonus named with no amount
+  enough information about that type of compensation? Labelled pass.

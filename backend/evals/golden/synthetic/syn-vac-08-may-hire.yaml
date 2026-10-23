@@ -1,0 +1,37 @@
+id: syn-vac-08-may-hire
+slice: synthetic
+purpose: >-
+  A vague statement: "We may hire for this role in the coming months, depending on caseload."
+context:
+  uses_ai_in_hiring: false
+text: |
+  Registered Veterinary Technician
+  North Bay, ON
+
+  Trout Lake Veterinary Group runs six animal hospitals in northern communities with 95 staff.
+
+  What you'll do
+  - Assist with surgery, anaesthesia and dental procedures
+  - Take radiographs and run in-house lab work
+  - Teach clients about home care and follow-up
+
+  What you need
+  - Veterinary technician diploma and registration as an RVT
+  - 1+ year of clinical experience in a small-animal practice
+  - Calm, kind and organized under pressure
+
+  Pay: $23.00 - $27.50 per hour
+
+  We may hire for this role in the coming months, depending on caseload.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: warning
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Lawyer (Q6a): a statement that hiring may happen later doesn't say whether a vacancy exists now. CheckON and
+  this label treat it as a weak statement (warning); the stricter reading is fail.

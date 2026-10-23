@@ -1,0 +1,44 @@
+id: oos-11-calgary-role-toronto-employer
+slice: out_of_scope
+purpose: >-
+  A Toronto-headquartered employer (25+ in Ontario) posting an on-site job in Calgary: work performed outside
+  Ontario, so ON-APPL-02 is not applicable even though ON-APPL-01 passes.
+context:
+  meets_headcount_threshold: true
+  uses_ai_in_hiring: true
+text: |
+  Geotechnical Engineer (P.Eng.) - Calgary, Alberta
+  Kingsway Ross Engineering
+
+  Kingsway Ross is an employee-owned engineering firm headquartered in Toronto, with 1,100 people in offices across
+  Canada. Our Calgary office is growing, and we're hiring a geotechnical engineer to work on infrastructure and
+  energy projects in Southern Alberta.
+
+  Location: Calgary, AB (on site at our Calgary office and project sites in Alberta)
+
+  What you'll do
+  - Plan and supervise site investigations and drilling programs
+  - Analyze soil and rock data and prepare geotechnical reports
+  - Design foundations, slopes and retaining structures
+  - Review construction and inspect foundations in the field
+
+  What you bring
+  - P.Eng. with APEGA, or eligibility for it
+  - 5+ years of geotechnical consulting experience
+  - Experience in Western Canadian soil conditions is an asset
+
+  Salary: $100,000 - $160,000, depending on experience.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  Reg. s. 2 (1) (d)(i) excludes work performed outside Ontario, whoever the employer is and wherever it is based. The
+  $60,000-wide range and Western Canada asset would matter in Ontario. Lawyer: if the job involved occasional work at
+  the Toronto head office, would it become work "performed outside Ontario and in Ontario" under (d)(ii), and in
+  scope? We'd still say out of scope, since the Ontario part isn't the core of the job.

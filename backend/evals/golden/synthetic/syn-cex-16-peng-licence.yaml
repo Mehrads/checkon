@@ -1,0 +1,44 @@
+id: syn-cex-16-peng-licence
+slice: synthetic
+purpose: >-
+  A P.Eng. licence with Professional Engineers Ontario (or eligibility for one) plus experience with no place
+  condition and "international experience welcome": a pass.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Structural Engineer - Buildings
+  Lakeshore Structural Group, Toronto, ON
+
+  Lakeshore Structural Group designs structures for condominiums, hospitals and transit stations. We're a firm of
+  130 engineers and technicians with offices in Toronto and Ottawa.
+
+  What you'll work on
+  - Design and analysis of concrete and steel structures for mid- and high-rise buildings
+  - Modelling in ETABS, SAFE and RAM, and checking drawings produced by our BIM team
+  - Coordinating with architects and mechanical consultants
+  - Site reviews during construction and responses to contractor questions
+
+  What we're looking for
+  - P.Eng. licence with Professional Engineers Ontario, or eligibility to obtain it within 12 months of hire
+  - 6+ years designing concrete and steel building structures
+  - Strong grounding in structural analysis and design codes; we'll support you in learning the codes we use
+  - Clear technical writing
+  - International experience welcome
+
+  Salary: $95,000 - $120,000 per year, plus paid PEO dues and a flexible hybrid schedule.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The guide says s. 8.3 doesn't apply to professional licensing or registration requirements. Experience is asked
+  for with no place condition. Lawyer (law review Q8f): if a licence requirement were written with an Ontario
+  practice condition ("P.Eng. with two years of Ontario practice"), would the licensing exclusion still cover it? We
+  would label that a fail.

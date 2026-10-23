@@ -1,0 +1,36 @@
+id: syn-pay01-05-single-hourly-plus-tips
+slice: synthetic
+purpose: >-
+  A single hourly wage "plus tips": the wage is stated, so pay is disclosed even though tips aren't wages.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Server - Full and Part Time
+  Niagara Falls, ON
+
+  Clifton Hill Hospitality operates six restaurants and two hotels in Niagara Falls. Our steakhouse is looking for an experienced server for the busy season and beyond.
+
+  You will:
+  - Greet guests, take orders and recommend wine pairings
+  - Run food and keep your section clean during service
+  - Handle payments and cash out at the end of a shift
+
+  You have:
+  - 1+ year of serving experience in a full-service restaurant
+  - Smart Serve certification
+  - Availability for evenings, weekends and holidays
+
+  Pay: $18.75 per hour plus tips.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Single hourly figure, so no width to check. Smart Serve is a certification, not experience (ON-CEX-01 pass).

@@ -1,0 +1,74 @@
+id: lever-kepler-accae2f6-7ffe-49a8-a485-ee9c13421c95
+slice: real
+source:
+  url: https://jobs.lever.co/kepler/accae2f6-7ffe-49a8-a485-ee9c13421c95
+  board: lever
+  location: Toronto, Ontario
+  fetched: '2026-10-23'
+posted: '2026-10-23'
+text: |
+  Embedded Software Designer
+  Toronto, Ontario / Engineering / Full-time Regular
+
+  At Kepler Communications, we're not just imagining the future of on-demand space connectivity - we're leading it!
+  Our mission is to provide real-time on-orbit connectivity for critical missions, enabling a new era of data-driven intelligence and innovation. With 33 satellites launched to date, Kepler operates the first commercial optical data relay constellation, enabling real-time, continuous space communications while supporting advanced on-orbit compute and hosted payload capabilities.
+  Industry-leading technology is only part of the story. What sets Kepler apart is our team: bold thinkers, skilled builders, and passionate problem-solvers who thrive on pushing the boundaries of what’s possible in space. We believe great ideas come from diverse perspectives, and we’re committed to creating an environment where you can grow, lead, and make a global impact.
+
+  If you’re ready to reach higher, move faster, and do work that shapes the future space economy - this is your launchpad. Come build the future with Kepler!
+
+
+  What We Offer:
+  * Competitive compensation with a robust equity plan to share in our success.
+  * Comprehensive coverage for health, dental, and vision insurance—including dependents.
+  * Unlimited vacation, supportive parental leave policy, and company-wide holiday shutdown.
+  * Semi-annual company-wide parties and frequent in-office team events.
+  * Relocation packages available for approved roles.
+  * $1,500 annual professional development fund to support your growth.
+  * Fully stocked Toronto office kitchen with snacks, drinks, games and top-notch kitchen appliances.
+  * Town Halls, Celebration Calls, and Company-wide events to stay connected and engaged.
+  * We’re a certified Great Place to Work®, seven years in a row!
+
+
+  We're on the hunt for a top-tier Embedded Software Engineer. Your focus will be on software development and maintenance required for both space and ground-based assets for a growing fleet of spacecraft. You'll be relied upon for input and decisions that will directly impact design and operation.
+
+  Key Responsibilities:
+  • Design, develop, and maintain reliable, high-quality embedded software for both spacecraft and ground-based systems supporting a growing fleet of satellites
+  • Design and implement secure communications capabilities, including encryption, authentication, and key exchange for next-generation data links
+  • Build and maintain low-level software components including device drivers, kernel modules, hardware interfaces, and platform services
+  • Develop automated tests, validation tools, and technical documentation to support robust software delivery and long-term maintainability
+  • Participate in software architecture discussions, design reviews, and code reviews to ensure software quality and system reliability
+  • Collaborate closely with cross-functional teams to define system requirements, debug complex issues, and evolve system architecture
+  • Identify performance gaps, reliability risks, and architectural shortcomings in existing systems, and drive improvements across the software stack
+  • Provide technical leadership, mentorship, and guidance to junior engineers while contributing to engineering best practices and development standards
+
+  Required Skills & Qualifications:
+  • 4+ years of experience developing embedded software for complex, high-reliability systems
+  • Bachelor’s degree in Computer Science, Computer Engineering, Electrical Engineering, or equivalent practical experience
+  • Strong software engineering fundamentals, including system design, debugging, testing, performance analysis, and maintainable code development
+  • Proficiency in C/C++ for embedded systems, including concurrency, interrupt handling, memory-mapped peripherals, and hardware communication interfaces such as SPI, I2C, UART, and CAN
+  • Experience developing software for embedded Linux and/or RTOS environments, including familiarity with build systems such as Yocto/OpenEmbedded and operating systems such as FreeRTOS
+  • Experience developing low-level embedded Linux components including kernel modules, device drivers, and device tree integrations
+  • Experience developing and maintaining automated test frameworks, validation tooling, or hardware/software integration test environments
+  • Strong cross-functional collaboration and communication skills, with the ability to work effectively across software, hardware, and operations teams
+  • Proficiency with modern software development workflows and tools, including Git-based version control and code review practices
+  • Demonstrates a willingness to adopt and effectively utilize AI-assisted engineering tools, applying sound judgment to improve productivity, quality, and innovation while continuously adapting to evolving technologies
+
+  Bonus Points:
+  • Master's degree in Computer Science, Computer Engineering, or related field
+  • Experience developing software for aerospace applications
+  • Experience implementing embedded security solutions such as secure boot, hardware security modules (HSMs), certificate/key management, authentication, or encrypted communications
+  • Familiarity with Linux networking concepts and infrastructure, including routing, interfaces, netlink, or packet-processing pipelines
+  • Experience developing multi-stage bootloaders
+  • Strong knowledge of computer networking and modern networking protocols
+  • Experience with RTL (Verilog and/or VHDL) and embedded SoCs
+
+  Salary Range: $156,100 - $181,100 CAD
+  Actual total compensation will be determined at the Company’s discretion and is based on a variety of job-related factors, which may include, but are not limited to, relevant knowledge, skills, experience, performance, and education and/or training. The Company encourages all qualified applicants to apply, even if the posted salary range does not align with their expectations, as it does not reflect our total compensation package.
+  Job Type: This is for a current vacancy
+
+
+  Employment Equity & Accommodation Statement
+  Kepler Communications is an equal opportunity employer committed to building a diverse and inclusive workplace. We welcome applications from all qualified individuals, including women, Indigenous peoples, persons with disabilities, members of visible minorities, and people of all sexual orientations and gender identities.
+
+  If you require accommodation during any stage of the recruitment process, please contact our People & Culture team at [email], and we will work with you to meet your needs.
+labels: {}

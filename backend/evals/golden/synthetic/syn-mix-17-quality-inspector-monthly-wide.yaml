@@ -1,0 +1,46 @@
+id: syn-mix-17-quality-inspector-monthly-wide
+slice: synthetic
+purpose: >-
+  Monthly pay of $4,000 to $8,500 ($54,000 a year wide, ON-PAY-02 fails), no vacancy statement (ON-VAC-01 fails),
+  and "working knowledge of Ontario health and safety legislation" (ON-CEX-01 warning). AI disclosed.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Quality Inspector
+  Woodbridge Polymer Solutions, Woodbridge, ON
+
+  Woodbridge Polymer Solutions extrudes and injection-molds plastic components for the construction and appliance
+  industries. We have 230 employees on three shifts.
+
+  Main duties
+  - Inspect parts at first-off, in process and final stages against drawings and specifications
+  - Use calipers, micrometers, height gauges and optical comparators
+  - Record results in our quality system and flag non-conforming product
+  - Help with customer complaint investigations and corrective actions
+  - Support internal audits for our ISO 9001 certification
+
+  Qualifications
+  - High school diploma; a quality or manufacturing technology diploma is preferred
+  - 2+ years of quality inspection experience in a plastics or metal parts plant
+  - Able to read blueprints and use measuring tools accurately
+  - Working knowledge of Ontario health and safety legislation (OHSA)
+  - Available to work afternoons or nights
+
+  Salary: $4,000 - $8,500 per month, depending on experience and shift.
+  Benefits: group health and dental, life insurance, and a boot allowance.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: fail
+  ON-VAC-01: fail
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  $4,500 a month × 12 = $54,000, over the limit; top is $102,000 a year. OHSA knowledge is labelled a warning by
+  analogy to "knowledge of Canadian tax rules", though it is ordinary job knowledge every Ontario worker gets in
+  orientation. Lawyer: Q3 (12 months a year is the conversion), and whether knowledge of an Ontario statute is
+  borderline at all (as in syn-cex-14).

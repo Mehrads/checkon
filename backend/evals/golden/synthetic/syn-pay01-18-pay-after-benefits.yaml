@@ -1,0 +1,41 @@
+id: syn-pay01-18-pay-after-benefits
+slice: synthetic
+purpose: >-
+  The hourly wage range is the last bullet of a benefits list, after the non-wage perks.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Maintenance Technician
+  Cambridge, ON
+
+  Grand River Foods makes frozen baked goods for grocery chains, with 380 employees at our Cambridge plant.
+
+  What you'll do
+  - Troubleshoot and repair packaging and conveyor equipment
+  - Carry out preventive maintenance on a planned schedule
+  - Keep maintenance records up to date
+
+  What you need
+  - 309A or 433A certificate, or an apprentice close to completion
+  - 3+ years of maintenance experience in food or packaging
+  - Willingness to rotate onto night shifts
+
+  What we offer
+  - Health, dental and vision benefits from your first day
+  - Matched retirement savings plan
+  - Safety boots and uniforms provided
+  - Wage of $36.00 - $42.00 per hour, depending on certification
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Width $6 an hour: $12,480 a year at 40 hours, under $19,000 even at 60. A trade certificate is a licensing
+  requirement, not Canadian experience.

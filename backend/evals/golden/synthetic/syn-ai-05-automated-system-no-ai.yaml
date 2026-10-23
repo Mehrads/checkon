@@ -1,0 +1,48 @@
+id: syn-ai-05-automated-system-no-ai
+slice: synthetic
+purpose: >-
+  The same "automated system" sentence, but the employer doesn't use AI: no disclosure is needed and the sentence
+  must not be read as a disclosure (which would give a warning).
+context:
+  uses_ai_in_hiring: false
+text: |
+  MAINTENANCE MECHANIC - DAY SHIFT
+  Escarpment Steel Fabricators, Hamilton ON
+
+  We build structural steel for bridges, hospitals and high-rises, and we need a hands-on mechanic to keep our
+  cutting, drilling and welding lines running.
+
+  RESPONSIBILITIES
+  * Preventive and breakdown maintenance on CNC plasma tables, beam drill lines, overhead cranes and
+    air compressors
+  * Troubleshoot hydraulic, pneumatic and mechanical systems
+  * Fabricate and weld replacement parts when needed
+  * Keep work orders and PM records up to date in our maintenance software
+  * Follow lockout/tagout on every job, every time
+
+  QUALIFICATIONS
+  * Industrial Mechanic Millwright (433A) certificate, or an apprentice in the final year of the program
+  * 3+ years of maintenance experience in a manufacturing plant
+  * Able to read mechanical and hydraulic drawings
+  * Comfortable working at heights and in a loud shop environment
+
+  PAY: $36.00 - $41.00 per hour depending on certification, plus a $1,000 annual tool allowance
+  HOURS: Monday to Friday, 6:00 am - 2:30 pm, with occasional Saturday overtime
+
+  Applications are first screened by an automated system.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The employer's filter is a keyword and yes/no rule set, which they say is not AI. With no AI used, s. 8.4 (1)
+  asks for nothing, and the sentence doesn't claim AI, so no warning. The 433A trade certificate is a licensing
+  or certification requirement, outside s. 8.3. Lawyer (law review Q7b): is a rule-based keyword filter outside
+  the Reg. s. 2 (1) definition, so that the employer's "no" is right?

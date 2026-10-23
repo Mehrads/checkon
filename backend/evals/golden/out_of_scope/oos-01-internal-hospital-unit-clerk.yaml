@@ -1,0 +1,43 @@
+id: oos-01-internal-hospital-unit-clerk
+slice: out_of_scope
+purpose: >-
+  An internal hospital posting, open to current employees only. ON-APPL-02 is not applicable, so every content rule
+  is too, even though the posting has no vacancy statement and would fail if the rules applied.
+context:
+  uses_ai_in_hiring: false
+text: |
+  INTERNAL POSTING - OPEN TO CURRENT RIVERSIDE HEALTH EMPLOYEES ONLY
+
+  Unit Clerk, Emergency Department
+  Riverside Health, Ottawa General Campus
+  Posting #INT-2026-1187 | Permanent part-time (0.6 FTE) | OPSEU
+
+  Riverside Health employees who wish to be considered should apply through the internal job board on the
+  intranet. External applications will not be accepted for this posting.
+
+  Duties
+  - Process physician orders and manage patient flow information in the ED tracking system
+  - Register patients, answer phones and direct visitors
+  - Maintain charts and order unit supplies
+
+  Qualifications
+  - Medical terminology course
+  - 1 year of unit clerk experience in an acute care hospital
+  - Keyboarding of 50 words per minute
+
+  Rate of pay as per the collective agreement. Seniority will be considered in accordance with Article 10.
+
+  Posting period: October 20 to October 27, 2026.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: not_applicable
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: not_applicable
+  ON-AI-01: not_applicable
+  ON-CEX-01: not_applicable
+labelled_by: [claude]
+notes: >-
+  Reg. s. 2 (1) (c) excludes a posting restricted to existing employees, and the text says so twice. "Rate of pay as
+  per the collective agreement" gives no figure and there is no vacancy statement; neither matters here. Lawyer: if an
+  internal posting is also visible on a public careers site, is it still "restricted to existing employees"?

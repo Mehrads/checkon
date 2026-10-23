@@ -1,0 +1,52 @@
+id: syn-cex-17-cpa-and-canadian-gaap
+slice: synthetic
+purpose: >-
+  A CPA designation plus "experience preparing financial statements under Canadian GAAP (ASPE)": a technical
+  standard, not a place condition. Labelled pass; pairs with syn-cex-08 (Canadian accounting experience, a fail).
+context:
+  uses_ai_in_hiring: true
+text: |
+  Senior Accountant
+  Rouge Valley Distribution Inc. - Markham, Ontario
+
+  Rouge Valley Distribution imports and distributes kitchenware and small appliances to retailers. We're a
+  privately owned company with 160 employees and annual sales of about $140 million.
+
+  The role
+  Reporting to the Controller, you'll own the monthly close and prepare our annual financial statements for the
+  auditors.
+
+  Responsibilities
+  • Lead the month-end close and review journal entries prepared by the staff accountant
+  • Prepare the annual financial statements and notes, and the audit file
+  • Account for inventory costing, landed costs and foreign exchange on purchases
+  • Prepare cash flow forecasts and support the bank covenant reporting
+  • Improve controls and processes as we move to a new ERP
+
+  Requirements
+  • CPA designation
+  • 4+ years of accounting experience, including at least 2 in a senior or lead role
+  • Experience preparing financial statements under Canadian GAAP (ASPE)
+  • Strong Excel and ERP skills (NetSuite is a plus)
+  • Inventory-heavy industry experience is an asset
+
+  Salary: $78,000 to $92,000 per year, plus benefits and paid CPA dues.
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  Unsure. ASPE is a named accounting standard that can be learned and applied anywhere, so we read it as a technical
+  skill, unlike "Canadian accounting experience". But the law review records CheckON's classifier reading "Canadian
+  GAAP" as borderline (Q8d), and the README labels "knowledge of Canadian tax rules" a warning (syn-cex-12), which has
+  the same shape. Lawyer: are experience with Canadian GAAP and knowledge of Canadian tax rules both outside s. 8.3,
+  both borderline, or different?

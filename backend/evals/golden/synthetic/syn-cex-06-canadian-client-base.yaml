@@ -1,0 +1,40 @@
+id: syn-cex-06-canadian-client-base
+slice: synthetic
+purpose: >-
+  An established book of clients in Canada, asked for in prose: the guide counts an established professional
+  network or client base as Canadian experience.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Financial Advisor (Salaried)
+  Yorkville Private Wealth, Toronto
+
+  Yorkville Private Wealth looks after families and business owners with $1 million or more to invest. Our 90
+  advisors and planners work on salary, not commission, so the advice is about the client and nothing else.
+
+  As a Financial Advisor, you'll lead relationships with about 120 households: building financial plans, setting
+  investment strategy with our portfolio managers, and meeting each client at least twice a year. You'll work with
+  our tax and estate specialists on complex situations and bring in new clients through referrals and events.
+
+  You hold the Certified Financial Planner (CFP) designation and are licensed to advise on securities, and you have
+  at least five years of experience advising high-net-worth clients. You bring an established book of clients in
+  Canada that you can transition to us when you join, and you're comfortable presenting to business owners and
+  their accountants.
+
+  Salary: $72,000 to $88,000 a year, with full benefits, a pension plan and a paid licensing budget.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The guide names "a requirement to have an established professional network or client base" as Canadian
+  experience. The CFP and securities licence are licensing, which s. 8.3 doesn't cover. Lawyer: would "a book of
+  clients you can transition", with no place named, still be a requirement related to Canadian experience in
+  practice, since only Canadian clients can follow an advisor to a Toronto firm?

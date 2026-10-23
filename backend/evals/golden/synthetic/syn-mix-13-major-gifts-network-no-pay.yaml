@@ -1,0 +1,63 @@
+id: syn-mix-13-major-gifts-network-no-pay
+slice: synthetic
+purpose: >-
+  A long non-profit posting that asks for an established network of donors in the GTA (a Canadian professional
+  network, ON-CEX-01 fails) and says only "salary commensurate with experience" (ON-PAY-01 fails).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Senior Development Officer, Major Gifts
+  Lakeshore Children's Health Foundation
+  Toronto, Ontario | Permanent, full-time | Hybrid
+
+  About the Foundation
+  Lakeshore Children's Health Foundation raises money for research, equipment and family programs at Lakeshore
+  Children's Health Centre. Last year, more than 40,000 donors gave $95 million. Our team of 120 fundraisers,
+  marketers and operations staff works out of our office near Ontario Place and in the community.
+
+  About the role
+  The Senior Development Officer, Major Gifts, raises gifts of $25,000 to $1 million from individuals and family
+  foundations. You'll manage a portfolio of about 120 prospects and donors, build relationships with them over time,
+  and bring them closer to the Centre's work through tours, events and conversations with our clinicians and
+  researchers.
+
+  What you'll do
+  - Identify, cultivate, solicit and steward a portfolio of major gift donors and prospects
+  - Meet a yearly target for solicitations, gifts and revenue
+  - Write tailored proposals and impact reports with our grant writers
+  - Work with physicians and researchers to match donor interests with funding priorities
+  - Plan donor visits and small events
+  - Keep accurate records of every donor contact in Raiser's Edge NXT
+
+  What you bring
+  - 5+ years of major gift fundraising experience, with a record of closing six-figure gifts
+  - An established network of donors and community leaders in the Greater Toronto Area
+  - Excellent writing and presentation skills
+  - Comfort talking about children's health, research and difficult family circumstances with care
+  - CFRE designation is an asset
+  - Availability for some evening and weekend events
+
+  What we offer
+  - Salary commensurate with experience
+  - Comprehensive benefits from day one and a defined benefit pension plan (HOOPP)
+  - Four weeks of vacation, plus a paid winter break
+  - A hybrid schedule with two office days a week
+
+  This posting is for an existing vacancy.
+
+  Lakeshore Children's Health Foundation is committed to equity, diversity and inclusion, and welcomes applications
+  from all qualified candidates. Accommodation is available throughout the hiring process.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: fail
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: fail
+labelled_by: [claude]
+notes: >-
+  The guide counts an established professional network as Canadian experience; a donor network in the GTA can only
+  be built by working here. "Salary commensurate with experience" gives no figure. The CFRE is a certification.
+  Lawyer: is a network requirement framed around a city (not Canada) still a requirement related to Canadian
+  experience? We say yes, as with "local experience".

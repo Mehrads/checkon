@@ -1,0 +1,37 @@
+id: syn-pay01-17-single-over-200k
+slice: synthetic
+purpose: >-
+  A single base salary above $200,000 ($240,000): exempt from both pay rules.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Chief Technology Officer
+  Toronto, ON
+
+  Parkdale Payments processes card and bank payments for 14,000 small businesses. We have 260 employees and are hiring our next CTO to report to the CEO.
+
+  What you'll own
+  - Engineering, infrastructure and security, about 110 people
+  - Our platform roadmap and the architecture behind it
+  - Reliability and audit readiness for our payment systems
+
+  What you bring
+  - 15+ years in software engineering, 7 of them leading engineering organizations
+  - Experience running regulated, high-availability systems
+  - A record of hiring and growing strong leaders
+
+  Base salary: $240,000, plus annual bonus and equity.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  O. Reg. 476/24, s. 3, para. 1: expected compensation equivalent to more than $200,000 a year. Disclosing it
+  anyway is allowed; the rules just don't require it.

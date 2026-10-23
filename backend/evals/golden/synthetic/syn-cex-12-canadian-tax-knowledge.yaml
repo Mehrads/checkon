@@ -1,0 +1,47 @@
+id: syn-cex-12-canadian-tax-knowledge
+slice: synthetic
+purpose: >-
+  "Knowledge of Canadian personal income tax rules" as a requirement bullet: knowledge of Canadian rules, a
+  borderline warning.
+context:
+  uses_ai_in_hiring: true
+text: |
+  Tax Associate (Seasonal, January to April 2027)
+  NorthStar Tax Centres - Brampton (Bramalea City Centre office)
+
+  NorthStar prepares personal tax returns at 40 offices across Ontario. Our Bramalea office files more than 6,000
+  returns each season and we're hiring associates for the 2027 season.
+
+  What you'll do
+  - Interview clients and gather their slips and receipts
+  - Prepare and e-file T1 returns using our tax software
+  - Explain refunds, balances owing and next steps clearly
+  - Book appointments and keep client files complete
+
+  What you need
+  - Knowledge of Canadian personal income tax rules (T1, RRSP, TFSA, common credits and deductions)
+  - 1+ season of tax preparation experience, or a completed income tax course
+  - Accuracy and a friendly, unhurried manner with clients
+  - Availability for evenings and Saturdays from February to April
+
+  Pay: $21.00 - $26.00 per hour, based on experience
+  Paid training in early January
+
+  We use artificial intelligence to screen, assess or select applicants for this position.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: warning
+labelled_by: [claude]
+notes: >-
+  The rule pack labels "Knowledge of Canadian tax regulations" borderline. Knowing Canadian tax rules is the job
+  itself and can be learned anywhere (the posting accepts a course), but in practice it is gained by working in
+  Canada. Lawyer (law review Q8d): is knowledge of Canadian rules a requirement related to Canadian experience,
+  or a job skill outside s. 8.3? Note syn-cex-17 labels experience with Canadian GAAP a pass; the two should
+  probably get the same answer.

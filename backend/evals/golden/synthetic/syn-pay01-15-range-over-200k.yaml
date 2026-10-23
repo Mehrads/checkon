@@ -1,0 +1,38 @@
+id: syn-pay01-15-range-over-200k
+slice: synthetic
+purpose: >-
+  An annual range whose top is more than $200,000 ($185,000 - $230,000): exempt from both pay rules.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Vice President, Finance
+  Toronto, ON
+
+  Harbourfront Logistics REIT owns and manages 48 industrial properties. We are looking for a VP Finance to lead a team of 22 across accounting, treasury and reporting.
+
+  You will
+  - Lead quarterly and annual reporting and the external audit
+  - Own the budget, forecast and debt covenant reporting
+  - Partner with the CEO and board on acquisitions and financing
+
+  You bring
+  - CPA designation
+  - 12+ years of progressive finance experience, including 5 in a senior leadership role
+  - Experience in real estate or another capital-intensive industry
+
+  Base salary range: $185,000 - $230,000 per year, plus an annual incentive and a long-term incentive plan.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: not_applicable
+  ON-PAY-02: not_applicable
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  O. Reg. 476/24, s. 3, para. 2: a range that ends at more than $200,000 a year is exempt (the guide's example is
+  $170,000 to $210,000). The posting shows it on its face, so no employer answer is needed. The range would pass
+  the width limit anyway ($45,000).

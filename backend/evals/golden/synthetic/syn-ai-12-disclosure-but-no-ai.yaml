@@ -1,0 +1,44 @@
+id: syn-ai-12-disclosure-but-no-ai
+slice: synthetic
+purpose: >-
+  The posting discloses AI screening but the employer says it doesn't use AI: a warning, since the statement is
+  inaccurate but not a breach.
+context:
+  uses_ai_in_hiring: false
+text: |
+  Building Superintendent
+  Kensington Residential Management - Toronto (High Park area)
+
+  We manage 60 rental buildings in Toronto and are looking for a superintendent for a 140-unit apartment
+  building on Quebec Avenue.
+
+  Your day-to-day
+  - Respond to tenant service requests and do minor repairs (plumbing, drywall, fixtures, appliances)
+  - Keep common areas, garbage rooms and grounds clean; snow removal in winter
+  - Show and prepare vacant units, and do move-in and move-out inspections
+  - Book and supervise contractors
+  - Be on call for after-hours emergencies on a rotation with a nearby building
+
+  About you
+  - 2+ years as a superintendent, building maintenance worker or handyperson
+  - Basic computer skills for our work-order app
+  - Good with people, including when they're upset
+
+  Compensation: $50,000 to $56,000 a year, plus benefits and a phone allowance.
+
+  We use AI tools to help screen applications.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: warning
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The sentence was copied from the company's head-office template; this building's manager screens by hand.
+  Over-disclosure isn't a breach of s. 8.4 (1), which only requires a statement when AI is used, so warning, not
+  fail. Lawyer: is an AI statement that is untrue a problem anywhere else, or is it harmless?

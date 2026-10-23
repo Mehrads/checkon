@@ -1,0 +1,42 @@
+id: syn-pay02-09-hourly-part-time
+slice: synthetic
+purpose: >-
+  A part-time job at 24 hours a week whose $26-wide hourly range would fail at 40 hours but is well within the
+  limit at its own hours.
+context:
+  uses_ai_in_hiring: false
+  hours_per_week: 24
+text: |
+  Physiotherapist - Part Time
+  Guelph, ON
+
+  Royal City Rehab runs nine physiotherapy clinics with 140 staff. Our Stone Road clinic needs a part-time physiotherapist.
+
+  What you'll do
+  • Assess and treat orthopaedic and post-surgical patients
+  • Build home exercise programs and track progress
+  • Work with our massage therapy and chiropody team
+
+  What you need
+  • Registration as a physiotherapist in good standing
+  • Manual therapy training is an asset
+  • Availability for two evenings a week
+
+  Hours: 24 hours per week (three 8-hour shifts)
+  Pay: $38.00 - $64.00 per hour
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  $26 x 24 h x 52 = $32,448 (pass); at the 40-hour default $54,080 (fail). Labelled on the reading that a
+  part-time job's actual hours decide. Lawyer (law review Q2): should the "equivalent annual" amount use the job's
+  stated part-time hours, or a full-time equivalent? If full-time, this fails. For the product team: CheckON uses
+  the context's hours only, not hours written in the posting.

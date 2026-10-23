@@ -1,0 +1,48 @@
+id: syn-ai-18-ai-scheduling-only
+slice: synthetic
+purpose: >-
+  The posting says an AI assistant books interview times; the employer doesn't use AI to screen, assess or select.
+  Scheduling isn't screening, so no disclosure is needed and ON-AI-01 passes (no warning).
+context:
+  uses_ai_in_hiring: false
+text: |
+  Front Desk Agent
+  Falls View Grand Hotel, Niagara Falls, ON
+
+  Our 400-room hotel overlooks the Horseshoe Falls and welcomes guests from all over the world. Join our front
+  office team and help make their visit one they'll talk about for years.
+
+  Responsibilities:
+  * Check guests in and out quickly and warmly
+  * Handle reservations, room moves and billing questions
+  * Recommend attractions, restaurants and tours
+  * Resolve complaints, and know when to call a manager
+  * Balance your cash float at the end of each shift
+
+  Requirements:
+  * 1 year of front desk or customer service experience
+  * Comfortable with a property management system (Opera is a plus)
+  * Available for days, evenings, weekends and holidays
+  * Second language (Spanish, Mandarin, Hindi, French or another) is an asset
+
+  Wage: $19.25 to $21.00 per hour
+  Full-time, 40 hours a week. Free staff parking and a meal on every shift.
+
+  Once you're shortlisted by our front office manager, our AI scheduling assistant will help you book an
+  interview time that works for you.
+
+  This posting is for an existing vacancy.
+labels:
+  ON-APPL-01: pass
+  ON-APPL-02: pass
+  ON-PAY-01: pass
+  ON-PAY-02: pass
+  ON-VAC-01: pass
+  ON-AI-01: pass
+  ON-CEX-01: pass
+labelled_by: [claude]
+notes: >-
+  The manager shortlists by hand; the AI tool only offers interview slots. Section 8.4 (1) covers AI used "to screen,
+  assess or select", so the employer's "no" is right and the sentence doesn't claim AI screening. The classifier may
+  read the sentence as uses_ai, which would make CheckON warn; the law doesn't call for a warning. Lawyer: is
+  scheduling interviews with AI outside "screen, assess or select"?
