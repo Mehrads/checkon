@@ -13,6 +13,9 @@ from app.audit.places import vague, where
     (["Greater Toronto Area"], {}, "ontario"),
     (["Toronto, Ont."], {}, "ontario"),
     (["Montreal, QC; Toronto, ON"], {}, "ontario"),
+    (["Montreal, QC; Toronto"], {}, "ontario"),
+    (["Toronto, Montreal, QC"], {}, "ontario"),
+    (["Georgetown"], {}, "ontario"),  # in Halton Hills
     (["London"], {"country": "CA"}, "ontario"),  # London, Ontario
     (["Hamilton, Canada"], {}, "ontario"),
     (["Killarney, ON"], {"country": "CA"}, "ontario"),
@@ -35,6 +38,9 @@ from app.audit.places import vague, where
     (["Killarney, MB"], {"country": "CA"}, "elsewhere"),  # Lever's pharmachoicecanada
     (["Cochrane, AB"], {"country": "CA"}, "elsewhere"),
     (["Waterloo, Quebec, Canada"], {}, "elsewhere"),
+    (["Georgetown, PE"], {}, "elsewhere"),
+    (["Dundas (PE)"], {}, "elsewhere"),
+    (["Dundas, Prince Edward Island, Canada"], {}, "elsewhere"),
     (["New York City, NY; San Francisco, CA"], {}, "elsewhere"),
     (["Remote - US"], {}, "elsewhere"),
     (["Remote"], {}, "elsewhere"),
@@ -52,6 +58,7 @@ def test_where(locations: list[str], kwargs: dict[str, object], expected: str) -
 def test_another_province_settles_a_shared_town_name(province: str) -> None:
     assert where([f"Killarney, {province}"], country="CA") == "elsewhere"
     assert where([f"Cochrane, {province}, Canada"]) == "elsewhere"
+    assert where([f"Georgetown, {province}"]) == "elsewhere"
 
 
 def test_vague() -> None:

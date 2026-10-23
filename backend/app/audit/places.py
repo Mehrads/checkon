@@ -2,8 +2,8 @@
 elsewhere. Read from the board's location fields, never the posting text, so it costs nothing to decide.
 
 Many Ontario place names are also places elsewhere (London, Hamilton, Waterloo, Windsor…). On its own, only a
-short list of names that mean Ontario counts; any Ontario place counts when the location also says Canada and
-names no other province.
+short list of names that mean Ontario counts, unless another province follows the name; any Ontario place counts
+when the location also says Canada and names no other province.
 """
 
 import csv
@@ -36,13 +36,19 @@ _ABROAD = re.compile(
     r"|W[AIVY])\b",
 )
 _CANADA = re.compile(r"\bcanada\b|\bcanadian\b", re.IGNORECASE)
+_PROVINCE_NAMES = (
+    r"british columbia|alberta|saskatchewan|manitoba|qu[ée]bec|nova scotia|new brunswick|newfoundland|labrador"
+    r"|prince edward island|yukon|northwest territories|nunavut"
+)
+_PROVINCE_CODES = r"(?-i:BC|AB|SK|MB|QC|PQ|NS|NB|NL|PE|PEI|YT|NT|NU)(?=$|[\s,)/;|.])"
 _OTHER_PROVINCE = re.compile(
-    r"\b(?:british columbia|alberta|saskatchewan|manitoba|qu[ée]bec|nova scotia|new brunswick|newfoundland|labrador"
-    r"|prince edward island|yukon|northwest territories|nunavut|vancouver|burnaby|victoria|kelowna|calgary|edmonton"
-    r"|regina|saskatoon|winnipeg|montr[ée]al|laval|gatineau|halifax|moncton|fredericton|st\.? john's|charlottetown)\b"
-    r"|(?:^|[\s,(/;|])(?-i:BC|AB|SK|MB|QC|PQ|NS|NB|NL|PE|PEI|YT|NT|NU)(?=$|[\s,)/;|.])",
+    rf"\b(?:{_PROVINCE_NAMES}|vancouver|burnaby|victoria|kelowna|calgary|edmonton|regina|saskatoon|winnipeg"
+    r"|montr[ée]al|laval|gatineau|halifax|moncton|fredericton|st\.? john's|charlottetown)\b"
+    rf"|(?:^|[\s,(/;|]){_PROVINCE_CODES}",
     re.IGNORECASE,
 )
+# Another province right after a place's name: "Georgetown, PE"
+_PROVINCE_AFTER = re.compile(rf"[\s,(]+(?:(?:{_PROVINCE_NAMES})\b|{_PROVINCE_CODES})", re.IGNORECASE)
 _SEGMENT = re.compile(r"\s*(?:[,;/|()]|\s-\s|\s–\s)\s*")
 _NOISE = re.compile(
     r"\b(?:remote|hybrid|on-?site|in[- ]office|office|onsite|flexible|area|region|metro|downtown|headquarters|hq)\b",
@@ -66,7 +72,8 @@ def _segments(location: str) -> list[str]:
 def _in_ontario(location: str, canada: bool) -> bool:
     if _ONTARIO.search(location) or _ON.search(location):
         return True
-    if _CITY.search(location) and not _ABROAD.search(location):
+    named = any(not _PROVINCE_AFTER.match(location, city.end()) for city in _CITY.finditer(location))
+    if named and not _ABROAD.search(location):  # not "Georgetown, PE" or "Dundas, PE", towns in PEI too
         return True
     if not canada or _OTHER_PROVINCE.search(location):
         return False  # Killarney, MB and Cochrane, AB share their names with towns in Ontario
