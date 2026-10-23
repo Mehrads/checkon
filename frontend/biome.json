@@ -5,6 +5,7 @@
     "includes": [
       "**",
       "!**/dist/**/*",
+      "!**/.prerender/**/*",
       "!**/node_modules/**/*",
       "!**/src/routeTree.gen.ts",
       "!**/src/client/**/*",

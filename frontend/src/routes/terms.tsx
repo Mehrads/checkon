@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 
 import { LegalPage, List, Mail, PageLink, Part } from "@/components/Site/Legal"
+import { pageHead } from "@/lib/seo"
 
 // Every statement about plans and billing here describes what the code and the Stripe setup do
 // (backend/app/api/billing.py, infra/README.md "Stripe"); change this page when they change.
@@ -8,16 +9,13 @@ const DRAFTED = "October 21, 2026"
 
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
-  head: () => ({
-    meta: [
-      { title: "CheckON: Terms of service" },
-      {
-        name: "description",
-        content:
-          "The terms for using CheckON, including paid plans: billing, renewal, cancellation and refunds.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      path: "/terms",
+      title: "CheckON: Terms of service",
+      description:
+        "The terms for using CheckON, including paid plans: billing, renewal, cancellation and refunds.",
+    }),
 })
 
 function TermsPage() {

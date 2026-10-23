@@ -4,6 +4,7 @@
 backend/htmlcov
 frontend/blob-report
 frontend/dist
+frontend/.prerender
 frontend/node_modules
 frontend/playwright-report
 frontend/test-results

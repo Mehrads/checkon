@@ -11,8 +11,12 @@ import {
 import { handleError } from "@/utils"
 import useCustomToast from "./useCustomToast"
 
+// No storage when the public pages are rendered to HTML at build time (src/prerender.tsx): signed out
 const isLoggedIn = () => {
-  return localStorage.getItem("access_token") !== null
+  return (
+    typeof localStorage !== "undefined" &&
+    localStorage.getItem("access_token") !== null
+  )
 }
 
 const useAuth = () => {

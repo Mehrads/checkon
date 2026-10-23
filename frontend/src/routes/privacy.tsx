@@ -8,22 +8,20 @@ import {
   PageLink,
   Part,
 } from "@/components/Site/Legal"
+import { pageHead } from "@/lib/seo"
 
 // Every statement here describes what the code does; change this page when that changes.
 const DRAFTED = "October 22, 2026"
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
-  head: () => ({
-    meta: [
-      { title: "CheckON: Privacy policy" },
-      {
-        name: "description",
-        content:
-          "What CheckON collects when you check a job posting, why, who we share it with and how long we keep it.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      path: "/privacy",
+      title: "CheckON: Privacy policy",
+      description:
+        "What CheckON collects when you check a job posting, why, who we share it with and how long we keep it.",
+    }),
 })
 
 function PrivacyPage() {
