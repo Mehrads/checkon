@@ -8,11 +8,11 @@ test.use({ storageState: { cookies: [], origins: [] } })
 
 const resetPath = "/reset-password?token="
 
-test("Password Recovery title is visible", async ({ page }) => {
+test("Forgot your password title is visible", async ({ page }) => {
   await page.goto("/recover-password")
 
   await expect(
-    page.getByRole("heading", { name: "Password Recovery" }),
+    page.getByRole("heading", { name: "Forgot your password?" }),
   ).toBeVisible()
 })
 
@@ -24,10 +24,12 @@ test("Input is visible, empty and editable", async ({ page }) => {
   await expect(page.getByTestId("email-input")).toBeEditable()
 })
 
-test("Continue button is visible", async ({ page }) => {
+test("Email me a link button is visible", async ({ page }) => {
   await page.goto("/recover-password")
 
-  await expect(page.getByRole("button", { name: "Continue" })).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Email me a link" }),
+  ).toBeVisible()
 })
 
 test("User can reset password successfully using the link", async ({
@@ -43,7 +45,7 @@ test("User can reset password successfully using the link", async ({
   await page.goto("/recover-password")
   await page.getByTestId("email-input").fill(email)
 
-  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByRole("button", { name: "Email me a link" }).click()
 
   const emailHtml = await waitForEmailHtml({
     request,
@@ -59,7 +61,7 @@ test("User can reset password successfully using the link", async ({
 
   await page.getByTestId("new-password-input").fill(newPassword)
   await page.getByTestId("confirm-password-input").fill(newPassword)
-  await page.getByRole("button", { name: "Reset Password" }).click()
+  await page.getByRole("button", { name: "Save new password" }).click()
   await expect(page.getByText("Password updated successfully")).toBeVisible()
 
   // Check if the user is able to login with the new password
@@ -74,7 +76,7 @@ test("Expired or invalid reset link", async ({ page }) => {
 
   await page.getByTestId("new-password-input").fill(password)
   await page.getByTestId("confirm-password-input").fill(password)
-  await page.getByRole("button", { name: "Reset Password" }).click()
+  await page.getByRole("button", { name: "Save new password" }).click()
 
   await expect(page.getByText("Invalid token")).toBeVisible()
 })
@@ -88,7 +90,7 @@ test("Weak new password validation", async ({ page, request }) => {
 
   await page.goto("/recover-password")
   await page.getByTestId("email-input").fill(email)
-  await page.getByRole("button", { name: "Continue" }).click()
+  await page.getByRole("button", { name: "Email me a link" }).click()
 
   const emailHtml = await waitForEmailHtml({
     request,
@@ -103,7 +105,7 @@ test("Weak new password validation", async ({ page, request }) => {
   await page.goto(resetUrl!)
   await page.getByTestId("new-password-input").fill(weakPassword)
   await page.getByTestId("confirm-password-input").fill(weakPassword)
-  await page.getByRole("button", { name: "Reset Password" }).click()
+  await page.getByRole("button", { name: "Save new password" }).click()
 
   await expect(
     page.getByText("Password must be at least 8 characters"),

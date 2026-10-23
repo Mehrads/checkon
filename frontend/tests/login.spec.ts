@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
 import { randomPassword } from "./utils/random.ts"
-import { submitLogIn } from "./utils/user"
+import { expectSignedIn, submitLogIn } from "./utils/user"
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
@@ -44,11 +44,7 @@ test("Log in with valid email and password ", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 })
 
 test("Log in with invalid email", async ({ page }) => {
@@ -92,11 +88,7 @@ test("Successful log out", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
@@ -109,11 +101,7 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
