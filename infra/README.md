@@ -258,6 +258,31 @@ gcloud run jobs execute posting-checker-migrate --region northamerica-northeast2
 
 The first run creates the user and emails a "Set your password" link (or use **Forgot password**), then sign in as usual. Add `--plan starter` to switch plans from the command, or `--end` to switch the account off; running it again switches it back on. Locally: `uv run python -m app.test_account you@example.com` in `backend/` (the set-password link is printed in development).
 
+## Langfuse (tracing)
+
+Each API request that calls the model becomes a Langfuse trace: the route, kind, status, plan, check id and verdict per rule, and for each model call its step, model, tokens, cost, latency and stop reason. **Never posting text or the model's answers** (`backend/app/core/tracing.py`; `tests/api/routes/test_tracing.py` fails if a posting's words reach an exported span). Tracing stays off while either key is `replace-me`.
+
+1. **Account:** sign up at [us.cloud.langfuse.com](https://us.cloud.langfuse.com) (US region, Hobby plan, free) with a CheckON address, create an organisation and a project named `checkon`, then **Settings › API keys › Create new API keys**.
+2. **Apply once** so the two secrets exist (they start as `replace-me`):
+
+   ```bash
+   cd infra/terraform && GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token --account=msoltani2001@gmail.com)" terraform apply
+   ```
+
+3. **Keys**, in a Terminal tab:
+
+   ```bash
+   read -rs "K?Langfuse public key (pk-lf-...): " && printf %s "$K" | gcloud secrets versions add posting-checker-langfuse-public-key --data-file=- --project=compliance-512120 --account=msoltani2001@gmail.com; unset K
+   ```
+
+   ```bash
+   read -rs "K?Langfuse secret key (sk-lf-...): " && printf %s "$K" | gcloud secrets versions add posting-checker-langfuse-secret-key --data-file=- --project=compliance-512120 --account=msoltani2001@gmail.com; unset K
+   ```
+
+4. **Restart** so the service reads them: `gcloud run deploy posting-checker --region=northamerica-northeast2 --image=<current image> --project=compliance-512120 --account=msoltani2001@gmail.com`, or wait for the next deploy. Run one check and open **Tracing** in Langfuse.
+
+The Hobby plan shows 30 days of traces and doesn't delete older ones. Locally, put `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` in `.env` (a separate Langfuse project keeps local traces apart).
+
 ## Browser extension
 
 The free check also runs in a Chrome and Edge side panel (`extension/`). The API only accepts extensions listed in `extension_ids` in `terraform.tfvars`: the unpacked build's fixed ID (`lfepfedddcabkigmmhbhacdllgljpdbe`), then the Chrome Web Store and Edge IDs once the listings exist. Add an ID and run `terraform apply`; it updates the service's `EXTENSION_IDS` setting in place. Building, loading and publishing are in `extension/README.md`.
@@ -299,4 +324,4 @@ curl -s "https://dns.google/resolve?name=_dmarc.checkon.ca&type=TXT"
 - **Postgres version mismatch.** Cloud SQL runs Postgres 17 by default; local development runs 18. Switch `postgres_version` when Cloud SQL offers 18.
 - **The run.app URL is closed once `domain` is set.** Everything goes through the load balancer, so if it breaks, the site is down. To reach the service directly while you fix it, set `ingress` back to `INGRESS_TRAFFIC_ALL` in `main.tf` and apply.
 - **Deletion protection is on** for the database and the service. Turn it off in Terraform before `terraform destroy`. The state bucket isn't in Terraform, so `destroy` leaves it.
-- **Langfuse isn't wired in yet** (Technical Design §12). Add it before you rely on traces for the golden-set runs.
+- **Langfuse is off until its keys are set** (section "Langfuse (tracing)"). Golden-set runs don't need it: the runner writes its own report.

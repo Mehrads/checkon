@@ -32,6 +32,17 @@ class Settings(BaseSettings):
     # Claude API key for the Inspector and Refiner; without it the check endpoints return 503.
     ANTHROPIC_API_KEY: str | None = None
 
+    # Langfuse traces of the model calls, metadata only (app/core/tracing.py). Off until both keys are set;
+    # Terraform's placeholder secret ("replace-me") counts as not set.
+    LANGFUSE_PUBLIC_KEY: str | None = None
+    LANGFUSE_SECRET_KEY: str | None = None
+    LANGFUSE_BASE_URL: str = "https://us.cloud.langfuse.com"
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def tracing_enabled(self) -> bool:
+        return all(key and key != "replace-me" for key in (self.LANGFUSE_PUBLIC_KEY, self.LANGFUSE_SECRET_KEY))
+
     # Where contact-form messages are emailed (needs the SMTP settings above); they are always saved.
     CONTACT_EMAIL: EmailStr | None = None
 

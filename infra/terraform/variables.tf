@@ -114,6 +114,12 @@ variable "stripe_automatic_tax" {
   default     = false
 }
 
+variable "langfuse_base_url" {
+  description = "The Langfuse Cloud region the traces go to; its keys are the langfuse-* secrets."
+  type        = string
+  default     = "https://us.cloud.langfuse.com"
+}
+
 # Our own addresses: they skip the weekly free-check quota so the live check can be tested.
 variable "free_check_allowlist_ips" {
   type    = list(string)
