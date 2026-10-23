@@ -3,8 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CheckON: Ontario job posting compliance check in one click</title>
+    <title data-static-head>CheckON: Ontario job posting compliance check in one click</title>
+    <meta
+      data-static-head
+      name="description"
+      content="Check your job posting against Ontario's job posting rules in one click and get a compliant rewrite you approve. Free once a week, no sign-up."
+    />
     <link rel="icon" type="image/x-icon" href="/assets/images/favicon.png" />
+    <script>
+      // Before the first paint: the theme (src/components/theme-provider.tsx does the same once the app runs), and
+      // whether someone is signed in, so a public page rendered at build time (src/prerender.tsx) isn't shown to
+      // them while the app loads: their "/" is the account page.
+      try {
+        const stored = localStorage.getItem("vite-ui-theme") || "system"
+        const dark = matchMedia("(prefers-color-scheme: dark)").matches
+        const theme = stored === "system" ? (dark ? "dark" : "light") : stored
+        document.documentElement.classList.add(theme)
+        if (localStorage.getItem("access_token") !== null)
+          document.documentElement.classList.add("signed-in")
+      } catch (_error) {}
+    </script>
+    <style>
+      .signed-in [data-prerendered] { display: none; }
+    </style>
   </head>
   <body class="site">
     <div id="root"></div>

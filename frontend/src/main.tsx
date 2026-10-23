@@ -47,6 +47,10 @@ declare module "@tanstack/react-router" {
   }
 }
 
+// The head tags index.html or a page rendered at build time carry for the first paint: the routes render their own
+for (const tag of document.head.querySelectorAll("[data-static-head]"))
+  tag.remove()
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">

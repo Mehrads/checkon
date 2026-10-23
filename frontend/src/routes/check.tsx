@@ -21,19 +21,17 @@ import { SampleAudit } from "@/components/Site/SampleAudit"
 import { useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { loadAnalytics } from "@/lib/analytics"
+import { pageHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/check")({
   component: CheckPage,
-  head: () => ({
-    meta: [
-      { title: "CheckON: Ontario job posting compliance check in one click" },
-      {
-        name: "description",
-        content:
-          "Check your job posting for Ontario compliance in one click and get a compliant rewrite you approve. Free once a week.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      path: "/check",
+      title: "CheckON: Ontario job posting compliance check in one click",
+      description:
+        "Check your job posting against Ontario's job posting rules in one click and get a compliant rewrite you approve. Free once a week, no sign-up.",
+    }),
 })
 
 function CheckPage() {
