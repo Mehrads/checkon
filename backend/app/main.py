@@ -84,8 +84,10 @@ for page_path, page_file in [*PRERENDERED.items(), *((path, "index.html") for pa
         page_path, _prerendered(page_file), methods=["GET", "HEAD"], include_in_schema=False, tags=["pages"]
     )
 
-# Any other address the build's files don't have is a 404 (below), so search engines don't take it for a page.
-app.frontend("/", directory=FRONTEND_DIR, fallback=None)
+# Any other address the build's files don't have is a 404 (below), so search engines don't take it for a page. In
+# development there may be no build (the tests, CI's backend job); production refuses to start without one.
+if FRONTEND_DIR.is_dir() or settings.FASTAPI_ENV != "development":
+    app.frontend("/", directory=FRONTEND_DIR, fallback=None)
 
 
 @app.exception_handler(StarletteHTTPException)
