@@ -58,3 +58,60 @@ jobs:
         working-directory: frontend
       - run: bun run build
         working-directory: frontend
+
+  # The website in a browser (frontend/tests): the API serves the built site, sign-in codes go to Mailpit.
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: app
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      mailpit:
+        image: axllent/mailpit
+        ports: ["1025:1025", "8025:8025"]
+    env:
+      FASTAPI_ENV: development # also turns on the test-only user API (tests/utils/privateApi.ts)
+      PROJECT_NAME: Ontario Job Posting Checker
+      SECRET_KEY: ci-only-secret-key
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-only-password
+      DATABASE_URL: postgresql://postgres:ci-only-password@localhost:5432/app
+      FRONTEND_HOST: http://localhost:8000
+      SMTP_HOST: localhost
+      SMTP_PORT: "1025"
+      SMTP_TLS: "False"
+      EMAILS_FROM_EMAIL: info@example.com
+      LOGIN_CODES_PER_HOUR: "1000" # a run logs the admin in about ten times
+      VITE_API_URL: http://localhost:8000
+      MAILPIT_HOST: http://localhost:8025
+      PLAYWRIGHT_BASE_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0; no floating major tag after v7
+      - uses: oven-sh/setup-bun@v2
+      - run: uv sync --frozen
+      - run: bun install --frozen-lockfile
+      - run: uv run alembic upgrade head && uv run python -m app.initial_data
+        working-directory: backend
+      - run: bun run build # into backend/app/frontend, which the API serves
+        working-directory: frontend
+      - name: Start the API
+        working-directory: backend
+        run: |
+          uv run uvicorn app.main:app --port 8000 > "$RUNNER_TEMP/api.log" 2>&1 &
+          for _ in $(seq 60); do curl -sf http://localhost:8000/api/v1/utils/health-check/ && exit 0; sleep 1; done
+          cat "$RUNNER_TEMP/api.log"; exit 1
+      - run: bunx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: bunx playwright test --reporter=list # CI=true: one worker, as the tests share the admin's sign-in codes
+        working-directory: frontend
+      - if: failure()
+        run: cat "$RUNNER_TEMP/api.log"

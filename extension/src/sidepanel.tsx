@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import {
+  focusManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 
@@ -13,6 +17,19 @@ client.setConfig({
   baseURL: import.meta.env.VITE_API_URL ?? "https://checkon.ca",
   withCredentials: true,
   auth: currentToken,
+})
+
+// The panel stays visible while the customer works in the window's tabs, so "visibilitychange" alone never
+// refetches the plan and the client list: also refetch when they come back to the panel, e.g. after adding a
+// client or turning its archive on at checkon.ca/profile.
+focusManager.setEventListener((handleFocus) => {
+  const listener = () => handleFocus()
+  window.addEventListener("visibilitychange", listener)
+  window.addEventListener("focus", listener)
+  return () => {
+    window.removeEventListener("visibilitychange", listener)
+    window.removeEventListener("focus", listener)
+  }
 })
 
 // Follow the browser's light or dark setting, like the website's "system" theme.

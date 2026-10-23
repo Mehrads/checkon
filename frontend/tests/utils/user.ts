@@ -14,16 +14,19 @@ export async function submitLogIn(page: Page, email: string) {
   await page.getByRole("button", { name: "Verify" }).click()
 }
 
+/** The account page after logging in: "Check a posting", signed in as `email`. */
+export async function expectSignedIn(page: Page, email: string) {
+  await page.waitForURL("/")
+  await expect(page.getByText(`Signed in as ${email}`)).toBeVisible()
+}
+
 export async function logInUser(page: Page, email: string, password: string) {
   await page.goto("/login")
 
   await page.getByTestId("email-input").fill(email)
   await page.getByTestId("password-input").fill(password)
   await submitLogIn(page, email)
-  await page.waitForURL("/")
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, email)
 }
 
 export async function logOutUser(page: Page) {

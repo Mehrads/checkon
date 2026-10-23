@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { PasswordInput } from "@/components/ui/password-input"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import useAuth, { afterLogin, isLoggedIn } from "@/hooks/useAuth"
 
 const formSchema = z.object({
   username: z.email({ message: "Invalid email address" }),
@@ -43,10 +43,12 @@ type Pending = { email: string; challenge: string }
 
 export const Route = createFileRoute("/login")({
   component: Login,
-  beforeLoad: async () => {
+  // The account page a signed-out visitor opened, e.g. the extension's link to an archived posting
+  validateSearch: z.object({ redirect: z.string().optional() }),
+  beforeLoad: async ({ search }) => {
     if (isLoggedIn()) {
       throw redirect({
-        to: "/",
+        href: afterLogin(search.redirect),
       })
     }
   },
@@ -187,7 +189,8 @@ function CodeForm({
   pending: Pending
   onRestart: () => void
 }) {
-  const { loginMutation } = useAuth()
+  const { redirect: next } = Route.useSearch()
+  const { loginMutation } = useAuth(next)
   const form = useForm<CodeData>({
     resolver: zodResolver(codeSchema),
     defaultValues: { code: "" },

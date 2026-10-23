@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
 import { randomPassword } from "./utils/random.ts"
-import { submitLogIn } from "./utils/user"
+import { expectSignedIn, submitLogIn } from "./utils/user"
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
@@ -44,11 +44,7 @@ test("Log in with valid email and password ", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 })
 
 test("Log in with invalid email", async ({ page }) => {
@@ -92,11 +88,7 @@ test("Successful log out", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
@@ -109,18 +101,14 @@ test("Logged-out user cannot access protected routes", async ({ page }) => {
   await fillForm(page, firstSuperuser, firstSuperuserPassword)
   await submitLogIn(page, firstSuperuser)
 
-  await page.waitForURL("/")
-
-  await expect(
-    page.getByText("Welcome back, nice to see you again!"),
-  ).toBeVisible()
+  await expectSignedIn(page, firstSuperuser)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
   await page.waitForURL("/login")
 
   await page.goto("/settings")
-  await page.waitForURL("/login")
+  await page.waitForURL("/login?redirect=%2Fsettings")
 })
 
 test("Redirects to /login when token is wrong", async ({ page }) => {
@@ -129,6 +117,26 @@ test("Redirects to /login when token is wrong", async ({ page }) => {
     localStorage.setItem("access_token", "invalid_token")
   })
   await page.goto("/settings")
-  await page.waitForURL("/login")
-  await expect(page).toHaveURL("/login")
+  await page.waitForURL("/login?redirect=%2Fsettings")
+})
+
+test("A link to an account page logs in, then opens that page", async ({
+  page,
+}) => {
+  await page.goto("/archive?posting=abc")
+  await page.waitForURL(/\/login\?redirect=/)
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await submitLogIn(page, firstSuperuser)
+
+  await page.waitForURL("/archive?posting=abc")
+})
+
+test("The page after logging in is always on this site", async ({ page }) => {
+  await page.goto("/login?redirect=%2F%2Fexample.com")
+
+  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await submitLogIn(page, firstSuperuser)
+
+  await page.waitForURL("/")
 })

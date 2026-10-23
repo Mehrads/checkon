@@ -22,13 +22,22 @@ client.setConfig({
   auth: () => localStorage.getItem("access_token") || "",
 })
 
+// The API's 403 for an expired or invalid token (backend/app/api/deps.py)
+const BAD_TOKEN = "Could not validate credentials"
+
 const handleApiError = (error: Error) => {
-  if (
-    error instanceof AxiosError &&
-    [401, 403].includes(error.response?.status ?? 0)
-  ) {
+  if (!(error instanceof AxiosError)) return
+  const { status, data } = error.response ?? {}
+  // Only a sign-in that no longer works logs out. Other 403s, such as "The archive comes with a paid plan", are
+  // the page's to show.
+  if (status === 401 || (status === 403 && data?.detail === BAD_TOKEN)) {
     localStorage.removeItem("access_token")
-    window.location.href = "/login"
+    // Log in again, then come back to this page
+    const page = window.location.pathname + window.location.search
+    window.location.href =
+      window.location.pathname === "/login"
+        ? "/login"
+        : `/login?${new URLSearchParams({ redirect: page })}`
   }
 }
 const queryClient = new QueryClient({

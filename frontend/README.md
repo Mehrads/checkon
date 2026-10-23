@@ -106,6 +106,12 @@ Then, you can run the tests with the following command:
 bunx playwright test
 ```
 
+Without Docker, against an API already serving the built site on port 8000 (with Mailpit on 8025 and `python -m app.initial_data` run once), raise the API's `LOGIN_CODES_PER_HOUR` (the Docker stack sets it to 1000; a run logs the admin in about ten times) and use one worker, since the tests share the admin's emailed sign-in codes:
+
+```bash
+PLAYWRIGHT_BASE_URL=http://localhost:8000 bunx playwright test --workers=1
+```
+
 You can also run your tests in UI mode to see the browser and interact with it running:
 
 ```bash
