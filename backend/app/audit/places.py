@@ -2,7 +2,8 @@
 elsewhere. Read from the board's location fields, never the posting text, so it costs nothing to decide.
 
 Many Ontario place names are also places elsewhere (London, Hamilton, Waterloo, Windsor…). On its own, only a
-short list of names that mean Ontario counts; any Ontario place counts when the location also says Canada.
+short list of names that mean Ontario counts; any Ontario place counts when the location also says Canada and
+names no other province.
 """
 
 import csv
@@ -67,7 +68,9 @@ def _in_ontario(location: str, canada: bool) -> bool:
         return True
     if _CITY.search(location) and not _ABROAD.search(location):
         return True
-    return canada and any(segment in ontario_places() for segment in _segments(location))
+    if not canada or _OTHER_PROVINCE.search(location):
+        return False  # Killarney, MB and Cochrane, AB share their names with towns in Ontario
+    return any(segment in ontario_places() for segment in _segments(location))
 
 
 def where(locations: list[str], *, remote: bool = False, country: str | None = None) -> Where:
