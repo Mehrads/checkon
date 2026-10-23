@@ -203,6 +203,11 @@ def _salary(value: Any) -> str | None:
         low = low if low is not None else _amount(amount.get("value"))
     else:
         low, high = _amount(amount), None
+    return _pay_line(low, high, currency, unit)
+
+
+def _pay_line(low: Decimal | None, high: Decimal | None, currency: str, unit: Any) -> str | None:
+    """"Pay: $60,000 to $80,000 a year." from a range or a single figure; None without one."""
     per = f" {_UNITS[str(unit).upper()]}" if str(unit).upper() in _UNITS else ""
     if low is not None and high is not None and high != low:
         return f"Pay: {_money(low, currency)} to {_money(high, currency)}{per}."
@@ -251,3 +256,26 @@ def posting_text(markup: str) -> str:
     root = _parse(markup)
     text = _from_json_ld(root) or _from_page(root)
     return text if len(text) >= MIN_POSTING_CHARS else ""
+
+
+# Workable builds its job pages in the browser; its public job data has the posting instead.
+
+_WORKPLACES = {"remote": "Remote", "hybrid": "Hybrid", "on_site": "On-site", "onsite": "On-site"}
+
+
+def workable_text(job: dict[str, Any]) -> str:
+    """A posting from Workable's job data: title, place, description, requirements and benefits, and the salary
+    shown beside them when the text itself states no pay. Empty when there is little text."""
+    title = job.get("title") if isinstance(job.get("title"), str) else None
+    location = job.get("location")
+    place = location.get("display") if isinstance(location, dict) else None
+    workplace = _WORKPLACES.get(str(job.get("workplace") or "").lower())
+    where = " · ".join(part for part in (place, workplace) if isinstance(part, str) and part)
+    parts = [html_to_text(job[key]) for key in ("description", "requirements", "benefits") if isinstance(job.get(key), str)]
+    body = "\n\n".join(part for part in parts if part)
+    pay = None
+    if not parse_pay(body):
+        currency = str(job.get("salary_currency_iso_code") or "CAD").upper()
+        pay = _pay_line(_amount(job.get("salary_from")), _amount(job.get("salary_to")), currency, job.get("salary_frequency"))
+    text = "\n\n".join(part for part in (title, where, body, pay) if part)
+    return text if len(body) >= MIN_POSTING_CHARS else ""

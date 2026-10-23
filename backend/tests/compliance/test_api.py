@@ -383,7 +383,7 @@ def test_a_posting_link_is_read_and_checked_as_one_check(
         ("http://internal.example.com/", "unsafe_url"),
         ("https://jobs.example.com/moved", "unsafe_url"),  # a redirect to a private address
         ("file:///etc/passwd", "bad_url"),
-        ("https://jobs.example.com/missing", "fetch_failed"),
+        ("https://jobs.example.com/missing", "posting_closed"),  # 404
         ("https://jobs.example.com/long", "too_long"),
     ],
 )  # fmt: skip
