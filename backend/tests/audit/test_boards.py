@@ -62,6 +62,7 @@ def test_lever() -> None:
         "Finance Manager, Marketplace ⭐": "canada",  # remote, anywhere in Canada
         "Mid-Market Account Executive": "elsewhere",
         "Senior Deal Desk Analyst ⭐": "elsewhere",
+        "Pharmacist - FT or PT - Trail, BC": "elsewhere",  # the location says only Canada; the title names BC
     }
     text = postings["Accounts Receivable and Collection Specialist"].text
     assert text is not None and text.startswith(

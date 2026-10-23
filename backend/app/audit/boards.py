@@ -139,9 +139,10 @@ def _greenhouse(token: str, fetcher: Fetcher) -> Board:
     for job in (job for job in jobs if job.get("id")):
         name = (job.get("location") or {}).get("name") or ""
         offices = [office.get("location") or office.get("name") or "" for office in job.get("offices") or []]
+        title = str(job.get("title") or "").strip()
         postings.append(Found(
-            id=str(job["id"]), title=str(job.get("title") or "").strip(), location=name or None,
-            url=str(job.get("absolute_url") or ""), where=where(offices if vague(name) else [name]),
+            id=str(job["id"]), title=title, location=name or None, url=str(job.get("absolute_url") or ""),
+            where=where(offices if vague(name) else [name], title=title),
         ))  # fmt: skip
     company = next((str(job["company_name"]) for job in jobs if job.get("company_name")), None)
     return Board("greenhouse", token, company, f"https://boards.greenhouse.io/{token}", postings)
@@ -179,10 +180,12 @@ def _lever(site: str, fetcher: Fetcher) -> Board:
     for job in (job for job in jobs if job.get("id")):
         categories = job.get("categories") or {}
         locations = categories.get("allLocations") or [categories.get("location") or ""]
+        title = str(job.get("text") or "").strip()
+        remote = job.get("workplaceType") == "remote"
         postings.append(Found(
-            id=str(job["id"]), title=str(job.get("text") or "").strip(), location=", ".join(locations) or None,
+            id=str(job["id"]), title=title, location=", ".join(locations) or None,
             url=str(job.get("hostedUrl") or ""), text=_lever_text(job),
-            where=where(locations, remote=job.get("workplaceType") == "remote", country=job.get("country")),
+            where=where(locations, remote=remote, country=job.get("country"), title=title),
         ))  # fmt: skip
     return Board("lever", site, None, f"https://jobs.lever.co/{site}", postings)
 
@@ -219,11 +222,12 @@ def _ashby(name: str, fetcher: Fetcher) -> Board:
             locations += [str(place.get("location") or ""), ", ".join(str(part) for part in parts if part)]
             country = country or address.get("addressCountry")
         shown = [job.get("location"), *(place.get("location") for place in job.get("secondaryLocations") or [])]
+        title = str(job.get("title") or "").strip()
         postings.append(Found(
-            id=str(job["id"]), title=str(job.get("title") or "").strip(),
+            id=str(job["id"]), title=title,
             location=" • ".join(dict.fromkeys(str(name) for name in shown if name)) or None,
             url=str(job.get("jobUrl") or ""), text=_ashby_text(job),
-            where=where(locations, remote=bool(job.get("isRemote")), country=country),
+            where=where(locations, remote=bool(job.get("isRemote")), country=country, title=title),
         ))  # fmt: skip
     return Board("ashby", name, None, f"https://jobs.ashbyhq.com/{name}", postings)
 
@@ -260,10 +264,11 @@ def _smartrecruiters(company: str, fetcher: Fetcher) -> Board:
                 str(place[key]) for key in ("city", "region", "country") if place.get(key)
             )  # fmt: skip
             name = name or (job.get("company") or {}).get("name")
+            title = str(job.get("name") or "").strip()
             postings.append(Found(
-                id=str(job["id"]), title=str(job.get("name") or "").strip(), location=line or None,
+                id=str(job["id"]), title=title, location=line or None,
                 url=f"https://jobs.smartrecruiters.com/{company}/{job['id']}",
-                where=where([line], remote=bool(place.get("remote")), country=place.get("country")),
+                where=where([line], remote=bool(place.get("remote")), country=place.get("country"), title=title),
             ))  # fmt: skip
         offset += len(jobs)
         if not jobs or offset >= int(page.get("totalFound") or 0):
@@ -365,4 +370,4 @@ def _from_json_ld(posting: dict[str, Any], page: str, today: date) -> Found | No
         description = unescaped(description)
     text = _compose(title, "; ".join(lines), to_text(description), pay)
     return Found(id=url, title=title, location="; ".join(lines) or None, url=url, text=text,
-                 where=where(lines, remote=remote, country=country))  # fmt: skip
+                 where=where(lines, remote=remote, country=country, title=title))  # fmt: skip

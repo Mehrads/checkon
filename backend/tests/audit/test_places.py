@@ -45,6 +45,26 @@ from app.audit.places import vague, where
     (["Remote - US"], {}, "elsewhere"),
     (["Remote"], {}, "elsewhere"),
     (["Sydney"], {"country": "AU", "remote": True}, "elsewhere"),
+    # The title names the place when the location says only Canada (Lever's pharmachoicecanada)
+    (["Canada"], {"country": "CA", "title": "Pharmacist - FT or PT - Trail, BC"}, "elsewhere"),
+    (["Canada"], {"country": "CA", "title": "Pharmacy Manager - Calgary AB"}, "elsewhere"),
+    (["Canada"], {"country": "CA", "title": "Pharmacist - FT or PT - Cochrane, AB"}, "elsewhere"),
+    (["Canada"], {"country": "CA", "title": "Pharmacist - Part Time - (Fluent in Cantonese) - Toronto, ON"}, "ontario"),
+    (["Canada"], {"country": "CA", "title": "Pharmacist - Bilingual (French) an Asset - Sudbury, ON"}, "ontario"),
+    (["Canada"], {"country": "CA", "title": "LTC Pharmacist - Simcoe, Ontario"}, "ontario"),
+    (["Canada"], {"country": "CA", "title": "Pharmacist - FT or PT - Marathon, ON"}, "ontario"),
+    (["Canada"], {"title": "Account Manager - Downtown Toronto"}, "ontario"),
+    (["Canada"], {"title": "Sales Representative - Alberta"}, "elsewhere"),
+    ([], {"country": "CA", "title": "Pharmacist - Trail, BC"}, "elsewhere"),
+    (["Canada (on-site)"], {"title": "Pharmacist | Trail, BC"}, "elsewhere"),
+    (["Canada"], {"country": "CA", "title": "Pharmacist"}, "canada"),
+    (["Canada"], {"country": "CA", "title": "QC Analyst"}, "canada"),  # quality control
+    (["Canada"], {"country": "CA", "title": "Lab Technician - QC"}, "canada"),
+    (["Canada"], {"country": "CA", "remote": True, "title": "Pharmacist - Trail, BC"}, "canada"),  # open to anywhere
+    (["Remote - Canada"], {"title": "Account Executive - Vancouver, BC"}, "canada"),
+    (["US or Canada"], {"title": "Account Executive - Vancouver, BC"}, "canada"),
+    (["Vancouver, BC"], {"title": "Engineer - Toronto, ON"}, "elsewhere"),  # the location comes first
+    (["Toronto, ON"], {"title": "Engineer - Vancouver, BC"}, "ontario"),
 ])  # fmt: skip
 def test_where(locations: list[str], kwargs: dict[str, object], expected: str) -> None:
     assert where(locations, **kwargs) == expected  # type: ignore[arg-type]
