@@ -10,15 +10,25 @@ import {
 } from "@tanstack/react-router"
 import { prerender } from "react-dom/static"
 
+import { RULE_PATHS } from "./components/Site/RulePage"
 import { routeTree } from "./routeTree.gen"
 
-/** Each page and the file it's written to, which the API serves at that path (backend/app/main.py). */
+export { SITE } from "./lib/seo"
+
+/** Each page and the file it's written to, which the API serves at that path (backend/app/main.py). The sitemap
+ * lists them too. */
 export const PAGES: Record<string, string> = {
   "/check": "check.html",
   "/privacy": "privacy.html",
   "/terms": "terms.html",
   "/ontario-job-posting-requirements": "ontario-job-posting-requirements.html",
+  ...Object.fromEntries(
+    RULE_PATHS.map((path) => [path, `${path.slice(1).replace("/", "-")}.html`]),
+  ),
 }
+
+/** A path no route has: the app's "not found" page, written to 404.html for every unknown address. */
+export const NOT_FOUND = "/page-not-found"
 
 export async function render(path: string): Promise<string> {
   const router = createRouter({

@@ -19,6 +19,7 @@ import {
   SiteHeader,
   WhatYouGet,
 } from "@/components/Site/Landing"
+import { RulesSection } from "@/components/Site/RulePage"
 import { SampleAudit } from "@/components/Site/SampleAudit"
 import { useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
@@ -106,6 +107,7 @@ function CheckPage() {
           <SampleAudit />
           <Pricing />
           <Faq />
+          <RulesSection />
           <NextPosting />
           <ContactSection />
         </main>
