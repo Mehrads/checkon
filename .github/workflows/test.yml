@@ -87,7 +87,6 @@ jobs:
       SMTP_PORT: "1025"
       SMTP_TLS: "False"
       EMAILS_FROM_EMAIL: info@example.com
-      LOGIN_CODES_PER_HOUR: "1000" # a run logs the admin in about ten times
       VITE_API_URL: http://localhost:8000
       MAILPIT_HOST: http://localhost:8025
       PLAYWRIGHT_BASE_URL: http://localhost:8000
@@ -111,7 +110,7 @@ jobs:
           cat "$RUNNER_TEMP/api.log"; exit 1
       - run: bunx playwright install --with-deps chromium
         working-directory: frontend
-      - run: bunx playwright test --reporter=list # CI=true: one worker, as the tests share the admin's sign-in codes
+      - run: bunx playwright test --reporter=list
         working-directory: frontend
       - if: failure()
         run: cat "$RUNNER_TEMP/api.log"

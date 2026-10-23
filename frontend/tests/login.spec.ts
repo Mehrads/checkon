@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
-import { randomPassword } from "./utils/random.ts"
+import { createUser } from "./utils/privateApi"
+import { randomEmail, randomPassword } from "./utils/random.ts"
 import { expectSignedIn, submitLogIn } from "./utils/user"
 
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -8,6 +9,14 @@ test.use({ storageState: { cookies: [], origins: [] } })
 const fillForm = async (page: Page, email: string, password: string) => {
   await page.getByTestId("email-input").fill(email)
   await page.getByTestId("password-input").fill(password)
+}
+
+/** A user of the test's own, as parallel sign-ins to one account read each other's codes. */
+const newUser = async () => {
+  const email = randomEmail()
+  const password = randomPassword()
+  await createUser({ email, password })
+  return { email, password }
 }
 
 const verifyInput = async (page: Page, testId: string) => {
@@ -39,12 +48,13 @@ test("Forgot Password link is visible", async ({ page }) => {
 })
 
 test("Log in with valid email and password ", async ({ page }) => {
+  const { email, password } = await newUser()
   await page.goto("/login")
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await submitLogIn(page, firstSuperuser)
+  await fillForm(page, email, password)
+  await submitLogIn(page, email)
 
-  await expectSignedIn(page, firstSuperuser)
+  await expectSignedIn(page, email)
 })
 
 test("Log in with invalid email", async ({ page }) => {
@@ -67,9 +77,10 @@ test("Log in with invalid password", async ({ page }) => {
 })
 
 test("Password alone asks for the emailed code", async ({ page }) => {
+  const { email, password } = await newUser()
   await page.goto("/login")
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
+  await fillForm(page, email, password)
   await page.getByRole("button", { name: "Log In" }).click()
 
   await expect(
@@ -83,12 +94,13 @@ test("Password alone asks for the emailed code", async ({ page }) => {
 })
 
 test("Successful log out", async ({ page }) => {
+  const { email, password } = await newUser()
   await page.goto("/login")
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await submitLogIn(page, firstSuperuser)
+  await fillForm(page, email, password)
+  await submitLogIn(page, email)
 
-  await expectSignedIn(page, firstSuperuser)
+  await expectSignedIn(page, email)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
@@ -96,12 +108,13 @@ test("Successful log out", async ({ page }) => {
 })
 
 test("Logged-out user cannot access protected routes", async ({ page }) => {
+  const { email, password } = await newUser()
   await page.goto("/login")
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await submitLogIn(page, firstSuperuser)
+  await fillForm(page, email, password)
+  await submitLogIn(page, email)
 
-  await expectSignedIn(page, firstSuperuser)
+  await expectSignedIn(page, email)
 
   await page.getByTestId("user-menu").click()
   await page.getByRole("menuitem", { name: "Log out" }).click()
@@ -123,20 +136,22 @@ test("Redirects to /login when token is wrong", async ({ page }) => {
 test("A link to an account page logs in, then opens that page", async ({
   page,
 }) => {
+  const { email, password } = await newUser()
   await page.goto("/archive?posting=abc")
   await page.waitForURL(/\/login\?redirect=/)
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await submitLogIn(page, firstSuperuser)
+  await fillForm(page, email, password)
+  await submitLogIn(page, email)
 
   await page.waitForURL("/archive?posting=abc")
 })
 
 test("The page after logging in is always on this site", async ({ page }) => {
+  const { email, password } = await newUser()
   await page.goto("/login?redirect=%2F%2Fexample.com")
 
-  await fillForm(page, firstSuperuser, firstSuperuserPassword)
-  await submitLogIn(page, firstSuperuser)
+  await fillForm(page, email, password)
+  await submitLogIn(page, email)
 
   await page.waitForURL("/")
 })
