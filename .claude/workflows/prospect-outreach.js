@@ -1,11 +1,12 @@
 export const meta = {
   name: 'prospect-outreach',
   description: 'Find Ontario employers hiring on public job boards, audit their postings and application forms with CheckON, save each report on checkon.ca, and draft a pitch email linking it in Gmail (never sent)',
-  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 4, focus: "Waterloo tech", postings: 50, sender: {name, title, email, address}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector.',
+  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 4, focus: "Waterloo tech", postings: 50, sender: {name, title, email, address}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector or Gmail signed in in the browser pane.',
   phases: [
     { title: 'Find', detail: 'web search for Ontario employers hiring on Greenhouse, Lever or Ashby boards' },
     { title: 'Check', detail: 'CheckON audits each board and its forms (python -m app.prospect); every finding is confirmed, then the report is saved on checkon.ca (python -m app.outreach_report)' },
-    { title: 'Pitch', detail: 'the HR contact, the email with the report link, one Gmail draft per company' },
+    { title: 'Pitch', detail: 'the HR contact and the email with the report link, per company' },
+    { title: 'Drafts', detail: 'one Gmail draft per pitch, made one at a time, never sent' },
     { title: 'Record', detail: 'the run summary and the contacted ledger, in ~/Documents/CheckON/prospecting' },
   ],
 }
@@ -105,9 +106,26 @@ const PITCH = {
     contact_sources: { type: 'array', items: { type: 'string' } },
     subject: { type: 'string' },
     body: { type: 'string' },
-    draft_status: { type: 'string', description: '"created <draft id>", or a short reason, under 8 words' },
   },
-  required: ['subject', 'body', 'draft_status'],
+  required: ['subject', 'body'],
+}
+
+const DRAFTS = {
+  type: 'object',
+  properties: {
+    drafts: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          company: { type: 'string' },
+          draft_status: { type: 'string', description: '"created <draft id or how>", or a short reason, under 8 words' },
+        },
+        required: ['company', 'draft_status'],
+      },
+    },
+  },
+  required: ['drafts'],
 }
 
 phase('Find')
@@ -183,7 +201,8 @@ Don't edit anything in the repository. ${DATA}`,
     }
     const dir = `$ROOT/${runDate}/${slug(company.name)}`
     return agent(
-      `Write a short outreach email to ${company.name} about their job postings, and save it as a Gmail draft. Never send.
+      `Write a short outreach email to ${company.name} about their job postings. Don't create a draft or send anything:
+the next stage makes the Gmail drafts one at a time.
 
 Confirmed findings (JSON): ${JSON.stringify(checked.confirmed)}
 Postings checked: ${checked.checked ?? checked.in_ontario ?? 'several'}
@@ -215,12 +234,8 @@ Their board: ${company.board_url}${company.website ? `; website: ${company.websi
 ${signature}
    - Last line: This is a summary, not legal advice. If you'd rather not hear from me, reply "no thanks" and I won't email again.
    If the signature still has {Your name} or {Mailing address}, keep them as they are: the sender fills them in.
-3. The draft: load the Gmail connector's draft tool with ToolSearch (query "gmail create draft"), then create ONE
-   draft with the subject and body, addressed to contact_email when there is one. Never call a tool that sends mail.
-   draft_status: "created <draft id>", or a short reason (for example "no Gmail connector").
-4. Save the pitch: ${ROOT}; write "${dir}/pitch.md" with the contact (name, title, note, email, email_source,
-   sources), the report link, the confirmed findings with their posting URLs, the subject, the body and the draft
-   status.
+3. Save the pitch: ${ROOT}; write "${dir}/pitch.md" with the contact (name, title, note, email, email_source,
+   sources), the report link, the confirmed findings with their posting URLs, the subject and the body.
 ${DATA}`,
       { label: `pitch ${company.name}`, phase: 'Pitch', schema: PITCH },
     ).then((pitch) => ({ company, checked, pitch }))
@@ -228,6 +243,34 @@ ${DATA}`,
 )
 
 const done = results.filter(Boolean)
+const pitched = done.filter((r) => r.pitch)
+
+// One agent makes every draft in turn: agents sharing one browser pane would type into each other's drafts.
+let drafted = {}
+if (pitched.length) {
+  phase('Drafts')
+  const made = await agent(
+    `Save each of these outreach emails as a Gmail draft, one at a time, in the order given. NEVER send anything.
+Emails (JSON): ${JSON.stringify(pitched.map(({ company, pitch }) => ({
+      company: company.name, to: pitch.contact_email ?? '', subject: pitch.subject, body: pitch.body,
+      file: `$ROOT/${runDate}/${slug(company.name)}/pitch.md`,
+    })))}
+
+How:
+- If the Gmail connector is available (ToolSearch query "gmail create draft"), use its create-draft tool for each email.
+- Otherwise use the built-in browser pane (tools named mcp__Claude_Browser__*), where Gmail is signed in. First check
+  which account it is: it must be ${sender.email ? `${sender.email}` : 'the account the sender uses for CheckON'};
+  if Gmail isn't signed in or it's another account, stop and return that as every draft_status. For each email:
+  Compose; put the address in To only when there is one; type the subject; click in the body and type the body;
+  then "Save & close". Open Drafts and confirm the draft is listed with its subject before the next one. Never
+  click Send, and never use a key shortcut that sends.
+- After each draft, append a line "Draft: <status>" to its pitch file (${ROOT} first, to resolve $ROOT).
+Return one draft_status per company: "created <draft id or 'in the browser pane'>", or a short reason.`,
+    { label: 'make Gmail drafts', phase: 'Drafts', schema: DRAFTS },
+  )
+  drafted = Object.fromEntries((made?.drafts ?? []).map((d) => [d.company, d.draft_status]))
+}
+
 const rows = done.map(({ company, checked, pitch }) => ({
   company: company.name,
   board_url: company.board_url,
@@ -239,7 +282,7 @@ const rows = done.map(({ company, checked, pitch }) => ({
   contact_note: pitch?.contact_note ?? '',
   email: pitch?.contact_email ?? '',
   email_source: pitch?.email_source ?? '',
-  draft: pitch?.draft_status ?? (checked?.error ? `not checked: ${checked.error}` : 'no pitch'),
+  draft: pitch ? (drafted[company.name] ?? 'not drafted') : checked?.error ? `not checked: ${checked.error}` : 'no pitch',
   usd: checked?.usd ?? '',
 }))
 
