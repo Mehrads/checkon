@@ -7,9 +7,17 @@
     "build": "tsc -p tsconfig.json && vite build",
     "build:unpacked": "tsc -p tsconfig.json && vite build --mode unpacked",
     "package": "bun run build && rm -f checkon-extension.zip && cd dist && zip -qr ../checkon-extension.zip .",
-    "lint": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true ./"
+    "lint": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true ./",
+    "e2e": "node e2e/run.mjs",
+    "e2e:smoke": "node e2e/run.mjs smoke",
+    "e2e:tabs": "node e2e/run.mjs tabs",
+    "e2e:form": "node e2e/run.mjs form",
+    "e2e:full": "node e2e/run.mjs full",
+    "e2e:signed": "node e2e/run.mjs signed"
   },
   "devDependencies": {
-    "@types/chrome": "0.1.40"
+    "@puppeteer/browsers": "3.2.4",
+    "@types/chrome": "0.1.40",
+    "puppeteer-core": "25.13.0"
   }
 }

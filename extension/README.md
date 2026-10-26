@@ -50,6 +50,39 @@ Chrome lets the panel read a page only after you click the CheckON icon (or the 
 
 After changing the code, run the build again and click the reload arrow on the extension's card in `chrome://extensions`.
 
+## Browser tests
+
+`e2e/` drives the real extension in Chrome for Testing with Puppeteer: it installs the unpacked build, presses the toolbar button (which is what gives the panel `activeTab` on a page), and works the side panel on the test pages in `e2e/pages`. Those are plain HTML: `form.html` is a job form whose description field is a rich editor, a textarea, an iframe, TinyMCE or Quill (`?mode=`; the last two load from jsDelivr), and `apply.html` is an application form.
+
+Each run first builds the extension into `e2e/dist` for the API it tests: the local stack, `http://localhost:8000`, unless `E2E_API_URL` says otherwise. The first run downloads Chrome for Testing into `~/.cache/puppeteer`.
+
+From the repository root:
+
+| Command | What it tests | Checks used |
+| --- | --- | --- |
+| `bun run --filter extension e2e:smoke` | The panel reads the posting from each kind of description field | None |
+| `bun run --filter extension e2e:tabs` | Switching tabs (the icon is needed again) and a partial selection (copy only) | None |
+| `bun run --filter extension e2e:form` | **Read form** on the application form: on its own tab, in a frame, and under the posting | None; two with `CHECK=1` |
+| `bun run --filter extension e2e:full` | A real check signed out: answers the AI and vacancy questions, applies the fixes and inserts them | One free check per mode |
+| `bun run --filter extension e2e:signed` | Log in with the emailed code, the plan meter, the workspace switcher, a check with the client's profile, a pay range, insert, log out | One plan check |
+| `bun run --filter extension e2e` | smoke, tabs, form and signed: what CI runs | One plan check (none in CI) |
+
+`bun run --filter extension e2e full:rich,tinymce` runs suites with the modes you pick. `HEADFUL=1` shows the browser.
+
+The local stack is the one in the main README (the API on `:8000`) plus Mailpit for the sign-in codes (`docker compose up -d mailpit`, with `SMTP_HOST=localhost` and `SMTP_PORT=1025`; `MAILPIT_HOST` points the tests elsewhere). Its `.env` needs:
+
+- `FASTAPI_ENV=development`, for the private user API, and `EXTENSION_IDS=lfepfedddcabkigmmhbhacdllgljpdbe`. `compose.override.yml` sets both for the Docker backend.
+- `ANTHROPIC_API_KEY` for the steps that run a check. Without it, or with `E2E_CHECKS=0`, `signed` skips them. That's how CI runs it.
+- `FREE_CHECKS_PER_WEEK` above 1 to run `full` more than once a week.
+
+`signed` makes a user of its own each run: the private user API creates it, `uv run python -m app.test_account` (in `backend/`, on the database in `.env`) gives it a complimentary Agency plan, and it gets a "Harbour Foods" client workspace that uses AI in hiring.
+
+### Against checkon.ca
+
+Only when you mean to: `E2E_API_URL=https://checkon.ca bun run --filter extension e2e:full`. Each check there uses this IP's free check for the week, and the next one is refused until the week is up. `smoke`, `tabs` and `form` don't call the API. `signed` refuses to run there, since it would sign in on production.
+
+Puppeteer rather than the website's Playwright setup: Playwright can load an unpacked extension but can't press its toolbar button, and the tests need that click for Chrome's `activeTab` grant. `puppeteer-core` and `@puppeteer/browsers` are pinned, and so is the Chrome for Testing build in `e2e/lib.mjs`; update them together. The plain `puppeteer` package would download Chrome on every `bun install`, including the production image's.
+
 ## Permissions
 
 The Chrome Web Store asks why each permission is needed:

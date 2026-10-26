@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Acme ATS – Create job</title>
+<style>body{font-family:system-ui;margin:24px;max-width:760px;color:#222} label{display:block;margin-top:14px;font-weight:600} input,textarea{width:100%;font:inherit} .editor{border:1px solid #bbb;border-radius:6px;min-height:320px;padding:12px} button{margin-top:16px}</style></head>
+<body><h1>Create job</h1>
+<label>Job title <input id="title" value="Payroll Administrator"></label>
+<label>Internal note <textarea id="note" rows="2">Hiring manager: Dana. Budget approved.</textarea></label>
+<label>Job description</label><div id="slot"></div><button>Publish</button>
+<script>
+// A job form with the posting in its description field, the way ATS pages hold it. ?mode=rich (default): a
+// contenteditable editor. ?mode=textarea: plain text. ?mode=iframe: an editable frame. ?mode=tinymce and
+// ?mode=quill: those editors, from jsDelivr. The internal note must come through an insert untouched.
+const RICH = "<h2>Payroll Administrator</h2><p>Maple Ridge Logistics Inc. \u2013 Mississauga, Ontario (hybrid)</p><h3>About the role</h3><p>Maple Ridge Logistics is growing and we are looking for a Payroll Administrator to join our finance team. You will process bi-weekly payroll for about 180 employees and help with year-end reporting.</p><h3>What you will do</h3><ul><li>Process bi-weekly payroll in our payroll system</li><li>Prepare T4s and Records of Employment</li><li>Answer employee questions about pay and deductions</li><li>Reconcile payroll accounts each month</li></ul><h3>What we are looking for</h3><ul><li>2+ years of Canadian payroll experience</li><li>Payroll Compliance Practitioner (PCP) designation, or working towards it</li><li>Strong Excel skills</li><li>Attention to detail and discretion with confidential information</li></ul><h3>How to apply</h3><p>Send your resume through our careers page. We use an automated system to screen and rank applications.</p>";
+const PLAIN = "Payroll Administrator\nMaple Ridge Logistics Inc. \u2013 Mississauga, Ontario (hybrid)\n\nAbout the role\nMaple Ridge Logistics is growing and we are looking for a Payroll Administrator to join our finance team. You will process bi-weekly payroll for about 180 employees and help with year-end reporting.\n\nWhat you will do\n\u2022 Process bi-weekly payroll in our payroll system\n\u2022 Prepare T4s and Records of Employment\n\u2022 Answer employee questions about pay and deductions\n\u2022 Reconcile payroll accounts each month\n\nWhat we are looking for\n\u2022 2+ years of Canadian payroll experience\n\u2022 Payroll Compliance Practitioner (PCP) designation, or working towards it\n\u2022 Strong Excel skills\n\u2022 Attention to detail and discretion with confidential information\n\nHow to apply\nSend your resume through our careers page. We use an automated system to screen and rank applications.";
+const mode = new URLSearchParams(location.search).get("mode") || "rich";
+const slot = document.getElementById("slot");
+if (mode === "textarea") {
+  const t = document.createElement("textarea"); t.id = "desc"; t.rows = 20; t.value = PLAIN; slot.appendChild(t);
+} else if (mode === "iframe") {
+  const f = document.createElement("iframe"); f.id = "desc-frame"; f.style.cssText = "width:100%;height:380px;border:1px solid #bbb;border-radius:6px";
+  f.srcdoc = '<html><body contenteditable="true" style="font-family:system-ui;margin:12px">' + RICH + "</body></html>";
+  slot.appendChild(f);
+} else if (mode === "quill") {
+  const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"; document.head.appendChild(css);
+  const d = document.createElement("div"); d.id = "desc-quill"; d.style.height = "360px"; slot.appendChild(d);
+  const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js";
+  s.onload = () => { window.quill = new Quill("#desc-quill", { theme: "snow" }); window.quill.clipboard.dangerouslyPasteHTML(RICH); };
+  document.head.appendChild(s);
+} else if (mode === "tinymce") {
+  const t = document.createElement("textarea"); t.id = "desc-tiny"; slot.appendChild(t);
+  const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/tinymce@7.6.0/tinymce.min.js";
+  s.onload = () => tinymce.init({ selector: "#desc-tiny", license_key: "gpl", base_url: "https://cdn.jsdelivr.net/npm/tinymce@7.6.0", suffix: ".min", height: 380, menubar: false,
+    setup: (ed) => ed.on("init", () => { ed.setContent(RICH); window.tinyReady = true; }) });
+  document.head.appendChild(s);
+} else {
+  const d = document.createElement("div"); d.id = "desc"; d.className = "editor"; d.contentEditable = "true"; d.innerHTML = RICH; slot.appendChild(d);
+}
+</script></body></html>
