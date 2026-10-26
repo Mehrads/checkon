@@ -69,6 +69,8 @@ services:
       SMTP_TLS: "false"
       # The Playwright tests log in as the superuser more often than the production limit
       LOGIN_CODES_PER_HOUR: "1000"
+      # The unpacked extension built for this API (extension/README.md, "Browser tests")
+      EXTENSION_IDS: "lfepfedddcabkigmmhbhacdllgljpdbe"
 
   mailpit:
     image: axllent/mailpit

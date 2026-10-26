@@ -1,0 +1,80 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Maple Ridge Logistics – Apply: Payroll Administrator</title>
+<style>body{font-family:system-ui;margin:24px;max-width:680px;color:#222} label,legend{display:block;margin-top:14px;font-weight:600} input:not([type=radio]):not([type=checkbox]),select,textarea{width:100%;font:inherit} fieldset{border:0;padding:0;margin:0} fieldset label,.opt label{font-weight:400;display:inline-block;margin-right:16px} [role=radio]{display:inline-block;border:1px solid #bbb;border-radius:14px;padding:2px 12px;margin:6px 8px 0 0;cursor:pointer} button{margin-top:18px}</style></head>
+<body>
+<header><input type="search" placeholder="Search jobs" aria-label="Search jobs"></header>
+<main>
+<h1>Apply: Payroll Administrator</h1>
+<p>Maple Ridge Logistics Inc. – Mississauga, Ontario (hybrid)</p>
+<div id="posting"></div>
+<div id="slot"></div>
+</main>
+<script>
+// An application form the way ATS pages build them: labelled inputs, fieldset radio groups, a select, an
+// optional field, an ARIA radio group (custom widget), a consent checkbox, a hidden field and a submit button.
+// ?mode=native (default): the form on the page. ?mode=iframe: the same form in an embedded frame (Greenhouse-style).
+// ?mode=posting: the posting's description above the form, as on a Greenhouse or Lever job page. The two dropdowns
+// are Greenhouse-style custom selects: a labelled combobox, a "Select..." placeholder and a hidden copy of the field.
+const FORM = `<form id="apply">
+  <label for="first">First name *</label><input id="first" required>
+  <label for="email">Email</label><input id="email" type="email" required>
+  <label for="resume">Resume</label><input id="resume" type="file">
+  <fieldset><legend>Do you have Canadian work experience?</legend>
+    <label><input type="radio" name="cex" value="yes" required> Yes</label>
+    <label><input type="radio" name="cex" value="no"> No</label></fieldset>
+  <label for="years">Years of payroll experience in Canada</label>
+  <select id="years" required><option value="">Select…</option><option>None</option><option>1–2 years</option><option>3+ years</option></select>
+  <fieldset><legend>Are you legally entitled to work in Canada?</legend>
+    <label><input type="radio" name="auth" value="yes" required> Yes</label>
+    <label><input type="radio" name="auth" value="no"> No</label></fieldset>
+  <label id="sponsor-label" for="sponsor">Will you need sponsorship to work in Canada?</label>
+  <div class="select-shell" style="position:relative">
+    <div class="select-placeholder">Select...</div>
+    <input id="sponsor" role="combobox" aria-labelledby="sponsor-label" aria-required="true" autocomplete="off">
+    <input tabindex="-1" required value="" style="opacity:0;width:2px;height:2px;position:absolute;bottom:0">
+  </div>
+  <label id="source-label" for="source">How did you hear about us?</label>
+  <div class="select-shell" style="position:relative">
+    <div class="select-placeholder">Select...</div>
+    <input id="source" role="combobox" aria-labelledby="source-label" autocomplete="off">
+    <input aria-hidden="true" tabindex="-1" value="" style="opacity:0;width:2px;height:2px;position:absolute;bottom:0">
+  </div>
+  <label for="cover">Cover letter (optional)</label><textarea id="cover" rows="3"></textarea>
+  <div role="radiogroup" aria-labelledby="study-q" aria-required="true">
+    <span id="study-q" style="display:block;margin-top:14px;font-weight:600">Where did you complete your highest degree?</span>
+    <div role="radio" aria-checked="false" tabindex="0">In Canada</div><div role="radio" aria-checked="false" tabindex="-1">Outside Canada</div>
+  </div>
+  <div class="opt"><label><input type="checkbox" id="consent" required> I agree to the privacy policy</label></div>
+  <input type="hidden" name="token" value="abc123">
+  <button type="submit">Submit application</button>
+</form>`
+const mode = new URLSearchParams(location.search).get("mode") || "native"
+const slot = document.getElementById("slot")
+if (mode === "iframe") {
+  const frame = document.createElement("iframe")
+  frame.id = "apply-frame"
+  frame.style.cssText = "width:100%;height:760px;border:1px solid #bbb;border-radius:6px"
+  frame.srcdoc = `<html><head><style>${document.querySelector("style").textContent}</style></head><body>${FORM}</body></html>`
+  slot.appendChild(frame)
+} else {
+  slot.innerHTML = FORM
+}
+if (mode === "posting") {
+  document.getElementById("posting").innerHTML = `<h2>About the role</h2><p>Maple Ridge Logistics is growing and we are
+  looking for a Payroll Administrator to join our finance team. You will process bi-weekly payroll for about 180
+  employees and help with year-end reporting.</p><h2>What we are looking for</h2><ul><li>2+ years of payroll
+  experience</li><li>Payroll Compliance Practitioner (PCP) designation, or working towards it</li></ul>
+  <p>Salary: $58,000 to $66,000 a year. This posting is for an existing vacancy.</p><h2>Apply for this job</h2>`
+}
+// The questions the panel should read, in the check's form format.
+window.expectedForm = [
+  "First name *", "Email *", "Resume",
+  "Do you have Canadian work experience? *", "- Yes", "- No",
+  "Years of payroll experience in Canada *", "- None", "- 1–2 years", "- 3+ years",
+  "Are you legally entitled to work in Canada? *", "- Yes", "- No",
+  "Will you need sponsorship to work in Canada? *",
+  "How did you hear about us?",
+  "Cover letter (optional)",
+  "Where did you complete your highest degree? *", "- In Canada", "- Outside Canada",
+  "I agree to the privacy policy *",
+].join("\n")
+</script></body></html>

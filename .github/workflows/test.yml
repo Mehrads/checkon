@@ -59,7 +59,8 @@ jobs:
       - run: bun run build
         working-directory: frontend
 
-  # The website in a browser (frontend/tests): the API serves the built site, sign-in codes go to Mailpit.
+  # The website in a browser (frontend/tests), then the extension's side panel (extension/e2e): the API serves
+  # the built site, sign-in codes go to Mailpit.
   e2e:
     runs-on: ubuntu-latest
     services:
@@ -90,6 +91,7 @@ jobs:
       VITE_API_URL: http://localhost:8000
       MAILPIT_HOST: http://localhost:8025
       PLAYWRIGHT_BASE_URL: http://localhost:8000
+      EXTENSION_IDS: lfepfedddcabkigmmhbhacdllgljpdbe # the unpacked extension's fixed ID
     steps:
       - uses: actions/checkout@v7
         with:
@@ -112,5 +114,8 @@ jobs:
         working-directory: frontend
       - run: bunx playwright test --reporter=list
         working-directory: frontend
+      # Built for this API. Without a Claude key the signed-in test skips the steps that run a check.
+      - run: bun run e2e
+        working-directory: extension
       - if: failure()
         run: cat "$RUNNER_TEMP/api.log"
