@@ -49,6 +49,3 @@ extension/checkon-extension.zip
 
 # Golden-set run reports (backend/evals/README.md); commit the release run's report on purpose
 backend/evals/reports/
-
-# Outreach prospects from .claude/workflows/prospect-outreach.js: named contacts, never commit them
-/prospecting/

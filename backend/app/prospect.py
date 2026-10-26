@@ -3,7 +3,7 @@ first postings for Ontario, picked as the free sample audit picks them, each wit
 words for each and the rule page to link, so a pitch can quote them. Nothing is saved to the database; the checks
 use the real model on ANTHROPIC_API_KEY.
 
-    python -m app.prospect https://job-boards.greenhouse.io/acme --postings 3 --out ../prospecting/2026-10-26/acme
+    python -m app.prospect https://job-boards.greenhouse.io/acme --postings 3 --out ~/Documents/CheckON/prospecting/2026-10-26/acme
 
 Prints JSON. With --out, each checked posting's text is saved there too (posting-1.txt, ...), so the findings can be
 checked against what was read.
