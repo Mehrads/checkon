@@ -168,8 +168,8 @@ function PrivacyPage() {
         </List>
         <p>
           Anthropic, Langfuse and Resend are in the United States, and other
-          providers
-          may process data outside Canada, where it's subject to local laws.
+          providers may process data outside Canada, where it's subject to local
+          laws.
         </p>
       </Part>
 
