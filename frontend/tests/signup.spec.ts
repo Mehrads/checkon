@@ -41,7 +41,9 @@ test("A visitor signs up for a free account and logs in to it", async ({
   await page.waitForURL(/\/login/)
 
   await logInUser(page, email, password)
-  await expect(page.getByRole("heading", { name: "Free account" })).toBeVisible()
+  await expect(
+    page.getByRole("heading", { name: "Free account" }),
+  ).toBeVisible()
   await expect(page.getByText("of 5 checks this period")).toBeVisible()
 })
 
