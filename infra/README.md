@@ -51,10 +51,10 @@ Expected fixed cost: about $41 a month (Cloud SQL about $31, Cloud Run about $5,
    printf %s "YOUR-ANTHROPIC-KEY" | gcloud secrets versions add posting-checker-anthropic-api-key --data-file=-
    ```
 
-   Also add the app password for info@checkon.ca ([Email and DNS](#email-and-dns), step 3). `terraform.tfvars.example` already has the Gmail SMTP settings. Admin sign-in emails a 6-digit code after the password, so without working SMTP nobody can sign in to `/stats`. Contact-form messages are still saved in the `contact_message` table either way.
+   Also add the Resend API key that sends the app's email ([Email and DNS](#email-and-dns), Resend). `terraform.tfvars.example` already has Resend's SMTP settings. Sign-in emails a 6-digit code after the password, so without working email nobody can sign in, admins included. Contact-form messages are still saved in the `contact_message` table either way.
 
    ```bash
-   printf %s "YOUR-APP-PASSWORD" | gcloud secrets versions add posting-checker-smtp-password --data-file=-
+   read -rs "K?Resend API key (re_...): " && printf %s "$K" | gcloud secrets versions add posting-checker-smtp-password --data-file=-; unset K
    ```
 
 5. Point checkon.ca at the service. Cloud Run's own domain mapping isn't offered in Toronto, so `lb.tf` puts a global HTTPS load balancer in front (about $18 a month, the load balancer line in Technical Design §13). Set `domain = "checkon.ca"` and `public_url = "https://checkon.ca"` in `terraform.tfvars` and apply. It also tells the app to read the visitor's IP one hop further back (`TRUSTED_PROXY_HOPS`), and closes the service's own run.app URL (ingress `INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER`, so it returns 404): visitors can only arrive through the load balancer and can't fake `X-Forwarded-For`.
@@ -296,12 +296,15 @@ checkon.ca is registered at Wix (Domains > checkon.ca > Manage DNS Records). The
 | `MX` to Google, SPF `TXT` (`include:_spf.google.com`), Google site verification `TXT` | In place |
 | DMARC: `TXT` on `_dmarc.checkon.ca`, `v=DMARC1; p=none; rua=mailto:info@checkon.ca` | Added 2026-10-19. Monitor-only: nothing is blocked, daily reports go to info@checkon.ca |
 | DKIM: `TXT` on `google._domainkey.checkon.ca` | Added 2026-10-19. Turn it on in Google Admin, step 1 below |
+| Resend: DKIM `TXT` on `resend._domainkey`, `CNAME` `send` to `send.forge.rmta.net`, `CNAME` `rsend` to `rsend.forge.rmta.net` | Added 2026-10-26, verified in Resend. Sending only, step 2 below |
 | Website: `A` on `checkon.ca`, `CNAME` on `www` | Still Wix parking, replaced in [First deploy](#first-deploy) step 5 |
 
 1. **DKIM.** The record is in Wix and resolves. In Google Admin, signed in as info@checkon.ca: Apps > Google Workspace > Gmail > Authenticate email, then click Start authentication. If you ever generate a new key there, replace the `TXT` value in Wix to match.
-2. **2-Step Verification** for info@checkon.ca (myaccount.google.com > Security). Gmail only gives app passwords once it is on.
-3. **App password** for info@checkon.ca (myaccount.google.com > Security > App passwords, name it `checkon-contact-form`). Store it with the `posting-checker-smtp-password` command in [First deploy](#first-deploy) step 4. Don't paste it anywhere else.
-4. **Tighten DMARC** once a few weeks of reports show only Google sending for checkon.ca: change `p=none` to `p=quarantine`.
+2. **Resend** sends the app's email (sign-in codes, password resets, contact notices) from info@checkon.ca. Replies still land in the Google Workspace mailbox. Until 2026-10-26 the app logged in to Gmail's SMTP with an app password for info@, but Gmail hangs up on logins from Cloud Run, though the same password works from a Mac.
+   - **Account:** signed up as info@checkon.ca. The domain is `checkon.ca` in North Virginia (us-east-1), with sending on and receiving off. Never add Resend's `MX` record for `@`: it would send info@'s mail to Resend instead of Google.
+   - **DNS:** copy the records from Resend's Records tab into Wix exactly, then click Verify DNS Records in Resend. Wix took about an hour to publish them.
+   - **Key:** API Keys > Create API key, with Sending access for checkon.ca only. Store it with the command in [First deploy](#first-deploy) step 4. Cloud Run reads secrets when an instance starts, so start a new revision afterwards: `gcloud run services update posting-checker --region=northamerica-northeast2 --project=compliance-512120 --account=msoltani2001@gmail.com --update-labels=secrets-rotated=YYYY-MM-DD` (the next `terraform apply` removes the label again).
+3. **Tighten DMARC** once a few weeks of reports show only Google and Resend sending for checkon.ca: change `p=none` to `p=quarantine`.
 
 Check any record from a terminal. This asks Google's public DNS over HTTPS, so a local resolver can't hide the answer (plain `dig` on this Mac returned empty answers for records that exist):
 

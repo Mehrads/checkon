@@ -11,7 +11,7 @@ import {
 import { pageHead } from "@/lib/seo"
 
 // Every statement here describes what the code does; change this page when that changes.
-const DRAFTED = "October 23, 2026"
+const DRAFTED = "October 26, 2026"
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -147,6 +147,11 @@ function PrivacyPage() {
             <strong>Google Workspace</strong> (email): contact messages.
           </li>
           <li>
+            <strong>Resend</strong> (email delivery): the emails we send, such
+            as sign-in codes and password-reset links to your address, and
+            contact-form messages to our inbox.
+          </li>
+          <li>
             <strong>Stripe</strong> (payments): checkout details and extra-check
             counts.
           </li>
@@ -162,7 +167,8 @@ function PrivacyPage() {
           </li>
         </List>
         <p>
-          Anthropic and Langfuse are in the United States, and other providers
+          Anthropic, Langfuse and Resend are in the United States, and other
+          providers
           may process data outside Canada, where it's subject to local laws.
         </p>
       </Part>
