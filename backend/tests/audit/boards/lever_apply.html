@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html><head><title>Achievers - Accounts Receivable and Collection Specialist</title></head>
+<body>
+<div class="content-wrapper application-page">
+<form id="application-form" enctype="multipart/form-data" method="POST">
+<div class="section page-centered application-form">
+<h4>Submit your application</h4>
+<ul>
+<li class="application-question resume">
+<label>
+<div class="application-label">Resume/CV <span class="required">✱</span>
+</div>
+<div class="application-field"><a href="#" class="postings-btn template-btn-utility visible-resume-upload"><span class="filename"></span><span class="default-label">ATTACH RESUME/CV</span>
+<input class="application-file-input invisible-resume-upload" data-qa="input-resume" id="resume-upload-input" name="resume" tabindex="-1" type="file"></a>
+</div>
+</label><span class="resume-upload-oversize">
+<p class="error-message">File exceeds the maximum upload size of <b>100MB</b>. Please try a smaller size.</p></span>
+</li>
+<li class="application-question">
+<label>
+<div class="application-label">Full name<span class="required">✱</span>
+</div>
+<div class="application-field">
+<input type="text" data-qa="name-input" name="name" required>
+</div>
+</label>
+</li>
+<li class="application-question">
+<label>
+<div class="application-label">Email<span class="required">✱</span>
+</div>
+<div class="application-field">
+<input name="email" data-qa="email-input" type="email" required>
+</div>
+</label>
+</li>
+<li class="application-question">
+<label>
+<div class="application-label">Phone <span class="required">✱</span>
+</div>
+<div class="application-field">
+<input type="text" data-qa="phone-input" name="phone" required>
+</div>
+</label>
+</li>
+<li class="application-question" data-qa="structured-contact-location-question">
+<label>
+<div class="application-label">Current location <span class="required" data-qa="SCL-question-required-asterisk">✱</span>
+</div>
+<div class="application-field">
+<input class="location-input" data-qa="location-input" id="location-input" type="text" maxlength="100" name="location" required>
+<input id="selected-location" type="hidden" name="selectedLocation">
+<div class="momentum-body flex flex-column items-start width-full height-auto bg-gray-800 text-gray-200 rounded dropdown-container">
+<div class="dropdown-results width-full cursor-pointer">
+</div>
+<div class="dropdown-no-results width-full break-word py1 px2 pointer-events-none">No location found. Try entering a different location</div>
+<div class="dropdown-loading-results width-full break-word height-full py1 px2 pointer-events-none">
+<div class="theme-inverse items-center"><span>Loading</span>
+</div>
+</div>
+</div>
+</div>
+</label>
+</li>
+<li class="application-question">
+<label>
+<div class="application-label">Current company <span class="required">✱</span>
+</div>
+<div class="application-field">
+<input type="text" data-qa="org-input" name="org" required>
+</div>
+</label>
+</li>
+</ul>
+</div>
+<div class="section page-centered application-form">
+<h4>Links</h4>
+<ul>
+<li class="application-question">
+<label>
+<div class="application-label">LinkedIn URL<span class="required">✱</span>
+</div>
+<div class="application-field">
+<input type="text" name="urls[LinkedIn]" required>
+</div>
+</label>
+</li>
+</ul>
+</div>
+<div class="section page-centered application-form" data-qa="additional-cards">
+<h4 data-qa="card-name">Achievers Mandatory Screening Questions</h4>
+<input type="hidden" value="{&quot;createdAt&quot;:1613670522058,&quot;updatedAt&quot;:1738956234726,&quot;text&quot;:&quot;Achievers Mandatory Screening Questions&quot;,&quot;instructions&quot;:&quot;&quot;,&quot;type&quot;:&quot;posting&quot;,&quot;accountId&quot;:&quot;00000000-0000-0000-0000-000000000000&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;Are you legally entitled to work in the country you are applying for?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;7b200b45-c400-4e5e-90b4-9e72b7bec558&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Yes&quot;,&quot;optionId&quot;:&quot;696b2241-7407-4935-9250-3bd695ce6f47&quot;},{&quot;text&quot;:&quot;No&quot;,&quot;optionId&quot;:&quot;f2e395bd-7d73-4355-9ce8-a19a6d2ae166&quot;}]},{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;Do you now or will you in the future require sponsorship from an employer to work in the country for which you are applying?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;4faad3c3-a6bd-40c1-bd2a-31bc7a092ad1&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Yes&quot;,&quot;optionId&quot;:&quot;58a35747-8b24-4329-8a03-ff08e94c681a&quot;},{&quot;text&quot;:&quot;No&quot;,&quot;optionId&quot;:&quot;d27ea60c-a289-42dd-94c0-5dd2ebd62742&quot;}]},{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;Are you willing to go through a background check (which includes: employment, education, and criminal verification) at the time an offer is extended?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;f2d65f07-fa23-49ec-a7ac-3c7ce966ccc8&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Yes&quot;,&quot;optionId&quot;:&quot;71b1bd86-fac6-4f09-a44f-8ae68e17325d&quot;},{&quot;text&quot;:&quot;No&quot;,&quot;optionId&quot;:&quot;4c744c6c-3475-4550-b33e-1a486bbfa962&quot;}]},{&quot;type&quot;:&quot;dropdown&quot;,&quot;text&quot;:&quot;How did you hear about this opportunity?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;a9840e51-89b6-47ce-838a-cbef6a23080b&quot;,&quot;prompt&quot;:&quot;Select the following&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Glassdoor&quot;,&quot;optionId&quot;:&quot;4a880a54-0829-41be-aab7-28d6535ee2de&quot;},{&quot;text&quot;:&quot;Achievers Career Page&quot;,&quot;optionId&quot;:&quot;f45a9265-03da-4ce6-9b11-8e112de05290&quot;},{&quot;text&quot;:&quot;LinkedIn&quot;,&quot;optionId&quot;:&quot;80a0438f-6a85-4457-ae92-c42fef3aed82&quot;},{&quot;text&quot;:&quot;Indeed&quot;,&quot;optionId&quot;:&quot;655200e1-483e-47f8-bd57-ae85fc785b7b&quot;},{&quot;text&quot;:&quot;Networking Event&quot;,&quot;optionId&quot;:&quot;58f6334d-f381-4b5b-936e-de7ed4d5feda&quot;},{&quot;text&quot;:&quot;Other&quot;,&quot;optionId&quot;:&quot;d8eda2b0-dedf-4cc0-8ce6-85c77cc6dfcd&quot;}]},{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;Are you comfortable working in a hybrid work arrangement 2-3 days  a week, which involves a combination of remote work and in-office collaboration? (for roles posted as hybrid only)&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;1569987c-caef-45dd-8aed-6fce61b4d3a7&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Yes&quot;,&quot;optionId&quot;:&quot;d756c012-dafa-444e-86b5-29c071c6cf8d&quot;},{&quot;text&quot;:&quot;No&quot;,&quot;optionId&quot;:&quot;a61ffc2c-5386-4bf2-b80d-b40125d38610&quot;}]},{&quot;type&quot;:&quot;textarea&quot;,&quot;text&quot;:&quot;Please provide your salary range requirements:&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:true,&quot;id&quot;:&quot;b769f742-7ace-4ef4-9549-6c365c5be6ed&quot;}],&quot;updatedByUserId&quot;:&quot;00000000-0000-0000-0000-000000000000&quot;,&quot;id&quot;:&quot;6f57c826-81ca-4502-8a5a-f26ecbc64f89&quot;}" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][baseTemplate]">
+<ul>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width multiple-choice">
+<div class="text">Are you legally entitled to work in the country you are applying for?<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<ul data-qa="multiple-choice">
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field0]" value="Yes" required="required" /><span class="application-answer-alternative">Yes</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field0]" value="No" required="required" /><span class="application-answer-alternative">No</span>
+</label>
+</li>
+</ul>
+</div>
+</div>
+</li>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width multiple-choice">
+<div class="text">Do you now or will you in the future require sponsorship from an employer to work in the country for which you are applying?<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<ul data-qa="multiple-choice">
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field1]" value="Yes" required="required" /><span class="application-answer-alternative">Yes</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field1]" value="No" required="required" /><span class="application-answer-alternative">No</span>
+</label>
+</li>
+</ul>
+</div>
+</div>
+</li>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width multiple-choice">
+<div class="text">Are you willing to go through a background check (which includes: employment, education, and criminal verification) at the time an offer is extended?<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<ul data-qa="multiple-choice">
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field2]" value="Yes" required="required" /><span class="application-answer-alternative">Yes</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field2]" value="No" required="required" /><span class="application-answer-alternative">No</span>
+</label>
+</li>
+</ul>
+</div>
+</div>
+</li>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width dropdown">
+<div class="text">How did you hear about this opportunity?<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<div class="application-dropdown">
+<select name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field3]" required>
+<option value="">Select the following</option>
+<option value="Glassdoor">Glassdoor</option>
+<option value="Achievers Career Page">Achievers Career Page</option>
+<option value="LinkedIn">LinkedIn</option>
+<option value="Indeed">Indeed</option>
+<option value="Networking Event">Networking Event</option>
+<option value="Other">Other</option>
+</select>
+</div>
+</div>
+</div>
+</li>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width multiple-choice">
+<div class="text">Are you comfortable working in a hybrid work arrangement 2-3 days  a week, which involves a combination of remote work and in-office collaboration? (for roles posted as hybrid only)<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<ul data-qa="multiple-choice">
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field4]" value="Yes" required="required" /><span class="application-answer-alternative">Yes</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field4]" value="No" required="required" /><span class="application-answer-alternative">No</span>
+</label>
+</li>
+</ul>
+</div>
+</div>
+</li>
+<li class="application-question custom-question">
+<div>
+<div class="application-label full-width textarea">
+<div class="text">Please provide your salary range requirements:<span class="required">✱</span>
+</div>
+</div>
+<div class="application-field full-width required-field">
+<textarea class="card-field-input" name="cards[6f57c826-81ca-4502-8a5a-f26ecbc64f89][field5]" required="required"></textarea>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section page-centered application-form" id="countrySurvey_4c770bc7-dda8-48cf-8ecb-5141fa084257_5ee25494-c13b-4480-a90f-e2b05284c3da_cbbc7c32-9de2-4e04-952b-65b229c32499_babc1735-a6de-40f5-adbf-d9899c5c31b0_2e19ed36-f392-42fe-9fe2-a603a09500d8_4ca08c6e-d6e5-48d8-bc9f-f273ceae0284_8b7e6225-62a5-4d63-9021-90eed7cfcc9c_10eeafcd-13ee-441e-8200-b13ed87dd2fd_79547c69-9993-442d-a25d-98ee40a75d7c_9f8bfe82-e7e9-4b2e-a643-428f4d07b2f7
+">
+<hr />
+<h4 data-qa="card-name">Demographic Survey for Achievers</h4>
+<p>We invite you to complete this optional survey to help us evaluate our diversity and inclusion efforts. Submission of the information on this form is strictly voluntary and refusal to provide it will not subject you to any adverse treatment or affect your job application. Information obtained will be kept separate from your name or job application. This information will be kept secure and confidential and will be used solely to evaluate our diversity and inclusion efforts.</p>
+<input type="hidden" value="{&quot;createdAt&quot;:1693240906104,&quot;updatedAt&quot;:1693240906104,&quot;text&quot;:&quot;Demographic Survey for Achievers&quot;,&quot;instructions&quot;:&quot;We invite you to complete this optional survey to help us evaluate our diversity and inclusion efforts. Submission of the information on this form is strictly voluntary and refusal to provide it will not subject you to any adverse treatment or affect your job application. Information obtained will be kept separate from your name or job application. This information will be kept secure and confidential and will be used solely to evaluate our diversity and inclusion efforts.&quot;,&quot;type&quot;:&quot;survey&quot;,&quot;fields&quot;:[{&quot;type&quot;:&quot;multiple-select&quot;,&quot;text&quot;:&quot;I identify my ethnicity as&quot;,&quot;description&quot;:&quot;Select all that apply&quot;,&quot;required&quot;:false,&quot;id&quot;:&quot;bf28804b-a01f-420f-9542-c7deba059681&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;White / Caucasian&quot;},{&quot;text&quot;:&quot;Hispanic, Latino, or Spanish origin&quot;},{&quot;text&quot;:&quot;Black or African American&quot;},{&quot;text&quot;:&quot;Asian&quot;},{&quot;text&quot;:&quot;Native Hawaiian or other Pacific Islander&quot;},{&quot;text&quot;:&quot;Indigenous Peoples, First Nations, Native American, or Alaska Native&quot;},{&quot;text&quot;:&quot;Middle Eastern or North African&quot;},{&quot;text&quot;:&quot;Some other race, ethnicity, or origin&quot;},{&quot;text&quot;:&quot;Prefer not to disclose&quot;}]},{&quot;type&quot;:&quot;multiple-choice&quot;,&quot;text&quot;:&quot;What gender do you identify as?&quot;,&quot;description&quot;:&quot;&quot;,&quot;required&quot;:false,&quot;id&quot;:&quot;7cd53ee1-b7f3-4394-bd3e-3a84107adb34&quot;,&quot;options&quot;:[{&quot;text&quot;:&quot;Female&quot;},{&quot;text&quot;:&quot;Male&quot;},{&quot;text&quot;:&quot;Non-binary&quot;},{&quot;text&quot;:&quot;Prefer not to disclose&quot;}]}],&quot;accountId&quot;:&quot;00000000-0000-0000-0000-000000000000&quot;,&quot;id&quot;:&quot;b916b53a-cb56-433f-80d4-78e2d55a4887&quot;}" data-name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][baseTemplate]" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][baseTemplate]">
+<input type="hidden" value="96b85b2b-12b4-4deb-bbaf-930ce2be9b9a" data-name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][surveyId]" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][surveyId]">
+<input type="hidden" value="" data-name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][candidateSelectedLocation]" name="">
+<ul>
+<li class="application-question">
+<div class="application-label full-width multiple-select">
+<div class="text">I identify my ethnicity as</div>
+<p class="description">Select all that apply</p>
+</div>
+<div class="application-field full-width">
+<ul data-qa="checkboxes">
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="White / Caucasian" /><span class="application-answer-alternative">White / Caucasian</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Hispanic, Latino, or Spanish origin" /><span class="application-answer-alternative">Hispanic, Latino, or Spanish origin</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Black or African American" /><span class="application-answer-alternative">Black or African American</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Asian" /><span class="application-answer-alternative">Asian</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Native Hawaiian or other Pacific Islander" /><span class="application-answer-alternative">Native Hawaiian or other Pacific Islander</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Indigenous Peoples, First Nations, Native American, or Alaska Native" /><span class="application-answer-alternative">Indigenous Peoples, First Nations, Native American, or Alaska Native</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Middle Eastern or North African" /><span class="application-answer-alternative">Middle Eastern or North African</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Some other race, ethnicity, or origin" /><span class="application-answer-alternative">Some other race, ethnicity, or origin</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field0]" value="Prefer not to disclose" /><span class="application-answer-alternative">Prefer not to disclose</span>
+</label>
+</li>
+</ul>
+</div>
+</li>
+<li class="application-question">
+<div class="application-label full-width multiple-choice">
+<div class="text">What gender do you identify as?</div>
+</div>
+<div class="application-field full-width">
+<ul data-qa="multiple-choice">
+<li>
+<label>
+<input type="radio" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field1]" value="Female" /><span class="application-answer-alternative">Female</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field1]" value="Male" /><span class="application-answer-alternative">Male</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field1]" value="Non-binary" /><span class="application-answer-alternative">Non-binary</span>
+</label>
+</li>
+<li>
+<label>
+<input type="radio" name="surveysResponses[b916b53a-cb56-433f-80d4-78e2d55a4887][responses][field1]" value="Prefer not to disclose" /><span class="application-answer-alternative">Prefer not to disclose</span>
+</label>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<input type="hidden" name="accountId" value="00000000-0000-0000-0000-000000000000">
+<input type="hidden" name="linkedInData">
+<input type="hidden" name="origin">
+<input type="hidden" name="referer">
+<input type="hidden" name="timezone" id="applicant-timezone" value="">
+<input type="hidden" name="socialReferralKey">
+<input type="hidden" name="socialSource">
+<input type="hidden" name="resumeStorageId" value="">
+<input type="hidden" name="source">
+<div class="section page-centered application-form" data-qa="consent-section">
+<hr>
+<ul>
+<li class="application-question">
+<div class="application-field full-width">
+<ul>
+<li>
+<label>
+<input type="hidden" name="consent[marketing]" value="0">
+<input type="checkbox" name="consent[marketing]" value="1">
+<p class="application-answer-alternative">Yes, Achievers can contact me about future job opportunities for up to 1 year<br><a href="https://www.achievers.com/privacy-policy/" target="_blank" class="link" data-qa="privacy-link"><small>Privacy policy</small></a></p>
+</label>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="section page-centered application-form last-section-apply">
+<button id="btn-submit" type="button" class="postings-btn template-btn-submit hex-color" data-qa="btn-submit" href="#">Submit application</button>
+</div>
+</form>
+</div></body></html>

@@ -1,0 +1,463 @@
+{
+ "absolute_url": "https://boards.greenhouse.io/faire/jobs/8821336002?gh_jid=8821336002",
+ "data_compliance": [
+  {
+   "type": "gdpr",
+   "requires_consent": false,
+   "requires_processing_consent": false,
+   "requires_retention_consent": false,
+   "retention_period": null,
+   "demographic_data_consent_applies": false
+  }
+ ],
+ "internal_job_id": 6529094002,
+ "location": {
+  "name": "Toronto, ON"
+ },
+ "metadata": [
+  {
+   "id": 4008562002,
+   "name": "Employment Type",
+   "value": "Regular",
+   "value_type": "single_select"
+  }
+ ],
+ "id": 8821336002,
+ "updated_at": "2026-09-18T17:11:05-04:00",
+ "requisition_id": "1504",
+ "title": "Growth Platform, Marketing Engineer",
+ "company_name": "Faire",
+ "first_published": "2026-09-18T17:11:05-04:00",
+ "language": "en",
+ "application_deadline": null,
+ "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;You&#x27;ll help our customers every day.&lt;/p&gt;&lt;h3&gt;What you&#x27;ll do&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Answer customer questions&lt;/li&gt;&lt;li&gt;Keep records up to date&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;This posting is for an existing vacancy.&lt;/p&gt;",
+ "departments": [
+  {
+   "id": 4002177002,
+   "name": "Marketing",
+   "child_ids": [
+    4105703002
+   ],
+   "parent_id": null
+  }
+ ],
+ "offices": [
+  {
+   "id": 4043067002,
+   "name": "New York City, NY",
+   "location": "New York, New York, United States",
+   "child_ids": [],
+   "parent_id": 4049474002
+  },
+  {
+   "id": 4000970002,
+   "name": "San Francisco, CA",
+   "location": "San Francisco, California, United States",
+   "child_ids": [],
+   "parent_id": 4049474002
+  },
+  {
+   "id": 4037984002,
+   "name": "Toronto, ON",
+   "location": "Toronto, Ontario, Canada",
+   "child_ids": [],
+   "parent_id": 4049475002
+  }
+ ],
+ "ai_disclaimer": "<p>We use AI to screen applications for this job.</p>",
+ "include_ai_disclaimer": false,
+ "ai_opt_out_request_url": "http://app2.greenhouse.io/ai_opt_out_request/job_post/8821336002/ai_opt_out",
+ "compliance": null,
+ "demographic_questions": {
+  "header": "Canada Demographic Questions",
+  "description": "<p>These questions are <strong>completely voluntary</strong>.</p>",
+  "questions": [
+   {
+    "id": 4000460002,
+    "label": "Which categories describe you? Select all that apply to you: ",
+    "required": true,
+    "type": "multi_value_multi_select",
+    "answer_options": [
+     {
+      "id": 4002470002,
+      "label": "First Nations, Metis or Inuit",
+      "free_form": false,
+      "decline_to_answer": false
+     },
+     {
+      "id": 4002471002,
+      "label": "Black/of African origin",
+      "free_form": false,
+      "decline_to_answer": false
+     },
+     {
+      "id": 4005214002,
+      "label": "I don't wish to answer",
+      "free_form": false,
+      "decline_to_answer": true
+     }
+    ]
+   },
+   {
+    "id": 4000461002,
+    "label": "How do you currently describe your gender identity? ",
+    "required": true,
+    "type": "multi_value_multi_select",
+    "answer_options": [
+     {
+      "id": 4002480002,
+      "label": "Man, male or masculine",
+      "free_form": false,
+      "decline_to_answer": false
+     },
+     {
+      "id": 4002481002,
+      "label": "Non-binary/third gender (For example - bigender, gender non-conforming, androgynous) ",
+      "free_form": false,
+      "decline_to_answer": false
+     },
+     {
+      "id": 4005215002,
+      "label": "I don't wish to answer",
+      "free_form": false,
+      "decline_to_answer": true
+     }
+    ]
+   }
+  ]
+ },
+ "questions": [
+  {
+   "description": null,
+   "label": "First Name",
+   "required": true,
+   "fields": [
+    {
+     "name": "first_name",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Last Name",
+   "required": true,
+   "fields": [
+    {
+     "name": "last_name",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Preferred First Name",
+   "required": false,
+   "fields": [
+    {
+     "name": "preferred_name",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Email",
+   "required": true,
+   "fields": [
+    {
+     "name": "email",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Phone",
+   "required": true,
+   "fields": [
+    {
+     "name": "phone",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Resume/CV",
+   "required": true,
+   "fields": [
+    {
+     "name": "resume",
+     "type": "input_file",
+     "values": []
+    },
+    {
+     "name": "resume_text",
+     "type": "textarea",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Cover Letter",
+   "required": false,
+   "fields": [
+    {
+     "name": "cover_letter",
+     "type": "input_file",
+     "values": []
+    },
+    {
+     "name": "cover_letter_text",
+     "type": "textarea",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "LinkedIn Profile",
+   "required": false,
+   "fields": [
+    {
+     "name": "question_38404568002",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Website",
+   "required": false,
+   "fields": [
+    {
+     "name": "question_38404569002",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Please select your current province of residence. Select “Not in Canada” if you reside outside of Canada. This information helps us understand our talent pool and ensures we provide accurate resources throughout the hiring process.",
+   "required": true,
+   "fields": [
+    {
+     "name": "question_38404570002",
+     "type": "multi_value_single_select",
+     "values": [
+      {
+       "label": "Alberta",
+       "value": 254396305002
+      },
+      {
+       "label": "British Columbia",
+       "value": 254396306002
+      },
+      {
+       "label": "Manitoba",
+       "value": 254396307002
+      },
+      {
+       "label": "New Brunswick",
+       "value": 254396308002
+      },
+      {
+       "label": "Newfoundland and Labrador",
+       "value": 254396309002
+      },
+      {
+       "label": "Northwest Territories",
+       "value": 254396310002
+      },
+      {
+       "label": "Nova Scotia",
+       "value": 254396311002
+      },
+      {
+       "label": "Nunavut",
+       "value": 254396312002
+      },
+      {
+       "label": "Ontario",
+       "value": 254396313002
+      },
+      {
+       "label": "Prince Edward Island",
+       "value": 254396314002
+      },
+      {
+       "label": "Quebec",
+       "value": 254396315002
+      },
+      {
+       "label": "Saskatchewan",
+       "value": 254396316002
+      },
+      {
+       "label": "Yukon",
+       "value": 254396317002
+      },
+      {
+       "label": "Not in Canada",
+       "value": 254396318002
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "This role will be in-office on a hybrid schedule, can you commit to being in-office three days per week at the location where this position is posted?",
+   "required": true,
+   "fields": [
+    {
+     "name": "question_38404571002",
+     "type": "multi_value_single_select",
+     "values": [
+      {
+       "label": "Yes",
+       "value": 1
+      },
+      {
+       "label": "No",
+       "value": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Before seeing this job posting, how familiar were you with Faire as a company? (Your response will not impact your application)",
+   "required": true,
+   "fields": [
+    {
+     "name": "question_38404572002",
+     "type": "multi_value_single_select",
+     "values": [
+      {
+       "label": "Never heard of it before",
+       "value": 254396319002
+      },
+      {
+       "label": "Had heard of it but knew little about it",
+       "value": 254396320002
+      },
+      {
+       "label": "Somewhat familiar",
+       "value": 254396321002
+      },
+      {
+       "label": "Very familiar",
+       "value": 254396322002
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "How did you hear about Faire? (Select all that apply)",
+   "required": true,
+   "fields": [
+    {
+     "name": "question_38404573002[]",
+     "type": "multi_value_multi_select",
+     "values": [
+      {
+       "label": "Answered “unaware” to previous question",
+       "value": 254396323002
+      },
+      {
+       "label": "Online advertisement (social media, display ads, etc.)",
+       "value": 254396324002
+      },
+      {
+       "label": "Billboard or outdoor advertising",
+       "value": 254396325002
+      },
+      {
+       "label": "Faire's website",
+       "value": 254396326002
+      },
+      {
+       "label": "Faire’s technical blogs (Faire.Tech, The Craft)",
+       "value": 254396327002
+      },
+      {
+       "label": "Someone I know personally (friend, family, former colleague)",
+       "value": 254396328002
+      },
+      {
+       "label": "Job posting on LinkedIn, Indeed, or other job board",
+       "value": 254396329002
+      },
+      {
+       "label": "LinkedIn post or content (not a job posting)",
+       "value": 254396330002
+      },
+      {
+       "label": "News article or media coverage",
+       "value": 254396331002
+      },
+      {
+       "label": "Industry event or conference",
+       "value": 254396332002
+      },
+      {
+       "label": "Other",
+       "value": 254396333002
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "location_questions": [
+  {
+   "description": null,
+   "label": "Longitude",
+   "required": true,
+   "fields": [
+    {
+     "name": "longitude",
+     "type": "input_hidden",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Latitude",
+   "required": true,
+   "fields": [
+    {
+     "name": "latitude",
+     "type": "input_hidden",
+     "values": []
+    }
+   ]
+  },
+  {
+   "description": null,
+   "label": "Location",
+   "required": true,
+   "fields": [
+    {
+     "name": "location",
+     "type": "input_text",
+     "values": []
+    }
+   ]
+  }
+ ]
+}
