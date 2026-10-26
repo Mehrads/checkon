@@ -111,7 +111,7 @@ function PasswordForm({
         className="flex flex-col gap-6"
       >
         <AuthHeading title="Log in to CheckON">
-          Use the email you subscribed with. We'll email you a sign-in code.
+          Use your account's email. We'll email you a sign-in code.
         </AuthHeading>
 
         <div className="grid gap-4">
@@ -166,13 +166,18 @@ function PasswordForm({
         </div>
 
         <p className="border-t pt-5 text-sm text-muted-foreground">
-          No account yet? Accounts come with a Starter or Agency plan.{" "}
-          <a
-            href="/check#pricing"
+          No account yet?{" "}
+          <RouterLink
+            to="/signup"
             className="font-medium text-foreground underline underline-offset-4"
           >
-            See plans
+            Create a free one
+          </RouterLink>
+          , or{" "}
+          <a href="/check#pricing" className="underline underline-offset-4">
+            see the plans
           </a>
+          .
         </p>
       </form>
     </Form>

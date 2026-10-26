@@ -30,8 +30,9 @@ export function PastChecks({ workspace }: { workspace?: WorkspacePublic }) {
             {only ? `Past checks for ${only.name}` : "Past checks"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            The date, job title and result of each check on your plan. Postings
-            are kept only in the archive, if you turn it on.
+            The date, job title and result of each check on your account. We
+            don't keep the postings themselves unless a paid plan's archive is
+            on.
           </p>
         </div>
         {workspace && (
@@ -50,7 +51,7 @@ export function PastChecks({ workspace }: { workspace?: WorkspacePublic }) {
         <p className="rounded-xl border bg-card p-5 text-sm text-muted-foreground">
           {only
             ? `No checks for ${only.name} yet.`
-            : "No checks on your plan yet."}
+            : "No checks on your account yet."}
         </p>
       ) : (
         <div className="rounded-xl border bg-card">

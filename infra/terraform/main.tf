@@ -34,6 +34,7 @@ locals {
     DATABASE_URL             = google_secret_manager_secret.generated["database-url"].secret_id
     SECRET_KEY               = google_secret_manager_secret.generated["secret-key"].secret_id
     FIRST_SUPERUSER_PASSWORD = google_secret_manager_secret.generated["first-superuser-password"].secret_id
+    OUTREACH_API_KEY         = google_secret_manager_secret.generated["outreach-api-key"].secret_id
     ANTHROPIC_API_KEY        = google_secret_manager_secret.manual["anthropic-api-key"].secret_id
     SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
     STRIPE_SECRET_KEY        = google_secret_manager_secret.manual["stripe-secret-key"].secret_id
@@ -131,11 +132,18 @@ resource "random_password" "first_superuser" {
   special = false
 }
 
+# The outreach workflow sends it to save reports (app/api/routes/reports.py); copy it into the local .env.
+resource "random_password" "outreach_api_key" {
+  length  = 48
+  special = false
+}
+
 locals {
   generated_secrets = {
     "database-url"             = "postgresql+psycopg://app:${random_password.db.result}@localhost/app?host=/cloudsql/${google_sql_database_instance.db.connection_name}"
     "secret-key"               = random_password.secret_key.result
     "first-superuser-password" = random_password.first_superuser.result
+    "outreach-api-key"         = random_password.outreach_api_key.result
   }
 }
 

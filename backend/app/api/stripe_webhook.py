@@ -1,8 +1,8 @@
 """Stripe webhook events. Each event is applied once, in one transaction. Events can arrive out of order, so
 the subscription is always read fresh from Stripe rather than taken from the event.
 
-A completed Checkout creates the customer's account (public sign-up is off) and emails a link to set a
-password. Emails go out only after the transaction commits, so a retried event can't send a second one, and
+A completed Checkout creates the customer's account, if the email has none, and emails a link to set a
+password. A free account that subscribes becomes the paying customer, with its checks, profile and reports. Emails go out only after the transaction commits, so a retried event can't send a second one, and
 after the response, so a slow mail server can't hold up Stripe's delivery.
 """
 
@@ -15,18 +15,27 @@ from typing import Any
 import stripe
 from pydantic import EmailStr, TypeAdapter, ValidationError
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, func, select
+from sqlmodel import Session, col, func, select, update
 
 from app.api.billing import (
-    active_plan,
     customer_for,
+    paid_plan,
     plans,
     stripe_id,
     sync_subscription,
 )
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import Customer, StripeEvent, User
+from app.models import (
+    ArchivedPosting,
+    Audit,
+    Customer,
+    OutreachReport,
+    PaidCheck,
+    StripeEvent,
+    User,
+    Workspace,
+)
 from app.utils import (
     generate_password_reset_token,
     generate_set_password_email,
@@ -122,7 +131,9 @@ def _attach_user(session: Session, customer: Customer, email: str | None, refere
         after.append(lambda: send_set_password_email(email, plan.name if plan else None))
     if user.customer_id is not None and user.customer_id != customer.id:
         earlier = session.get(Customer, user.customer_id)
-        if active_plan(earlier):
+        if earlier is not None and earlier.plan == "free":
+            absorb_free_account(session, earlier, customer)
+        elif paid_plan(earlier):
             logger.error(
                 "User %s already has a plan with Stripe customer %s; Stripe customer %s also subscribed. Refund one.",
                 user.id, earlier.stripe_customer_id if earlier else "?", customer.stripe_customer_id,
@@ -130,6 +141,16 @@ def _attach_user(session: Session, customer: Customer, email: str | None, refere
             return
     user.customer_id = customer.id
     session.add(user)
+
+
+def absorb_free_account(session: Session, free: Customer, into: Customer) -> None:
+    """A free account that subscribed: its history, company profile and reports move to the paying customer, its
+    users with them, and the free customer goes."""
+    session.flush()
+    for model in (PaidCheck, Workspace, Audit, ArchivedPosting, OutreachReport, User):
+        session.exec(update(model).where(col(model.customer_id) == free.id).values(customer_id=into.id))  # type: ignore[call-overload]
+    session.delete(free)
+    session.flush()
 
 
 def send_set_password_email(email: str, plan_name: str | None) -> None:

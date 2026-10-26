@@ -92,7 +92,8 @@ export function PlanCard({ billing }: { billing: BillingOut }) {
     showErrorToast(apiMessage(error, "We couldn't open billing.")),
   )
   const pastDue = billing.status === "past_due"
-  const price = billing.plan ? PLAN_PRICE[billing.plan] : null
+  const price =
+    billing.plan && billing.plan !== "free" ? PLAN_PRICE[billing.plan] : null
   return (
     <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
@@ -156,7 +157,7 @@ export function PlanCard({ billing }: { billing: BillingOut }) {
   )
 }
 
-/** For a signed-in user without an active plan: buy one. */
+/** For a signed-in user without a paid plan: a free account's checks, if it has one, and the plans to buy. */
 export function NoPlanCard({ billing }: { billing: BillingOut }) {
   const { showErrorToast } = useCustomToast()
   const checkout = useCheckout((_, error) =>
@@ -166,15 +167,22 @@ export function NoPlanCard({ billing }: { billing: BillingOut }) {
     showErrorToast(apiMessage(error, "We couldn't open billing.")),
   )
   const ended = billing.status === "canceled" || billing.status === "unpaid"
+  const free = billing.plan === "free"
   return (
     <section className="rounded-xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <h2 className="font-display text-3xl leading-tight font-medium tracking-[-0.01em]">
-            {ended ? "Your plan has ended" : "Choose a plan"}
+            {free
+              ? "Free account"
+              : ended
+                ? "Your plan has ended"
+                : "Choose a plan"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Without a plan you get the free check: one a week.
+            {free
+              ? `${billing.checks_included} checks every 30 days, with your history. A plan adds more checks, a company profile, pay suggestions and careers page audits.`
+              : "Without a plan you get the free check: one a week."}
           </p>
         </div>
         {billing.has_billing && (
@@ -188,6 +196,13 @@ export function NoPlanCard({ billing }: { billing: BillingOut }) {
           </LoadingButton>
         )}
       </div>
+      {free && (
+        <UsageMeter
+          billing={billing}
+          size="lg"
+          className="mt-6 rounded-lg border bg-muted/50 p-5"
+        />
+      )}
       <div className="mt-6 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
         {TILES.map((tile) => (
           <div key={tile.id} className="flex flex-col bg-card p-5">

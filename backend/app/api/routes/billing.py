@@ -17,6 +17,7 @@ from app.api.billing import (
     active_plan,
     allowance,
     get_stripe,
+    paid_plan,
     plans,
     stripe_client,
     stripe_id,
@@ -51,7 +52,7 @@ class BillingOut(BaseModel):
     checkout_enabled: bool  # Stripe is set up, so plans can be bought here
     has_billing: bool  # a Stripe customer exists, so the customer portal opens
     complimentary: bool = False  # our own test account: an active plan with nothing billed
-    plan: PlanId | None  # the active plan
+    plan: PlanId | Literal["free"] | None  # the active plan; free: a free account's checks, nothing paid
     plan_name: str | None
     status: str | None  # Stripe's subscription status, e.g. active, past_due, canceled
     checks_included: int
@@ -97,7 +98,7 @@ def _billing(session: SessionDep, customer: Customer | None) -> BillingOut:
         checks_included=plan.checks if plan else 0,
         checks_used=current.used if current else 0,
         extra_checks=current.extra if current else 0,
-        extra_checks_max=settings.PLAN_EXTRA_CHECKS_MAX,
+        extra_checks_max=plan.extra_checks if plan else settings.PLAN_EXTRA_CHECKS_MAX,
         period_start=current.start if current else None,
         period_end=current.end if current else None,
         cancel_at_period_end=bool(customer and plan and customer.cancel_at_period_end),
@@ -145,7 +146,7 @@ def start_checkout(body: PlanIn, session: SessionDep, user: OptionalUserDep, cli
     given at Checkout (see the webhook)."""
     plan = plans()[body.plan]
     customer = _customer(session, user) if user else None
-    if active_plan(customer):
+    if paid_plan(customer):  # a free account subscribes here; the webhook brings its history along
         raise HTTPException(status_code=409, detail="You already have a plan. Change it from your account page.")
     params: dict[str, Any] = {
         "mode": "subscription",
@@ -204,9 +205,9 @@ def change_plan(body: PlanIn, session: SessionDep, user: CurrentUser, client: Op
     on a subscription with a usage-based price, so it happens here.) A complimentary account just switches,
     so both plans can be tested."""
     customer = _customer(session, user)
-    current = active_plan(customer)
+    current = paid_plan(customer)
     if customer is None or current is None:
-        raise HTTPException(status_code=409, detail="There's no active plan to change.")
+        raise HTTPException(status_code=409, detail="There's no paid plan to change. Choose a plan to subscribe.")
     if current.id == body.plan:
         raise HTTPException(status_code=409, detail=f"You're already on {current.name}.")
     target = plans()[body.plan]

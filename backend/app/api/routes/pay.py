@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import Session, col, select
 
-from app.api.billing import PlanAccess, plan_access
+from app.api.billing import PlanAccess, paid_access
 from app.api.check_store import CheckState
 from app.api.deps import CurrentUser, SessionDep
 from app.api.free_check import rate_limited, same_origin
@@ -49,7 +49,7 @@ router = APIRouter(prefix="/pay", tags=["pay"], dependencies=[Depends(rate_limit
 
 
 def get_pay_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = plan_access(session, user)
+    access = paid_access(session, user)
     if access is None:
         raise HTTPException(status_code=403, detail="Pay range suggestions come with a paid plan.")
     return access

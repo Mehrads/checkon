@@ -24,7 +24,7 @@ from app.api.billing import (
     PlanAccess,
     PlanLimits,
     allowance,
-    plan_access,
+    paid_access,
     report_extra_checks_later,
 )
 from app.api.check_store import CheckState
@@ -132,7 +132,7 @@ def get_fetcher() -> Generator[Fetcher]:
 
 
 def get_audit_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = plan_access(session, user)
+    access = paid_access(session, user)
     if access is None:
         raise HTTPException(status_code=403, detail="Careers page audits come with a paid plan.")
     return access

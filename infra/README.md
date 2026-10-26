@@ -283,6 +283,26 @@ Each API request that calls the model becomes a Langfuse trace: the route, kind,
 
 The Hobby plan shows 30 days of traces and doesn't delete older ones. Locally, put `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY` in `.env` (a separate Langfuse project keeps local traces apart).
 
+## Outreach reports
+
+The outreach workflow (`.claude/workflows/prospect-outreach.js`) audits a company's open Ontario postings and their application forms, then saves the confirmed findings on the site as a report (`python -m app.outreach_report`). The pitch email links to the report's private page, `/report/<token>`, which opens without signing in; from there the company creates a free account (5 checks every 30 days) and the report is saved to it. **Admin › Outreach** lists every report with its views and who saved it. A report nobody saves is deleted after 90 days (`REPORT_DAYS`). Reports hold short quotes from public postings, never a whole posting or anyone's contact details.
+
+Saving a report takes `OUTREACH_API_KEY`. Terraform generates it as the `posting-checker-outreach-api-key` secret and gives it to the service:
+
+1. **Apply once** (it adds the secret and the setting):
+
+   ```bash
+   cd infra/terraform && GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token --account=msoltani2001@gmail.com)" terraform apply
+   ```
+
+2. **Copy it into the local `.env`**, which the workflow's commands read:
+
+   ```bash
+   printf '\nOUTREACH_API_KEY=%s\n' "$(gcloud secrets versions access latest --secret=posting-checker-outreach-api-key --project=compliance-512120 --account=msoltani2001@gmail.com)" >> ~/Desktop/ME/.env
+   ```
+
+Locally, any value works: set the same `OUTREACH_API_KEY` in `.env` for the server and pass `--site http://localhost:8000` to `app.outreach_report`.
+
 ## Browser extension
 
 The free check also runs in a Chrome and Edge side panel (`extension/`). The API only accepts extensions listed in `extension_ids` in `terraform.tfvars`: the unpacked build's fixed ID (`lfepfedddcabkigmmhbhacdllgljpdbe`), then the Chrome Web Store and Edge IDs once the listings exist. Add an ID and run `terraform apply`; it updates the service's `EXTENSION_IDS` setting in place. Building, loading and publishing are in `extension/README.md`.

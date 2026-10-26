@@ -5,7 +5,7 @@ import { PastAudits } from "@/components/Audit/PastAudits"
 import { PageHeading } from "@/components/Common/PageHeading"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useBilling } from "@/hooks/useBilling"
+import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout/audits/")({
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_layout/audits/")({
 /** Check every open Ontario posting on a careers page or job board at once, for the current workspace. */
 function Audits() {
   const { data: billing, isPending } = useBilling()
-  const onPlan = Boolean(billing?.plan)
+  const onPlan = isPaid(billing)
   const { current, canCreate } = useWorkspaces(onPlan)
 
   return (

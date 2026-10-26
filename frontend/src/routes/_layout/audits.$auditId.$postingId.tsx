@@ -12,6 +12,7 @@ import { useAudit } from "@/hooks/useAudits"
 import {
   apiMessage,
   apiStatus,
+  isPaid,
   useBilling,
   useRefreshBilling,
 } from "@/hooks/useBilling"
@@ -34,7 +35,7 @@ function PostingCheck() {
   const queryClient = useQueryClient()
   const refresh = useRefreshBilling()
   const { data: billing } = useBilling()
-  const { workspaces, canCreate } = useWorkspaces(Boolean(billing?.plan))
+  const { workspaces, canCreate } = useWorkspaces(isPaid(billing))
   const { data: audit } = useAudit(auditId)
   const posting = audit?.postings.find((p) => p.id === postingId)
   const profile = workspaces.find((w) => w.id === audit?.workspace_id)

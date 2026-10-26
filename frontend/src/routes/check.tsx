@@ -8,20 +8,16 @@ import { JsonLd, ORGANIZATION } from "@/components/Site/JsonLd"
 import {
   ContactSection,
   Faq,
-  ForTeams,
   HeroIntro,
   HowItWorks,
-  NextPosting,
   Pricing,
   QUESTIONS,
   SampleFix,
   SiteFooter,
   SiteHeader,
-  WhatYouGet,
 } from "@/components/Site/Landing"
-import { RulesSection } from "@/components/Site/RulePage"
 import { SampleAudit } from "@/components/Site/SampleAudit"
-import { useBilling } from "@/hooks/useBilling"
+import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { loadAnalytics } from "@/lib/analytics"
 import { pageHead, SITE } from "@/lib/seo"
@@ -82,7 +78,7 @@ const STRUCTURED = {
 function CheckPage() {
   useEffect(loadAnalytics, [])
   const { data: billing } = useBilling() // signed in: the plan this check counts toward
-  const { current } = useWorkspaces(Boolean(billing?.plan))
+  const { current } = useWorkspaces(isPaid(billing))
   return (
     <ContactProvider>
       <div className="site min-h-svh bg-background text-foreground">
@@ -100,15 +96,11 @@ function CheckPage() {
                 : undefined
             }
           />
-          <WhatYouGet />
           <SampleFix />
           <HowItWorks />
-          <ForTeams />
           <SampleAudit />
           <Pricing />
           <Faq />
-          <RulesSection />
-          <NextPosting />
           <ContactSection />
         </main>
         <SiteFooter />

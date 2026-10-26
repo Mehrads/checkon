@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { type Lang, pageHead, SITE } from "@/lib/seo"
 import { cn } from "@/lib/utils"
 import { JsonLd, ORGANIZATION } from "./JsonLd"
-import { Brand, Heading, Kicker, SiteFooter } from "./Landing"
+import { Brand, SiteFooter } from "./Landing"
 import { List, Part } from "./Legal"
 import * as en from "./rules/en"
 import * as fr from "./rules/fr"
@@ -407,44 +407,5 @@ export function RuleLinks({
         </li>
       ))}
     </ul>
-  )
-}
-
-/** The rule pages, on the landing page. */
-export function RulesSection() {
-  return (
-    <section
-      id="rules"
-      aria-labelledby="rules-heading"
-      className="scroll-mt-16"
-    >
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <Kicker>The rules</Kicker>
-        <Heading id="rules-heading" className="mt-5 max-w-2xl">
-          Ontario's job posting rules, one page each
-        </Heading>
-        <p className="mt-5 max-w-2xl text-muted-foreground">
-          What the law says, wording you can copy, and a before and after for
-          each rule.{" "}
-          <Link
-            to="/ontario-job-posting-requirements"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Start with the overview
-          </Link>
-          , or{" "}
-          <Link
-            to={fr.RULES.pay.path}
-            hrefLang="fr-CA"
-            lang="fr-CA"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            lisez-les en français
-          </Link>
-          .
-        </p>
-        <RuleLinks lang="en" className="mt-10 lg:grid-cols-3" />
-      </div>
-    </section>
   )
 }

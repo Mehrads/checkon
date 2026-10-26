@@ -31,6 +31,8 @@ const searchSchema = z.object({
   // Set by the link in the email a new subscriber gets: the account has no password yet
   // (the router reads "new=1" as the number 1)
   new: z.union([z.string(), z.number()]).optional().catch(undefined),
+  // Where to go after logging in: the outreach report a new free account signed up from
+  next: z.string().optional().catch(undefined),
 })
 
 const formSchema = z
@@ -67,7 +69,7 @@ export const Route = createFileRoute("/reset-password")({
 })
 
 function ResetPassword() {
-  const { token, new: first } = Route.useSearch()
+  const { token, new: first, next } = Route.useSearch()
   const setting = String(first) === "1"
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const navigate = useNavigate()
@@ -92,7 +94,7 @@ function ResetPassword() {
           : "Password updated successfully",
       )
       form.reset()
-      navigate({ to: "/login" })
+      navigate({ to: "/login", search: next ? { redirect: next } : {} })
     },
     onError: handleError.bind(showErrorToast),
   })

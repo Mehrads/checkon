@@ -2,6 +2,7 @@ import type { BillingOut } from "@/client"
 import { cn } from "@/lib/utils"
 
 export const PLAN_PRICE = { starter: "$79", agency: "$249" } as const
+export const FREE_ACCOUNT_CHECKS = 5 // every 30 days (PLAN_CHECKS_FREE on the server)
 
 export function formatDay(value: string): string {
   return new Date(value).toLocaleDateString("en-CA", {
@@ -49,7 +50,11 @@ export function UsageMeter({
         ) : (
           billing.period_end && (
             <p className="text-muted-foreground">
-              {billing.cancel_at_period_end ? "Ends" : "Renews"}{" "}
+              {billing.plan === "free"
+                ? "More checks on"
+                : billing.cancel_at_period_end
+                  ? "Ends"
+                  : "Renews"}{" "}
               {formatDay(billing.period_end)}
             </p>
           )

@@ -7,7 +7,7 @@ import { ProfileForm } from "@/components/Profile/ProfileForm"
 import { Workspaces } from "@/components/Profile/Workspaces"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useBilling } from "@/hooks/useBilling"
+import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout/profile")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_layout/profile")({
 /** The company profile every check starts from (paid plans); on Agency, one per client workspace. */
 function Profile() {
   const { data: billing, isPending } = useBilling()
-  const onPlan = Boolean(billing?.plan)
+  const onPlan = isPaid(billing)
   const { workspaces, current, canCreate } = useWorkspaces(onPlan)
 
   return (

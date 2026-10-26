@@ -425,3 +425,46 @@ class AuditPosting(SQLModel, table=True):
     note: str | None = Field(default=None, max_length=255)  # why it wasn't checked
     check_id: str | None = Field(default=None, max_length=64)  # the full check, in memory for an hour
     checked_at: datetime | None = None  # when the check started (status checking) or finished
+
+
+class OutreachReport(SQLModel, table=True):
+    """A careers page audit we ran for outreach, before the company asked for anything (the outreach workflow in
+    .claude/workflows): the open Ontario postings on its public board, what each may miss with the posting's own
+    words, and its application form's. Opened by its private link, with no sign-in. The company can save it to
+    a free or paid account (customer_id); one nobody saves is deleted after REPORT_DAYS. Short quotes from
+    public postings only, never a posting's whole text, and no contact details.
+    """
+
+    __tablename__ = "outreach_report"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    token: str = Field(max_length=64, unique=True, index=True)  # the private link's secret
+    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)
+    company: str = Field(max_length=255)
+    url: str = Field(max_length=2048)  # the board or careers page audited
+    found: int  # open postings on the board, anywhere
+    outside_ontario: int  # of those, the ones for work elsewhere, left out
+    # The hiring-process questions answered on the report: rule id to yes, no or unsure
+    checklist: dict[str, str] = Field(default_factory=dict, sa_column=Column(JSON))
+    customer_id: uuid.UUID | None = Field(default=None, foreign_key="customer.id", ondelete="SET NULL", index=True)
+    saved_at: datetime | None = None
+    first_viewed_at: datetime | None = None  # by anyone but us
+    views: int = 0
+
+
+class OutreachPosting(SQLModel, table=True):
+    """One posting in an outreach report: what the board lists publicly and what the check found."""
+
+    __tablename__ = "outreach_posting"
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    report_id: uuid.UUID = Field(foreign_key="outreach_report.id", nullable=False, ondelete="CASCADE", index=True)
+    position: int  # order in the report
+    title: str = Field(max_length=255)
+    location: str | None = Field(default=None, max_length=255)
+    url: str = Field(max_length=2048)  # the posting's public page
+    where: str = Field(max_length=16)  # ontario, or canada (Canada-wide, which may be filled in Ontario)
+    status: str = Field(max_length=32)  # a report status, refused or failed
+    # [{rule, verdict, message, quotes}], worst first: what the posting may miss and its words for each
+    findings: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    form_status: str | None = Field(default=None, max_length=32)  # the application form's; None when not read
+    form_findings: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
+    note: str | None = Field(default=None, max_length=255)  # why it wasn't checked

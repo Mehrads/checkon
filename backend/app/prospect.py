@@ -1,12 +1,14 @@
 """A company's public job board, checked for the outreach workflow (.claude/workflows/prospect-outreach.js): its
-first postings for Ontario, picked as the free sample audit picks them, each with its findings, the posting's own
-words for each and the rule page to link, so a pitch can quote them. Nothing is saved to the database; the checks
-use the real model on ANTHROPIC_API_KEY.
+open postings for Ontario (all of them, up to --postings), picked as the free sample audit picks them, each with its
+findings, the posting's own words for each and the rule page to link, so a pitch can quote them, and its application
+form's findings where the board shows the form (Greenhouse, Lever). Nothing is saved to the database; the checks use
+the real model on ANTHROPIC_API_KEY. Once a second agent has confirmed the findings, `python -m app.outreach_report`
+saves them on checkon.ca as the report the email links to.
 
-    python -m app.prospect https://job-boards.greenhouse.io/acme --postings 3 --out ~/Documents/CheckON/prospecting/2026-10-26/acme
+    python -m app.prospect https://job-boards.greenhouse.io/acme --out ~/Documents/CheckON/prospecting/2026-10-26/acme
 
-Prints JSON. With --out, each checked posting's text is saved there too (posting-1.txt, ...), so the findings can be
-checked against what was read.
+Prints JSON. With --out, each checked posting's text and form are saved there too (posting-1.txt, form-1.txt, ...),
+so the findings can be checked against what was read.
 """
 
 import argparse
@@ -19,13 +21,22 @@ from zoneinfo import ZoneInfo
 
 import anthropic
 
-from app.api.routes.audits import MAX_POSTING_CHARS
+from app.api.routes.audits import MAX_POSTING_CHARS, MAX_POSTINGS
 from app.audit.boards import Board, Found, posting_text, read_board
 from app.audit.fetch import Fetcher, FetchError
+from app.audit.forms import application_form
 from app.compliance.employer import EmployerSize, SizeCache
-from app.compliance.inspector import InputRefused, inspect
-from app.compliance.llm import AnthropicLLM, LLMError, SpendMeter, StructuredLLM
-from app.compliance.models import Context, Verdict
+from app.compliance.engine import evaluate
+from app.compliance.form import classify_form, parse_form
+from app.compliance.inspector import InputRefused, Inspection, inspect
+from app.compliance.llm import (
+    AnthropicLLM,
+    LLMError,
+    ModelSettings,
+    SpendMeter,
+    StructuredLLM,
+)
+from app.compliance.models import Context, RuleResult, Status, Verdict
 from app.compliance.rulepack import RulePack, load_pack
 from app.core.config import settings
 
@@ -53,6 +64,44 @@ def page_for(rule: str) -> str:
     return f"https://checkon.ca{RULE_PAGES.get(rule, '/ontario-job-posting-requirements')}{_UTM}"
 
 
+def _findings(results: list[RuleResult], text: str) -> list[dict[str, Any]]:
+    """What to act on, worst first, with the words each points at in `text`."""
+    to_act = sorted((r for r in results if r.verdict in _ORDER), key=lambda r: _ORDER[r.verdict])
+    return [
+        {"rule": r.rule, "verdict": r.verdict.value, "message": r.message, "page": page_for(r.rule),
+         "quotes": [text[start:end] for start, end in r.evidence]}
+        for r in to_act
+    ]  # fmt: skip
+
+
+def check_form(
+    board: Board, found: Found, inspection: Inspection, fetcher: Fetcher, llm: StructuredLLM, pack: RulePack,
+    today: date,
+) -> dict[str, Any]:  # fmt: skip
+    """The posting's application form, read from the board and checked as the form check does; form_status None
+    when the board doesn't show it or it couldn't be read or checked."""
+    try:
+        text = application_form(board.source, board.key, found.id, fetcher)
+    except FetchError as error:
+        return {"form_status": None, "form_note": f"The application form couldn't be read: {str(error)[:200]}"}
+    if text is None:
+        return {"form_status": None}
+    form = parse_form(text)
+    if not form.questions:  # only the board's own fields (name, email, résumé): nothing asks about experience
+        return {"form_status": Status.COMPLIANT.value, "form_findings": [], "form_text": text}
+    try:
+        questions = classify_form(form, pack, llm, ModelSettings())
+    except LLMError:
+        return {"form_status": None, "form_note": "The model couldn't check the application form."}
+    facts = inspection.facts.model_copy(update={"form": questions})
+    report = evaluate(facts, inspection.context, pack, today)
+    failed = any(r.verdict == Verdict.FAIL for r in report.form_results)
+    return {
+        "form_status": (Status.NOT_COMPLIANT if failed else Status.COMPLIANT).value,
+        "form_findings": _findings(report.form_results, form.text), "form_text": text,
+    }  # fmt: skip
+
+
 def first_postings(board: Board, count: int) -> list[Found]:
     """Ontario's postings first, then Canada-wide ones that may be filled in Ontario, as the sample audit picks."""
     ontario = [p for p in board.postings if p.where == "ontario"] + [p for p in board.postings if p.where == "canada"]
@@ -78,28 +127,25 @@ def check_posting(
     except LLMError:
         return out | {"status": "failed", "note": "The model couldn't check this posting."}
     report, doc, ctx = inspection.report, inspection.document, inspection.context
-    to_act = sorted((r for r in report.results if r.verdict in _ORDER), key=lambda r: _ORDER[r.verdict])
-    return out | {
+    out |= {
         "status": report.status.value,
         "passed": sum(r.verdict == Verdict.PASS for r in report.results),
-        "findings": [
-            {
-                "rule": r.rule, "verdict": r.verdict.value, "message": r.message, "page": page_for(r.rule),
-                "quotes": [doc.text[start:end] for start, end in r.evidence],
-            }
-            for r in to_act
-        ],
+        "findings": _findings(report.results, doc.text),
         "employer_size": {
             "meets_threshold": ctx.meets_headcount_threshold, "basis": ctx.headcount_basis,
             "evidence": ctx.headcount_evidence,
         },
     }  # fmt: skip
+    if report.status != Status.NOT_APPLICABLE:  # the rules cover the form only where they cover the posting
+        out |= check_form(board, found, inspection, fetcher, llm, pack, today)
+    return out
 
 
 def prospect(
-    url: str, fetcher: Fetcher, llm: StructuredLLM, pack: RulePack, today: date, sizes: SizeCache, postings: int = 3
-) -> dict[str, Any]:
-    """The board and its first Ontario postings, checked. Raises FetchError when the board can't be read."""
+    url: str, fetcher: Fetcher, llm: StructuredLLM, pack: RulePack, today: date, sizes: SizeCache,
+    postings: int = MAX_POSTINGS,
+) -> dict[str, Any]:  # fmt: skip
+    """The board and its Ontario postings, up to `postings`, checked. Raises FetchError when the board can't be read."""
     board = read_board(url, fetcher, today)
     picked = first_postings(board, postings)
     in_ontario = sum(p.where in ("ontario", "canada") for p in board.postings)
@@ -112,12 +158,16 @@ def prospect(
 
 
 def save_texts(result: dict[str, Any], out: Path) -> dict[str, Any]:
-    """Each checked posting's text to out/posting-N.txt; the JSON then names the file instead of carrying the text."""
+    """Each checked posting's text to out/posting-N.txt and its form to out/form-N.txt; the JSON then names the files
+    instead of carrying the text."""
     out.mkdir(parents=True, exist_ok=True)
     for n, posting in enumerate(result.get("postings", []), start=1):
         if (text := posting.pop("text", None)) is not None:
             (out / f"posting-{n}.txt").write_text(text, encoding="utf-8")
             posting["text_file"] = str(out / f"posting-{n}.txt")
+        if form := posting.pop("form_text", None):
+            (out / f"form-{n}.txt").write_text(form, encoding="utf-8")
+            posting["form_file"] = str(out / f"form-{n}.txt")
     (out / "check.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
 
@@ -125,7 +175,7 @@ def save_texts(result: dict[str, Any], out: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("url", help="the company's job board or careers page")
-    parser.add_argument("--postings", type=int, default=settings.SAMPLE_AUDIT_POSTINGS, help="how many to check")
+    parser.add_argument("--postings", type=int, default=MAX_POSTINGS, help="at most this many to check")
     parser.add_argument("--out", type=Path, help="a folder for the posting texts and check.json")
     args = parser.parse_args()
     if not settings.ANTHROPIC_API_KEY:
@@ -148,6 +198,7 @@ def main() -> None:
     else:
         for posting in result.get("postings", []):
             posting.pop("text", None)
+            posting.pop("form_text", None)
     json.dump(result, sys.stdout, indent=2)
     sys.stdout.write("\n")
 

@@ -22,12 +22,15 @@ import { Route as OntarioPayTransparencyJobPostingRouteImport } from './routes/o
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutArchiveRouteImport } from './routes/_layout/archive'
+import { Route as LayoutOutreachRouteImport } from './routes/_layout/outreach'
 import { Route as LayoutProfileRouteImport } from './routes/_layout/profile'
+import { Route as LayoutReportsRouteImport } from './routes/_layout/reports'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutStatsRouteImport } from './routes/_layout/stats'
 import { Route as FrOntarioConservationOffresEmploiRouteImport } from './routes/fr/ontario-conservation-offres-emploi'
@@ -36,6 +39,7 @@ import { Route as FrOntarioExperienceCanadienneOffreEmploiRouteImport } from './
 import { Route as FrOntarioPosteVacantExistantOffreEmploiRouteImport } from './routes/fr/ontario-poste-vacant-existant-offre-emploi'
 import { Route as FrOntarioReponse45JoursEntrevueRouteImport } from './routes/fr/ontario-reponse-45-jours-entrevue'
 import { Route as FrOntarioTransparenceSalarialeOffreEmploiRouteImport } from './routes/fr/ontario-transparence-salariale-offre-emploi'
+import { Route as ReportTokenRouteImport } from './routes/report.$token'
 import { Route as LayoutAuditsIndexRouteImport } from './routes/_layout/audits.index'
 import { Route as LayoutAuditsAuditIdIndexRouteImport } from './routes/_layout/audits.$auditId.index'
 import { Route as LayoutAuditsAuditIdPostingIdRouteImport } from './routes/_layout/audits.$auditId.$postingId'
@@ -111,6 +115,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -136,9 +145,19 @@ const LayoutArchiveRoute = LayoutArchiveRouteImport.update({
   path: '/archive',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutOutreachRoute = LayoutOutreachRouteImport.update({
+  id: '/outreach',
+  path: '/outreach',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutProfileRoute = LayoutProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutReportsRoute = LayoutReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
@@ -187,6 +206,11 @@ const FrOntarioTransparenceSalarialeOffreEmploiRoute =
     path: '/fr/ontario-transparence-salariale-offre-emploi',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ReportTokenRoute = ReportTokenRouteImport.update({
+  id: '/report/$token',
+  path: '/report/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LayoutAuditsIndexRoute = LayoutAuditsIndexRouteImport.update({
   id: '/audits/',
   path: '/audits/',
@@ -219,11 +243,14 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/admin': typeof LayoutAdminRoute
   '/archive': typeof LayoutArchiveRoute
+  '/outreach': typeof LayoutOutreachRoute
   '/profile': typeof LayoutProfileRoute
+  '/reports': typeof LayoutReportsRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
   '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
@@ -232,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
   '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
   '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
+  '/report/$token': typeof ReportTokenRoute
   '/audits/': typeof LayoutAuditsIndexRoute
   '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
   '/audits/$auditId/': typeof LayoutAuditsAuditIdIndexRoute
@@ -249,11 +277,14 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/admin': typeof LayoutAdminRoute
   '/archive': typeof LayoutArchiveRoute
+  '/outreach': typeof LayoutOutreachRoute
   '/profile': typeof LayoutProfileRoute
+  '/reports': typeof LayoutReportsRoute
   '/settings': typeof LayoutSettingsRoute
   '/stats': typeof LayoutStatsRoute
   '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
@@ -262,6 +293,7 @@ export interface FileRoutesByTo {
   '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
   '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
   '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
+  '/report/$token': typeof ReportTokenRoute
   '/': typeof LayoutIndexRoute
   '/audits': typeof LayoutAuditsIndexRoute
   '/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
@@ -282,11 +314,14 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/welcome': typeof WelcomeRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/archive': typeof LayoutArchiveRoute
+  '/_layout/outreach': typeof LayoutOutreachRoute
   '/_layout/profile': typeof LayoutProfileRoute
+  '/_layout/reports': typeof LayoutReportsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/stats': typeof LayoutStatsRoute
   '/fr/ontario-conservation-offres-emploi': typeof FrOntarioConservationOffresEmploiRoute
@@ -295,6 +330,7 @@ export interface FileRoutesById {
   '/fr/ontario-poste-vacant-existant-offre-emploi': typeof FrOntarioPosteVacantExistantOffreEmploiRoute
   '/fr/ontario-reponse-45-jours-entrevue': typeof FrOntarioReponse45JoursEntrevueRoute
   '/fr/ontario-transparence-salariale-offre-emploi': typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
+  '/report/$token': typeof ReportTokenRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/audits/': typeof LayoutAuditsIndexRoute
   '/_layout/audits/$auditId/$postingId': typeof LayoutAuditsAuditIdPostingIdRoute
@@ -316,11 +352,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
+    | '/signup'
     | '/terms'
     | '/welcome'
     | '/admin'
     | '/archive'
+    | '/outreach'
     | '/profile'
+    | '/reports'
     | '/settings'
     | '/stats'
     | '/fr/ontario-conservation-offres-emploi'
@@ -329,6 +368,7 @@ export interface FileRouteTypes {
     | '/fr/ontario-poste-vacant-existant-offre-emploi'
     | '/fr/ontario-reponse-45-jours-entrevue'
     | '/fr/ontario-transparence-salariale-offre-emploi'
+    | '/report/$token'
     | '/audits/'
     | '/audits/$auditId/$postingId'
     | '/audits/$auditId/'
@@ -346,11 +386,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
+    | '/signup'
     | '/terms'
     | '/welcome'
     | '/admin'
     | '/archive'
+    | '/outreach'
     | '/profile'
+    | '/reports'
     | '/settings'
     | '/stats'
     | '/fr/ontario-conservation-offres-emploi'
@@ -359,6 +402,7 @@ export interface FileRouteTypes {
     | '/fr/ontario-poste-vacant-existant-offre-emploi'
     | '/fr/ontario-reponse-45-jours-entrevue'
     | '/fr/ontario-transparence-salariale-offre-emploi'
+    | '/report/$token'
     | '/'
     | '/audits'
     | '/audits/$auditId/$postingId'
@@ -378,11 +422,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/recover-password'
     | '/reset-password'
+    | '/signup'
     | '/terms'
     | '/welcome'
     | '/_layout/admin'
     | '/_layout/archive'
+    | '/_layout/outreach'
     | '/_layout/profile'
+    | '/_layout/reports'
     | '/_layout/settings'
     | '/_layout/stats'
     | '/fr/ontario-conservation-offres-emploi'
@@ -391,6 +438,7 @@ export interface FileRouteTypes {
     | '/fr/ontario-poste-vacant-existant-offre-emploi'
     | '/fr/ontario-reponse-45-jours-entrevue'
     | '/fr/ontario-transparence-salariale-offre-emploi'
+    | '/report/$token'
     | '/_layout/'
     | '/_layout/audits/'
     | '/_layout/audits/$auditId/$postingId'
@@ -411,6 +459,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   WelcomeRoute: typeof WelcomeRoute
   FrOntarioConservationOffresEmploiRoute: typeof FrOntarioConservationOffresEmploiRoute
@@ -419,6 +468,7 @@ export interface RootRouteChildren {
   FrOntarioPosteVacantExistantOffreEmploiRoute: typeof FrOntarioPosteVacantExistantOffreEmploiRoute
   FrOntarioReponse45JoursEntrevueRoute: typeof FrOntarioReponse45JoursEntrevueRoute
   FrOntarioTransparenceSalarialeOffreEmploiRoute: typeof FrOntarioTransparenceSalarialeOffreEmploiRoute
+  ReportTokenRoute: typeof ReportTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -514,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -549,11 +606,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutArchiveRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/outreach': {
+      id: '/_layout/outreach'
+      path: '/outreach'
+      fullPath: '/outreach'
+      preLoaderRoute: typeof LayoutOutreachRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/profile': {
       id: '/_layout/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof LayoutProfileRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/reports': {
+      id: '/_layout/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof LayoutReportsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/settings': {
@@ -612,6 +683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrOntarioTransparenceSalarialeOffreEmploiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/report/$token': {
+      id: '/report/$token'
+      path: '/report/$token'
+      fullPath: '/report/$token'
+      preLoaderRoute: typeof ReportTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_layout/audits/': {
       id: '/_layout/audits/'
       path: '/audits'
@@ -639,7 +717,9 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutArchiveRoute: typeof LayoutArchiveRoute
+  LayoutOutreachRoute: typeof LayoutOutreachRoute
   LayoutProfileRoute: typeof LayoutProfileRoute
+  LayoutReportsRoute: typeof LayoutReportsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutStatsRoute: typeof LayoutStatsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
@@ -651,7 +731,9 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutArchiveRoute: LayoutArchiveRoute,
+  LayoutOutreachRoute: LayoutOutreachRoute,
   LayoutProfileRoute: LayoutProfileRoute,
+  LayoutReportsRoute: LayoutReportsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutStatsRoute: LayoutStatsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
@@ -678,6 +760,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   WelcomeRoute: WelcomeRoute,
   FrOntarioConservationOffresEmploiRoute:
@@ -691,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   FrOntarioReponse45JoursEntrevueRoute: FrOntarioReponse45JoursEntrevueRoute,
   FrOntarioTransparenceSalarialeOffreEmploiRoute:
     FrOntarioTransparenceSalarialeOffreEmploiRoute,
+  ReportTokenRoute: ReportTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

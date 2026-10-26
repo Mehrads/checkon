@@ -92,12 +92,14 @@ test("The landing page and the guide link to the rule pages", async ({
   page,
 }) => {
   await page.goto("/check")
-  await page
-    .locator("#rules")
-    .getByRole("link", { name: /Canadian experience/ })
-    .click()
+  const footer = page.getByRole("contentinfo")
+  await expect(
+    footer.getByRole("link", { name: "Lisez-les en français" }),
+  ).toHaveAttribute("href", "/fr/ontario-transparence-salariale-offre-emploi")
+  await footer.getByRole("link", { name: "Canadian experience" }).click()
   await expect(page).toHaveURL("/ontario-canadian-experience-job-posting")
-  await page.getByRole("link", { name: "En français" }).click()
+  // Exact: the footer's "Lisez-les en français" also contains the words
+  await page.getByRole("link", { name: "En français", exact: true }).click()
   await expect(page).toHaveURL("/fr/ontario-experience-canadienne-offre-emploi")
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "expérience canadienne",

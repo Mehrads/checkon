@@ -64,8 +64,9 @@ PRERENDERED = {
 
 # The app's own pages (frontend/src/routes): its shell, index.html, which keeps them out of search results.
 APP_PAGES = (
-    "/login", "/recover-password", "/reset-password", "/welcome", "/admin", "/archive", "/profile", "/settings",
-    "/stats", "/audits", "/audits/{audit_id}", "/audits/{audit_id}/{posting_id}",
+    "/login", "/signup", "/recover-password", "/reset-password", "/welcome", "/admin", "/archive", "/profile",
+    "/settings", "/stats", "/outreach", "/audits", "/audits/{audit_id}", "/audits/{audit_id}/{posting_id}",
+    "/reports", "/report/{token}",
 )  # fmt: skip
 
 

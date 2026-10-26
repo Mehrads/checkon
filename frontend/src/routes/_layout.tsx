@@ -9,7 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { isLoggedIn } from "@/hooks/useAuth"
-import { useBilling } from "@/hooks/useBilling"
+import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { noindex } from "@/lib/seo"
 
@@ -30,9 +30,7 @@ export const Route = createFileRoute("/_layout")({
 /** Agency: the client whose company profile checks use, on every page of the account. */
 function ClientSwitcher() {
   const { data: billing } = useBilling()
-  const { workspaces, current, canCreate } = useWorkspaces(
-    Boolean(billing?.plan),
-  )
+  const { workspaces, current, canCreate } = useWorkspaces(isPaid(billing))
   if (!canCreate || !current) return null
   return (
     <div className="ml-auto flex min-w-0 items-center gap-2 text-sm">

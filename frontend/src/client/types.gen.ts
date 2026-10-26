@@ -492,7 +492,7 @@ export type BillingOut = {
     /**
      * Plan
      */
-    plan: 'starter' | 'agency' | null;
+    plan: 'starter' | 'agency' | 'free' | null;
     /**
      * Plan Name
      */
@@ -612,6 +612,18 @@ export type CheckOut = {
      * Form Text
      */
     form_text?: string | null;
+};
+
+/**
+ * ChecklistIn
+ */
+export type ChecklistIn = {
+    /**
+     * Answers
+     */
+    answers: {
+        [key: string]: 'yes' | 'no' | 'unsure';
+    };
 };
 
 /**
@@ -1053,6 +1065,52 @@ export type Occupation = {
 };
 
 /**
+ * OutreachSummary
+ */
+export type OutreachSummary = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Company
+     */
+    company: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Postings
+     */
+    postings: number;
+    /**
+     * To Fix
+     */
+    to_fix: number;
+    /**
+     * Saved At
+     */
+    saved_at: string | null;
+    /**
+     * Views
+     */
+    views: number;
+    /**
+     * First Viewed At
+     */
+    first_viewed_at: string | null;
+    /**
+     * Saved By
+     */
+    saved_by: string | null;
+};
+
+/**
  * PaidCheckPublic
  */
 export type PaidCheckPublic = {
@@ -1192,6 +1250,90 @@ export type PlanIn = {
      * Plan
      */
     plan: 'starter' | 'agency';
+};
+
+/**
+ * PostingIn
+ */
+export type PostingIn = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Location
+     */
+    location?: string | null;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Where
+     */
+    where: 'ontario' | 'canada';
+    /**
+     * Status
+     */
+    status: 'compliant' | 'not_compliant' | 'needs_input' | 'not_applicable' | 'refused' | 'failed';
+    /**
+     * Findings
+     */
+    findings?: Array<ReportFinding>;
+    /**
+     * Form Status
+     */
+    form_status?: 'compliant' | 'not_compliant' | null;
+    /**
+     * Form Findings
+     */
+    form_findings?: Array<ReportFinding>;
+    /**
+     * Note
+     */
+    note?: string | null;
+};
+
+/**
+ * PostingOut
+ */
+export type PostingOut = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Location
+     */
+    location: string | null;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Where
+     */
+    where: string;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Findings
+     */
+    findings: Array<ReportFinding>;
+    /**
+     * Form Status
+     */
+    form_status: string | null;
+    /**
+     * Form Findings
+     */
+    form_findings: Array<ReportFinding>;
+    /**
+     * Note
+     */
+    note: string | null;
 };
 
 /**
@@ -1389,6 +1531,158 @@ export type Report = {
 };
 
 /**
+ * ReportCreated
+ */
+export type ReportCreated = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Link
+     */
+    link: string;
+};
+
+/**
+ * ReportFinding
+ */
+export type ReportFinding = {
+    /**
+     * Rule
+     */
+    rule: string;
+    /**
+     * Verdict
+     */
+    verdict: 'fail' | 'warning' | 'needs_input';
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Quotes
+     */
+    quotes?: Array<string>;
+};
+
+/**
+ * ReportIn
+ */
+export type ReportIn = {
+    /**
+     * Company
+     */
+    company: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Found
+     */
+    found: number;
+    /**
+     * Outside Ontario
+     */
+    outside_ontario: number;
+    /**
+     * Postings
+     */
+    postings: Array<PostingIn>;
+};
+
+/**
+ * ReportOut
+ */
+export type ReportOut = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Company
+     */
+    company: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Found
+     */
+    found: number;
+    /**
+     * Outside Ontario
+     */
+    outside_ontario: number;
+    /**
+     * Postings
+     */
+    postings: Array<PostingOut>;
+    /**
+     * Checklist
+     */
+    checklist: {
+        [key: string]: 'yes' | 'no' | 'unsure';
+    };
+    /**
+     * Saved
+     */
+    saved: boolean;
+    /**
+     * Mine
+     */
+    mine: boolean;
+    /**
+     * Expires On
+     */
+    expires_on: string | null;
+};
+
+/**
+ * ReportSummary
+ */
+export type ReportSummary = {
+    /**
+     * Token
+     */
+    token: string;
+    /**
+     * Company
+     */
+    company: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Postings
+     */
+    postings: number;
+    /**
+     * To Fix
+     */
+    to_fix: number;
+    /**
+     * Saved At
+     */
+    saved_at: string | null;
+};
+
+/**
  * ResearchAnswerIn
  */
 export type ResearchAnswerIn = {
@@ -1566,6 +1860,20 @@ export type SamplePosting = {
      * Note
      */
     note?: string | null;
+};
+
+/**
+ * SignupIn
+ */
+export type SignupIn = {
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Report
+     */
+    report?: string | null;
 };
 
 /**
@@ -3258,6 +3566,206 @@ export type archiveDownloadArchivedFileResponses = {
      */
     200: unknown;
 };
+
+export type reportsReadOutreachReportsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/outreach/reports';
+};
+
+export type reportsReadOutreachReportsErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reportsReadOutreachReportsError = reportsReadOutreachReportsErrors[keyof reportsReadOutreachReportsErrors];
+
+export type reportsReadOutreachReportsResponses = {
+    /**
+     * Response Reports-Read Outreach Reports
+     *
+     * Successful Response
+     */
+    200: Array<OutreachSummary>;
+};
+
+export type reportsReadOutreachReportsResponse = reportsReadOutreachReportsResponses[keyof reportsReadOutreachReportsResponses];
+
+export type reportsCreateReportData = {
+    body: ReportIn;
+    headers?: {
+        /**
+         * Authorization
+         */
+        authorization?: string | null;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/outreach/reports';
+};
+
+export type reportsCreateReportErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reportsCreateReportError = reportsCreateReportErrors[keyof reportsCreateReportErrors];
+
+export type reportsCreateReportResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportCreated;
+};
+
+export type reportsCreateReportResponse = reportsCreateReportResponses[keyof reportsCreateReportResponses];
+
+export type reportsReadReportData = {
+    body?: never;
+    path: {
+        /**
+         * Token
+         */
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/reports/{token}';
+};
+
+export type reportsReadReportErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reportsReadReportError = reportsReadReportErrors[keyof reportsReadReportErrors];
+
+export type reportsReadReportResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportOut;
+};
+
+export type reportsReadReportResponse = reportsReadReportResponses[keyof reportsReadReportResponses];
+
+export type reportsAnswerChecklistData = {
+    body: ChecklistIn;
+    path: {
+        /**
+         * Token
+         */
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/reports/{token}/checklist';
+};
+
+export type reportsAnswerChecklistErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reportsAnswerChecklistError = reportsAnswerChecklistErrors[keyof reportsAnswerChecklistErrors];
+
+export type reportsAnswerChecklistResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportOut;
+};
+
+export type reportsAnswerChecklistResponse = reportsAnswerChecklistResponses[keyof reportsAnswerChecklistResponses];
+
+export type reportsSaveReportData = {
+    body?: never;
+    path: {
+        /**
+         * Token
+         */
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/reports/{token}/save';
+};
+
+export type reportsSaveReportErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type reportsSaveReportError = reportsSaveReportErrors[keyof reportsSaveReportErrors];
+
+export type reportsSaveReportResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReportOut;
+};
+
+export type reportsSaveReportResponse = reportsSaveReportResponses[keyof reportsSaveReportResponses];
+
+export type reportsReadMyReportsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/reports';
+};
+
+export type reportsReadMyReportsResponses = {
+    /**
+     * Response Reports-Read My Reports
+     *
+     * Successful Response
+     */
+    200: Array<ReportSummary>;
+};
+
+export type reportsReadMyReportsResponse = reportsReadMyReportsResponses[keyof reportsReadMyReportsResponses];
+
+export type signupSignUpData = {
+    body: SignupIn;
+    path?: never;
+    query?: never;
+    url: '/api/v1/signup';
+};
+
+export type signupSignUpErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type signupSignUpError = signupSignUpErrors[keyof signupSignUpErrors];
+
+export type signupSignUpResponses = {
+    /**
+     * Successful Response
+     */
+    202: Message;
+};
+
+export type signupSignUpResponse = signupSignUpResponses[keyof signupSignUpResponses];
 
 export type statsReadStatsData = {
     body?: never;

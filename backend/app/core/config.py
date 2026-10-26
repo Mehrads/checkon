@@ -79,6 +79,15 @@ class Settings(BaseSettings):
     PLAN_CHECKS_AGENCY: int = 300
     # Extra checks a customer can run in one billing period before checks stop until the next one
     PLAN_EXTRA_CHECKS_MAX: int = 200
+    # A free account (sign-up with an email, no card): its checks in every 30 days from sign-up, and sign-ups
+    # per IP per hour.
+    PLAN_CHECKS_FREE: int = 5
+    SIGNUPS_PER_HOUR: int = 5
+
+    # Outreach reports (app/api/routes/reports.py): the key the outreach workflow sends to save a report on the
+    # site (none: saving is off), and the days a report no account has saved is kept.
+    OUTREACH_API_KEY: str | None = None
+    REPORT_DAYS: int = 90
 
     @computed_field  # type: ignore[prop-decorator]
     @property

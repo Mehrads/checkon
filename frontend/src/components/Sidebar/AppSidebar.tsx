@@ -2,7 +2,9 @@ import {
   Archive,
   Building2,
   ChartColumn,
+  FileText,
   Home,
+  Megaphone,
   ScanSearch,
   Users,
 } from "lucide-react"
@@ -16,7 +18,8 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
-import { useBilling } from "@/hooks/useBilling"
+import { isPaid, useBilling } from "@/hooks/useBilling"
+import { useMyReports } from "@/hooks/useReports"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
@@ -26,11 +29,17 @@ const baseItems: Item[] = [{ icon: Home, title: "Checks", path: "/" }]
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
   const { data: billing } = useBilling()
-  const { canCreate } = useWorkspaces(Boolean(billing?.plan))
+  const paid = isPaid(billing)
+  const { canCreate } = useWorkspaces(paid)
+  const { data: reports } = useMyReports()
 
   const items = [
     ...baseItems,
-    ...(billing?.plan
+    // The reports we sent that the customer saved, free account or not
+    ...(reports?.length
+      ? [{ icon: FileText, title: "Reports", path: "/reports" }]
+      : []),
+    ...(paid
       ? [
           { icon: ScanSearch, title: "Careers page audit", path: "/audits" },
           {
@@ -42,12 +51,13 @@ export function AppSidebar() {
       : []),
     // Still there after the plan ends: the archive stays readable. A complimentary account has a plan but no
     // Stripe customer (has_billing).
-    ...(billing?.plan || billing?.has_billing
+    ...(paid || billing?.has_billing
       ? [{ icon: Archive, title: "Archive", path: "/archive" }]
       : []),
     ...(currentUser?.is_superuser
       ? [
           { icon: ChartColumn, title: "Stats", path: "/stats" },
+          { icon: Megaphone, title: "Outreach", path: "/outreach" },
           { icon: Users, title: "Admin", path: "/admin" },
         ]
       : []),

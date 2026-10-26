@@ -76,6 +76,9 @@ from app.core.tracing import RequestTrace, langfuse_client
 from app.models import ContactMessage, CustomRequest, Feedback, Message, ResearchAnswer
 
 MAX_POSTING_CHARS = 8000
+# A linked page for a signed-in account, free or paid: a board posting runs longer than a pasted one, as in an audit,
+# and the account's own checks bound what it costs (a report's "Fix this posting" opens these links).
+MAX_LINKED_CHARS = 20_000
 MAX_URL_CHARS = 2048
 TORONTO = ZoneInfo("America/Toronto")
 
@@ -271,8 +274,8 @@ def _spent(llm: StructuredLLM) -> Decimal:
 
 
 def _charge(limits: Limits, plan: str | None, llm: StructuredLLM) -> None:
-    """Free checks count toward the day's spend cap; a customer's checks don't."""
-    if plan is None:
+    """Free checks, a free account's included, count toward the day's spend cap; a paying customer's don't."""
+    if plan in (None, "free"):
         limits.add_spend(_spent(llm))
 
 
@@ -299,15 +302,24 @@ def _free_check_allowed(
     return visitor
 
 
-def _plan_check_allowed(plan: PlanLimits, usage: Usage) -> None:
+def _plan_check_allowed(plan: PlanLimits, usage: Usage, limits: Limits | None = None) -> None:
     if (next_check := plan.next_check()) is not None:
         usage.record("quota", plan=plan.plan.id)
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
+        if not plan.plan.paid:
+            raise refused(
+                429, "free_account_limit",
+                f"You've used your {plan.plan.checks} free checks. They start again on {day}, or choose a plan "
+                "for more.",
+            )  # fmt: skip
         raise refused(
             429, "plan_limit",
             f"You've used this billing period's checks and {settings.PLAN_EXTRA_CHECKS_MAX} extra checks. "
             f"Checks start again on {day}. Contact us if you need more.",
         )  # fmt: skip
+    if not plan.plan.paid and limits is not None and not limits.budget_left():  # free accounts share the cap
+        usage.record("paused", plan=plan.plan.id)
+        raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
 
 
 def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement:
@@ -319,7 +331,7 @@ def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement
 
 def _read_link(
     url: str, request: Request, reader: LinkReader, limiter: RateLimiter, usage: Usage, who: str | None,
-    plan: str | None, started: float,
+    plan: str | None, started: float, limit: int = MAX_POSTING_CHARS,
 ) -> FetchedPosting:  # fmt: skip
     """The posting text on the page and the page's address. A link that can't be read uses no check."""
 
@@ -333,8 +345,8 @@ def _read_link(
         page = reader.read(url)
     except LinkRefused as error:
         raise refuse(422, error.reason, error.message)
-    if len(page.text) > MAX_POSTING_CHARS:
-        raise refuse(422, "too_long", f"That page has more than {MAX_POSTING_CHARS:,} characters of text. "
+    if len(page.text) > limit:
+        raise refuse(422, "too_long", f"That page has more than {limit:,} characters of text. "
                                       "Paste just the posting's text instead.")  # fmt: skip
     return page
 
@@ -362,11 +374,12 @@ def inspect_posting(
         visitor: Visitor | None = _free_check_allowed(request, response, limits, usage)
     else:  # a customer's check: the plan's checks instead of the weekly limit and the spend cap
         visitor = None
-        _plan_check_allowed(plan, usage)
+        _plan_check_allowed(plan, usage, limits)
     who = visitor.hash if visitor else None
     text, url, page = body.text or "", None, None
     if body.url is not None:  # after the quota, so a visitor with no check left can't make us fetch pages
-        page = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started)
+        limit = MAX_LINKED_CHARS if plan else MAX_POSTING_CHARS
+        page = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started, limit)
         text, url = page.text, page.url
     # A customer's check starts from their company profile: its facts aren't asked or searched for.
     workspace = current_workspace(session, plan.access, body.workspace_id) if plan else None
@@ -432,7 +445,7 @@ def check_form(
         visitor: Visitor | None = _free_check_allowed(request, response, limits, usage, form=True)
     else:
         visitor = None
-        _plan_check_allowed(plan, usage)
+        _plan_check_allowed(plan, usage, limits)
     who = visitor.hash if visitor else None
     try:
         questions = classify_form(form, pack, llm, ModelSettings())

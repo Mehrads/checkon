@@ -30,19 +30,34 @@ ACTIVE = {"active", "trialing", "past_due"}
 METER_WINDOW = timedelta(days=34)
 
 
+# A free account's checks come back every 30 days from sign-up.
+FREE_PERIOD = timedelta(days=30)
+
+
 @dataclass(frozen=True)
 class Plan:
     id: str
     name: str
     checks: int  # included in each billing period
     price: str | None  # the Stripe price of the monthly fee
+    paid: bool = True  # False for the free account: its checks only, no profile, pay, audits or archive
+
+    @property
+    def extra_checks(self) -> int:
+        """Checks past the plan's own, billed through the meter. A free account has none."""
+        return settings.PLAN_EXTRA_CHECKS_MAX if self.paid else 0
 
 
 def plans() -> dict[str, Plan]:
     return {
         "starter": Plan("starter", "Starter", settings.PLAN_CHECKS_STARTER, settings.STRIPE_PRICE_STARTER),
         "agency": Plan("agency", "Agency", settings.PLAN_CHECKS_AGENCY, settings.STRIPE_PRICE_AGENCY),
+        "free": Plan("free", "Free", settings.PLAN_CHECKS_FREE, None, paid=False),
     }
+
+
+def paid_plans() -> dict[str, Plan]:
+    return {plan.id: plan for plan in plans().values() if plan.paid}
 
 
 def plan_for_price(price_id: str) -> Plan | None:
@@ -92,13 +107,27 @@ class Allowance:
 
     @property
     def exhausted(self) -> bool:
-        return self.extra >= settings.PLAN_EXTRA_CHECKS_MAX
+        return self.used >= self.plan.checks + self.plan.extra_checks
 
 
 def active_plan(customer: Customer | None) -> Plan | None:
     if customer is None or customer.plan is None or customer.subscription_status not in ACTIVE:
         return None
     return plans().get(customer.plan)
+
+
+def paid_plan(customer: Customer | None) -> Plan | None:
+    """The active plan, unless it's the free account's."""
+    plan = active_plan(customer)
+    return plan if plan and plan.paid else None
+
+
+def free_customer(email: str, now: datetime) -> Customer:
+    """A free account's customer: the free plan from now, in 30-day periods, with nothing at Stripe."""
+    return Customer(
+        email=email, plan="free", subscription_status="active", current_period_start=now,
+        current_period_end=now + FREE_PERIOD,
+    )  # fmt: skip
 
 
 def billing_period(customer: Customer, now: datetime) -> tuple[datetime, datetime]:
@@ -137,6 +166,12 @@ def plan_access(session: Session, user: User | None) -> PlanAccess | None:
     return PlanAccess(user, customer, plan) if customer and plan else None
 
 
+def paid_access(session: Session, user: User | None) -> PlanAccess | None:
+    """plan_access for what a free account doesn't have: company profiles, pay suggestions, audits."""
+    access = plan_access(session, user)
+    return access if access and access.plan.paid else None
+
+
 class PlanLimits:
     """The plan's checks for one signed-in customer, in Postgres."""
 
@@ -166,7 +201,7 @@ class PlanLimits:
         used = allowance(self.session, customer, self.plan, now).used
         check = PaidCheck(
             created_at=now, customer_id=customer.id, user_id=self.access.user.id, check_id=check_id,
-            title=title[:255] if title else None, status=status, extra=used >= self.plan.checks,
+            title=title[:255] if title else None, status=status, extra=self.plan.paid and used >= self.plan.checks,
             workspace_id=workspace_id,
         )  # fmt: skip
         self.session.add(check)

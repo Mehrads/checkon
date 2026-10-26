@@ -1,10 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 
-import { BillingService, type PlanIn } from "@/client"
+import { type BillingOut, BillingService, type PlanIn } from "@/client"
 import { isLoggedIn } from "./useAuth"
 
 export type PlanId = PlanIn["plan"]
+
+/** On Starter or Agency: a company profile, pay suggestions, audits and the archive. A free account has checks and
+ * history only. */
+export function isPaid(billing?: BillingOut | null): boolean {
+  return Boolean(billing?.plan) && billing?.plan !== "free"
+}
 
 /** The API's message for a failed request, if it sent one. */
 export function apiMessage(error: Error, fallback: string): string {

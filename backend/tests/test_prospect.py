@@ -4,17 +4,24 @@ network): the first Ontario postings, each finding with the posting's own words 
 import json
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
 from app.audit.fetch import FetchError
 from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
+from app.compliance.form import FormLabels
+from app.compliance.inspector import inspect
+from app.compliance.models import Context
 from app.compliance.rulepack import load_pack
-from app.prospect import MemorySizes, page_for, prospect, save_texts
+from app.prospect import MemorySizes, check_form, page_for, prospect, save_texts
 from tests.api.routes.test_audits import CAREERS, northwind
+from tests.audit.test_forms import forms
 from tests.compliance.fake_llm import FakeLLM
-from tests.compliance.test_inspector import extraction, labels
+from tests.compliance.test_form import labels as form_labels
+from tests.compliance.test_inspector import POSTING, extraction, labels
 
 TODAY = date(2026, 10, 23)
 
@@ -55,3 +62,26 @@ def test_a_board_that_cant_be_read() -> None:
     with pytest.raises(FetchError):
         prospect("https://northwind.example/nothing-here", northwind().fetcher(), FakeLLM(), load_pack("CA-ON"),
                  TODAY, MemorySizes())  # fmt: skip
+
+
+def test_the_application_form_is_read_from_the_board_and_checked() -> None:
+    pack = load_pack("CA-ON")
+    llm = FakeLLM().queue(Extraction, extraction()).queue(Classification, labels())
+    inspection = inspect(POSTING, Context(meets_headcount_threshold=True), TODAY, pack, llm, sizes=MemorySizes())
+    board: Any = SimpleNamespace(source="greenhouse", key="faire")
+    found: Any = SimpleNamespace(id="8821336002")
+    # Faire's six questions; say the province question asks for Canadian experience
+    llm.queue(FormLabels, form_labels((1, "ok"), (2, "ok"), (3, "violation"), (4, "ok"), (5, "ok"), (6, "ok")))
+    result = check_form(board, found, inspection, forms().fetcher(), llm, pack, TODAY)
+
+    assert result["form_status"] == "not_compliant"
+    [finding] = result["form_findings"]
+    assert finding["rule"] == "ON-CEX-01" and finding["verdict"] == "fail"
+    assert any(quote.startswith("Please select your current province") for quote in finding["quotes"])
+    assert result["form_text"].startswith("LinkedIn Profile (optional)")
+
+
+def test_a_board_without_readable_forms_leaves_the_form_out() -> None:
+    board: Any = SimpleNamespace(source="ashby", key="acme")
+    found: Any = SimpleNamespace(id="1")
+    assert check_form(board, found, None, forms().fetcher(), FakeLLM(), load_pack("CA-ON"), TODAY) == {"form_status": None}  # type: ignore[arg-type]

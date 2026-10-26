@@ -17,7 +17,7 @@ import secrets
 from pydantic import EmailStr, TypeAdapter, ValidationError
 from sqlmodel import Session, func, select
 
-from app.api.billing import plans
+from app.api.billing import paid_plans
 from app.api.stripe_webhook import send_set_password_email
 from app.core.db import engine
 from app.core.security import get_password_hash
@@ -42,8 +42,8 @@ def make_test_account(session: Session, email: str, plan: str = "agency") -> tup
         email = _email.validate_python(email.strip().lower())
     except ValidationError:
         raise Refused(f"{email!r} isn't an email address.")
-    if plan not in plans():
-        raise Refused(f"{plan!r} isn't a plan: use one of {', '.join(plans())}.")
+    if plan not in paid_plans():
+        raise Refused(f"{plan!r} isn't a plan: use one of {', '.join(paid_plans())}.")
     user = _user(session, email)
     created = user is None
     if user is None:
@@ -51,13 +51,15 @@ def make_test_account(session: Session, email: str, plan: str = "agency") -> tup
     if user.is_superuser:
         raise Refused(f"{email} is an admin; use another address for the test account.")
     customer = session.get(Customer, user.customer_id) if user.customer_id else None
-    if customer is not None and not customer.complimentary:
+    if customer is not None and not customer.complimentary and customer.plan != "free":
         raise Refused(f"{email} pays through Stripe; a paying account is never turned into a test account.")
     if customer is None:
         customer = Customer(email=email, complimentary=True)
         session.add(customer)
         session.flush()
         user.customer_id = customer.id
+    customer.complimentary = True  # a free account keeps its history
+    customer.current_period_start = customer.current_period_end = None
     customer.plan = plan
     customer.subscription_status = "active"
     customer.cancel_at_period_end = False
@@ -83,7 +85,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("email")
-    parser.add_argument("--plan", choices=list(plans()), default="agency")
+    parser.add_argument("--plan", choices=list(paid_plans()), default="agency")
     parser.add_argument("--end", action="store_true", help="switch the test account off")
     args = parser.parse_args()
     with Session(engine) as session:
@@ -96,7 +98,7 @@ def main() -> None:
             address = user.email
         except Refused as error:
             raise SystemExit(str(error))
-    plan = plans()[args.plan]
+    plan = paid_plans()[args.plan]
     logger.info("Test account %s: %s plan, complimentary, nothing billed.", address, plan.name)
     if created:
         send_set_password_email(address, plan.name)

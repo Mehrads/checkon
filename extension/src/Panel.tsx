@@ -82,9 +82,10 @@ function errorMessage(error: Error): string {
  * company profile. */
 export function Panel() {
   const account = useAccount()
-  const onPlan = Boolean(account.billing?.plan)
-  const { workspaces, current, canCreate } = useWorkspaces(onPlan)
-  const profile = onPlan ? current : undefined
+  const onPlan = Boolean(account.billing?.plan) // a free account's checks count like a plan's
+  const paid = onPlan && account.billing?.plan !== "free" // a company profile and client workspaces
+  const { workspaces, current, canCreate } = useWorkspaces(paid)
+  const profile = paid ? current : undefined
   const [loggingIn, setLoggingIn] = useState(false)
   const [input, setInput] = useState<"text" | "link">("text")
   const [text, setText] = useState("")

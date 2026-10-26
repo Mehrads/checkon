@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { archiveDeleteArchivedFileData, archiveDeleteArchivedFileErrors, archiveDeleteArchivedFileResponses, archiveDeleteArchivedPostingData, archiveDeleteArchivedPostingErrors, archiveDeleteArchivedPostingResponses, archiveDownloadArchivedFileData, archiveDownloadArchivedFileErrors, archiveDownloadArchivedFileResponses, archiveExportArchiveData, archiveExportArchiveErrors, archiveExportArchiveResponses, archiveReadArchiveData, archiveReadArchivedPostingData, archiveReadArchivedPostingErrors, archiveReadArchivedPostingResponses, archiveReadArchiveErrors, archiveReadArchiveResponses, archiveSaveArchivedTextData, archiveSaveArchivedTextErrors, archiveSaveArchivedTextResponses, archiveUpdateArchivedPostingData, archiveUpdateArchivedPostingErrors, archiveUpdateArchivedPostingResponses, archiveUploadArchivedFileData, archiveUploadArchivedFileErrors, archiveUploadArchivedFileResponses, auditsCheckPostingData, auditsCheckPostingErrors, auditsCheckPostingResponses, auditsCheckSamplePostingData, auditsCheckSamplePostingErrors, auditsCheckSamplePostingResponses, auditsPreviewAuditData, auditsPreviewAuditErrors, auditsPreviewAuditResponses, auditsReadAuditData, auditsReadAuditErrors, auditsReadAuditResponses, auditsReadAuditsData, auditsReadAuditsErrors, auditsReadAuditsResponses, auditsReadPostingCheckData, auditsReadPostingCheckErrors, auditsReadPostingCheckResponses, auditsStartAuditData, auditsStartAuditErrors, auditsStartAuditResponses, auditsStartSampleData, auditsStartSampleErrors, auditsStartSampleResponses, billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksCheckFormData, checksCheckFormErrors, checksCheckFormResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, payConfirmPayData, payConfirmPayErrors, payConfirmPayResponses, payDeleteBandData, payDeleteBandErrors, payDeleteBandResponses, payReadBandsData, payReadBandsErrors, payReadBandsResponses, paySuggestPayData, paySuggestPayErrors, paySuggestPayResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
+import type { archiveDeleteArchivedFileData, archiveDeleteArchivedFileErrors, archiveDeleteArchivedFileResponses, archiveDeleteArchivedPostingData, archiveDeleteArchivedPostingErrors, archiveDeleteArchivedPostingResponses, archiveDownloadArchivedFileData, archiveDownloadArchivedFileErrors, archiveDownloadArchivedFileResponses, archiveExportArchiveData, archiveExportArchiveErrors, archiveExportArchiveResponses, archiveReadArchiveData, archiveReadArchivedPostingData, archiveReadArchivedPostingErrors, archiveReadArchivedPostingResponses, archiveReadArchiveErrors, archiveReadArchiveResponses, archiveSaveArchivedTextData, archiveSaveArchivedTextErrors, archiveSaveArchivedTextResponses, archiveUpdateArchivedPostingData, archiveUpdateArchivedPostingErrors, archiveUpdateArchivedPostingResponses, archiveUploadArchivedFileData, archiveUploadArchivedFileErrors, archiveUploadArchivedFileResponses, auditsCheckPostingData, auditsCheckPostingErrors, auditsCheckPostingResponses, auditsCheckSamplePostingData, auditsCheckSamplePostingErrors, auditsCheckSamplePostingResponses, auditsPreviewAuditData, auditsPreviewAuditErrors, auditsPreviewAuditResponses, auditsReadAuditData, auditsReadAuditErrors, auditsReadAuditResponses, auditsReadAuditsData, auditsReadAuditsErrors, auditsReadAuditsResponses, auditsReadPostingCheckData, auditsReadPostingCheckErrors, auditsReadPostingCheckResponses, auditsStartAuditData, auditsStartAuditErrors, auditsStartAuditResponses, auditsStartSampleData, auditsStartSampleErrors, auditsStartSampleResponses, billingChangePlanData, billingChangePlanErrors, billingChangePlanResponses, billingOpenBillingPortalData, billingOpenBillingPortalResponses, billingReadBillingData, billingReadBillingResponses, billingReadPaidChecksData, billingReadPaidChecksErrors, billingReadPaidChecksResponses, billingStartCheckoutData, billingStartCheckoutErrors, billingStartCheckoutResponses, checksAcceptPatchesData, checksAcceptPatchesErrors, checksAcceptPatchesResponses, checksAnswerQuestionsData, checksAnswerQuestionsErrors, checksAnswerQuestionsResponses, checksAnswerResearchData, checksAnswerResearchErrors, checksAnswerResearchResponses, checksCheckFormData, checksCheckFormErrors, checksCheckFormResponses, checksContactData, checksContactErrors, checksContactResponses, checksInspectPostingData, checksInspectPostingErrors, checksInspectPostingResponses, checksRefinePostingData, checksRefinePostingErrors, checksRefinePostingResponses, checksRequestCustomSolutionData, checksRequestCustomSolutionErrors, checksRequestCustomSolutionResponses, checksSendFeedbackData, checksSendFeedbackErrors, checksSendFeedbackResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginLoginPasswordData, loginLoginPasswordErrors, loginLoginPasswordResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, payConfirmPayData, payConfirmPayErrors, payConfirmPayResponses, payDeleteBandData, payDeleteBandErrors, payDeleteBandResponses, payReadBandsData, payReadBandsErrors, payReadBandsResponses, paySuggestPayData, paySuggestPayErrors, paySuggestPayResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, reportsAnswerChecklistData, reportsAnswerChecklistErrors, reportsAnswerChecklistResponses, reportsCreateReportData, reportsCreateReportErrors, reportsCreateReportResponses, reportsReadMyReportsData, reportsReadMyReportsResponses, reportsReadOutreachReportsData, reportsReadOutreachReportsErrors, reportsReadOutreachReportsResponses, reportsReadReportData, reportsReadReportErrors, reportsReadReportResponses, reportsSaveReportData, reportsSaveReportErrors, reportsSaveReportResponses, signupSignUpData, signupSignUpErrors, signupSignUpResponses, statsReadStatsData, statsReadStatsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses, workspacesArchiveWorkspaceData, workspacesArchiveWorkspaceErrors, workspacesArchiveWorkspaceResponses, workspacesCreateWorkspaceData, workspacesCreateWorkspaceErrors, workspacesCreateWorkspaceResponses, workspacesReadCurrentWorkspaceData, workspacesReadCurrentWorkspaceResponses, workspacesReadWorkspacesData, workspacesReadWorkspacesResponses, workspacesSwitchWorkspaceData, workspacesSwitchWorkspaceErrors, workspacesSwitchWorkspaceResponses, workspacesUpdateWorkspaceData, workspacesUpdateWorkspaceErrors, workspacesUpdateWorkspaceResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -667,6 +667,119 @@ export class ArchiveService {
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/archive/{posting_id}/files/{file_id}',
             ...options
+        });
+    }
+}
+
+export class ReportsService {
+    /**
+     * Read Outreach Reports
+     *
+     * Every outreach report, newest first: who opened it, and who saved it.
+     */
+    public static readOutreachReports<ThrowOnError extends boolean = true>(options?: Options<reportsReadOutreachReportsData, ThrowOnError>) {
+        return (options?.client ?? client).get<reportsReadOutreachReportsResponses, reportsReadOutreachReportsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/outreach/reports',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Report
+     *
+     * Save a report the outreach workflow made, and give its private link.
+     */
+    public static createReport<ThrowOnError extends boolean = true>(options: Options<reportsCreateReportData, ThrowOnError>) {
+        return (options.client ?? client).post<reportsCreateReportResponses, reportsCreateReportErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/outreach/reports',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Read Report
+     *
+     * The report, for anyone with its link. A view by one of us isn't counted.
+     */
+    public static readReport<ThrowOnError extends boolean = true>(options: Options<reportsReadReportData, ThrowOnError>) {
+        return (options.client ?? client).get<reportsReadReportResponses, reportsReadReportErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/reports/{token}',
+            ...options
+        });
+    }
+    
+    /**
+     * Answer Checklist
+     *
+     * Answers to the hiring-process questions, kept with the report.
+     */
+    public static answerChecklist<ThrowOnError extends boolean = true>(options: Options<reportsAnswerChecklistData, ThrowOnError>) {
+        return (options.client ?? client).put<reportsAnswerChecklistResponses, reportsAnswerChecklistErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/reports/{token}/checklist',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Save Report
+     *
+     * Save the report to the signed-in user's account: free or paid, it then lists it.
+     */
+    public static saveReport<ThrowOnError extends boolean = true>(options: Options<reportsSaveReportData, ThrowOnError>) {
+        return (options.client ?? client).post<reportsSaveReportResponses, reportsSaveReportErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/reports/{token}/save',
+            ...options
+        });
+    }
+    
+    /**
+     * Read My Reports
+     *
+     * The reports saved to the user's account, newest first.
+     */
+    public static readMyReports<ThrowOnError extends boolean = true>(options?: Options<reportsReadMyReportsData, ThrowOnError>) {
+        return (options?.client ?? client).get<reportsReadMyReportsResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/reports',
+            ...options
+        });
+    }
+}
+
+export class SignupService {
+    /**
+     * Sign Up
+     *
+     * A free account for the email, and the link to set its password. The answer is the same whether or not the
+     * address has an account, so the form can't tell anyone who signed up.
+     */
+    public static signUp<ThrowOnError extends boolean = true>(options: Options<signupSignUpData, ThrowOnError>) {
+        return (options.client ?? client).post<signupSignUpResponses, signupSignUpErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/signup',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
 }

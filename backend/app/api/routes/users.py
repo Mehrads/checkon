@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import col, delete, func, select
 
 from app import crud
-from app.api.billing import active_plan
+from app.api.billing import paid_plan
 from app.api.workspaces import forget_profiles
 from app.api.deps import (
     CurrentUser,
@@ -145,7 +145,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
         if current_user.customer_id
         else None
     )
-    if active_plan(customer) and customer and not customer.cancel_at_period_end and not customer.complimentary:
+    if paid_plan(customer) and customer and not customer.cancel_at_period_end and not customer.complimentary:
         # Deleting the account wouldn't stop the subscription (a complimentary account has none)
         raise HTTPException(
             status_code=409,

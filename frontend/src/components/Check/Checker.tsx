@@ -12,6 +12,7 @@ import {
   type WorkspacePublic,
   type WorkspaceUpdate,
 } from "@/client"
+import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
 import {
   ProfileNote,
   profileAnswers,
@@ -58,24 +59,31 @@ const FREE_NOTE =
 
 type Input = "text" | "link"
 
-/** The plans, for a refusal on the public page. */
+/** More checks, for a refusal on the public page: a free account for visitors, the plans for everyone. */
 function SeePlans() {
+  if (isLoggedIn()) {
+    return (
+      <span>
+        {" "}
+        Need more checks?{" "}
+        <a href="#pricing" className="underline underline-offset-4">
+          See the plans
+        </a>
+        .
+      </span>
+    )
+  }
   return (
     <span>
       {" "}
-      Need more checks?{" "}
-      <a href="#pricing" className="underline underline-offset-4">
-        See the plans
-      </a>
-      {!isLoggedIn() && (
-        <>
-          , or{" "}
-          <Link to="/login" className="underline underline-offset-4">
-            log in
-          </Link>{" "}
-          if you have one
-        </>
-      )}
+      Want more?{" "}
+      <Link to="/signup" className="underline underline-offset-4">
+        Create a free account
+      </Link>{" "}
+      for {FREE_ACCOUNT_CHECKS} checks a month, or{" "}
+      <Link to="/login" className="underline underline-offset-4">
+        log in
+      </Link>
       .
     </span>
   )
@@ -87,7 +95,8 @@ function SeePlans() {
  * check. A signed-in customer's check counts against their plan and starts from their company `profile` (the
  * API reads the sign-in), which on Agency is the picked `client`'s; `editProfile` renders the link to change
  * it. `onChecked` runs after each check and after fixes are applied. `opened` shows a check made elsewhere (a
- * posting from a careers page audit) without the paste form, and writes its fixes as it opens. */
+ * posting from a careers page audit) without the paste form, and writes its fixes as it opens. `initialUrl`
+ * opens the form on a posting's link, ready to check (a posting from a report). */
 export function Checker({
   intro,
   layout = "hero",
@@ -97,6 +106,7 @@ export function Checker({
   editProfile,
   client = false,
   opened,
+  initialUrl,
 }: {
   intro?: ReactNode
   layout?: "hero" | "app"
@@ -106,11 +116,12 @@ export function Checker({
   editProfile?: (label: string) => ReactNode
   client?: boolean
   opened?: CheckOut
+  initialUrl?: string
 }) {
   const hero = layout === "hero"
-  const [input, setInput] = useState<Input>("text")
+  const [input, setInput] = useState<Input>(initialUrl ? "link" : "text")
   const [text, setText] = useState("")
-  const [url, setUrl] = useState("")
+  const [url, setUrl] = useState(initialUrl ?? "")
   const [form, setForm] = useState("")
   const [checkedForm, setCheckedForm] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)

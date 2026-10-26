@@ -20,7 +20,7 @@ from fastapi import HTTPException
 from sqlalchemy import ColumnElement, or_
 from sqlmodel import Session, col, delete, select
 
-from app.api.billing import Plan, active_plan
+from app.api.billing import Plan, paid_plan
 from app.api.workspaces import label
 from app.core.db import engine
 from app.models import (
@@ -84,7 +84,7 @@ def save_applied(session: Session, check_id: str, workspace_id: uuid.UUID | None
     workspace = session.get(Workspace, workspace_id) if workspace_id else None
     if workspace is None or not workspace.archive_postings:
         return None
-    if active_plan(session.get(Customer, workspace.customer_id)) is None:
+    if paid_plan(session.get(Customer, workspace.customer_id)) is None:
         return None
     # Locked, so two applies at once can't both add a posting for the check
     paid = session.exec(select(PaidCheck).where(PaidCheck.check_id == check_id).with_for_update()).first()
@@ -136,9 +136,9 @@ def purge_soon() -> None:
 def archive_owner(session: Session, user: User) -> tuple[Customer, Plan | None]:
     """The customer whose archive the user sees, and their plan: None after it ends (read-only)."""
     customer = session.get(Customer, user.customer_id) if user.customer_id else None
-    if customer is None:
+    if customer is None or customer.plan == "free":
         raise HTTPException(status_code=403, detail="The archive comes with a paid plan.")
-    return customer, active_plan(customer)
+    return customer, paid_plan(customer)
 
 
 def require_plan(plan: Plan | None) -> None:

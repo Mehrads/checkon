@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlmodel import col, func, select
 
-from app.api.billing import PlanAccess, plan_access
+from app.api.billing import PlanAccess, paid_access
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.checks import get_pack
 from app.api.workspaces import (
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
 
 def get_plan_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = plan_access(session, user)
+    access = paid_access(session, user)
     if access is None:
         raise HTTPException(status_code=403, detail="A company profile comes with a paid plan.")
     return access
