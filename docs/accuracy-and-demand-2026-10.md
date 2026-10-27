@@ -4,7 +4,7 @@ Measured on 2026-10-27 against the official text and 150 real Ontario postings. 
 
 **Result in one paragraph.** The law hasn't changed since the October 21 review, and the rule pack still matches it. On real postings the pay, range, applicability and AI checks agree with an independent reading of the law 94–97% of the time, and their remaining misses are mostly a currency-prefix parser bug and points a lawyer has to settle. Two checks are not good enough yet. The vacancy check finds 98% of missing statements but calls 25 of them a "vague" warning instead of a failure, so 9 non-compliant postings would get a passing result. The Canadian-experience check raised 24 flags on real postings that contained one real violation; most flags change between runs, and in some the model's label contradicts its own reason. The Refiner never invented a fact, and its code-built and library fixes are correct, but its Canadian-experience rewrites inherit the classifier's false alarms. On demand: the problem is real (two thirds of the real postings break at least one rule, mostly the vacancy statement), but the fix is one template line, there is no enforcement yet, and the posting check is turning into a free or bundled feature. The paid case is agencies buying proof across many clients, not the check itself. Model fees for all of this: about US$0.90.
 
-**Update, same day.** Fixes 1–3 in section 4 are in rule pack CA-ON@1.3.0. On the same 150 real postings, the vacancy check now agrees with the independent labels 94% of the time (was 77%) and the Canadian-experience check 97% (was 85%). No non-compliant posting gets a passing result any more (was 9), and talent-pool postings are checked again. Before/after numbers are in section 7.
+**Update, same day.** Fixes 1–3 in section 4 are in rule pack CA-ON@1.3.0. On the same 150 real postings, the vacancy check now agrees with the independent labels 95% of the time (was 77%) and the Canadian-experience check 96% (was 85%). No non-compliant posting gets a passing result any more (was 9), and talent-pool postings are checked again. Before/after numbers are in section 7.
 
 ## 1. How this was measured
 
@@ -61,7 +61,7 @@ What the errors are:
 
 ## 4. Fixes, ranked by legal risk
 
-Items 1–3 are fixed (section 7). Items 4–8 are still open.
+Items 1–3 are fixed on this branch (section 7). Item 4 and the product-AI part of item 5 were fixed the same day on main (34b1f27), which this branch merges. Items 6–8, the missed Cohere disclosure and the NYC-only notice are still open.
 
 1. **Missing vacancy statement shown as a warning** (9 false passing results in 150). Add classifier examples: titles, location or schedule lines and "we're hiring a X" are `none`. Consider making "vague" a fail, since s. 8.5 asks for a statement.
 2. **Canadian-experience false alarms** (16 errors; flips between runs). Put `reason` before `label` in `CexLabel`. Limit "choose the stricter one" to violation vs borderline. Add examples for security clearance, bar admission and College registration, industry certifications, "based in the GTA", and duties that mention local clients.
@@ -132,29 +132,33 @@ The outreach run of 2026-10-26 points the same way: 30 postings from 10 Ontario 
 
 ## 7. After fixes 1–3 (rule pack CA-ON@1.3.0)
 
+Measured on this branch merged with main, so the numbers include main's 34b1f27 (tips as pay, AI in the product, Refiner options for hourly ranges, eval scoring). That's the code the pull request ships.
+
 **What changed**
 
 - **Vacancy** (`prompts/classify.md`, `prompts/extract.md`, ON-VAC-01 1.2.0): "vague" is now only for a line about whether or when the job is open that doesn't settle it, such as future hiring or ongoing applications. A title, a location or contract line, a description of the work, or "we're hiring a X" is `none`, because every posting says it is hiring. Four new examples, taken from the real postings, show this.
 - **Canadian experience** (`prompts/classify.md`, `prompts/classify_form.md`, ON-CEX-01 1.3.0):
   - The model writes its reason before its label (`CexLabel`, `VacancyLabel`, `AILabel` and `FormLabel` field order).
-  - "Borderline over ok" is gone. A sentence that names no place (Canada, a province, North America or the local area) is ok.
+  - "Borderline over ok" is gone. A sentence that names no place in Canada and says nothing like "local", "domestic" or "the Canadian workplace" is ok, however strict it is about the skill itself (merged with main's wording).
   - Canadian experience stays a violation even when it is only an asset. Ontario or another province as an asset is borderline.
-  - New ok lines cover licences and registrations (RIBO, bar admission, Ontario colleges, CPA), security clearances, where the applicant must live, and duties of the job. Five examples were added.
+  - New ok lines cover licences and registrations (RIBO, bar admission, Ontario colleges, CPA), security clearances, where the applicant must live, and duties of the job. Four examples were added here; main added its own.
 - **Talent pools** (`prompts/extract.md`): a named job is a specific position even when it is for a talent pool, future openings or ongoing hiring. "We're always looking for talented people" and "Now hiring, all positions" stay general campaigns.
 
 **Real postings, same 150, same independent labels**
 
 | Rule | Before | After |
 | --- | --- | --- |
-| ON-VAC-01 vacancy statement | 77% (111/144) | 94% (136/145) |
-| ON-CEX-01 Canadian experience | 85% (122/144) | 97% (140/145) |
-| ON-AI-01 AI disclosure present | 97% (139/144) | 99% (144/145) |
-| ON-APPL-02 public posting in Ontario | 94% (135/143) | 96% (137/143) |
-| ON-PAY-01 / ON-PAY-02 (code unchanged) | 95% / 96% | 95% / 97% |
+| ON-VAC-01 vacancy statement | 77% (111/144) | 95% (137/144) |
+| ON-CEX-01 Canadian experience | 85% (122/144) | 96% (138/144) |
+| ON-AI-01 AI disclosure present | 97% (139/144) | 99% (143/144) |
+| ON-APPL-02 public posting in Ontario | 94% (135/143) | 96% (136/142) |
+| ON-PAY-01 / ON-PAY-02 | 95% / 96% | 95% / 97% |
 | Non-compliant postings shown as passing (AI rule aside) | 9 | 0 |
 | Canadian-experience fails raised | 14 (1 real violation) | 2 (the real one and the physiotherapy credential, a lawyer call) |
 | Canadian-experience fails the Refiner couldn't clear | 11 | 0 |
 | Missing vacancy statements shown only as a warning | 25 | 0 |
+
+English postings refused as French: 4 before, 5 after (item 6, still open; it varies from 2 to 5 between runs).
 
 **Same verdict in 3 runs (the same 88 flagged postings)**
 
@@ -162,16 +166,17 @@ The outreach run of 2026-10-26 points the same way: 30 postings from 10 Ontario 
 | --- | --- | --- |
 | ON-CEX-01 | 81% | 94% |
 | ON-VAC-01 | 76% | 94% |
-| ON-AI-01 | 93% | 98% |
-| ON-PAY-01 / ON-PAY-02 | 97% / 97% | 98% / 98% |
+| ON-AI-01 | 93% | 99% |
+| ON-PAY-01 / ON-PAY-02 | 97% / 97% | 98% / 99% |
 | ON-APPL-02 | 98% | 95% |
 
-**What's left on these postings.** None of the remaining vacancy or Canadian-experience disagreements is a clear error; each is a lawyer call:
+**What's left on these postings.** Almost all remaining vacancy and Canadian-experience disagreements are lawyer calls:
 - Vacancy:
   - 5 lines that one reading calls vague and the checker calls no statement ("Expected start date: November 2", "we hire continuously"). Both readings say the posting doesn't comply.
   - Club Monaco's "for our new store opening" and Smile's "new role" / "replacement role" (question 18).
+  - 1 posting with no statement that was passed, in one run.
 - Canadian experience: borderline wording such as the CIP designation, PHIPA knowledge and "Canadian or U.S. credentials are an asset".
-- AI: one clear error, the NYC-only Covey notice read as a disclosure.
+- AI: the NYC-only Covey notice is still read as a disclosure.
 - Applicability: the extra questions are remote-in-Canada jobs, as before, plus run-to-run noise. Alan's Toronto/Europe job now asks whether the work is in Ontario, where it used to say the rules don't apply.
 
 **Golden set (158 Claude-drafted cases), before → after**
@@ -180,14 +185,15 @@ The outreach run of 2026-10-26 points the same way: 30 postings from 10 Ontario 
 | --- | --- | --- |
 | ON-APPL-02 | 154/158 (4 talent-pool or always-hiring misses) | 158/158 |
 | ON-VAC-01 | 151/158 | 158/158 |
-| ON-CEX-01 | 153/158, 1 false fail | 155/158, 2 false fails, recall 25/25 |
+| ON-CEX-01 | 153/158, 1 false fail | 156/158, 2 false fails, recall 25/25 |
 | Gate: recall on Canadian-experience violations | 100% | 100% |
+| Gate: Refiner fixable failures fixed and verified | 54% | 98% (main's scorer and hourly-option fixes) |
 | Gate: refiner rewrites that add a fact | 0 | 0 |
 
-- The two golden Canadian-experience false fails are "Knowledge of Canadian GAAP" with a CPA designation, which was already failing before, and "Ontario winter" plowing experience as an asset. Both flip between runs.
-- The other gates are unchanged: they rest on items 4–8 and on the scorer issue in section 3.
+- The two golden Canadian-experience false fails are "Experience applying Ontario employment standards" (labelled borderline) and a sentence in an AI case. Both flip between runs.
+- In the merged run one plain AI disclosure was missed (`syn-ai-01`). It passed in all 3 reruns of the AI cases, so it is run-to-run noise.
 
 **Tests**
-- 376 compliance tests pass without the database. The whole suite (819) passed earlier in the session, before the local database stopped.
-- 13 live tests pass, including 44/44 sample sentences (11 new, from the real postings) and 4 new live postings: a talent pool, always hiring with no statement, a title plus a hiring line, and a general campaign.
-- Data: `backend/evals/reports/2026-10-27-real-checker-after.json` and `-real-reruns-after.json`. Golden run: `2026-10-27-112837.md`. Fees for the fixes and re-runs: about US$3.
+- 595 tests that don't need the database pass, including 398 compliance and eval tests. The whole suite (819) passed earlier in the session, before the local database stopped.
+- 13 live tests pass on the merged code, including 44/44 sample sentences (11 new, from the real postings) and 4 new live postings: a talent pool, always hiring with no statement, a title plus a hiring line, and a general campaign.
+- Data: `backend/evals/reports/2026-10-27-real-checker-merged.json` and `-real-reruns-merged.json`. Golden run: `2026-10-27-125708.md`. Fees for the fixes and re-runs: about US$4.
