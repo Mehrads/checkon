@@ -11,7 +11,7 @@
 # messages and classifier examples. Only s. 8.3 (1) names the form; ss. 8.2, 8.4 and 8.5 say "in the posting".
 
 jurisdiction: CA-ON
-version: 1.2.1
+version: 1.3.0
 
 # Shared by every rule; a rule's own params override these.
 params:
@@ -129,7 +129,7 @@ rules:
     tests: [tests/pay.yaml]
 
   - id: ON-VAC-01
-    version: 1.1.0
+    version: 1.2.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -154,6 +154,10 @@ rules:
       - {text: "We may hire for this role in the future.", label: vague, reason: "Doesn't say whether a vacancy exists now."}
       - {text: "We accept applications for this role on an ongoing basis.", label: vague, reason: "Doesn't say whether a vacancy exists now."}
       - {text: "Apply by November 30.", label: none, reason: "A deadline, not a vacancy statement."}
+      - {text: "Electrical Intern (Fall 26)", label: none, reason: "A job title, not a vacancy statement."}
+      - {text: "Toronto / Full Time Permanent", label: none, reason: "A location and job type, not a vacancy statement."}
+      - {text: "We're hiring a pharmacist to join our team.", label: none, reason: "Every posting says it is hiring, so this doesn't disclose whether a vacancy exists."}
+      - {text: "We are currently seeking an Account Manager for our Windsor territory.", label: none, reason: "Describes the search, not whether the position is an existing vacancy."}
     tests: [tests/vacancy.yaml]
 
   - id: ON-AI-01
@@ -193,7 +197,7 @@ rules:
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
-    version: 1.2.2
+    version: 1.3.0
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -236,6 +240,10 @@ rules:
       - {text: "An established network of donors and community leaders", label: ok, reason: "A professional network with no condition on where it was built."}
       - {text: "Experience running UK and Irish payroll", label: ok, reason: "Experience with another country's payroll that the job needs; it isn't Canadian experience."}
       - {text: "Named one of Canada's Best Workplaces in 2026", label: ok, reason: "An award for the employer, not something asked of applicants."}
+      - {text: "Admitted to the bar of a Canadian province", label: ok, reason: "A licensing requirement, which the prohibition doesn't cover."}
+      - {text: "Must be able to obtain Reliability Status and Controlled Goods Program clearance", label: ok, reason: "A security clearance, not experience."}
+      - {text: "2-5 years across business operations or a startup generalist role", label: ok, reason: "Experience that names no place."}
+      - {text: "Negotiate with Canadian employers to support work permit applications", label: ok, reason: "A duty of the job, not something asked of applicants."}
     # The same prohibition on the application form: each question is read with its answer options. A required
     # question about Canadian experience fails; an optional one is a warning the employer can keep (Technical
     # Design §4, inputs).
