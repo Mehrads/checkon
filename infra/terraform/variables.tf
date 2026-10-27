@@ -56,7 +56,7 @@ variable "contact_email" {
 }
 
 variable "smtp_host" {
-  description = "SMTP server for the contact notices, for example smtp.gmail.com or your email provider's."
+  description = "SMTP server for sign-in codes, password resets and contact notices: smtp.resend.com (not smtp.gmail.com, which refuses logins from Cloud Run)."
   type        = string
   default     = ""
 }
@@ -72,7 +72,7 @@ variable "smtp_user" {
 }
 
 variable "emails_from" {
-  description = "Sender address for the contact notices."
+  description = "Sender address for the app's emails, on a domain verified with the SMTP provider."
   type        = string
   default     = ""
 }
