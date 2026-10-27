@@ -177,6 +177,8 @@ sales email will link to.
    cd "$(git rev-parse --show-toplevel)/backend" && uv run python -m app.prospect '${company.board_url}' --postings ${postings} --out "$OUT"
    It prints JSON and saves check.json, posting-N.txt and form-N.txt in $OUT. If it reports an error, return it in
    "error". Return the number of postings in check.json as "checked".
+   If "$OUT/check.json" already exists (an earlier run today that stopped), don't run the checker again: use that
+   check.json and its posting-N.txt and form-N.txt files as they are.
 2. Read check.json, every posting-N.txt and every form-N.txt.
 3. For each finding with verdict "fail" or "warning" (skip "needs_input": those depend on facts only the employer
    knows), in "findings" (the posting) and "form_findings" (its application form), confirm it against the text it
