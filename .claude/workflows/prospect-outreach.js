@@ -1,7 +1,7 @@
 export const meta = {
   name: 'prospect-outreach',
   description: 'Find Ontario employers hiring on public job boards, audit their postings and application forms with CheckON, save each report on checkon.ca, and draft a pitch email linking it in Gmail for each published address (never sent)',
-  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 10, focus: "Waterloo tech", postings: 50, sender: {name, email}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector or Gmail signed in in the browser pane.',
+  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 10, focus: "Waterloo tech", postings: 50, sender: {name, email, from}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector or Gmail signed in in the browser pane.',
   phases: [
     { title: 'Find', detail: 'web search for Ontario employers hiring on Greenhouse, Lever or Ashby boards that publish a hiring email address' },
     { title: 'Check', detail: 'CheckON audits each board and its forms (python -m app.prospect); every finding is confirmed, then the report is saved on checkon.ca (python -m app.outreach_report)' },
@@ -22,6 +22,10 @@ const postings = Math.max(1, Math.min(args?.postings ?? 50, 50))
 const focus = args?.focus ? `Focus on: ${args.focus}.` : 'Any industry; look across Toronto, Ottawa, Waterloo Region, Hamilton and London.'
 const sender = args?.sender ?? {}
 const signature = [`${sender.name ?? 'Mehrad Soltani'} - ${sender.email ?? 'mehrad@checkon.ca'}`, 'CheckON · checkon.ca'].join('\n')
+// Every email says how to stop, as CASL and the privacy policy (checkon.ca/privacy, "Emails to employers") require.
+const OPT_OUT = 'Reply "no thanks" and I won\'t email again.'
+// The Gmail account the drafts are made in (and sent from), which may differ from the address in the signature.
+const mailbox = sender.from ?? sender.email
 // A pitch whose contact has no published address keeps its email in pitch.md and gets no Gmail draft.
 const NO_ADDRESS = 'no published address, not drafted'
 
@@ -233,8 +237,9 @@ Their published hiring address: ${company.email} (on ${company.email_source})
      lines; with more postings, end the list with "- and <n> more". Never say "breaks the law" or "illegal".
    - When there's a report link: "Full report: <the link exactly as above>" on its own line.
    - Close with this line, exactly: To avoid penalties, you can check any posting for free at https://checkon.ca/check
-   - Then this signature, exactly, with nothing after it:
+   - Then this signature, exactly:
 ${signature}
+   - Last line, exactly, with nothing after it: ${OPT_OUT}
 3. Save the pitch: ${ROOT}; write "${dir}/pitch.md" with the contact (name, title, note, email, email_source,
    sources), the report link, the confirmed findings with their posting URLs, the subject and the body. If
    contact_email is empty, end it with the line "Draft: ${NO_ADDRESS}".
@@ -261,7 +266,7 @@ Emails (JSON): ${JSON.stringify(toDraft.map(({ company, pitch }) => ({
 How:
 - If the Gmail connector is available (ToolSearch query "gmail create draft"), use its create-draft tool for each email.
 - Otherwise use the built-in browser pane (tools named mcp__Claude_Browser__*), where Gmail is signed in. First check
-  which account it is: it must be ${sender.email ? `${sender.email}` : 'the account the sender uses for CheckON'};
+  which account it is: it must be ${mailbox ? `${mailbox}` : 'the account the sender uses for CheckON'};
   if Gmail isn't signed in or it's another account, stop and return that as every draft_status. For each email:
   Compose; put the address in To; type the subject; click in the body and type the body;
   then "Save & close". Open Drafts and confirm the draft is listed with its subject before the next one. Never
