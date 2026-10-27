@@ -20,20 +20,20 @@ SAFETY_NET = re.compile(r"canad|local|domestic|ontario|in-country", re.IGNORECAS
 
 class CexLabel(BaseModel):
     sentence: int
+    reason: str  # before the label, so the label follows from it
     label: Literal["violation", "borderline", "ok"]
-    reason: str
 
 
 class VacancyLabel(BaseModel):
     sentence: int
-    label: Literal["existing", "not_existing", "vague", "none"]
     reason: str
+    label: Literal["existing", "not_existing", "vague", "none"]
 
 
 class AILabel(BaseModel):
     sentence: int
-    label: Literal["uses_ai", "no_ai", "none"]
     reason: str
+    label: Literal["uses_ai", "no_ai", "none"]
 
 
 class Classification(BaseModel):

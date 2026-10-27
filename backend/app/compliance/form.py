@@ -81,8 +81,8 @@ def parse_form(raw: str) -> FormText:
 
 class FormLabel(BaseModel):
     question: int
+    reason: str  # before the label, so the label follows from it
     label: Literal["violation", "borderline", "ok"]
-    reason: str
 
 
 class FormLabels(BaseModel):

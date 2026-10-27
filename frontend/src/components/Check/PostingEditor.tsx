@@ -26,6 +26,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { useSaveArchivedText } from "@/hooks/useArchive"
 import { apiMessage } from "@/hooks/useBilling"
 import { track } from "@/lib/analytics"
+import { copyToClipboard } from "@/lib/clipboard"
 import { countWords, docToPlainText, textToHtml } from "@/lib/posting-format"
 import { cn } from "@/lib/utils"
 import { FINAL_STATUS_TEXT } from "./labels"
@@ -113,19 +114,6 @@ const TOOLS: (Tool | "divider")[] = [
   },
 ]
 
-async function copyToClipboard(html: string, text: string, rich: boolean) {
-  if (rich && "ClipboardItem" in window && navigator.clipboard?.write) {
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        "text/html": new Blob([html], { type: "text/html" }),
-        "text/plain": new Blob([text], { type: "text/plain" }),
-      }),
-    ])
-    return
-  }
-  await navigator.clipboard.writeText(text)
-}
-
 /** A link to an archived posting: the website's router, or a new tab from the extension. */
 export type ArchiveLink = (label: string, postingId: string) => ReactNode
 
@@ -198,6 +186,7 @@ export function PostingEditor({
 }) {
   const initial = useMemo(() => textToHtml(final.text), [final.text])
   const [copied, setCopied] = useState<"rich" | "plain" | null>(null)
+  const [copyFailed, setCopyFailed] = useState(false)
   const [inserted, setInserted] = useState<boolean | null>(null)
   const [edited, setEdited] = useState(false) // since the archive last saved it
   const [shown, setShown] = useState(final)
@@ -236,13 +225,14 @@ export function PostingEditor({
     [initial],
   )
 
-  const copy = async (rich: boolean) => {
+  const copy = async (rich: boolean, button: HTMLButtonElement) => {
     if (!editor) return
-    await copyToClipboard(
-      editor.getHTML(),
-      docToPlainText(editor.getJSON()),
-      rich,
-    )
+    const done = await copyToClipboard(docToPlainText(editor.getJSON()), {
+      html: rich ? editor.getHTML() : undefined,
+      focus: button,
+    })
+    setCopyFailed(!done)
+    if (!done) return
     setCopied(rich ? "rich" : "plain")
     setTimeout(() => setCopied(null), 2000)
     track("copy", { format: rich ? "formatted" : "plain" })
@@ -284,7 +274,7 @@ export function PostingEditor({
           )}
           <Button
             variant={onInsert ? "outline" : "default"}
-            onClick={() => copy(true)}
+            onClick={(event) => copy(true, event.currentTarget)}
             disabled={!editor}
           >
             {copied === "rich" ? <Check /> : <Copy />}
@@ -292,12 +282,17 @@ export function PostingEditor({
           </Button>
           <Button
             variant="outline"
-            onClick={() => copy(false)}
+            onClick={(event) => copy(false, event.currentTarget)}
             disabled={!editor}
           >
             {copied === "plain" ? "Copied" : "Copy plain text"}
           </Button>
         </div>
+        {copyFailed && (
+          <p className="w-full text-sm text-destructive">
+            We couldn't copy here. Select the posting below and copy it.
+          </p>
+        )}
         {inserted === false && (
           <p className="w-full text-sm text-destructive">
             We couldn't write into that field. Use Copy formatted and paste it

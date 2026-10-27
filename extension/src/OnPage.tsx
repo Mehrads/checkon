@@ -1,7 +1,13 @@
-import { Eye, EyeOff, Highlighter } from "lucide-react"
+import {
+  CircleAlert,
+  CircleCheck,
+  Eye,
+  EyeOff,
+  Highlighter,
+} from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import type { CheckOut, Decision } from "@/client"
+import type { CheckOut, Decision, FinalOut } from "@/client"
 import { ruleName } from "@/components/Check/labels"
 import { Button } from "@/components/ui/button"
 import { LoadingButton } from "@/components/ui/loading-button"
@@ -119,6 +125,10 @@ export interface OnPage {
   failed: boolean
   hidden: boolean
   accepting: boolean
+  /** Fixes on the page still waiting for Accept or Skip; notes to fix by hand aren't counted. */
+  openFixes: number
+  /** Every fix on the page is accepted, copied or skipped, and at least one went in. */
+  reviewed: boolean
   show: () => void
   hide: () => void
   acceptAll: () => void
@@ -155,6 +165,8 @@ export function useOnPage(
       return
     }
     key.current = `${check.check_id}:${Date.now()}`
+    // Until the page reports on this version, the last one's counts and Accept all are out of date
+    setStatus(null)
     // The panel starts each new version of the check from its default choices: send the page's again.
     decided.current = {}
     patches.current = new Set(
@@ -198,12 +210,31 @@ export function useOnPage(
       .finally(() => setAccepting(false))
   }, [posting])
 
+  // A note (fix this yourself) stays highlighted until the employer edits it, so it doesn't hold up the review;
+  // a range to pick does, since Accept all can't choose one.
+  const fixes = new Set(
+    (check ? pageItems(check) : [])
+      .filter((item) => item.kind === "fix" && !item.optional)
+      .map((item) => item.id),
+  )
+  const states = Object.entries(status?.states ?? {})
+  const openFixes = states.filter(
+    ([id, { state }]) => fixes.has(id) && state === "open",
+  ).length
+  const reviewed =
+    !failed &&
+    !hidden &&
+    openFixes === 0 &&
+    states.some(([, { state }]) => state === "applied" || state === "copied")
+
   return {
     status,
     count,
     failed,
     hidden,
     accepting,
+    openFixes,
+    reviewed,
     show: () => setHidden(false),
     hide: () => setHidden(true),
     acceptAll,
@@ -211,7 +242,62 @@ export function useOnPage(
 }
 
 /** The page's progress in the panel: what's fixed, what's left, and Accept all. */
-export function OnPageStatus({ onPage }: { onPage: OnPage }) {
+/** What's left once the page is reviewed, said about the posting as it now reads on the page. */
+const PAGE_DONE_TEXT: Record<FinalOut["report"]["status"], string> = {
+  compliant:
+    "Ready to publish: the posting on the page meets Ontario's job posting rules.",
+  not_compliant:
+    "Some rules are still open. See the rule-by-rule results below and fix those on the page yourself.",
+  needs_input:
+    "Before you publish, fill in what's marked in brackets on the page:",
+  not_applicable: "Ontario's job posting rules don't apply to this posting.",
+}
+
+/** "[Pay range: add before publishing]" and the like: what the employer still has to fill in. */
+const placeholders = (text: string) => [
+  ...new Set(text.match(/\[[^\][\n]{3,80}\]/g) ?? []),
+]
+
+/** Once everything on the page is reviewed: whether the posting there is ready, and what's left to fill in. */
+function PageDone({ final }: { final: FinalOut }) {
+  const status = final.report.status
+  const ready = status === "compliant" || status === "not_applicable"
+  const Icon = ready ? CircleCheck : CircleAlert
+  const left = status === "needs_input" ? placeholders(final.text) : []
+  return (
+    <div className="flex items-start gap-2 border-t pt-3">
+      <Icon
+        className={
+          ready
+            ? "mt-0.5 size-4 shrink-0 text-primary"
+            : "mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
+        }
+        aria-hidden="true"
+      />
+      <div className="space-y-1">
+        <p className="font-medium">
+          {status === "needs_input" && !left.length
+            ? "Before you publish, answer the open questions below."
+            : PAGE_DONE_TEXT[status]}
+        </p>
+        {left.map((mark) => (
+          <p key={mark} className="font-mono text-xs">
+            {mark}
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function OnPageStatus({
+  onPage,
+  final,
+}: {
+  onPage: OnPage
+  /** The posting with the page's decisions applied, once everything there is reviewed. */
+  final?: FinalOut | null
+}) {
   const { status, failed, hidden, accepting } = onPage
   const states = Object.values(status?.states ?? {}).map(({ state }) => state)
   const count = (state: string) => states.filter((s) => s === state).length
@@ -224,7 +310,8 @@ export function OnPageStatus({ onPage }: { onPage: OnPage }) {
   if (failed)
     line =
       "CheckON can't show the fixes on this page. Use the list below, or click the CheckON icon on the page and check again."
-  else if (hidden || !status) line = "Highlights on the page are off."
+  else if (hidden) line = "Highlights on the page are off."
+  else if (!status) line = "Showing the problems on the page…"
   else if (!states.length) line = "Nothing to highlight on the page."
   else
     line = [
@@ -257,7 +344,7 @@ export function OnPageStatus({ onPage }: { onPage: OnPage }) {
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {editable && !hidden && open > 0 && (
+        {editable && !hidden && onPage.openFixes > 0 && (
           <LoadingButton
             size="sm"
             loading={accepting}
@@ -280,6 +367,7 @@ export function OnPageStatus({ onPage }: { onPage: OnPage }) {
           )
         )}
       </div>
+      {onPage.reviewed && final && <PageDone final={final} />}
     </section>
   )
 }

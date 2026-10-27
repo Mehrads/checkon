@@ -4,11 +4,12 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
+from app.compliance import checks
 from app.compliance.classification import Classification, safety_net
 from app.compliance.extraction import Extraction
 from app.compliance.inspector import Inspection, inspect
 from app.compliance.llm import LLMError
-from app.compliance.models import Context, ExpectedPay, PayMention, PayUnit
+from app.compliance.models import Context, ExpectedPay, PayMention, PayUnit, Verdict
 from app.compliance.money import restate_range
 from app.compliance.normalise import normalise
 from app.compliance.refiner import Patch, _deletion, _Rewrite, apply_edits, range_options, refine
@@ -230,6 +231,17 @@ def test_range_options_for_an_hourly_range() -> None:
     assert options == [(25, 49), (Decimal("25.50"), Decimal("49.50")), (26, 50)]
     for low, high in options:
         assert (high - low) * 40 * 52 <= 50000
+
+
+def test_range_options_for_an_hourly_range_with_unknown_hours_pass_the_width_check() -> None:
+    # $40-$70 an hour with no hours given: options $24 wide ($49,920 at 40 hours) would land in the band near
+    # the cap, where the check asks for the hours, so none would verify and the employer got no options.
+    pay = PayMention(min=Decimal(40), max=Decimal(70), unit=PayUnit.HOUR, span=(0, 10))
+    options = range_options(pay, Context(), PARAMS)
+    assert options == [(40, Decimal("61.50")), (Decimal("44.25"), Decimal("65.75")), (Decimal("48.50"), 70)]
+    for low, high in options:
+        narrower = PayMention(min=low, max=high, unit=PayUnit.HOUR, span=(0, 10))
+        assert checks._range_width(narrower, Context(), PARAMS).verdict == Verdict.PASS
 
 
 def test_restate_range_keeps_the_original_style() -> None:

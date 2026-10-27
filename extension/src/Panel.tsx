@@ -7,6 +7,7 @@ import {
   type Answers,
   type CheckOut,
   ChecksService,
+  type Decision,
   type FinalOut,
   type WorkspaceUpdate,
 } from "@/client"
@@ -103,6 +104,8 @@ export function Panel() {
   const [check, setCheck] = useState<CheckOut | null>(null)
   const [choices, setChoices] = useState<Choices>({})
   const [final, setFinal] = useState<FinalOut | null>(null)
+  // The posting as it reads on the page once every highlight there is reviewed: says what's left to do
+  const [pageFinal, setPageFinal] = useState<FinalOut | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [toSave, setToSave] = useState<WorkspaceUpdate>({})
   const results = useRef<HTMLDivElement>(null)
@@ -196,6 +199,7 @@ export function Panel() {
   const show = (data: CheckOut) => {
     setCheck(data)
     setFinal(null)
+    setPageFinal(null)
     if (data.refinement) setChoices(defaultChoices(data.refinement))
   }
   const fail = (err: Error) => setError(errorMessage(err))
@@ -246,6 +250,7 @@ export function Panel() {
       setChecked(input === "text" ? posting : null)
       setCheck(null)
       setFinal(null)
+      setPageFinal(null)
       setToSave({})
     },
     onSuccess: (data) => {
@@ -317,6 +322,24 @@ export function Panel() {
   const onPage = useOnPage(checked, check, (decision) =>
     setChoices((choices) => ({ ...choices, [decision.patch_id]: decision })),
   )
+
+  // When the last highlight on the page is accepted or skipped, apply the same choices to get the posting's
+  // final status, as "Apply and edit" does; again only if a later choice on the page changes them.
+  const finishPage = useMutation({
+    mutationFn: async (body: { check_id: string; decisions: Decision[] }) =>
+      (await ChecksService.acceptPatches({ body })).data,
+    onSuccess: setPageFinal,
+  })
+  const finished = useRef("")
+  const decisions = JSON.stringify(Object.values(choices))
+  const finishOnPage = finishPage.mutate
+  useEffect(() => {
+    if (!onPage.reviewed || !checkId) return
+    const key = `${checkId}:${decisions}`
+    if (finished.current === key) return
+    finished.current = key
+    finishOnPage({ check_id: checkId, decisions: JSON.parse(decisions) })
+  }, [onPage.reviewed, checkId, decisions, finishOnPage])
   const insert = posting?.editable
     ? (html: string, plain: string) => writeToPage(posting, html, plain)
     : undefined
@@ -498,7 +521,9 @@ export function Panel() {
           {check && (
             <>
               <Summary checkId={check.check_id} report={check.report} />
-              {checked && onPage.count > 0 && <OnPageStatus onPage={onPage} />}
+              {checked && onPage.count > 0 && (
+                <OnPageStatus onPage={onPage} final={pageFinal} />
+              )}
               <Questions
                 questions={check.questions}
                 pending={answer.isPending}

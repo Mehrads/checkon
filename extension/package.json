@@ -13,6 +13,7 @@
     "e2e:tabs": "node e2e/run.mjs tabs",
     "e2e:form": "node e2e/run.mjs form",
     "e2e:full": "node e2e/run.mjs full",
+    "e2e:onpage": "node e2e/run.mjs onpage",
     "e2e:signed": "node e2e/run.mjs signed"
   },
   "devDependencies": {
