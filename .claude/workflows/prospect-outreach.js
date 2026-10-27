@@ -1,9 +1,9 @@
 export const meta = {
   name: 'prospect-outreach',
   description: 'Find Ontario employers hiring on public job boards, audit their postings and application forms with CheckON, save each report on checkon.ca, and draft a pitch email linking it in Gmail for each published address (never sent)',
-  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 4, focus: "Waterloo tech", postings: 50, sender: {name, email}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector or Gmail signed in in the browser pane.',
+  whenToUse: 'Outreach prospects for CheckON. Args (all optional): {count: 10, focus: "Waterloo tech", postings: 50, sender: {name, email}}. Needs the repo .env (ANTHROPIC_API_KEY, OUTREACH_API_KEY) and, for drafts, the Gmail connector or Gmail signed in in the browser pane.',
   phases: [
-    { title: 'Find', detail: 'web search for Ontario employers hiring on Greenhouse, Lever or Ashby boards' },
+    { title: 'Find', detail: 'web search for Ontario employers hiring on Greenhouse, Lever or Ashby boards that publish a hiring email address' },
     { title: 'Check', detail: 'CheckON audits each board and its forms (python -m app.prospect); every finding is confirmed, then the report is saved on checkon.ca (python -m app.outreach_report)' },
     { title: 'Pitch', detail: 'the HR contact and the email with the report link, per company' },
     { title: 'Drafts', detail: 'one Gmail draft per pitch with a published address, made one at a time, never sent' },
@@ -16,7 +16,8 @@ export const meta = {
 // pitched once whichever checkout or worktree runs it. It holds named contacts: keep it out of git. The report saved
 // on checkon.ca holds only the confirmed findings, never contacts.
 
-const count = Math.max(1, Math.min(args?.count ?? 4, 10))
+// Each company costs roughly 150k agent tokens, so the cap stays modest.
+const count = Math.max(1, Math.min(args?.count ?? 10, 15))
 const postings = Math.max(1, Math.min(args?.postings ?? 50, 50))
 const focus = args?.focus ? `Focus on: ${args.focus}.` : 'Any industry; look across Toronto, Ottawa, Waterloo Region, Hamilton and London.'
 const sender = args?.sender ?? {}
@@ -41,9 +42,11 @@ const COMPANIES = {
           board_url: { type: 'string' },
           website: { type: 'string' },
           ontario_jobs: { type: 'integer' },
+          email: { type: 'string', description: 'a hiring, HR, careers or talent address the company publishes' },
+          email_source: { type: 'string', description: 'the page where that address is published' },
           why: { type: 'string', description: 'one line: why they fit (size, Ontario hiring)' },
         },
-        required: ['name', 'board_url', 'ontario_jobs'],
+        required: ['name', 'board_url', 'ontario_jobs', 'email', 'email_source'],
       },
     },
   },
@@ -136,15 +139,21 @@ What to look for, with WebSearch and WebFetch:
 - ${focus}
 - Likely 25+ employees. Skip staffing and recruiting agencies, governments and public bodies.
 - Open each board URL and confirm it lists at least one job located in Ontario; give that count as ontario_jobs.
+- Only employers that publish a hiring, HR, careers or talent email address (careers@, jobs@, talent@, hr@,
+  recruiting@ and the like) on their own website, careers page or one of their job postings. Open that page and
+  see the address yourself; return it as email, with the page's URL as email_source. Never guess or build an
+  address. Addresses only for accommodation requests, AODA or accessibility, or customer support don't count: skip
+  a company whose only published addresses are those.
 - Skip any company already in the ledger: run \`${ROOT}; cat "$ROOT/contacted.csv" 2>/dev/null\` and
-  leave out every company or board listed there.
-- Return exactly ${count} companies (fewer only if you truly can't find more), each with its board URL as you opened it.
+  leave out every company, board or email address listed there.
+- Return exactly ${count} companies (fewer only if you truly can't find more), each with its board URL as you opened
+  it and its published address.
 - run_date: the output of \`TZ=America/Toronto date +%F\`.
 ${DATA}`,
   { label: 'find employers', schema: COMPANIES },
 )
 const runDate = found?.run_date
-const companies = (found?.companies ?? []).slice(0, count)
+const companies = (found?.companies ?? []).filter((c) => c.email).slice(0, count)
 if (!runDate || !companies.length) {
   log('No companies found; nothing to check.')
   return { run_date: runDate, companies: [] }
@@ -203,15 +212,16 @@ Confirmed findings (JSON): ${JSON.stringify(checked.confirmed)}
 Postings checked: ${checked.checked ?? checked.in_ontario ?? 'several'}
 Their report on checkon.ca: ${checked.report_link || '(not saved)'}
 Their board: ${company.board_url}${company.website ? `; website: ${company.website}` : ''}
+Their published hiring address: ${company.email} (on ${company.email_source})
 
 1. The contact: find the person who owns hiring at ${company.name} for Ontario or Canada (Head of People or Talent,
    HR Manager, Talent Acquisition lead; for a small company, a founder or COO). Use WebSearch over public sources only:
    the company's own pages, press releases, event bios, and public profile pages as they show in search results.
    Don't sign in to anything. Record every page you used in contact_sources.
    An email address only if you see it published on a public page; put that page in email_source. Never guess or
-   build an address from a name pattern. If the person's address isn't published, use a hiring, HR or careers
-   address the company itself publishes (on its careers or contact page), and still greet the person by first name
-   if you're confident. If there's no published address at all, leave contact_email empty.
+   build an address from a name pattern. If you find no better published address (the person's own, or a hiring
+   address for Ontario), use their published hiring address above, with its page as email_source, and still greet
+   the person by first name if you're confident.
 2. The email, plain text, about 60 words, Canadian spelling, straight to the point:
    - Subject: short and specific, e.g. "${company.name}'s job postings and Ontario's new posting rules" or
      "Quick check of your <job title> posting".
