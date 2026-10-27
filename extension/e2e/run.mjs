@@ -2,6 +2,7 @@
 // tests"). They build the extension for E2E_API_URL, the local stack (http://localhost:8000) unless set.
 //   node e2e/run.mjs                      smoke, tabs, form and signed: what CI runs
 //   node e2e/run.mjs full                 a real check on the rich editor
+//   node e2e/run.mjs onpage               a real check reviewed on the page, with Accept all
 //   node e2e/run.mjs full:rich,tinymce    a suite with its modes, comma-separated
 import {
   API_URL,
@@ -12,7 +13,7 @@ import {
   report,
   servePages,
 } from "./lib.mjs"
-import { form, full, smoke, tabs } from "./panel.mjs"
+import { form, full, onPage, smoke, tabs } from "./panel.mjs"
 import { signed } from "./signed.mjs"
 
 const SUITES = {
@@ -20,6 +21,7 @@ const SUITES = {
   tabs: { run: tabs, modes: "" },
   form: { run: form, modes: "native,iframe,posting" },
   full: { run: full, modes: "rich" },
+  onpage: { run: onPage, modes: "rich" },
   signed: { run: signed, modes: "" },
 }
 

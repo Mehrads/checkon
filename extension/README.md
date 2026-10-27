@@ -64,6 +64,7 @@ From the repository root:
 | `bun run --filter extension e2e:tabs` | Switching tabs (the icon is needed again) and a partial selection (copy only) | None |
 | `bun run --filter extension e2e:form` | **Read form** on the application form: on its own tab, in a frame, and under the posting | None; two with `CHECK=1` |
 | `bun run --filter extension e2e:full` | A real check signed out: answers the AI and vacancy questions, applies the fixes and inserts them | One free check per mode |
+| `bun run --filter extension e2e:onpage` | The same check reviewed on the page: Accept all on the page writes the fixes into the form, and the panel says what's left to fill in | One free check per mode |
 | `bun run --filter extension e2e:signed` | Log in with the emailed code, the plan meter, the workspace switcher, a check with the client's profile, a pay range, insert, log out | One plan check |
 | `bun run --filter extension e2e` | smoke, tabs, form and signed: what CI runs | One plan check (none in CI) |
 

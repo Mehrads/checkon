@@ -203,6 +203,85 @@ export async function full(extensionDir, mode) {
   }
 }
 
+/** A real check reviewed on the page instead of in the editor: the questions answered, Accept all on the page,
+ * the fixes in the form, and the panel saying what's left before publishing. */
+export async function onPage(extensionDir, mode) {
+  const { browser, extension } = await launch(extensionDir)
+  try {
+    const page = await openForm(browser, mode)
+    const { panel } = await pressIcon(browser, extension, page)
+    await waitPanel(
+      panel,
+      (s) => s.text.length > 100,
+      "the posting to be read",
+      15000,
+    )
+    await click(panel, "Check this posting")
+    let state = await waitPanel(
+      panel,
+      (s) =>
+        (/highlighted on the page/.test(s.body) &&
+          /\d+ of \d+ fixes selected/.test(s.body)) ||
+        /couldn't finish/.test(s.body),
+      "the problems and their fixes on the page",
+      90000,
+    )
+    if (/couldn't finish/.test(state.body)) {
+      const at = state.body.indexOf("We couldn't")
+      throw new Error(state.body.slice(at, at + 200))
+    }
+    for (const [question, label] of [
+      [AI_Q, "No"],
+      [VACANCY_Q, "Yes"],
+    ]) {
+      if (!question.test(state.body)) continue
+      await answer(panel, question, label)
+      state = await waitPanel(
+        panel,
+        (s) =>
+          !question.test(s.body) &&
+          /highlighted on the page/.test(s.body) &&
+          /\d+ of \d+ fixes selected/.test(s.body),
+        `the answer to ${question}`,
+        60000,
+      )
+    }
+    log(
+      `[${mode}] ${state.body.match(/\d+ problems? highlighted on the page/)?.[0]}`,
+    )
+    await click(panel, "Accept all on the page")
+    state = await waitPanel(
+      panel,
+      (s) =>
+        /Everything on the page is reviewed/.test(s.body) &&
+        /Before you publish|Ready to publish/.test(s.body),
+      "the page reviewed",
+      30000,
+    )
+    const form = await formContent(page, mode)
+    check(
+      `on page ${mode}: Accept all writes the fixes into the form, the note is untouched`,
+      form.pay &&
+        form.rewrite &&
+        form.vacancy &&
+        form.bullets === 8 &&
+        form.nested === 0 &&
+        form.note.startsWith("Hiring manager"),
+      JSON.stringify(form),
+    )
+    const left = state.body.match(/Before you publish[^\n]*\n+[^\n]*/)?.[0]
+    check(
+      `on page ${mode}: the panel names what's left to fill in`,
+      /Before you publish, fill in what's marked in brackets on the page/.test(
+        state.body,
+      ) && state.body.includes("[Pay range: add before publishing]"),
+      left?.replace(/\n+/g, " "),
+    )
+  } finally {
+    await browser.close()
+  }
+}
+
 /** Tab switching and a partial selection, no check. */
 export async function tabs(extensionDir) {
   const { browser, extension } = await launch(extensionDir)
