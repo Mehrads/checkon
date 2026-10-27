@@ -5,7 +5,7 @@ import { pageHead } from "@/lib/seo"
 
 // Every statement about plans and billing here describes what the code and the Stripe setup do
 // (backend/app/api/billing.py, infra/README.md "Stripe"); change this page when they change.
-const DRAFTED = "October 23, 2026"
+const DRAFTED = "October 27, 2026"
 
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
@@ -28,13 +28,18 @@ function TermsPage() {
     >
       <p className="text-muted-foreground">
         These terms apply when you use CheckON (checkon.ca), including the free
-        check, the browser extension and the paid plans. By using CheckON, or by
-        subscribing to a plan, you agree to them. If you subscribe for a
-        business, you agree for that business and confirm you may do so.
+        check, free accounts, the browser extension and the paid plans. By using
+        CheckON, or by subscribing to a plan, you agree to them. If you
+        subscribe for a business, you agree for that business and confirm you
+        may do so.
       </p>
 
       <Part title="The short version">
         <List>
+          <li>
+            A free account needs only your email. It includes 5 checks every 30
+            days and keeps a history of your checks.
+          </li>
           <li>
             Starter and Agency are monthly subscriptions in Canadian dollars,
             paid by card through Stripe. They renew every month until you
@@ -58,7 +63,7 @@ function TermsPage() {
 
       <Part title="The service">
         <p>
-          CheckON reads a job posting you paste or open in the browser
+          CheckON reads a job posting you paste, link to or open in the browser
           extension, checks it against Ontario's job posting requirements, and
           suggests changes you can accept or reject. Some results depend on
           facts the posting doesn't state, such as how many employees an
@@ -69,6 +74,34 @@ function TermsPage() {
           You decide what to publish. Read the result before you use it, and
           talk to an employment lawyer about your own situation.
         </p>
+      </Part>
+
+      <Part title="Free accounts">
+        <List>
+          <li>
+            Sign up with your email; no card. We email you a link to set your
+            password, which works for 48 hours.
+          </li>
+          <li>
+            A free account includes 5 checks every 30 days, counted from the day
+            you sign up. A check counts the same way as on a plan (below).
+            Unused checks don't carry over, and there are no extra checks: once
+            they're used, the next ones come with the next 30 days.
+          </li>
+          <li>
+            It keeps a history of your checks and the reports you save. Company
+            profiles, pay suggestions, careers page audits and the archive come
+            with Starter and Agency.
+          </li>
+          <li>
+            When demand is high, we may pause free checks, a free account's
+            included, for the rest of the day.
+          </li>
+          <li>
+            If you subscribe, your check history and saved reports move to your
+            plan.
+          </li>
+        </List>
       </Part>
 
       <Part title="Plans and checks">
@@ -171,17 +204,17 @@ function TermsPage() {
       <Part title="Your account">
         <List>
           <li>
-            When you subscribe, we create an account with the email you give at
-            checkout and email you a link to set a password. Signing in takes
-            your password and a code we email you.
+            When you sign up for a free account, or subscribe without one, we
+            create an account with your email and email you a link to set a
+            password. Signing in takes your password and a code we email you.
           </li>
           <li>
             Keep your password to yourself, and tell us at <Mail /> if you think
             someone else has used your account.
           </li>
           <li>
-            To delete your account, cancel your plan first, then delete it under
-            Settings.
+            To delete your account, cancel any paid plan first, then delete it
+            under Settings. A free account can be deleted anytime.
           </li>
         </List>
       </Part>
@@ -193,6 +226,18 @@ function TermsPage() {
           keep them in your archive. Only paste postings you're allowed to share
           with us. How we handle them, including what we keep, is in our{" "}
           <PageLink to="/privacy">privacy policy</PageLink>.
+        </p>
+      </Part>
+
+      <Part title="Reports on your postings">
+        <p>
+          If we send you a report on your company's job postings, it's a summary
+          of what those postings may miss, based on what they said when we read
+          them. Like a check, it isn't legal advice, and some results depend on
+          facts only you know, such as how many employees you have. Anyone with
+          its link can open it, so share it only with people you want to see it.
+          Save it to a free account to keep it; otherwise we delete it 90 days
+          after we make it. Email <Mail /> to have it deleted sooner.
         </p>
       </Part>
 

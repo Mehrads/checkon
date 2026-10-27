@@ -267,7 +267,7 @@ def test_classifier_prompt_carries_rule_citations_and_examples() -> None:
     assert "it does not disclose artificial intelligence" in system  # the AI task's guidance
     assert '"Legally eligible to work in Canada" -> ok' in system
     # Real postings, 2026-10-27: false Canadian-experience flags and titles read as vague vacancy statements
-    assert "A sentence that names no place (Canada, a province, North America or the local area) is ok." in system
+    assert "however strict it is about the skill itself" in system and "The stricter label" not in system
     assert '"Admitted to the bar of a Canadian province" -> ok' in system
     assert '"Must be able to obtain Reliability Status and Controlled Goods Program clearance" -> ok' in system
     assert '"Electrical Intern (Fall 26)" -> none' in system

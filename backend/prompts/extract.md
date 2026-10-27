@@ -19,7 +19,7 @@ Fill every field:
   - quote: the amount or range copied from the text, with the words attached to it such as "up to", "+" or "per hour" (for example "$60,000 - $80,000 per year").
   - min and max: the numbers, with "k" expanded (60k is 60000). A single figure has min equal to max. "Up to $90,000" has min null. "$70,000+" has max null.
   - unit: the pay period: hour, week, month or year. If the text doesn't state it, give the period the amount plainly implies (a $60,000 salary is yearly, $25 is hourly); use null if it could be more than one.
-  - kind: wage for base pay (salary, hourly rate, wage); otherwise commission, bonus, equity or benefits.
+  - kind: wage for base pay (salary, hourly rate, wage); otherwise commission, bonus, equity or benefits. Tips and gratuities aren't wages or commission: give them bonus.
 - vacancy_sentences: the numbers of sentences that say whether the job is an existing vacancy, a future vacancy or a talent pool. A job title, a location or job-type line, or a sentence that only says the employer is hiring or looking for someone, is not one.
 - ai_sentences: the numbers of sentences that mention artificial intelligence or automated tools used to screen, assess or select applicants, or that say such tools aren't used.
 - requirement_sentences: the numbers of sentences that state a requirement or qualification for applicants, including "nice to have" and "asset" items.

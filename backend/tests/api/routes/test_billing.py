@@ -470,6 +470,8 @@ def test_a_paying_user_cancels_before_deleting_the_account(client: TestClient, d
     db.add(customer)
     db.commit()
     assert client.delete(f"{API}/users/me", headers=headers).status_code == 200
+    db.expire_all()
+    assert db.get(Customer, customer.id) is not None  # the billing records stay
 
 
 @pytest.fixture(autouse=True, scope="module")

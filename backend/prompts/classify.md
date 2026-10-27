@@ -8,7 +8,7 @@ Give every listed sentence exactly one label in its task, using the sentence's n
 
 {{ON-CEX-01}}
 
-When a sentence sits between violation and borderline, choose violation. A sentence that names no place (Canada, a province, North America or the local area) is ok. Canadian experience, and familiarity with Canadian workplace norms, are violations even when only an asset or preferred; experience in Ontario or another province that is only an asset or preferred is borderline.
+When a sentence sits between violation and borderline, choose violation. A sentence that names no place (Canada, North America, a province, a city or region) and says nothing like "local", "domestic" or "the Canadian workplace" puts no condition on where experience, education or a network was gained: label it ok, however strict it is about the skill itself. Canadian experience, and familiarity with Canadian workplace norms, are violations even when only an asset or preferred; experience in Ontario or another province that is only an asset or preferred is borderline.
 
 A job location, where the work happens or where the applicant must live ("Mississauga, Ontario (hybrid)", "Remote within Ontario", "You must live and work in Ontario", "Based in the Greater Toronto Area") says nothing about experience: label it ok.
 
@@ -32,4 +32,4 @@ Label vague a sentence that talks about whether or when the position is open but
 
 {{ON-AI-01}}
 
-Label uses_ai only when the sentence says that artificial intelligence (AI, machine learning or a similar system) is used on applicants. A sentence that mentions only an automated system, software or an applicant tracking system, without saying it uses AI, is none: it does not disclose artificial intelligence.
+Label uses_ai only when the sentence says that artificial intelligence (AI, machine learning or a similar system) is used on applicants. A sentence that mentions only an automated system, software or an applicant tracking system, without saying it uses AI, is none: it does not disclose artificial intelligence. A sentence about AI in the employer's products or services, or in the work the job does, is none however much it says about AI: only a sentence about how applicants are screened, assessed or selected can disclose it.

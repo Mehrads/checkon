@@ -13,7 +13,9 @@ from app.compliance.classification import Classification
 from app.compliance.extraction import Extraction
 from app.evals import collect as collector
 from app.evals.cases import RULES, SLICES, Case, load_case, load_cases, write_case
-from app.evals.golden import Result, Run, added_facts, run_case, score
+from app.compliance.models import Question
+from app.compliance.refiner import OPEN_ENDED, Dropped, Patch, Refinement
+from app.evals.golden import Result, Run, added_facts, run_case, score, waits_on_employer
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_inspector import PACK, POSTING, extraction, labels
 
@@ -155,6 +157,24 @@ def test_refiner_gates_and_expected_refusals() -> None:
     assert measured["Refiner: fixable failures fixed and verified"] == ("100.0% (1/1)", "pass")
     assert measured["Refiner: rewrites that add a fact"] == ("0", "pass")
     assert s.refusals == [("campaign", "not_a_posting", "not refused")]
+
+
+def test_failures_left_for_the_employer_are_not_counted_as_unfixed() -> None:
+    pick = Patch(id="p1", rule="ON-PAY-02", op="replace", span=(0, 5), before="$1-$9", after=None,
+                 options=["$1-$5"], writer="code", default=False)  # fmt: skip
+    asked = Refinement.model_construct(patches=[pick], questions=[Question(id="existing_vacancy", text="?")], dropped=[])
+    assert waits_on_employer(asked) == {"ON-PAY-02", "ON-VAC-01"}
+    open_ended = Dropped(rule="ON-PAY-02", span=(0, 5), guidance="", failures=[OPEN_ENDED])
+    unwritten = Dropped(rule="ON-CEX-01", span=(0, 5), guidance="", failures=["The rewrite call gave no usable sentence."])
+    dropped = Refinement.model_construct(patches=[], questions=[], dropped=[open_ended, unwritten])
+    assert waits_on_employer(dropped) == {"ON-PAY-02"}
+
+    waiting = Run(verdicts={**ALL_PASS, "ON-VAC-01": "fail", "ON-CEX-01": "fail"}, fixable=["ON-CEX-01"],
+                  fixed=["ON-CEX-01"], waiting=["ON-VAC-01"])  # fmt: skip
+    s = score([Result(case(id="waiting"), [waiting])])
+    measured = {gate.name: (gate.value, gate.outcome) for gate in s.gates}
+    assert measured["Refiner: fixable failures fixed and verified"] == ("100.0% (1/1)", "pass")
+    assert s.waiting == 1
 
 
 def test_unlabelled_cases_are_counted_not_scored() -> None:

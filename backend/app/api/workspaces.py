@@ -12,7 +12,7 @@ from sqlmodel import Session, col, delete, func, select
 
 from app.api.billing import PlanAccess
 from app.compliance.models import Context
-from app.models import Audit, Customer, User, Workspace
+from app.models import Audit, Customer, OutreachReport, PaidCheck, User, Workspace
 
 Wording = Literal["formal", "plain"]
 MAX_WORKSPACES = 100  # open at once, per customer
@@ -74,8 +74,9 @@ def wording(workspace: Workspace | None) -> Wording:
 
 
 def forget_profiles(session: Session, customer_id: uuid.UUID | None) -> None:
-    """When a customer's last user deletes their account, their company profiles and careers page audits go too.
-    The billing records stay, as the privacy page says. Call after deleting the user, before committing."""
+    """When a customer's last user deletes their account, their company profiles, careers page audits and saved
+    outreach reports go too. A paying customer's billing records stay, as the privacy page says; a free account was
+    never billed, so its customer and check history go as well. Call after deleting the user, before committing."""
     if customer_id is None:
         return
     session.flush()
@@ -83,3 +84,8 @@ def forget_profiles(session: Session, customer_id: uuid.UUID | None) -> None:
     if users == 0:
         session.exec(delete(Audit).where(col(Audit.customer_id) == customer_id))
         session.exec(delete(Workspace).where(col(Workspace.customer_id) == customer_id))
+        session.exec(delete(OutreachReport).where(col(OutreachReport.customer_id) == customer_id))
+        customer = session.get(Customer, customer_id)
+        if customer is not None and customer.plan == "free":
+            session.exec(delete(PaidCheck).where(col(PaidCheck.customer_id) == customer_id))
+            session.delete(customer)

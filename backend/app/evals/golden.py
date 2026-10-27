@@ -28,7 +28,7 @@ import anthropic
 from app.compliance.inspector import InputRefused, inspect
 from app.compliance.llm import AnthropicLLM, SpendMeter, StructuredLLM
 from app.compliance.models import Verdict
-from app.compliance.refiner import Patch, refine
+from app.compliance.refiner import OPEN_ENDED, Patch, Refinement, refine
 from app.compliance.rulepack import RulePack, load_pack
 from app.core.config import settings
 from app.evals.cases import GOLDEN_DIR, RULES, SLICES, TARGETS, Case, load_cases
@@ -52,6 +52,7 @@ class Run:
     seconds: float = 0.0
     fixable: list[str] = field(default_factory=list)  # failing rules the Refiner could fix without the employer
     fixed: list[str] = field(default_factory=list)
+    waiting: list[str] = field(default_factory=list)  # failing rules whose fix needs the employer's answer or pick
     added: list[str] = field(default_factory=list)  # model rewrites with a number or name the posting doesn't have
 
     def verdict(self, rule: str) -> str:
@@ -91,6 +92,16 @@ def added_facts(source: str, patches: Iterable[Patch]) -> list[str]:
     return found
 
 
+def waits_on_employer(refinement: Refinement) -> set[str]:
+    """Rules the Refiner can't fix on its own: a narrower range for the employer to pick, the vacancy question,
+    or an open-ended range that needs the employer's own figure."""
+    waiting = {p.rule for p in refinement.patches if p.after is None and p.options}
+    if any(q.id == "existing_vacancy" for q in refinement.questions):
+        waiting.add("ON-VAC-01")
+    waiting |= {d.rule for d in refinement.dropped if OPEN_ENDED in d.failures}
+    return waiting
+
+
 def run_case(case: Case, pack: RulePack, llm: StructuredLLM, refine_too: bool = False) -> Run:
     started = time.monotonic()
     meter = getattr(llm, "meter", None)
@@ -101,8 +112,13 @@ def run_case(case: Case, pack: RulePack, llm: StructuredLLM, refine_too: bool = 
         if refine_too and Verdict.FAIL.value in run.verdicts.values():
             refinement = refine(inspection, inspection.context, case.posted, pack, llm)
             after = {result.rule: result.verdict for result in refinement.report.results}
+            waiting = waits_on_employer(refinement)
             for rule, verdict in run.verdicts.items():
-                if verdict == Verdict.FAIL and after.get(rule) != Verdict.NEEDS_INPUT:  # not waiting on the employer
+                if verdict != Verdict.FAIL:
+                    continue
+                if after.get(rule) == Verdict.NEEDS_INPUT or rule in waiting:
+                    run.waiting.append(rule)
+                else:
                     run.fixable.append(rule)
                     if after.get(rule) in (Verdict.PASS, Verdict.NOT_APPLICABLE):
                         run.fixed.append(rule)
@@ -152,6 +168,7 @@ class Score:
     counts: dict[str, dict[str, int]]  # slice to cases, labelled, by two people, target
     usd: float
     p95_seconds: float
+    waiting: int = 0  # failing rules left for the employer after refinement (first run)
 
 
 def score(results: list[Result]) -> Score:
@@ -221,7 +238,9 @@ def score(results: list[Result]) -> Score:
     errors = [(r.case.id, run.error) for r in results for run in r.runs if run.error]
     seconds = sorted(run.seconds for run in runs if not run.error)
     p95 = statistics.quantiles(seconds, n=20)[-1] if len(seconds) >= 2 else (seconds[0] if seconds else 0.0)
-    return Score(gates, rules, mismatches, refusals, errors, added, counts, round(sum(r.usd for r in runs), 4), p95)
+    waiting = sum(len(run.waiting) for run in first.values())
+    return Score(gates, rules, mismatches, refusals, errors, added, counts, round(sum(r.usd for r in runs), 4), p95,
+                 waiting)  # fmt: skip
 
 
 # Report
@@ -231,6 +250,9 @@ def markdown(score: Score, args: str) -> str:
     lines = [f"# Golden set run, {datetime.now():%Y-%m-%d %H:%M}", "", f"`{args}`", ""]
     lines += ["| Gate | Target | Measured | Result |", "| --- | --- | --- | --- |"]
     lines += [f"| {g.name} | {g.target} | {g.value} | {g.outcome} |" for g in score.gates]
+    if score.waiting:
+        lines += ["", f"Failures waiting on the employer (a range to pick, the vacancy question or a pay figure), "
+                      f"not counted in the Refiner gate: {score.waiting}."]  # fmt: skip
     lines += ["", f"Model fees: ${score.usd:.4f}. p95 time per case: {score.p95_seconds:.1f} s.", ""]
     lines += ["## Cases", "", "| Slice | Cases | Labelled | By two people | Target |", "| --- | --- | --- | --- | --- |"]
     lines += [f"| {n} | {c['cases']} | {c['labelled']} | {c['by_two']} | {c['target']} |" for n, c in score.counts.items()]
