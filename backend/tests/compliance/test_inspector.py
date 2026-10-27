@@ -266,3 +266,27 @@ def test_classifier_prompt_carries_rule_citations_and_examples() -> None:
     assert "Rule ON-CEX-01: ESA 2000, s. 8.3 (1)" in system
     assert "it does not disclose artificial intelligence" in system  # the AI task's guidance
     assert '"Legally eligible to work in Canada" -> ok' in system
+    # Real postings, 2026-10-27: false Canadian-experience flags and titles read as vague vacancy statements
+    assert "A sentence that names no place (Canada, a province, North America or the local area) is ok." in system
+    assert '"Admitted to the bar of a Canadian province" -> ok' in system
+    assert '"Must be able to obtain Reliability Status and Controlled Goods Program clearance" -> ok' in system
+    assert '"Electrical Intern (Fall 26)" -> none' in system
+    assert "a line that only says the employer is hiring, looking for or seeking someone" in system
+    assert "choose the stricter one" not in system
+
+
+def test_extraction_prompt_counts_talent_pools_as_specific_positions() -> None:
+    llm = FakeLLM().queue(Extraction, extraction()).queue(Classification, labels())
+    run(llm)
+    system = llm.calls_for(Extraction)[0].system
+    assert "even when it is for a talent pool, future openings or ongoing hiring for that job" in system
+    assert "false only if it is a general recruitment campaign" in system
+
+
+def test_labels_give_their_reason_before_the_label() -> None:
+    from app.compliance.classification import AILabel, CexLabel, VacancyLabel
+    from app.compliance.form import FormLabel
+
+    for model in (CexLabel, VacancyLabel, AILabel):
+        assert list(model.model_fields) == ["sentence", "reason", "label"]
+    assert list(FormLabel.model_fields) == ["question", "reason", "label"]

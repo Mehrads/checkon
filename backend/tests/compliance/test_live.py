@@ -99,6 +99,15 @@ CEX_SAMPLE = [
     # Seen as a false violation on a live posting (2026-10-23): an award for the employer that names Canada.
     ("2026 Best Workplaces for Young Talent and in Canada by Great Place to Work.", {"ok"}),
     ("You will run UK and Irish payroll for our European entities.", {"ok"}),
+    # False violations on real postings (docs/accuracy-and-demand-2026-10.md): licences, clearances and
+    # sentences that name no place.
+    ("The successful candidate must be able to work in Canada and obtain clearance under the Canadian Controlled Goods Program (CGP).", {"ok"}),
+    ("Completed or actively working towards a Broker (RIBO) Level 2 Licence or equivalent depending on provincial requirements.", {"ok"}),
+    ("The ideal candidate must be admitted to the bar of any Canadian province.", {"ok"}),
+    ("A strong operational background: 2-5 years across business operations, People ops, events management, or a startup generalist role.", {"ok"}),
+    ("Previous maintenance experience preferably gained in a retail or commercial property environment.", {"ok"}),
+    ("You are an AAADM-certified automatics troubleshooting genius with at least 6+ years of experience.", {"ok"}),
+    ("You recently graduated from a Canadian university with a B.S. or M.S.", {"violation"}),
 ]
 AI_SAMPLE = [
     ("We use AI tools to screen applications.", {"uses_ai"}),
@@ -117,6 +126,10 @@ VACANCY_SAMPLE = [
     ("We may hire for this role in the future.", {"vague"}),
     ("We accept applications for this role on an ongoing basis.", {"vague"}),
     ("Apply by November 30.", {"none"}),
+    # Read as vague statements on real postings: lines that say nothing about whether the position is open.
+    ("We're hiring a pharmacist to join our dynamic team.", {"none"}),
+    ("We are currently seeking a driven Outside Sales Regional Account Manager for the Windsor to London territory.", {"none"}),
+    ("You'll take over an established, full caseload, allowing you to make an impact from day one.", {"none"}),
 ]
 
 
@@ -171,6 +184,30 @@ LAW_REVIEW_POSTINGS = {
         "- Registered with the College of Nurses of Ontario\n- Degree from a Canadian university\n"
         "- 10 years of nursing leadership experience\n\nThis posting is for an existing vacancy.\n",
         {"ON-APPL-02": "pass", "ON-PAY-01": "not_applicable", "ON-PAY-02": "not_applicable", "ON-CEX-01": "fail"},
+    ),
+    # docs/accuracy-and-demand-2026-10.md: a talent pool for a named job is a specific position (Reg. s. 2 (1) (a)).
+    "talent pool for a named job": (
+        "Personal Support Worker - Casual Pool\nHamilton, ON\n\nWe are building a pool of casual Personal Support "
+        "Workers for upcoming client needs. There is no existing vacancy at this time; we will contact candidates "
+        "from the pool as shifts open.\n\nWhat you'll do\n- Help clients with personal care and daily living\n\n"
+        "Requirements\n- PSW certificate\n\nPay: $22.50 per hour, plus mileage\n",
+        {"ON-APPL-02": "pass", "ON-PAY-01": "pass", "ON-VAC-01": "pass", "ON-CEX-01": "pass"},
+    ),
+    "always hiring for a named job, no statement": (
+        "Front Desk Agent\nStratford, ON\n\nWe're always looking for friendly front desk agents to join our hotel "
+        "team.\n\nWhat you'll do\n- Check guests in and out\n- Answer calls and emails\n\nPay: $19 - $21 per hour\n",
+        {"ON-APPL-02": "pass", "ON-PAY-01": "pass", "ON-VAC-01": "fail"},
+    ),
+    "a title and a hiring line are not a vacancy statement": (
+        "Pharmacist\nToronto, ON / Full Time Permanent\n\nWe're hiring a pharmacist to join our dynamic team.\n\n"
+        "Requirements\n- Licensed with the Ontario College of Pharmacists\n- Must be able to obtain a police "
+        "records check\n\nSalary: $110,000 - $125,000 per year\n",
+        {"ON-APPL-02": "pass", "ON-PAY-01": "pass", "ON-VAC-01": "fail", "ON-CEX-01": "pass"},
+    ),
+    "a general campaign stays out of scope": (
+        "Join our team!\nToronto, ON\n\nWe're always looking for talented people. Send us your resume and we'll "
+        "reach out when something opens up.\n",
+        {"ON-APPL-02": "not_applicable"},
     ),
 }
 
