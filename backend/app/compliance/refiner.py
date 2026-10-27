@@ -46,6 +46,7 @@ _STEP = {PayUnit.HOUR: Decimal("0.25"), PayUnit.WEEK: Decimal(10), PayUnit.MONTH
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 _NAME = re.compile(r"\b[A-Z][\w.&'-]*")
 _FIXED = (Verdict.PASS, Verdict.NOT_APPLICABLE)
+OPEN_ENDED = "An open-ended range needs the employer's own top or bottom figure."
 
 
 class Patch(BaseModel):
@@ -151,11 +152,18 @@ def _restated(text: str, pay: PayMention, expected: ExpectedPay) -> str:
 
 
 def range_options(pay: PayMention, ctx: Context, params: dict) -> list[tuple[Decimal, Decimal]]:
-    """Ranges within the cap, in the posting's own unit: keep the bottom, centre, keep the top."""
+    """Ranges within the cap, in the posting's own unit: keep the bottom, centre, keep the top. An hourly range
+    with unknown hours stays below the band near the cap, where the width check asks for the hours instead of
+    passing it."""
     hours = ctx.hours_per_week if ctx.hours_per_week is not None else params["default_hours_per_week"]
     per_unit = annualise(Decimal(1), pay.unit, hours, params)
     step = _STEP[pay.unit]
-    width = _floor(params["max_annual_width"] / per_unit, step)
+    cap = Decimal(params["max_annual_width"])
+    if pay.unit == PayUnit.HOUR and ctx.hours_per_week is None:
+        cap -= cap * Decimal(str(params["near_cap_margin"]))
+    width = _floor(cap / per_unit, step)
+    if width * per_unit >= cap and cap < params["max_annual_width"]:  # exactly at the band's edge still asks
+        width -= step
     low = _floor((pay.min + pay.max) / 2 - width / 2, step)
     options = [(pay.min, pay.min + width), (low, low + width), (pay.max - width, pay.max)]
     return [option for option in dict.fromkeys(options) if option[0] >= 0]
@@ -206,7 +214,7 @@ def _plan(
             if pay.span not in result.evidence:
                 continue
             if pay.min is None or pay.max is None:
-                guidance(result, pay.span, "An open-ended range needs the employer's own top or bottom figure.")
+                guidance(result, pay.span, OPEN_ENDED)
                 continue
             text = doc.text[pay.span[0] : pay.span[1]]
             options = [restate_range(text, low, high) for low, high in range_options(pay, ctx, rules["ON-PAY-02"].params)]

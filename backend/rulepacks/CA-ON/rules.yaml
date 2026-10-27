@@ -157,7 +157,7 @@ rules:
     tests: [tests/vacancy.yaml]
 
   - id: ON-AI-01
-    version: 1.1.0
+    version: 1.1.1
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -188,10 +188,12 @@ rules:
       - {text: "Our applicant tracking system sorts applications automatically.", label: none, reason: "Software that doesn't say it uses AI is not an AI disclosure."}
       - {text: "Experience with AI tools such as ChatGPT is an asset.", label: none, reason: "A job skill, not how applicants are screened."}
       - {text: "Our product uses machine learning to forecast demand.", label: none, reason: "About the product, not hiring."}
+      - {text: "You'll lead design for our messaging product, which we're rebuilding around AI-drafted replies.", label: none, reason: "About the product the job works on, not how applicants are screened."}
+      - {text: "Experience designing AI-powered features is required.", label: none, reason: "A job skill, not how applicants are screened."}
     tests: [tests/ai.yaml]
 
   - id: ON-CEX-01
-    version: 1.2.1
+    version: 1.2.2
     kind: content
     effective_from: 2026-01-01
     effective_to: null
@@ -218,14 +220,20 @@ rules:
       - {text: "Local work experience required", label: violation, reason: "'Local' restates a Canadian experience requirement."}
       - {text: "Familiarity with the Canadian workplace", label: violation, reason: "A coded substitute for Canadian experience."}
       - {text: "Bachelor's degree from a Canadian university", label: violation, reason: "A Canadian education credential; the guide counts education credentials as Canadian experience."}
+      - {text: "Diploma in Business Administration from an Ontario college", label: violation, reason: "An education credential that must come from a Canadian institution."}
       - {text: "An established network of clients in Canada", label: violation, reason: "The guide counts an established Canadian professional network or client base as Canadian experience."}
+      - {text: "An established network of donors in the Greater Toronto Area", label: violation, reason: "A network tied to a Canadian region; the guide counts an established Canadian professional network as Canadian experience."}
       - {text: "Ontario payroll experience is an asset", label: borderline, reason: "Experience tied to Ontario; our reading treats it as borderline."}
+      - {text: "5+ years of North American sales experience", label: borderline, reason: "A place condition wider than Canada that includes it; our reading treats it as borderline (law review, Q8c)."}
       - {text: "Knowledge of Canadian tax regulations", label: borderline, reason: "Knowledge of Canadian rules, which may be read as Canadian experience."}
       - {text: "P.Eng. licence required", label: ok, reason: "A licence, not experience."}
       - {text: "CPA designation", label: ok, reason: "A certification, not experience."}
       - {text: "Registered with the College of Nurses of Ontario", label: ok, reason: "A professional licensing or registration requirement, which the prohibition doesn't cover."}
       - {text: "Legally eligible to work in Canada", label: ok, reason: "Work authorization, not experience."}
+      - {text: "Remote; you must live and work in Ontario", label: ok, reason: "Where the work happens, not experience."}
       - {text: "5+ years of payroll experience", label: ok, reason: "Experience with no condition on where it was gained."}
+      - {text: "Home care experience required", label: ok, reason: "Experience with no condition on where it was gained; 'home' is the kind of care, not a place."}
+      - {text: "An established network of donors and community leaders", label: ok, reason: "A professional network with no condition on where it was built."}
       - {text: "Experience running UK and Irish payroll", label: ok, reason: "Experience with another country's payroll that the job needs; it isn't Canadian experience."}
       - {text: "Named one of Canada's Best Workplaces in 2026", label: ok, reason: "An award for the employer, not something asked of applicants."}
     # The same prohibition on the application form: each question is read with its answer options. A required

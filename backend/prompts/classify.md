@@ -16,6 +16,8 @@ A sentence about the employer rather than the applicant (an award, its offices, 
 
 Experience tied only to another country ("UK payroll", "US tax filings") isn't Canadian experience: label it ok.
 
+The stricter label is for a sentence that ties experience, education or a network to Canada; where the applicant lives or works is a location, not experience. A sentence that names no place in Canada (Canada, North America, a province, a city or region) and says nothing like "local", "domestic" or "the Canadian workplace" puts no condition on where experience, education or a network was gained: label it ok, however strict it is about the skill itself.
+
 ## Task vacancy
 
 {{ON-VAC-01}}
@@ -26,4 +28,4 @@ When a sentence doesn't plainly say whether a vacancy exists now, label it vague
 
 {{ON-AI-01}}
 
-Label uses_ai only when the sentence says that artificial intelligence (AI, machine learning or a similar system) is used on applicants. A sentence that mentions only an automated system, software or an applicant tracking system, without saying it uses AI, is none: it does not disclose artificial intelligence.
+Label uses_ai only when the sentence says that artificial intelligence (AI, machine learning or a similar system) is used on applicants. A sentence that mentions only an automated system, software or an applicant tracking system, without saying it uses AI, is none: it does not disclose artificial intelligence. A sentence about AI in the employer's products or services, or in the work the job does, is none however much it says about AI: only a sentence about how applicants are screened, assessed or selected can disclose it.
