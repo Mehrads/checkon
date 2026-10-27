@@ -175,9 +175,19 @@ def test_free_accounts_stop_with_the_free_checks_when_the_day_s_budget_is_spent(
     assert paused.status_code == 503 and paused.json()["detail"]["reason"] == "paused"
 
 
-def test_a_free_account_can_be_deleted_any_time(client: TestClient, db: Session) -> None:
-    _, headers = make_free_user(db)
+def test_a_free_account_can_be_deleted_any_time_and_takes_its_data_along(client: TestClient, db: Session) -> None:
+    user, headers = make_free_user(db)
+    customer_id = user.customer_id
+    db.add(PaidCheck(customer_id=customer_id, user_id=user.id, check_id="free-del", title="Payroll Specialist",
+                     status="not_compliant"))  # fmt: skip
+    db.add(OutreachReport(token=secrets.token_urlsafe(24), company="Acme", url="https://jobs.lever.co/acme",
+                          found=1, outside_ontario=0, customer_id=customer_id))  # fmt: skip
+    db.commit()
     assert client.delete(f"{API}/users/me", headers=headers).status_code == 200
+    db.expire_all()
+    assert db.get(Customer, customer_id) is None  # never billed: nothing to keep for tax records
+    assert db.exec(select(PaidCheck).where(PaidCheck.customer_id == customer_id)).first() is None
+    assert db.exec(select(OutreachReport).where(OutreachReport.customer_id == customer_id)).first() is None
 
 
 def test_a_free_account_that_subscribes_keeps_its_checks_and_reports(

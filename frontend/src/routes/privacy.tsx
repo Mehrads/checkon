@@ -11,7 +11,7 @@ import {
 import { pageHead } from "@/lib/seo"
 
 // Every statement here describes what the code does; change this page when that changes.
-const DRAFTED = "October 26, 2026"
+const DRAFTED = "October 27, 2026"
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
@@ -35,8 +35,9 @@ function PrivacyPage() {
       <p className="text-muted-foreground">
         CheckON (checkon.ca) checks job postings for Ontario employers and the
         agencies that post for them. This page covers the website, the browser
-        extension and the paid plans, and follows Canada's private-sector
-        privacy law, PIPEDA.
+        extension, free accounts, the paid plans and the reports we send
+        employers about their public job postings. It follows Canada's
+        private-sector privacy law, PIPEDA.
       </p>
 
       <Part title="What we collect, and how long we keep it">
@@ -68,12 +69,27 @@ function PrivacyPage() {
             give. Linked to a hashed cookie, never to your posting.
           </li>
           <li>
-            <strong>Your account, if you subscribe.</strong> Email, name,
-            password (hashed) and sign-in codes (expire after 10 minutes). Also
-            your company profiles, client workspaces, confirmed pay ranges,
-            careers page audits (the page's address and each posting's title,
-            place, link and result) and check history (date, job title and
-            result). Kept until you delete your account.
+            <strong>Your account, if you sign up or subscribe.</strong> Email,
+            name, password (hashed) and sign-in codes (expire after 10 minutes),
+            your check history (date, job title and result) and any reports you
+            save to it. On a paid plan, also your company profiles, client
+            workspaces, confirmed pay ranges and careers page audits (the page's
+            address and each posting's title, place, link and result). Kept
+            until you delete your account. A free account is then deleted
+            entirely; a paid account's billing records stay, as described under
+            Billing.
+          </li>
+          <li>
+            <strong>Reports we send employers.</strong> We may check the open
+            Ontario postings on an employer's public job board, and their
+            application forms where the board shows them, and save the result on
+            checkon.ca as a report: the company's name, the board's address,
+            each posting's title, place, link and result, and short quotes from
+            the postings. It opens from a private link in our email, without
+            signing in. We count how many times it's opened and note when it was
+            first opened, but not who opened it, and keep any answers given on
+            it. A report nobody saves to an account is deleted 90 days after we
+            make it; a saved one is kept until that account is deleted.
           </li>
           <li>
             <strong>Archive, if you turn it on.</strong> On a paid plan, you can
@@ -88,8 +104,9 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>Billing.</strong> Stripe takes your card; we never see it.
-            We keep your Stripe IDs, plan, status and billing dates, for as long
-            as tax law requires (generally six years).
+            We keep your Stripe IDs, plan, status, billing dates and the checks
+            counted against your plan, for as long as tax law requires
+            (generally six years).
           </li>
           <li>
             <strong>Contact form.</strong> Your name, email, company and
@@ -115,6 +132,23 @@ function PrivacyPage() {
         </p>
       </Part>
 
+      <Part title="Emails to employers">
+        <p>
+          We sometimes email a business about its public job postings, with a
+          report as described above. We use only an email address the business
+          publishes, such as a careers or hiring address, and the name and job
+          title of the person who handles hiring when those are published. We
+          keep those details, where we found them and what we sent, so we never
+          email the same business twice. They stay on our own systems, never on
+          the website or in the report.
+        </p>
+        <p>
+          Every email says who we are and how to stop. Reply "no thanks", or
+          email <Mail />, and we won't contact you again. Ask, and we'll delete
+          what we kept about you, except a note not to contact you.
+        </p>
+      </Part>
+
       <Part title="Cookies and browser storage">
         <List>
           <li>
@@ -137,14 +171,16 @@ function PrivacyPage() {
         </p>
         <List>
           <li>
-            <strong>Anthropic</strong> (AI): postings and search terms.
+            <strong>Anthropic</strong> (AI): postings and search terms, and the
+            public web pages we read when preparing an email to an employer.
           </li>
           <li>
             <strong>Google Cloud</strong> (hosting and database, Toronto
             region): everything we store.
           </li>
           <li>
-            <strong>Google Workspace</strong> (email): contact messages.
+            <strong>Google Workspace</strong> (email): contact messages, and the
+            emails we send employers.
           </li>
           <li>
             <strong>Resend</strong> (email delivery): the emails we send, such
@@ -177,8 +213,10 @@ function PrivacyPage() {
         <p>
           Connections are encrypted, data is stored encrypted in Canada, cookie
           IDs and IP addresses are hashed, and signing in takes your password
-          plus an emailed code. Only CheckON's administrators can see feedback,
-          contact messages and usage records.
+          plus an emailed code. A report's link is a long random address that
+          can't be guessed, but anyone it's forwarded to can open it. Only
+          CheckON's administrators can see feedback, contact messages and usage
+          records.
         </p>
       </Part>
 
@@ -186,9 +224,10 @@ function PrivacyPage() {
         <p>
           You can ask to see, correct or delete your information, or withdraw
           consent, by emailing <Mail />. We reply within 30 days. You can delete
-          your account yourself under Settings once your plan is cancelled; see
-          our <PageLink to="/terms">terms of service</PageLink>. If you're not
-          satisfied, you can complain to the{" "}
+          your account yourself under Settings: a free account anytime, a paid
+          one once its plan is cancelled. To have a report deleted, email us;
+          see our <PageLink to="/terms">terms of service</PageLink>. If you're
+          not satisfied, you can complain to the{" "}
           <a
             href="https://www.priv.gc.ca"
             className="text-primary underline-offset-4 hover:underline"
