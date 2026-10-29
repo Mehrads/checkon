@@ -4,6 +4,13 @@ Written on 2026-10-28 from the Umami numbers for October 21–28, a read of ever
 
 **Pull request:** [Mehrads/checkon#5](https://github.com/Mehrads/checkon/pull/5) (not merged, not deployed: it needs your review of the copy and the legal wording listed in section 6).
 
+**CI:** all 6 checks green on `7a9c053` (the code's last commit), in both the push run and the pull_request run:
+- backend: `uv run pytest`, 821 passed and 13 skipped;
+- frontend: Biome and the build;
+- e2e: Playwright, 75 of 75 passed, including the signed-in specs and the 12 new engagement tests; the extension's own browser tests, 22 of 22.
+
+The only annotations are GitHub's notice that `ubuntu-latest` moves to Ubuntu 26. The commit that adds this paragraph changes this file only.
+
 ## What to watch in Umami next week
 
 Compare with the baseline: 39 visits, 22 on `/check`, `check` 7 (6 of them on launch day), `plan-click` 5, `apply-fixes` 3.
