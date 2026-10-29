@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowRight } from "lucide-react"
+import { useEffect } from "react"
 
 import { Appearance } from "@/components/Common/Appearance"
+import { GuideLinks } from "@/components/Site/Guide"
 import { JsonLd, ORGANIZATION } from "@/components/Site/JsonLd"
 import { Brand, SiteFooter } from "@/components/Site/Landing"
 import { List, PageLink, Part } from "@/components/Site/Legal"
@@ -9,6 +11,7 @@ import { RuleLinks } from "@/components/Site/RulePage"
 import { RULES } from "@/components/Site/rules/en"
 import { RULES as RULES_FR } from "@/components/Site/rules/fr"
 import { Button } from "@/components/ui/button"
+import { loadAnalytics, track } from "@/lib/analytics"
 import { pageHead, SITE } from "@/lib/seo"
 
 // Plain words only, no section numbers (marketing copy). Every statement matches the rule pack
@@ -32,10 +35,13 @@ export const Route = createFileRoute("/ontario-job-posting-requirements")({
     }),
 })
 
+const cta = (name: string) => () =>
+  track("content-cta", { page: "requirements", cta: name })
+
 function Check({ children }: { children: string }) {
   return (
     <Button asChild size="lg">
-      <Link to="/check" hash="check">
+      <Link to="/check" hash="check" onClick={cta("check")}>
         {children} <ArrowRight />
       </Link>
     </Button>
@@ -43,6 +49,7 @@ function Check({ children }: { children: string }) {
 }
 
 function Requirements() {
+  useEffect(loadAnalytics, [])
   return (
     <div className="site min-h-svh bg-background text-foreground">
       <JsonLd
@@ -62,7 +69,7 @@ function Requirements() {
           <div className="flex items-center gap-2">
             <Appearance />
             <Button asChild size="sm">
-              <Link to="/check" hash="check">
+              <Link to="/check" hash="check" onClick={cta("header-check")}>
                 Check a posting
               </Link>
             </Button>
@@ -183,6 +190,15 @@ function Requirements() {
           <RuleLinks lang="en" />
         </Part>
 
+        <Part title="Checklist, template and guides">
+          <p>
+            Tools to use when you write or review a posting: a checklist to copy
+            or print, a template with the required lines in place, a guide for
+            recruiters posting for clients, and how accurate CheckON is.
+          </p>
+          <GuideLinks />
+        </Part>
+
         <Part title="Check your posting">
           <p>
             CheckON reads a posting and gives each requirement a verdict,
@@ -194,7 +210,7 @@ function Requirements() {
           <div className="flex flex-wrap gap-3 pt-2">
             <Check>Check a posting free</Check>
             <Button asChild size="lg" variant="outline">
-              <Link to="/check" hash="audit">
+              <Link to="/check" hash="audit" onClick={cta("audit")}>
                 Audit your careers page
               </Link>
             </Button>

@@ -96,7 +96,8 @@ function SeePlans() {
  * API reads the sign-in), which on Agency is the picked `client`'s; `editProfile` renders the link to change
  * it. `onChecked` runs after each check and after fixes are applied. `opened` shows a check made elsewhere (a
  * posting from a careers page audit) without the paste form, and writes its fixes as it opens. `initialUrl`
- * opens the form on a posting's link, ready to check (a posting from a report). */
+ * opens the form on a posting's link, ready to check (a posting from a report). `hint` sits under the check
+ * button (the public page's link to its sample result). */
 export function Checker({
   intro,
   layout = "hero",
@@ -107,6 +108,7 @@ export function Checker({
   client = false,
   opened,
   initialUrl,
+  hint,
 }: {
   intro?: ReactNode
   layout?: "hero" | "app"
@@ -117,6 +119,7 @@ export function Checker({
   client?: boolean
   opened?: CheckOut
   initialUrl?: string
+  hint?: ReactNode
 }) {
   const hero = layout === "hero"
   const [input, setInput] = useState<Input>(initialUrl ? "link" : "text")
@@ -301,14 +304,16 @@ export function Checker({
         <div
           className={cn(
             hero &&
-              "mx-auto grid max-w-6xl gap-10 px-4 pt-12 pb-16 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:pt-20",
+              "mx-auto grid max-w-6xl gap-6 px-4 pt-6 pb-12 sm:gap-10 sm:px-6 sm:pt-12 sm:pb-16 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:pt-20",
           )}
         >
           {intro}
+          {/* On a phone the hero's check button moves up under the posting, so the first check fits on the first
+              screen; the application form follows it */}
           <div
             className={cn(
               "min-w-0 rounded-2xl border bg-card p-5 sm:p-6",
-              hero ? "shadow-lg shadow-primary/5" : "shadow-sm",
+              hero ? "flex flex-col shadow-lg shadow-primary/5" : "shadow-sm",
             )}
           >
             <Tabs
@@ -357,7 +362,7 @@ export function Checker({
                   placeholder="Job title, location, duties, requirements, pay…"
                   className={cn(
                     "mt-2 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-                    hero ? "min-h-72" : "min-h-48",
+                    hero ? "min-h-28 sm:min-h-72" : "min-h-48",
                   )}
                 />
               </TabsContent>
@@ -375,7 +380,7 @@ export function Checker({
               </TabsContent>
             </Tabs>
             <ApplicationForm
-              className="mt-4"
+              className={cn("mt-4", hero && "max-sm:order-3")}
               value={form}
               onChange={setForm}
               note={
@@ -392,8 +397,18 @@ export function Checker({
                 )
               }
             />
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">
+            <div
+              className={cn(
+                "mt-3 flex flex-wrap items-center justify-between gap-3",
+                hero && "max-sm:order-1",
+              )}
+            >
+              <span
+                className={cn(
+                  "text-xs text-muted-foreground",
+                  hero && !text && "max-sm:hidden",
+                )}
+              >
                 {input === "text" &&
                   `${text.length.toLocaleString()} / ${MAX_CHARS.toLocaleString()} characters`}
               </span>
@@ -406,7 +421,13 @@ export function Checker({
                 Check my posting <ArrowRight />
               </LoadingButton>
             </div>
-            <p className="mt-4 flex items-start gap-2 border-t pt-4 text-xs text-muted-foreground">
+            {hint && <p className="mt-3 text-sm max-sm:order-2">{hint}</p>}
+            <p
+              className={cn(
+                "mt-4 flex items-start gap-2 border-t pt-4 text-xs text-muted-foreground",
+                hero && "max-sm:order-4",
+              )}
+            >
               <ShieldCheck
                 className="mt-px size-4 shrink-0 text-primary"
                 aria-hidden="true"

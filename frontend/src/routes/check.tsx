@@ -8,22 +8,24 @@ import { JsonLd, ORGANIZATION } from "@/components/Site/JsonLd"
 import {
   ContactSection,
   Faq,
+  ForAgencies,
   HeroIntro,
   HowItWorks,
   Pricing,
   QUESTIONS,
-  SampleFix,
+  SampleHint,
   SiteFooter,
   SiteHeader,
 } from "@/components/Site/Landing"
 import { SampleAudit } from "@/components/Site/SampleAudit"
+import { SampleReport } from "@/components/Site/SampleReport"
 import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { loadAnalytics } from "@/lib/analytics"
 import { pageHead, SITE } from "@/lib/seo"
 
 const DESCRIPTION =
-  "Check your job posting against Ontario's job posting rules in one click and get a compliant rewrite you approve. Free once a week, no sign-up."
+  "See which lines of a job posting don't meet Ontario's job posting rules, with the source and the smallest fix. For recruiters and HR teams. Free once a week."
 
 export const Route = createFileRoute("/check")({
   component: CheckPage,
@@ -87,6 +89,7 @@ function CheckPage() {
         <main>
           <Checker
             intro={<HeroIntro />}
+            hint={<SampleHint />}
             note={
               billing?.plan_name
                 ? planNote(
@@ -96,9 +99,10 @@ function CheckPage() {
                 : undefined
             }
           />
-          <SampleFix />
+          <SampleReport />
           <HowItWorks />
           <SampleAudit />
+          <ForAgencies />
           <Pricing />
           <Faq />
           <ContactSection />

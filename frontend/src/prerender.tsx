@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router"
 import { prerender } from "react-dom/static"
 
+import { GUIDE_PATHS } from "./components/Site/guides"
 import { RULE_PATHS } from "./components/Site/RulePage"
 import { routeTree } from "./routeTree.gen"
 
@@ -24,6 +25,9 @@ export const PAGES: Record<string, string> = {
   "/ontario-job-posting-requirements": "ontario-job-posting-requirements.html",
   ...Object.fromEntries(
     RULE_PATHS.map((path) => [path, `${path.slice(1).replace("/", "-")}.html`]),
+  ),
+  ...Object.fromEntries(
+    GUIDE_PATHS.map((path) => [path, `${path.slice(1)}.html`]),
   ),
 }
 
