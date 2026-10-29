@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowRight, Check, Copy } from "lucide-react"
-import { useState } from "react"
+import { ArrowRight, Check } from "lucide-react"
+import { useEffect } from "react"
 
 import { Appearance } from "@/components/Common/Appearance"
 import { Button } from "@/components/ui/button"
-import { copyToClipboard } from "@/lib/clipboard"
+import { loadAnalytics, track } from "@/lib/analytics"
 import { type Lang, pageHead, SITE } from "@/lib/seo"
 import { cn } from "@/lib/utils"
+import { CopyButton } from "./CopyButton"
 import { JsonLd, ORGANIZATION } from "./JsonLd"
 import { Brand, SiteFooter } from "./Landing"
 import { List, Part } from "./Legal"
@@ -91,9 +92,14 @@ function structured(rule: Rule, words: Words, lang: Lang) {
 }
 
 function RulePage({ id, lang }: { id: RuleId; lang: Lang }) {
+  useEffect(loadAnalytics, [])
   const words = CONTENT[lang].WORDS
   const rule = CONTENT[lang].RULES[id]
   const other = words.other.lang
+  // The page in analytics events: the rule and its language, e.g. "rule-pay-fr"
+  const page = `rule-${id}-${lang}`
+  const copied = (item: string) => () => track("content-copy", { page, item })
+  const cta = (name: string) => () => track("content-cta", { page, cta: name })
   return (
     <div
       lang={`${lang}-CA`}
@@ -106,7 +112,7 @@ function RulePage({ id, lang }: { id: RuleId; lang: Lang }) {
           <div className="flex items-center gap-2">
             <Appearance />
             <Button asChild size="sm">
-              <Link to="/check" hash="check">
+              <Link to="/check" hash="check" onClick={cta("header-check")}>
                 {words.header}
               </Link>
             </Button>
@@ -185,6 +191,7 @@ function RulePage({ id, lang }: { id: RuleId; lang: Lang }) {
                       text={item.text}
                       label={`${words.copy}: ${item.label}`}
                       words={words}
+                      onCopied={copied(item.label ?? "wording")}
                     />
                   </div>
                   <p className="mt-2 text-foreground">{item.text}</p>
@@ -211,6 +218,7 @@ function RulePage({ id, lang }: { id: RuleId; lang: Lang }) {
                     .join("\n")}
                   label={words.copyAll}
                   words={words}
+                  onCopied={copied("checklist")}
                 />
               </div>
             </div>
@@ -230,7 +238,7 @@ function RulePage({ id, lang }: { id: RuleId; lang: Lang }) {
           {words.checkNote && <p className="text-sm">{words.checkNote}</p>}
           <div className="pt-2">
             <Button asChild size="lg">
-              <Link to="/check" hash="check">
+              <Link to="/check" hash="check" onClick={cta("check")}>
                 {words.checkButton} <ArrowRight />
               </Link>
             </Button>
@@ -326,35 +334,6 @@ function Example({
       </figcaption>
       <p className="mt-2 whitespace-pre-line text-foreground">{text}</p>
     </figure>
-  )
-}
-
-function CopyButton({
-  text,
-  label,
-  words,
-}: {
-  text: string
-  label: string
-  words: Words
-}) {
-  const [copied, setCopied] = useState(false)
-  const copy = async (button: HTMLButtonElement) => {
-    if (!(await copyToClipboard(text, { focus: button }))) return
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      aria-label={label}
-      onClick={(event) => copy(event.currentTarget)}
-    >
-      {copied ? <Check /> : <Copy />}
-      <span aria-live="polite">{copied ? words.copied : words.copy}</span>
-    </Button>
   )
 }
 

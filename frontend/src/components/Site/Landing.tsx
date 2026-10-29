@@ -3,7 +3,7 @@ import "@fontsource-variable/hanken-grotesk/wght.css"
 import "./landing.css"
 
 import { Link } from "@tanstack/react-router"
-import { Check } from "lucide-react"
+import { ArrowRight, Check } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
@@ -22,17 +22,22 @@ import {
   type Interest,
   useContact,
 } from "./Contact"
+import { GUIDE_IDS, GUIDES } from "./guides"
 import { Photo } from "./Media"
 import { RULES } from "./rules/en"
 import { RULES as RULES_FR } from "./rules/fr"
 import { RULE_IDS } from "./rules/types"
 
+// In-page sections, then the pages about how accurate the check is and what the rules ask
 const NAV = [
   { href: "#how", label: "How it works" },
+  { href: "#sample", label: "Sample result" },
   { href: "#audit", label: "Careers page audit" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
+]
+const NAV_PAGES = [
+  { to: GUIDES.accuracy.path, label: "Accuracy" },
+  { to: "/ontario-job-posting-requirements", label: "Guides" },
 ]
 
 export function Brand({ href = "#check" }: { href?: string }) {
@@ -60,6 +65,15 @@ export function SiteHeader() {
             >
               {item.label}
             </a>
+          ))}
+          {NAV_PAGES.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="transition-colors hover:text-foreground"
+            >
+              {item.label}
+            </Link>
           ))}
         </nav>
         <div className="flex items-center gap-2">
@@ -130,22 +144,34 @@ export function Heading({
 
 export function HeroIntro() {
   const facts = [
-    ["Free", "Once a week, no sign-up"],
+    ["Quotes the line", "Each verdict points at your words"],
+    ["Shows the source", "Linked to the official text"],
     ["Yours to approve", "Change by change"],
-    ["Ready to publish", "Copy it into your ATS"],
   ]
   return (
     <div className="min-w-0 text-deep-foreground">
-      <Kicker className="text-deep-muted" rule="bg-deep-accent">
-        For HR teams and recruiters in Ontario
+      <Kicker className="text-deep-muted max-sm:hidden" rule="bg-deep-accent">
+        For recruiters, agencies and HR teams in Ontario
       </Kicker>
-      <h1 className="mt-6 font-display text-[2.6rem] leading-[1.02] font-medium tracking-[-0.02em] text-balance sm:text-6xl">
-        Ontario job posting compliance,{" "}
-        <span className="text-deep-accent">in one click.</span>
+      <h1 className="font-display text-[2.3rem] leading-[1.04] font-medium tracking-[-0.02em] text-balance sm:mt-6 sm:text-6xl sm:leading-[1.02]">
+        Check a job posting{" "}
+        <span className="text-deep-accent">line by line</span> before it goes
+        live.
       </h1>
-      <p className="mt-6 max-w-xl text-lg text-deep-muted">
-        Paste a posting. CheckON marks what doesn't comply, suggests the
-        smallest fix for each problem, and leaves every change up to you.
+      <p className="mt-4 max-w-xl text-deep-muted sm:mt-6 sm:text-lg">
+        Paste a posting or its link. CheckON quotes each line that doesn't meet
+        Ontario's job posting rules, with its source and the smallest fix. You
+        approve every change.
+      </p>
+      <p className="mt-4 text-sm sm:mt-6">
+        <Link
+          to={GUIDES.accuracy.path}
+          onClick={() => track("hero-accuracy")}
+          className="inline-flex items-center gap-1.5 font-medium text-deep-foreground underline decoration-deep-accent underline-offset-4 hover:decoration-2"
+        >
+          Tested on 150 real Ontario postings
+          <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+        </Link>
       </p>
       <dl className="mt-10 hidden max-w-xl gap-x-6 gap-y-4 border-t border-white/15 pt-5 text-sm sm:grid sm:grid-cols-3">
         {facts.map(([term, detail]) => (
@@ -159,65 +185,101 @@ export function HeroIntro() {
   )
 }
 
-/** What a check gives you, shown on one sentence from the sample posting, before and after. */
-export function SampleFix() {
+/** The hero's way in for a visitor without a posting at hand: the sample result further down the page. */
+export function SampleHint() {
   return (
-    <section aria-labelledby="sample-fix" className="bg-paper">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
-        <div className="max-w-xl lg:col-span-5 lg:pt-2">
-          <Heading id="sample-fix">
-            Every problem, tied to the sentence behind it
-          </Heading>
-          <p className="mt-6 text-muted-foreground">
-            CheckON reads the whole posting and gives each requirement a plain
-            verdict. When something needs fixing, it quotes your words and
-            suggests the smallest change that fixes it.
-          </p>
-          <p className="mt-4 text-muted-foreground">
-            Nothing is rewritten until you tick it. Your tone, your structure
-            and your list of perks stay as you wrote them.
-          </p>
-        </div>
-        <figure className="relative isolate overflow-hidden rounded-xl bg-deep p-6 text-deep-foreground sm:p-10 lg:col-span-7 lg:col-start-6 lg:self-start">
-          <figcaption className="text-sm font-medium text-deep-muted">
-            One line from a sample posting, checked
-          </figcaption>
-          <dl className="mt-8 grid gap-x-8 gap-y-3 font-display text-[1.65rem] leading-snug sm:grid-cols-[5rem_1fr] sm:text-3xl">
-            <dt className="font-site text-sm font-medium tracking-wide text-deep-muted uppercase sm:pt-2">
-              Before
-            </dt>
-            <dd>
-              <del className="decoration-[#e4836a] decoration-2">
-                3+ years supervising in a warehouse, with Canadian experience
-                required
-              </del>
-            </dd>
-            <dt className="mt-6 font-site text-sm font-medium tracking-wide text-deep-muted uppercase sm:mt-0 sm:pt-2">
-              After
-            </dt>
-            <dd>
-              <ins className="no-underline">
-                3+ years supervising in a warehouse required
-              </ins>
-            </dd>
-          </dl>
-          <p className="mt-8 border-t border-white/15 pt-6 text-deep-muted sm:ml-[7rem]">
-            CheckON's note: ask for the skill, not where it was gained.
-          </p>
+    <Link
+      to="/check"
+      hash="sample"
+      onClick={() => track("hero-sample")}
+      className="font-medium text-primary underline-offset-4 hover:underline"
+    >
+      No posting at hand? See a real result on a sample posting
+    </Link>
+  )
+}
+
+/** For agencies, the plan's buyers: what the Agency plan adds when you post for many clients. */
+export function ForAgencies() {
+  const points = [
+    "A workspace per client, each with its own company profile, so a check starts from that client's answers",
+    "Audit a client's careers page, then fix each posting with a check",
+    "An archive of every posting you approved",
+  ]
+  return (
+    <section aria-labelledby="agencies" className="bg-paper">
+      <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
+        <div className="relative isolate overflow-hidden rounded-xl bg-deep p-6 text-deep-foreground sm:p-10 lg:grid lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <Kicker className="text-deep-muted" rule="bg-deep-accent">
+              For agencies
+            </Kicker>
+            <h2
+              id="agencies"
+              className="mt-5 font-display text-[2rem] leading-[1.08] font-medium tracking-[-0.015em] text-balance sm:text-4xl"
+            >
+              Posting for many clients?
+            </h2>
+            <p className="mt-5 text-deep-muted">
+              Every client's postings, checked the same way, with a record of
+              what you checked and approved.
+            </p>
+          </div>
+          <div className="mt-8 lg:col-span-6 lg:col-start-7 lg:mt-1">
+            <ul className="space-y-3">
+              {points.map((point) => (
+                <li key={point} className="flex gap-3">
+                  <Check
+                    className="mt-1 size-4 shrink-0 text-deep-accent"
+                    aria-hidden="true"
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button
+                asChild
+                size="lg"
+                className="bg-deep-accent text-deep hover:bg-deep-accent/90"
+              >
+                <Link
+                  to="/check"
+                  hash="pricing"
+                  onClick={() => track("agency-plan")}
+                >
+                  See the Agency plan
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-white/30 bg-transparent text-deep-foreground hover:bg-white/10 hover:text-deep-foreground"
+              >
+                <Link
+                  to={GUIDES.recruiters.path}
+                  onClick={() => track("agency-guide")}
+                >
+                  Read the guide for recruiters
+                </Link>
+              </Button>
+            </div>
+          </div>
           <Photo
             name="bg-pen"
             widths={[960, 1600]}
             width={1600}
             height={1201}
-            sizes="(min-width: 1024px) 660px, 100vw"
-            alt="A fountain pen writing on lined paper"
+            sizes="(min-width: 1024px) 1100px, 100vw"
+            alt=""
             className="absolute inset-0 -z-20 h-full w-full object-cover object-[65%_center]"
           />
           <div
-            className="absolute inset-0 -z-10 bg-deep/85"
+            className="absolute inset-0 -z-10 bg-deep/90"
             aria-hidden="true"
           />
-        </figure>
+        </div>
       </div>
     </section>
   )
@@ -455,7 +517,11 @@ export const QUESTIONS = [
   },
   {
     q: "Who is it for?",
-    a: "Ontario employers and the recruiting agencies that post for them. If the requirements don't apply to a posting, CheckON tells you.",
+    a: "Recruiters and staffing agencies that post for Ontario clients, and the HR teams of Ontario employers. If the requirements don't apply to a posting, CheckON tells you.",
+  },
+  {
+    q: "How accurate is it?",
+    a: "We ran it on 150 real Ontario job postings in October 2026 and compared each verdict with a separate reading of the law. Depending on the rule, they agreed 95% to 99% of the time. Our accuracy page has the method, the numbers and what it still gets wrong.",
   },
   {
     q: "Do you keep my posting?",
@@ -545,6 +611,20 @@ export function SiteFooter({
   return (
     <footer className="border-t">
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 text-sm text-muted-foreground sm:px-6">
+        <nav aria-labelledby="footer-guides">
+          <h2 id="footer-guides" className="font-medium text-foreground">
+            Guides and templates
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+            {GUIDE_IDS.map((id) => (
+              <li key={id}>
+                <Link to={GUIDES[id].path} className="hover:text-foreground">
+                  {GUIDES[id].name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
         <nav aria-labelledby="footer-rules">
           <h2 id="footer-rules" className="font-medium text-foreground">
             Ontario's rules

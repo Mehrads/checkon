@@ -60,6 +60,11 @@ PRERENDERED = {
     "/fr/ontario-poste-vacant-existant-offre-emploi": "fr-ontario-poste-vacant-existant-offre-emploi.html",
     "/fr/ontario-reponse-45-jours-entrevue": "fr-ontario-reponse-45-jours-entrevue.html",
     "/fr/ontario-conservation-offres-emploi": "fr-ontario-conservation-offres-emploi.html",
+    # The guides, the template and the accuracy page (frontend/src/components/Site/guides.ts)
+    "/ontario-job-posting-checklist": "ontario-job-posting-checklist.html",
+    "/ontario-job-posting-template": "ontario-job-posting-template.html",
+    "/ontario-job-posting-rules-for-recruiters": "ontario-job-posting-rules-for-recruiters.html",
+    "/accuracy": "accuracy.html",
 }  # fmt: skip
 
 # The app's own pages (frontend/src/routes): its shell, index.html, which keeps them out of search results.
