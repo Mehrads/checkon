@@ -2,7 +2,7 @@
 
 Written on 2026-10-28 from the Umami numbers for October 21–28, a read of every public page, `docs/accuracy-and-demand-2026-10.md`, `docs/law-review-2026-10.md`, the PRD, the research guide and the v1 scope.
 
-**Pull request:** PR_LINK (not merged, not deployed: it needs your review of the copy and the legal wording listed in section 6).
+**Pull request:** [Mehrads/checkon#5](https://github.com/Mehrads/checkon/pull/5) (not merged, not deployed: it needs your review of the copy and the legal wording listed in section 6).
 
 ## What to watch in Umami next week
 
