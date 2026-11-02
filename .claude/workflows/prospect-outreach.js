@@ -38,8 +38,8 @@ export const meta = {
 // agency at a time and never copied, and its phone numbers and emails aren't used: it publishes them for licensing,
 // and neither checkon.ca/privacy nor CASL's published-address exception plainly covers a sales message to them.
 
-// Each company costs roughly 150k agent tokens, and an agency about 300k, finding one being a third of that, so the
-// cap stays modest.
+// Each company costs roughly 150k agent tokens, and an agency 300k to 600k, mostly from finding one, so the cap stays
+// modest.
 const count = Math.max(1, Math.min(args?.count ?? 10, 15))
 const postings = Math.max(1, Math.min(args?.postings ?? 50, 50))
 const boards = args?.source === 'boards'
@@ -271,7 +271,8 @@ const FIND_AGENCIES = `What to look for, with WebSearch and WebFetch:
   or copy it, and leave its phone numbers and emails alone. Drop an agency whose licence is suspended, revoked or
   refused. If its name isn't there, try a shorter name; if it still isn't, keep it only if its own site plainly says it
   places workers with clients. If the browser pane isn't available, put "not checked" in licence and carry on.
-- Return exactly ${count} companies (fewer only if you truly can't find more).`
+- Return exactly ${count} companies (fewer only if you truly can't find more). Leave contact_name, contact_title and
+  contact_email empty: the next stage finds the contact, starting from licence_contact.`
 // The one thing a Pitch agent has to hold on to for an agency
 const ANGLE = `The angle, for everything you write: one posting can be checked anywhere for free, so don't sell a check. An agency
 buys one standard across every client's postings, and proof it can show a client. These are their own postings, across
@@ -365,7 +366,9 @@ Don't edit anything in the repository. ${DATA}`,
       : `1. The contact: the person who owns hiring at ${company.name} for Ontario or Canada (Head of People or Talent, HR
    Manager, Talent Acquisition lead; for a small company, a founder or COO), currently in that role. Use WebSearch
    over public sources only: the company's own pages, press releases, event bios.`
-    const contact = company.contact_email
+    // An agency is always ranked for LinkedIn, whatever Find saw: only the published-address search skips that.
+    const emailOnly = company.contact_email && !agencies
+    const contact = emailOnly
       ? `1. The contact is ${company.contact_name}, ${company.contact_title}, at ${company.contact_email}, published at
    ${company.email_source}. Confirm it before writing anything: run \`${ROOT}; grep -Fil ${quoted(company.contact_email)} "${dir}"/posting-*.txt\`,
    or open that page and see the address there beside their name. It must be this person's own address, not a shared
@@ -456,7 +459,7 @@ ${signature}
    they accept, and any email's subject and body. If contact_email is empty, end it with the line
    "Draft: ${NO_ADDRESS}".
 ${POLITE} ${DATA}`,
-      { label: `pitch ${company.name}`, phase: 'Pitch', schema: company.contact_email ? PITCH : PITCH_LINKEDIN },
+      { label: `pitch ${company.name}`, phase: 'Pitch', schema: emailOnly ? PITCH : PITCH_LINKEDIN },
     ).then((pitch) => ({ company, checked, pitch }))
   },
 )
