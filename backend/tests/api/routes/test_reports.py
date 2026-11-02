@@ -153,6 +153,39 @@ def test_we_see_every_report_with_its_views_and_who_saved_it(
     assert client.get(f"{API}/outreach/reports", headers=normal).status_code == 403
 
 
+def test_a_posting_that_only_asks_a_question_is_not_counted_to_fix(
+    client: TestClient, db: Session, superuser_token_headers: dict[str, str]
+) -> None:
+    def finding(rule: str, verdict: str) -> dict[str, Any]:
+        return {"rule": rule, "verdict": verdict, "message": "A message.", "quotes": []}
+
+    def posting(n: int, findings: list[dict[str, Any]], form_status: str | None = None) -> dict[str, Any]:
+        return {
+            "title": f"Posting {n}", "url": f"https://jobs.lever.co/acme/{n}", "where": "ontario",
+            "status": "needs_input", "findings": findings, "form_status": form_status,
+        }  # fmt: skip
+
+    question = finding("ON-AI-01", "needs_input")
+    token = create(client, postings=[
+        posting(1, [question]),  # only a question: not counted
+        posting(2, [question], "compliant"),  # and its form is fine: not counted
+        posting(3, [finding("ON-PAY-01", "fail"), question]),
+        posting(4, [finding("ON-VAC-01", "warning")]),
+        posting(5, [question], "not_compliant"),
+        {**posting(6, [], "compliant"), "form_findings": [finding("ON-CEX-01", "warning")]},
+    ])["token"]  # fmt: skip
+
+    report = client.get(f"{API}/reports/{token}").json()
+    assert [p["title"] for p in report["postings"][:2]] == ["Posting 1", "Posting 2"]  # still on the report
+
+    _, headers = free_user(db)
+    client.post(f"{API}/reports/{token}/save", headers=headers)
+    [mine] = client.get(f"{API}/reports", headers=headers).json()
+    assert (mine["postings"], mine["to_fix"]) == (6, 4)
+    rows = client.get(f"{API}/outreach/reports", headers=superuser_token_headers).json()
+    assert next(r for r in rows if r["token"] == token)["to_fix"] == 4
+
+
 def test_a_report_nobody_saved_is_deleted_after_its_days(client: TestClient, db: Session) -> None:
     old, kept = create(client)["token"], create(client)["token"]
     _, headers = free_user(db)
