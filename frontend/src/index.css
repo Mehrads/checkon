@@ -213,13 +213,16 @@
   background-size: cover;
 }
 
-/* The signed-in app: frosted glass over the hero's photo, a warm wash in light mode and a deep teal one in dark. The
-   tokens change here, so every card, table and field inside turns to glass; dialogs and menus render on <body> and
-   keep the opaque palette. Only the panel blurs: the cards inside it are tints, which keeps scrolling smooth. */
-.app-shell {
+/* The signed-in app and the landing page: frosted glass over the hero's photo, a warm wash in light mode and a deep
+   teal one in dark. The tokens change here, so every card, table and field inside turns to glass; dialogs and menus
+   render on <body> and keep the opaque palette. Only the panel blurs: the cards inside it are tints, which keeps
+   scrolling smooth. */
+.app-shell,
+.landing-glass {
   --shell-x: clamp(1.5rem, 5.5vw, 6rem);
   --radius: 1rem;
   --foreground: #16201d;
+  --primary: #00665b;
   --card: rgb(255 255 255 / 0.5);
   --background: rgb(255 255 255 / 0.5);
   --muted: rgb(40 34 24 / 0.07);
@@ -240,7 +243,14 @@
   --glass-bar: rgb(28 26 22 / 0.68);
   color: var(--foreground);
 }
-.dark .app-shell {
+/* Text sits straight on the landing page's panel, over a photo with dark patches, and the header passes over it. Here
+   and not in landing.css: a build can load that file before this one, and the same selector would then lose. */
+.landing-glass {
+  --glass-panel: rgb(250 243 232 / 0.88);
+  --glass-bar: rgb(24 22 18 / 0.8);
+}
+.dark .app-shell,
+.dark .landing-glass {
   --foreground: #ece9e2;
   --card: rgb(255 255 255 / 0.07);
   --background: rgb(255 255 255 / 0.06);
@@ -337,19 +347,27 @@
   scroll-margin-top: 1.25rem;
 }
 /* The app reads in the sans throughout: large numbers and titles, as a dashboard, not the site's editorial serif */
-.app-shell .font-display {
+.app-shell .font-display,
+.landing-glass .font-display {
   font-family: var(--font-site);
   letter-spacing: -0.02em;
 }
-.app-shell [data-slot="button"] {
+.app-shell [data-slot="button"],
+.landing-glass [data-slot="button"] {
   border-radius: 9999px;
 }
-.app-shell .glass-panel [data-slot="button"][data-variant="default"] {
+.app-shell .glass-panel [data-slot="button"][data-variant="default"],
+.landing-glass [data-slot="button"][data-variant="default"] {
   background: var(--ink);
   color: var(--on-ink);
 }
-.app-shell .glass-panel [data-slot="button"][data-variant="default"]:hover {
+.app-shell .glass-panel [data-slot="button"][data-variant="default"]:hover,
+.landing-glass [data-slot="button"][data-variant="default"]:hover {
   background: color-mix(in oklab, var(--ink) 86%, transparent);
+}
+.landing-glass .glass-bar [data-slot="button"][data-variant="default"] {
+  background: var(--solid);
+  color: var(--on-solid);
 }
 .orb {
   background: radial-gradient(
@@ -362,6 +380,12 @@
   box-shadow: 0 0 10px color-mix(in oklab, var(--deep-accent) 60%, transparent);
 }
 .tile-accent {
+  --foreground: #ffffff;
+  --muted-foreground: rgb(255 255 255 / 0.88);
+  --primary: var(--deep-accent);
+  --border: rgb(255 255 255 / 0.22);
+  --ink: #ffffff;
+  --on-ink: #16201d;
   background: linear-gradient(145deg, #00756a, #0f3d38);
   color: #ffffff;
 }
@@ -383,11 +407,13 @@
   }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .app-shell {
+  .app-shell,
+  .landing-glass {
     --glass-panel: #f3efe6;
     --glass-bar: #1b2422;
   }
-  .dark .app-shell {
+  .dark .app-shell,
+  .dark .landing-glass {
     --glass-panel: #171f1d;
     --glass-bar: #0b1110;
   }

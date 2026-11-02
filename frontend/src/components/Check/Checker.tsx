@@ -325,7 +325,9 @@ export function Checker({
           <div
             className={cn(
               "min-w-0 rounded-2xl border bg-card p-5 sm:p-6",
-              hero ? "flex flex-col shadow-lg shadow-primary/5" : "shadow-sm",
+              hero
+                ? "glass-card flex flex-col shadow-lg shadow-primary/5"
+                : "shadow-sm",
             )}
           >
             <Tabs
@@ -455,7 +457,7 @@ export function Checker({
           ref={results}
           data-dock={hero ? undefined : "Results"}
           className={cn(
-            hero ? "scroll-mt-20 border-t bg-muted/30" : !opened && "pt-6",
+            hero ? "landing-panel mb-3 scroll-mt-20" : !opened && "pt-6",
           )}
         >
           <div

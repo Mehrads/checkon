@@ -52,12 +52,12 @@ export function Brand({ href = "#check" }: { href?: string }) {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="glass-bar sticky top-2 z-30 mx-2 mt-2 rounded-full sm:mx-4 md:mx-(--shell-x)">
+      <div className="flex h-12 items-center justify-between gap-3 pr-2 pl-3">
         <Brand />
         <nav
           aria-label="Sections"
-          className="hidden items-center gap-7 whitespace-nowrap text-sm text-muted-foreground lg:flex"
+          className="hidden items-center gap-3.5 whitespace-nowrap text-sm text-muted-foreground lg:flex xl:gap-7"
         >
           {NAV.map((item) => (
             <a
@@ -78,8 +78,8 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
-          <Appearance />
+        <div className="flex items-center gap-1.5">
+          <Appearance className="size-8 rounded-full border-0 bg-solid text-on-solid hover:bg-solid/85 hover:text-on-solid dark:bg-solid dark:hover:bg-solid/85" />
           <Button
             asChild
             size="sm"
@@ -224,9 +224,9 @@ export function ForAgencies() {
     "An archive of every posting you approved",
   ]
   return (
-    <section aria-labelledby="agencies" className="bg-paper">
+    <section aria-labelledby="agencies">
       <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
-        <div className="relative isolate overflow-hidden rounded-xl bg-deep p-6 text-deep-foreground sm:p-10 lg:grid lg:grid-cols-12 lg:gap-8">
+        <div className="relative isolate overflow-hidden rounded-xl bg-deep p-6 text-deep-foreground [--ink:var(--deep-accent)] [--on-ink:var(--deep)] sm:p-10 lg:grid lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-5">
             <Kicker className="text-deep-muted" rule="bg-deep-accent">
               For agencies
@@ -255,11 +255,7 @@ export function ForAgencies() {
               ))}
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="bg-deep-accent text-deep hover:bg-deep-accent/90"
-              >
+              <Button asChild size="lg">
                 <Link
                   to="/check"
                   hash="pricing"
@@ -330,14 +326,14 @@ export function HowItWorks() {
             From a pasted draft to a posting you can publish
           </Heading>
         </div>
-        <ol className="border-t lg:col-span-6 lg:col-start-7 lg:mt-2">
+        <ol className="space-y-3 lg:col-span-6 lg:col-start-7 lg:mt-2">
           {steps.map((step, index) => (
             <li
               key={step.title}
-              className="grid grid-cols-[2.5rem_1fr] gap-3 border-b py-6"
+              className="grid grid-cols-[2.5rem_1fr] gap-3 rounded-xl border bg-card p-5 shadow-sm"
             >
               <span
-                className="font-display text-3xl leading-none text-brand"
+                className="flex size-8 items-center justify-center rounded-full bg-solid text-sm font-semibold text-on-solid shadow-sm"
                 aria-hidden="true"
               >
                 {index + 1}
@@ -456,21 +452,15 @@ export function Pricing() {
   })
   return (
     <PricingSection>
-      <div className="mt-12 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => (
           <div
             key={plan.name}
             className={cn(
-              "relative flex flex-col bg-card p-6",
-              plan.highlight && "bg-accent",
+              "flex flex-col rounded-xl border p-6 shadow-sm",
+              plan.highlight ? "tile-accent border-transparent" : "bg-card",
             )}
           >
-            {plan.highlight && (
-              <span
-                className="absolute inset-x-0 top-0 h-1 bg-brand"
-                aria-hidden="true"
-              />
-            )}
             <h3 className="text-sm font-semibold">{plan.name}</h3>
             <p className="mt-4">
               <span className="font-display text-5xl font-medium tracking-tight">
@@ -560,7 +550,7 @@ export const QUESTIONS = [
 
 export function Faq() {
   return (
-    <section id="faq" className="scroll-mt-16 bg-paper">
+    <section id="faq" className="scroll-mt-16">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
           <Kicker>FAQ</Kicker>
@@ -576,10 +566,13 @@ export function Faq() {
             .
           </p>
         </div>
-        <div className="border-t lg:col-span-7 lg:col-start-6">
+        <div className="space-y-2 lg:col-span-7 lg:col-start-6">
           {QUESTIONS.map((item) => (
-            <details key={item.q} className="group border-b py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-medium">
+            <details
+              key={item.q}
+              className="group rounded-xl border bg-card px-5 py-4 shadow-sm"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
                 {item.q}
                 <span
                   className="text-xl text-primary transition-transform group-open:rotate-45"

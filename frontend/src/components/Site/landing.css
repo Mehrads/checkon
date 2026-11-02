@@ -1,56 +1,124 @@
-/* The hero is the free checker's own section (#check, rendered by Check/Checker), so its background
-   is set here rather than in that component: a typewriter with a job application sheet, under a
-   deep teal scrim that is darkest where the headline sits. The phone gets a portrait crop.
-   Browsers without image-set() types keep the plain background colour. */
+/* The photo: a typewriter with a job application sheet. The hero shows it sharp, under a scrim that is darkest where
+   the headline sits and fades out at the bottom. Behind the rest of the page it's blurred and stays put, so the panel
+   on top reads as frosted glass without live blur on a page this tall, which keeps scrolling smooth on a phone. The
+   phone gets a portrait crop. Browsers without image-set() types keep the plain background colour. */
+.landing-glass {
+  --hero-tint: 26 21 15;
+  --landing-photo: image-set(
+    url("/assets/images/landing/bg-job-application-portrait-800.avif")
+      type("image/avif"),
+    url("/assets/images/landing/bg-job-application-portrait-800.webp")
+      type("image/webp")
+  );
+}
+.dark .landing-glass {
+  --hero-tint: 11 42 39;
+}
+.landing-backdrop {
+  position: fixed;
+  inset: -4rem;
+  z-index: -1;
+  background-color: var(--deep);
+  background-image:
+    linear-gradient(var(--photo-wash), var(--photo-wash)), var(--landing-photo);
+  background-position: center;
+  background-size: cover;
+  filter: blur(36px) saturate(1.5);
+}
+
+/* The header floats over the hero, so the hero starts under it */
 .site #check {
+  position: relative;
+  isolation: isolate;
+  margin-top: -3.5rem;
+  padding-top: 3.5rem;
+}
+.site #check::before {
   --hero-scrim: linear-gradient(
     180deg,
-    rgb(11 42 39 / 0.94) 0%,
-    rgb(11 42 39 / 0.86) 55%,
-    rgb(11 42 39 / 0.7) 100%
+    rgb(var(--hero-tint) / 0.94) 0%,
+    rgb(var(--hero-tint) / 0.86) 55%,
+    rgb(var(--hero-tint) / 0.72) 100%
   );
-  background-color: #0b2a27;
-  background-image:
-    var(--hero-scrim),
-    image-set(
-      url("/assets/images/landing/bg-job-application-portrait-800.avif")
-        type("image/avif"),
-      url("/assets/images/landing/bg-job-application-portrait-800.webp")
-        type("image/webp")
-    );
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: rgb(var(--hero-tint));
+  background-image: var(--hero-scrim), var(--landing-photo);
   background-position: center top;
   background-size: cover;
+  -webkit-mask-image: linear-gradient(black calc(100% - 6rem), transparent);
+  mask-image: linear-gradient(black calc(100% - 6rem), transparent);
 }
 
 @media (min-width: 1024px) {
-  .site #check {
+  .landing-glass {
+    --landing-photo: image-set(
+      url("/assets/images/landing/bg-job-application-1280.avif")
+        type("image/avif"),
+      url("/assets/images/landing/bg-job-application-1280.webp")
+        type("image/webp")
+    );
+  }
+  .site #check::before {
     --hero-scrim: linear-gradient(
       90deg,
-      rgb(11 42 39 / 0.96) 0%,
-      rgb(11 42 39 / 0.88) 42%,
-      rgb(11 42 39 / 0.5) 100%
+      rgb(var(--hero-tint) / 0.96) 0%,
+      rgb(var(--hero-tint) / 0.88) 42%,
+      rgb(var(--hero-tint) / 0.5) 100%
     );
-    background-image:
-      var(--hero-scrim),
-      image-set(
-        url("/assets/images/landing/bg-job-application-1280.avif")
-          type("image/avif"),
-        url("/assets/images/landing/bg-job-application-1280.webp")
-          type("image/webp")
-      );
     background-position: center 35%;
   }
 }
 
 @media (min-width: 1440px) {
-  .site #check {
-    background-image:
-      var(--hero-scrim),
-      image-set(
-        url("/assets/images/landing/bg-job-application-1920.avif")
-          type("image/avif"),
-        url("/assets/images/landing/bg-job-application-1920.webp")
-          type("image/webp")
-      );
+  .landing-glass {
+    --landing-photo: image-set(
+      url("/assets/images/landing/bg-job-application-1920.avif")
+        type("image/avif"),
+      url("/assets/images/landing/bg-job-application-1920.webp")
+        type("image/webp")
+    );
   }
+}
+
+/* The frosted panels: the page's sections, the results of a check, the footer */
+.landing-panel {
+  position: relative;
+  margin-inline: 0.5rem;
+  border: 1px solid var(--glass-panel-edge);
+  border-radius: 1.5rem;
+  background: var(--glass-panel);
+  box-shadow:
+    0 30px 60px -30px rgb(10 8 4 / 0.6),
+    inset 0 1px 0 var(--glass-panel-edge);
+}
+.landing-panel + .landing-panel {
+  margin-top: 0.75rem;
+}
+/* The panel's own edge is the divider: the footer's straight line would cut across its rounded corners */
+.landing-panel > footer {
+  border-top: 0;
+}
+@media (min-width: 640px) {
+  .landing-panel {
+    margin-inline: 1rem;
+  }
+}
+@media (min-width: 768px) {
+  .landing-panel {
+    margin-inline: var(--shell-x);
+    border-radius: 2rem;
+  }
+}
+
+/* The check form in the hero: real glass over the sharp photo, lighter than the cards so it reads on a dark scrim */
+.glass-card {
+  --card: rgb(255 255 255 / 0.84);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+.dark .glass-card {
+  --card: rgb(20 27 25 / 0.76);
 }

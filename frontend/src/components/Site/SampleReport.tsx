@@ -147,7 +147,7 @@ export function SampleReport() {
       ref={section}
       id="sample"
       aria-labelledby="sample-heading"
-      className="scroll-mt-16 bg-paper"
+      className="scroll-mt-16"
     >
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
         <div className="lg:sticky lg:top-24 lg:col-span-5 lg:self-start">

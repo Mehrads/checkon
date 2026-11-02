@@ -166,7 +166,7 @@ export function SampleAudit() {
   const rest = sample ? sample.in_ontario - sample.postings.length : 0
 
   return (
-    <section id="audit" className="scroll-mt-16 bg-paper">
+    <section id="audit" className="scroll-mt-16">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-5">
           <Kicker>Careers page audit</Kicker>

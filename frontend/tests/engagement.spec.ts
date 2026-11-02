@@ -299,3 +299,35 @@ test("A rule page's copy and check buttons are counted", async ({
     { page: "rule-ai-en", cta: "check" },
   ])
 })
+
+test("The landing page scrolls as a normal page, with the header in view", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await open(page, "/check")
+  await page.getByRole("banner").getByRole("link", { name: "Pricing" }).click()
+  await expect(page).toHaveURL("/check#pricing")
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
+  await expect(
+    page.getByRole("banner").getByRole("link", { name: "Check a posting" }),
+  ).toBeInViewport()
+  await expect(
+    page.getByRole("heading", { name: /Start free/ }),
+  ).toBeInViewport()
+})
+
+for (const width of [1024, 768, 375]) {
+  test(`Nothing on the landing page runs wider than ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 })
+    await open(page, "/check")
+    const fits = (selector: string) =>
+      page
+        .locator(selector)
+        .first()
+        .evaluate((element) => element.scrollWidth <= element.clientWidth)
+    expect(await fits("html")).toBe(true)
+    expect(await fits("header > div")).toBe(true)
+  })
+}

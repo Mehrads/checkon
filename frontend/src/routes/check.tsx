@@ -83,7 +83,8 @@ function CheckPage() {
   const { current } = useWorkspaces(isPaid(billing))
   return (
     <ContactProvider>
-      <div className="site min-h-svh bg-background text-foreground">
+      <div className="site landing-glass relative isolate min-h-svh bg-background text-foreground">
+        <div className="landing-backdrop" aria-hidden="true" />
         <JsonLd data={STRUCTURED} />
         <SiteHeader />
         <main>
@@ -99,15 +100,19 @@ function CheckPage() {
                 : undefined
             }
           />
-          <SampleReport />
-          <HowItWorks />
-          <SampleAudit />
-          <ForAgencies />
-          <Pricing />
-          <Faq />
-          <ContactSection />
+          <div className="landing-panel -mt-6">
+            <SampleReport />
+            <HowItWorks />
+            <SampleAudit />
+            <ForAgencies />
+            <Pricing />
+            <Faq />
+            <ContactSection />
+          </div>
         </main>
-        <SiteFooter />
+        <div className="landing-panel mt-3 mb-2 md:mb-6">
+          <SiteFooter />
+        </div>
       </div>
     </ContactProvider>
   )
