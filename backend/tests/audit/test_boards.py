@@ -3,11 +3,13 @@ applicants read it on the board, pay and AI notes included."""
 
 import json
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
-from app.audit.boards import NoPostings, board_in, posting_text, read_board
+from app.audit.boards import Board, NoPostings, board_in, posting_text, read_board
 from app.audit.fetch import FetchError, RobotsRefused
+from app.compliance.money import parse_pay
 from tests.audit.web import Web, boards, smartrecruiters_allowed
 
 TODAY = date(2026, 10, 22)
@@ -139,21 +141,46 @@ def _job(title: str, value: dict[str, object]) -> dict[str, object]:
     }  # fmt: skip
 
 
+def _read(*postings: dict[str, object]) -> Board:
+    markup = f'<script type="application/ld+json">{json.dumps(list(postings))}</script>'
+    return read_board("https://ghrc.example/jobs", Web().page("ghrc.example/jobs", markup).fetcher(), TODAY)
+
+
+@pytest.mark.parametrize(("value", "pay", "low", "high"), [
+    ({"value": "$80,000.00-$95,000.00", "unitText": "YEAR"}, "$80,000.00-$95,000.00 CAD per year", "80000", "95000"),  # ghrc.ca
+    ({"value": "19.50-20.00"}, "19.50-20.00 CAD per hour", "19.50", "20"),  # ghrc.ca
+    ({"minValue": "$20/hr", "maxValue": "$25/hr"}, "$20/hr - $25/hr CAD per hour", "20", "25"),
+    ({"minValue": "60,000", "maxValue": 70000, "unitText": "YEAR"}, "60,000 - $70,000 CAD per year", "60000", "70000"),
+])  # fmt: skip
+def test_pay_written_as_text_stays_as_the_page_wrote_it(
+    value: dict[str, object], pay: str, low: str, high: str
+) -> None:
+    posting = _read(_job("Receptionist", value)).postings[0]
+    assert posting.text == f"Receptionist\nToronto, ON, CA\n\nAnswer the phones.\n\nPay: {pay}"
+    reading = parse_pay(posting.text)[0]
+    assert (reading.min, reading.max) == (Decimal(low), Decimal(high))
+
+
+@pytest.mark.parametrize(("value", "pay"), [
+    ("$20 - $25 an hour", "$20 - $25 an hour CAD"),
+    (25, "$25 CAD"),
+])  # fmt: skip
+def test_pay_beside_the_currency_with_no_quantity_around_it(value: object, pay: str) -> None:
+    job = {**_job("Receptionist", {}), "baseSalary": {"currency": "CAD", "value": value}}
+    assert _read(job).postings[0].text == f"Receptionist\nToronto, ON, CA\n\nAnswer the phones.\n\nPay: {pay}"
+
+
 @pytest.mark.parametrize("value", [
-    {"value": "$80,000.00-$95,000.00"},  # ghrc.ca
-    {"value": "19.50-20.00"},  # ghrc.ca
     {"value": "Competitive"},
-    {"minValue": "$20/hr", "maxValue": "$25/hr"},
     {"minValue": 20, "maxValue": "Depends on experience"},
     {"minValue": "To be discussed", "maxValue": 25},
     {"value": "NaN"},
     {"value": "Infinity"},
     {"value": ""},
+    {"value": {"nested": 25}},
 ])  # fmt: skip
-def test_pay_that_isnt_a_number_is_skipped_and_the_board_is_still_read(value: dict[str, object]) -> None:
-    postings = [_job("Receptionist", value), _job("Dispatcher", {"minValue": 20, "maxValue": 25.5})]
-    markup = f'<script type="application/ld+json">{json.dumps(postings)}</script>'
-    board = read_board("https://ghrc.example/jobs", Web().page("ghrc.example/jobs", markup).fetcher(), TODAY)
+def test_pay_without_a_figure_is_skipped_and_the_board_is_still_read(value: dict[str, object]) -> None:
+    board = _read(_job("Receptionist", value), _job("Dispatcher", {"minValue": 20, "maxValue": 25.5}))
     receptionist, dispatcher = board.postings
     assert (receptionist.title, receptionist.where) == ("Receptionist", "ontario")
     assert receptionist.text == "Receptionist\nToronto, ON, CA\n\nAnswer the phones."

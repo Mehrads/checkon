@@ -130,13 +130,13 @@ def _money(value: Any) -> str:
     return f"${amount:,.2f}" if amount != amount.to_integral() else f"${amount:,.0f}"
 
 
-def _amount(value: Any) -> Decimal | None:
-    """A pay figure from a page's own data, unless it isn't a number: "Competitive", "$20/hr"."""
+def _figure(value: Any) -> str | None:
+    """A pay figure from a page's own data. Text that holds one stays as written: "$80,000.00-$95,000.00"."""
     try:
         amount = Decimal(str(value))
     except InvalidOperation:
-        return None
-    return amount if amount.is_finite() else None  # Decimal reads "NaN" and "Infinity" as numbers
+        return value.strip() if isinstance(value, str) and re.search(r"\d", value) else None
+    return _money(amount) if amount.is_finite() else None  # Decimal reads "NaN" and "Infinity" as numbers
 
 
 # Greenhouse: https://developers.greenhouse.io/job-board.html
@@ -368,11 +368,12 @@ def _from_json_ld(posting: dict[str, Any], page: str, today: date) -> Found | No
     lines, remote, country = places(posting)
     url = str(posting.get("url") or "") or f"{page}#{re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')}"
     pay = None
-    if isinstance(salary := posting.get("baseSalary"), dict) and isinstance(value := salary.get("value"), dict):
-        low, high = (_amount(value.get(key, value.get("value"))) for key in ("minValue", "maxValue"))
-        if low is not None and high is not None:
+    if isinstance(salary := posting.get("baseSalary"), dict):
+        value = salary["value"] if isinstance(salary.get("value"), dict) else salary  # or a bare figure in `salary`
+        low, high = (_figure(value.get(key, value.get("value"))) for key in ("minValue", "maxValue"))
+        if low and high:
             period = _PERIOD.get(str(value.get("unitText") or "").upper(), "")
-            figures = _money(low) if low == high else f"{_money(low)} - {_money(high)}"
+            figures = low if low == high else f"{low} - {high}"
             pay = f"Pay: {figures} {salary.get('currency') or ''} {period}".replace("  ", " ").strip()
     description = str(posting.get("description") or "")
     if "&lt;" in description:  # HTML escaped once more
