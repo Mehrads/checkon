@@ -124,7 +124,7 @@ class ReportSummary(BaseModel):
     url: str
     created_at: datetime
     postings: int
-    to_fix: int  # postings with something to act on, the form included
+    to_fix: int  # postings that may need changes: the report page's tile and the outreach note count the same
     saved_at: datetime | None
 
 
@@ -183,7 +183,12 @@ def _postings(session: Session, report_id: uuid.UUID) -> list[OutreachPosting]:
 
 
 def _to_fix(postings: list[OutreachPosting]) -> int:
-    return sum(1 for p in postings if p.findings or p.form_status == "not_compliant")
+    """Postings with a fail or warning, or a form that isn't compliant: a needs_input finding only asks a question."""
+    return sum(
+        1 for p in postings
+        if any(f["verdict"] in ("fail", "warning") for f in p.findings + p.form_findings)
+        or p.form_status == "not_compliant"
+    )  # fmt: skip
 
 
 def _out(session: Session, report: OutreachReport, user: User | None) -> ReportOut:

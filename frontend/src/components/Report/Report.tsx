@@ -64,8 +64,21 @@ function possessive(name: string): string {
   return name.endsWith("s") ? `${name}'` : `${name}'s`
 }
 
+/** What "may need changes" counts, here and in the outreach note: a needs_input finding only asks a question. */
 function needsFix(posting: PostingOut): boolean {
-  return posting.findings.length > 0 || posting.form_status === "not_compliant"
+  return (
+    [...posting.findings, ...posting.form_findings].some((f) =>
+      ["fail", "warning"].includes(f.verdict),
+    ) || posting.form_status === "not_compliant"
+  )
+}
+
+/** Anything to act on, a question to answer included. */
+function hasFindings(posting: PostingOut): boolean {
+  return (
+    posting.findings.length + posting.form_findings.length > 0 ||
+    needsFix(posting)
+  )
 }
 
 function RuleLink({ rule }: { rule: string }) {
@@ -181,7 +194,7 @@ function PostingCard({
           <Findings findings={posting.form_findings} />
         </div>
       )}
-      {checked && !needsFix(posting) && (
+      {checked && !hasFindings(posting) && (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <Check className="size-4 text-primary" aria-hidden="true" />
           Nothing to fix
@@ -190,13 +203,15 @@ function PostingCard({
           .
         </p>
       )}
-      {needsFix(posting) && posting.form_status === "compliant" && (
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Check className="size-4 text-primary" aria-hidden="true" />
-          Its application form: nothing to fix.
-        </p>
-      )}
-      {needsFix(posting) && <FixButton posting={posting} token={token} />}
+      {hasFindings(posting) &&
+        posting.form_status === "compliant" &&
+        posting.form_findings.length === 0 && (
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Check className="size-4 text-primary" aria-hidden="true" />
+            Its application form: nothing to fix.
+          </p>
+        )}
+      {hasFindings(posting) && <FixButton posting={posting} token={token} />}
     </li>
   )
 }
