@@ -45,6 +45,15 @@ from app.audit.places import vague, where
     (["Remote - US"], {}, "elsewhere"),
     (["Remote"], {}, "elsewhere"),
     (["Sydney"], {"country": "AU", "remote": True}, "elsewhere"),
+    # Ontario's town names in US states, against lists of places
+    (["Toronto, Ohio"], {}, "elsewhere"),
+    (["Aurora, Colorado"], {}, "elsewhere"),
+    (["Georgetown, Texas, US"], {}, "elsewhere"),
+    (["Ottawa (Illinois)"], {}, "elsewhere"),
+    (["Toronto, New York"], {}, "ontario"),  # two offices
+    (["Toronto, Washington"], {}, "ontario"),
+    (["Toronto, Ohio; Ottawa"], {}, "ontario"),
+    (["Toronto; Austin, Texas"], {}, "ontario"),
     # A town called Canada in a US state (bjrcrecruiting.com), against lists that name the country
     (["Canada, Nevada, US"], {}, "elsewhere"),
     (["Canada, Nevada, US"], {"country": "US"}, "elsewhere"),
@@ -95,17 +104,28 @@ def test_another_province_settles_a_shared_town_name(province: str) -> None:
     assert where([f"Georgetown, {province}"]) == "elsewhere"
 
 
-@pytest.mark.parametrize("state", [
+US_STATES = [
     "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
     "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
     "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
     "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina",
     "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
     "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
-])  # fmt: skip
+]  # fmt: skip
+
+
+@pytest.mark.parametrize("state", US_STATES)
 def test_a_us_state_after_canada_makes_it_a_town(state: str) -> None:
     assert where([f"Canada, {state}, US"]) == "elsewhere"
     assert where([f"Canada, {state}, US"], country="US") == "elsewhere"
+
+
+@pytest.mark.parametrize("state", [state for state in US_STATES if state not in ("New York", "Washington")])
+def test_a_us_state_settles_a_shared_town_name(state: str) -> None:
+    assert where([f"Toronto, {state}"]) == "elsewhere"
+    assert where([f"Aurora, {state}, US"]) == "elsewhere"
+    assert where([f"Toronto; Austin, {state}"]) == "ontario"
+    assert where([f"Toronto, {state}; Ottawa"]) == "ontario"
 
 
 def test_vague() -> None:

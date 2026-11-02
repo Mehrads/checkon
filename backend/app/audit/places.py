@@ -61,8 +61,12 @@ _OTHER_PROVINCE = re.compile(
     rf"|(?:^|[\s,(/;|]){_PROVINCE_CODES}",
     re.IGNORECASE,
 )
-# Another province right after a place's name: "Georgetown, PE"
-_PROVINCE_AFTER = re.compile(rf"[\s,(]+(?:(?:{_PROVINCE_NAMES})\b|{_PROVINCE_CODES})", re.IGNORECASE)
+# Another province or a US state right after a place's name: "Georgetown, PE", "Aurora, Colorado". New York and
+# Washington are cities too, so "Toronto, New York" stays a list of offices.
+_REGION_AFTER = re.compile(
+    rf"[\s,(]+(?:(?!new york|washington)(?:{_PROVINCE_NAMES}|{_US_STATE_NAMES})\b|{_PROVINCE_CODES})",
+    re.IGNORECASE,
+)
 _SEGMENT = re.compile(r"\s*(?:[,;/|()]|\s-\s|\s–\s)\s*")
 _NOISE = re.compile(
     r"\b(?:remote|hybrid|on-?site|in[- ]office|office|onsite|flexible|area|region|metro|downtown|headquarters|hq)\b",
@@ -94,7 +98,7 @@ def _segments(location: str) -> list[str]:
 def _in_ontario(location: str, canada: bool) -> bool:
     if _ONTARIO.search(location) or _ON.search(location):
         return True
-    named = any(not _PROVINCE_AFTER.match(location, city.end()) for city in _CITY.finditer(location))
+    named = any(not _REGION_AFTER.match(location, city.end()) for city in _CITY.finditer(location))
     if named and not _ABROAD.search(location):  # not "Georgetown, PE" or "Dundas, PE", towns in PEI too
         return True
     if not canada or _OTHER_PROVINCE.search(location):
