@@ -199,9 +199,13 @@ class Fetcher:
         self.pacing = pacing
         self.robots = robots
 
+    def content(self, url: str, max_bytes: int = MAX_BYTES) -> tuple[bytes, httpx.URL]:
+        """The body of a file the site's robots.txt lets us read, and its address after redirects."""
+        return self._get(checked_url(url), max_bytes, robots=True)
+
     def text(self, url: str, max_bytes: int = MAX_BYTES) -> tuple[str, httpx.URL]:
         """The body of a page the site's robots.txt lets us read, and its address after redirects."""
-        body, final = self._get(checked_url(url), max_bytes, robots=True)
+        body, final = self.content(url, max_bytes)
         return body.decode("utf-8", errors="replace"), final
 
     def json(self, url: str, max_bytes: int = MAX_BYTES) -> object:

@@ -7,12 +7,18 @@ saves them on checkon.ca as the report the email links to.
 
     python -m app.prospect https://job-boards.greenhouse.io/acme --out ~/Documents/CheckON/prospecting/2026-10-26/acme
 
+An employer with no job board to read, such as a town that posts each job as a web page or a PDF, is checked one
+posting at a time. PDFs need poppler's pdftotext (brew install poppler):
+
+    python -m app.prospect https://town.example/jobs --page https://town.example/jobs/clerk "Records Clerk" --out ...
+
 Prints JSON. With --out, each checked posting's text and form are saved there too (posting-1.txt, form-1.txt, ...),
 so the findings can be checked against what was read.
 """
 
 import argparse
 import json
+import subprocess
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -22,9 +28,10 @@ from zoneinfo import ZoneInfo
 import anthropic
 
 from app.api.routes.audits import MAX_POSTING_CHARS, MAX_POSTINGS
-from app.audit.boards import Board, Found, posting_text, read_board
+from app.audit.boards import MAX_PAGE_BYTES, Board, Found, posting_text, read_board
 from app.audit.fetch import Fetcher, FetchError
 from app.audit.forms import application_form
+from app.compliance import webpage
 from app.compliance.employer import EmployerSize, SizeCache
 from app.compliance.engine import evaluate
 from app.compliance.form import classify_form, parse_form
@@ -141,12 +148,46 @@ def check_posting(
     return out
 
 
+def pdf_text(data: bytes) -> str:
+    """A PDF's text, empty when it has none (a scan) or poppler can't read it."""
+    done = subprocess.run(["pdftotext", "-", "-"], input=data, capture_output=True, timeout=30)
+    return done.stdout.decode("utf-8", errors="replace").strip() if done.returncode == 0 else ""
+
+
+def page_text(url: str, fetcher: Fetcher) -> str:
+    """The posting at `url`, a web page or a PDF; empty when there's little text."""
+    body, _ = fetcher.content(url, MAX_PAGE_BYTES)
+    if not body.startswith(b"%PDF"):
+        return webpage.posting_text(body.decode("utf-8", errors="replace"))
+    text = pdf_text(body)
+    return text if len(text) >= webpage.MIN_POSTING_CHARS else ""
+
+
+def read_pages(careers: str, pages: list[tuple[str, str]], fetcher: Fetcher) -> Board:
+    """Each (address, title) as one posting, for an employer whose careers page has no job board to read. The outreach
+    workflow has already confirmed the jobs are in Ontario. A page that can't be read stays in the list with no text,
+    and check_posting says why."""
+    postings = []
+    for url, title in pages:
+        try:
+            text = page_text(url, fetcher)
+        except FetchError:
+            text = ""
+        postings.append(Found(id=url, title=title, location="Ontario", url=url, where="ontario", text=text or None))
+    return Board("page", careers, None, careers, postings)
+
+
 def prospect(
     url: str, fetcher: Fetcher, llm: StructuredLLM, pack: RulePack, today: date, sizes: SizeCache,
     postings: int = MAX_POSTINGS,
 ) -> dict[str, Any]:  # fmt: skip
     """The board and its Ontario postings, up to `postings`, checked. Raises FetchError when the board can't be read."""
-    board = read_board(url, fetcher, today)
+    return check_board(read_board(url, fetcher, today), fetcher, llm, pack, today, sizes, postings)
+
+
+def check_board(
+    board: Board, fetcher: Fetcher, llm: StructuredLLM, pack: RulePack, today: date, sizes: SizeCache, postings: int
+) -> dict[str, Any]:
     picked = first_postings(board, postings)
     in_ontario = sum(p.where in ("ontario", "canada") for p in board.postings)
     return {
@@ -175,6 +216,8 @@ def save_texts(result: dict[str, Any], out: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("url", help="the company's job board or careers page")
+    parser.add_argument("--page", nargs=2, action="append", metavar=("URL", "TITLE"),
+                        help="check this posting's own web page or PDF instead of reading the board; repeat for each")  # fmt: skip
     parser.add_argument("--postings", type=int, default=MAX_POSTINGS, help="at most this many to check")
     parser.add_argument("--out", type=Path, help="a folder for the posting texts and check.json")
     args = parser.parse_args()
@@ -183,11 +226,13 @@ def main() -> None:
     meter = SpendMeter()
     llm = AnthropicLLM(anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY), meter=meter)
     fetcher = Fetcher()
+    today = datetime.now(TORONTO).date()
     try:
-        result = prospect(
-            args.url, fetcher, llm, load_pack("CA-ON"), datetime.now(TORONTO).date(), MemorySizes(),
-            args.postings,
-        )  # fmt: skip
+        if args.page:
+            board = read_pages(args.url, [(url, title) for url, title in args.page], fetcher)
+            result = check_board(board, fetcher, llm, load_pack("CA-ON"), today, MemorySizes(), args.postings)
+        else:
+            result = prospect(args.url, fetcher, llm, load_pack("CA-ON"), today, MemorySizes(), args.postings)
     except FetchError as error:
         result = {"error": str(error)[:500]}
     finally:

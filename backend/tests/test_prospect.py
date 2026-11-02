@@ -16,14 +16,25 @@ from app.compliance.form import FormLabels
 from app.compliance.inspector import inspect
 from app.compliance.models import Context
 from app.compliance.rulepack import load_pack
-from app.prospect import MemorySizes, check_form, page_for, prospect, save_texts
+from app.prospect import (
+    MemorySizes,
+    check_board,
+    check_form,
+    page_for,
+    page_text,
+    prospect,
+    read_pages,
+    save_texts,
+)
 from tests.api.routes.test_audits import CAREERS, northwind
 from tests.audit.test_forms import forms
+from tests.audit.web import Web
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_form import labels as form_labels
 from tests.compliance.test_inspector import POSTING, extraction, labels
 
 TODAY = date(2026, 10, 23)
+TOWN = "https://town.example/jobs/clerk"
 
 
 def test_the_first_ontario_postings_with_quotes_and_pages() -> None:
@@ -56,6 +67,29 @@ def test_saving_the_texts_for_review(tmp_path: Path) -> None:
     posting = saved["postings"][0]
     assert "text" not in posting and Path(posting["text_file"]).read_text().startswith("Payroll Specialist")
     assert json.loads((tmp_path / "northwind" / "check.json").read_text()) == saved
+
+
+def test_an_employers_own_pages_are_checked_one_posting_at_a_time() -> None:
+    web = Web().page("town.example/jobs/clerk", "<main>" + POSTING.replace("\n", "<br>") + "</main>")
+    llm = FakeLLM().queue(Extraction, extraction()).queue(Classification, labels())
+    pages = [(TOWN, "Records Clerk"), ("https://town.example/jobs/gone", "Lifeguard")]
+    board = read_pages("https://town.example/jobs", pages, web.fetcher())
+    result = check_board(board, web.fetcher(), llm, load_pack("CA-ON"), TODAY, MemorySizes(), postings=5)
+
+    assert (result["board"]["url"], result["in_ontario"]) == ("https://town.example/jobs", 2)
+    read, gone = result["postings"]
+    assert (read["title"], read["url"], read["location"]) == ("Records Clerk", TOWN, "Ontario")
+    assert read["status"] == "not_compliant" and read["findings"]
+    assert "run payroll for 400 employees" in read["text"]
+    assert (gone["title"], gone["status"]) == ("Lifeguard", "failed") and "404" in gone["note"]  # says why
+
+
+def test_a_posting_in_a_pdf_is_read_with_pdftotext(monkeypatch: pytest.MonkeyPatch) -> None:
+    web = Web().page("town.example/jobs/clerk", "%PDF-1.7 binary")
+    monkeypatch.setattr("app.prospect.pdf_text", lambda data: "Records Clerk\n" + POSTING)
+    assert page_text(TOWN, web.fetcher()).startswith("Records Clerk")
+    monkeypatch.setattr("app.prospect.pdf_text", lambda data: "")  # a scan has no text to read
+    assert page_text(TOWN, web.fetcher()) == ""
 
 
 def test_a_board_that_cant_be_read() -> None:

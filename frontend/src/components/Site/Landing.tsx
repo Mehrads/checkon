@@ -3,7 +3,7 @@ import "@fontsource-variable/hanken-grotesk/wght.css"
 import "./landing.css"
 
 import { Link } from "@tanstack/react-router"
-import { ArrowRight, Check } from "lucide-react"
+import { ArrowRight, Check, ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
 
 import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
@@ -39,6 +39,8 @@ const NAV_PAGES = [
   { to: GUIDES.accuracy.path, label: "Accuracy" },
   { to: "/ontario-job-posting-requirements", label: "Guides" },
 ]
+const EXTENSION_URL =
+  "https://chromewebstore.google.com/detail/checkon-ontario-job-posti/mbpmobhcmimbohoijbbhckhinhggchdp"
 
 export function Brand({ href = "#check" }: { href?: string }) {
   return (
@@ -148,6 +150,8 @@ export function HeroIntro() {
     ["Shows the source", "Linked to the official text"],
     ["Yours to approve", "Change by change"],
   ]
+  const link =
+    "inline-flex items-center gap-1.5 font-medium text-deep-foreground underline decoration-deep-accent underline-offset-4 hover:decoration-2"
   return (
     <div className="min-w-0 text-deep-foreground">
       <Kicker className="text-deep-muted max-sm:hidden" rule="bg-deep-accent">
@@ -167,11 +171,24 @@ export function HeroIntro() {
         <Link
           to={GUIDES.accuracy.path}
           onClick={() => track("hero-accuracy")}
-          className="inline-flex items-center gap-1.5 font-medium text-deep-foreground underline decoration-deep-accent underline-offset-4 hover:decoration-2"
+          className={link}
         >
           Tested on 150 real Ontario postings
           <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
         </Link>
+      </p>
+      {/* Chrome on a phone can't run extensions, and the hero has no room to spare there */}
+      <p className="mt-2 text-sm max-sm:hidden">
+        <a
+          href={EXTENSION_URL}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => track("hero-extension")}
+          className={link}
+        >
+          Check in your ATS or job board with the free Chrome extension
+          <ExternalLink className="size-4 shrink-0" aria-hidden="true" />
+        </a>
       </p>
       <dl className="mt-10 hidden max-w-xl gap-x-6 gap-y-4 border-t border-white/15 pt-5 text-sm sm:grid sm:grid-cols-3">
         {facts.map(([term, detail]) => (
