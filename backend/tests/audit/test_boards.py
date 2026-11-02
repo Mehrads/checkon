@@ -1,13 +1,14 @@
 """Reading job boards from recorded responses: which postings are for work in Ontario, and each posting's text as
 applicants read it on the board, pay and AI notes included."""
 
+import json
 from datetime import date
 
 import pytest
 
 from app.audit.boards import NoPostings, board_in, posting_text, read_board
 from app.audit.fetch import FetchError, RobotsRefused
-from tests.audit.web import boards, smartrecruiters_allowed
+from tests.audit.web import Web, boards, smartrecruiters_allowed
 
 TODAY = date(2026, 10, 22)
 
@@ -127,6 +128,36 @@ def test_a_careers_page_with_job_pages() -> None:
     assert cashier.text is not None and cashier.text.endswith("Pay: $17.60 CAD per hour")
     again = posting_text("page", board.key, cashier.id, cashier.url, web.fetcher(), TODAY)
     assert again == cashier.text
+
+
+def _job(title: str, value: dict[str, object]) -> dict[str, object]:
+    address = {"addressLocality": "Toronto", "addressRegion": "ON", "addressCountry": "CA"}
+    return {
+        "@type": "JobPosting", "title": title, "description": "<p>Answer the phones.</p>",
+        "url": f"https://ghrc.example/jobs/{title.lower()}", "jobLocation": {"address": address},
+        "baseSalary": {"currency": "CAD", "value": {"@type": "QuantitativeValue", "unitText": "HOUR", **value}},
+    }  # fmt: skip
+
+
+@pytest.mark.parametrize("value", [
+    {"value": "$80,000.00-$95,000.00"},  # ghrc.ca
+    {"value": "19.50-20.00"},  # ghrc.ca
+    {"value": "Competitive"},
+    {"minValue": "$20/hr", "maxValue": "$25/hr"},
+    {"minValue": 20, "maxValue": "Depends on experience"},
+    {"minValue": "To be discussed", "maxValue": 25},
+    {"value": "NaN"},
+    {"value": "Infinity"},
+    {"value": ""},
+])  # fmt: skip
+def test_pay_that_isnt_a_number_is_skipped_and_the_board_is_still_read(value: dict[str, object]) -> None:
+    postings = [_job("Receptionist", value), _job("Dispatcher", {"minValue": 20, "maxValue": 25.5})]
+    markup = f'<script type="application/ld+json">{json.dumps(postings)}</script>'
+    board = read_board("https://ghrc.example/jobs", Web().page("ghrc.example/jobs", markup).fetcher(), TODAY)
+    receptionist, dispatcher = board.postings
+    assert (receptionist.title, receptionist.where) == ("Receptionist", "ontario")
+    assert receptionist.text == "Receptionist\nToronto, ON, CA\n\nAnswer the phones."
+    assert dispatcher.text == "Dispatcher\nToronto, ON, CA\n\nAnswer the phones.\n\nPay: $20 - $25.50 CAD per hour"
 
 
 def test_a_careers_page_with_an_embedded_board() -> None:
