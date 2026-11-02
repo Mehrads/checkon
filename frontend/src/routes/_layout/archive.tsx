@@ -103,7 +103,7 @@ function Archive() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading eyebrow="Your account" title="Archive">
+      <PageHeading title="Archive">
         A dated copy of each posting you apply fixes to, kept 3 years after it
         comes down.
       </PageHeading>

@@ -27,7 +27,7 @@ function Audits() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading eyebrow="Your account" title="Audit a careers page">
+      <PageHeading title="Audit a careers page">
         {canCreate && current
           ? `Check every open Ontario posting on ${current.name}'s job board at once.`
           : "Check every open Ontario posting on your job board at once."}
@@ -51,11 +51,15 @@ function Audits() {
         <Skeleton className="h-48 w-full" />
       ) : (
         <>
-          <NewAudit
-            key={current.id}
-            workspace={canCreate ? current : undefined}
-          />
-          <PastAudits workspace={canCreate ? current : undefined} />
+          <div data-dock="New audit">
+            <NewAudit
+              key={current.id}
+              workspace={canCreate ? current : undefined}
+            />
+          </div>
+          <div data-dock="Past audits">
+            <PastAudits workspace={canCreate ? current : undefined} />
+          </div>
         </>
       )}
     </div>

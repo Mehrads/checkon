@@ -47,6 +47,13 @@
   --color-deep-foreground: var(--deep-foreground);
   --color-deep-muted: var(--deep-muted);
   --color-deep-accent: var(--deep-accent);
+  /* Signed-in app only (set under .app-shell below) */
+  --color-solid: var(--solid);
+  --color-on-solid: var(--on-solid);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-chart-met: var(--chart-met);
+  --color-chart-open: var(--chart-open);
   --font-display: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
   --font-site: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
 }
@@ -204,6 +211,186 @@
     );
   background-position: center;
   background-size: cover;
+}
+
+/* The signed-in app: frosted glass over the hero's photo, a warm wash in light mode and a deep teal one in dark. The
+   tokens change here, so every card, table and field inside turns to glass; dialogs and menus render on <body> and
+   keep the opaque palette. Only the panel blurs: the cards inside it are tints, which keeps scrolling smooth. */
+.app-shell {
+  --shell-x: clamp(1.5rem, 5.5vw, 6rem);
+  --radius: 1rem;
+  --foreground: #16201d;
+  --card: rgb(255 255 255 / 0.5);
+  --background: rgb(255 255 255 / 0.5);
+  --muted: rgb(40 34 24 / 0.07);
+  --secondary: rgb(40 34 24 / 0.07);
+  --muted-foreground: #47504c;
+  --accent: rgb(0 117 106 / 0.1);
+  --border: rgb(255 255 255 / 0.5);
+  --input: rgb(40 34 24 / 0.16);
+  --solid: #ffffff;
+  --on-solid: #16201d;
+  --ink: #16201d;
+  --on-ink: #ffffff;
+  --chart-met: #008b7d;
+  --chart-open: #b4512f;
+  --photo-wash: rgb(246 234 214 / 0.3);
+  --glass-panel: rgb(250 243 232 / 0.7);
+  --glass-panel-edge: rgb(255 255 255 / 0.55);
+  --glass-bar: rgb(28 26 22 / 0.68);
+  color: var(--foreground);
+}
+.dark .app-shell {
+  --foreground: #ece9e2;
+  --card: rgb(255 255 255 / 0.07);
+  --background: rgb(255 255 255 / 0.06);
+  --muted: rgb(255 255 255 / 0.08);
+  --secondary: rgb(255 255 255 / 0.08);
+  --muted-foreground: #b9c1be;
+  --accent: rgb(255 255 255 / 0.1);
+  --border: rgb(255 255 255 / 0.11);
+  --input: rgb(255 255 255 / 0.18);
+  --solid: #ece9e2;
+  --on-solid: #121816;
+  --ink: #ece9e2;
+  --on-ink: #121816;
+  --chart-met: #1fa897;
+  --chart-open: #d4694a;
+  --photo-wash: rgb(11 42 39 / 0.62);
+  --glass-panel: rgb(18 24 22 / 0.72);
+  --glass-panel-edge: rgb(255 255 255 / 0.1);
+  --glass-bar: rgb(10 16 15 / 0.62);
+}
+.app-photo {
+  background-color: var(--deep);
+  background-image:
+    linear-gradient(var(--photo-wash), var(--photo-wash)),
+    image-set(
+      url("/assets/images/landing/bg-job-application-1920.avif")
+        type("image/avif"),
+      url("/assets/images/landing/bg-job-application-1920.webp")
+        type("image/webp")
+    );
+  background-position: center;
+  background-size: cover;
+}
+@media (max-width: 767px) {
+  .app-photo {
+    background-image:
+      linear-gradient(var(--photo-wash), var(--photo-wash)),
+      image-set(
+        url("/assets/images/landing/bg-job-application-portrait-800.avif")
+          type("image/avif"),
+        url("/assets/images/landing/bg-job-application-portrait-800.webp")
+          type("image/webp")
+      );
+  }
+}
+.glass-panel {
+  background: var(--glass-panel);
+  border: 1px solid var(--glass-panel-edge);
+  box-shadow:
+    0 30px 60px -30px rgb(10 8 4 / 0.6),
+    inset 0 1px 0 var(--glass-panel-edge);
+  -webkit-backdrop-filter: blur(36px) saturate(1.5);
+  backdrop-filter: blur(36px) saturate(1.5);
+}
+/* The smoked pills over the panel: white text whatever the mode, and their fields follow */
+.glass-bar {
+  --foreground: #ffffff;
+  --muted-foreground: rgb(255 255 255 / 0.82);
+  --background: rgb(255 255 255 / 0.12);
+  --accent: rgb(255 255 255 / 0.16);
+  --accent-foreground: #ffffff;
+  --input: rgb(255 255 255 / 0.24);
+  --primary: var(--deep-accent);
+  --primary-foreground: #0a1f1c;
+  background: var(--glass-bar);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  box-shadow: 0 12px 28px -14px rgb(0 0 0 / 0.55);
+  color: var(--foreground);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+}
+/* The one scrolling area. Content dissolves at the panel's edges, so nothing runs hard into the dock. */
+.app-scroll {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 1rem,
+    black calc(100% - 3.5rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 1rem,
+    black calc(100% - 3.5rem),
+    transparent
+  );
+  scroll-padding-block: 1.25rem 5rem;
+  scrollbar-color: color-mix(in oklab, var(--foreground) 30%, transparent)
+    transparent;
+  scrollbar-width: thin;
+}
+.app-shell [data-dock] {
+  scroll-margin-top: 1.25rem;
+}
+/* The app reads in the sans throughout: large numbers and titles, as a dashboard, not the site's editorial serif */
+.app-shell .font-display {
+  font-family: var(--font-site);
+  letter-spacing: -0.02em;
+}
+.app-shell [data-slot="button"] {
+  border-radius: 9999px;
+}
+.app-shell .glass-panel [data-slot="button"][data-variant="default"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.app-shell .glass-panel [data-slot="button"][data-variant="default"]:hover {
+  background: color-mix(in oklab, var(--ink) 86%, transparent);
+}
+.orb {
+  background: radial-gradient(
+    circle at 32% 30%,
+    #ffffff,
+    var(--deep-accent) 38%,
+    var(--brand) 68%,
+    var(--deep)
+  );
+  box-shadow: 0 0 10px color-mix(in oklab, var(--deep-accent) 60%, transparent);
+}
+.tile-accent {
+  background: linear-gradient(145deg, #00756a, #0f3d38);
+  color: #ffffff;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+/* Without blur, or for someone who asked for less transparency: the same frame on solid surfaces */
+@supports not (
+    (backdrop-filter: blur(1px)) or
+    (-webkit-backdrop-filter: blur(1px))
+  ) {
+  .app-shell {
+    --glass-panel: #f3efe6;
+    --glass-bar: #1b2422;
+  }
+  .dark .app-shell {
+    --glass-panel: #171f1d;
+    --glass-bar: #0b1110;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .app-shell {
+    --glass-panel: #f3efe6;
+    --glass-bar: #1b2422;
+  }
+  .dark .app-shell {
+    --glass-panel: #171f1d;
+    --glass-bar: #0b1110;
+  }
 }
 
 @layer base {

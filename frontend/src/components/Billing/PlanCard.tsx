@@ -54,7 +54,10 @@ function SwitchPlan({ billing }: { billing: BillingOut }) {
   })
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
+      <Button
+        variant={billing.complimentary ? "default" : "outline"}
+        onClick={() => setOpen(true)}
+      >
         Switch to {target.name}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -95,63 +98,56 @@ export function PlanCard({ billing }: { billing: BillingOut }) {
   const price =
     billing.plan && billing.plan !== "free" ? PLAN_PRICE[billing.plan] : null
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
-        <div className="space-y-1">
+    <section className="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
           <p className="text-sm text-muted-foreground">Your plan</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="font-display text-3xl leading-tight font-medium tracking-[-0.01em]">
-              {billing.plan_name}
-            </h2>
-            {billing.complimentary ? (
-              <Badge variant="outline">Test account</Badge>
-            ) : pastDue ? (
-              <Badge variant="destructive">Payment failed</Badge>
-            ) : billing.cancel_at_period_end && billing.period_end ? (
-              <Badge variant="outline">
-                Ends {formatDay(billing.period_end)}
-              </Badge>
-            ) : (
-              <Badge variant="outline">Active</Badge>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {billing.complimentary
-              ? `Complimentary, nothing is billed · ${billing.checks_included} checks a month`
-              : `${price}/month · ${billing.checks_included} checks a month · extra checks $1 each`}
-          </p>
+          <h2 className="font-display text-3xl leading-tight font-semibold">
+            {billing.plan_name}
+          </h2>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {billing.plan && !billing.cancel_at_period_end && (
-            <SwitchPlan billing={billing} />
-          )}
-          {!billing.complimentary && (
-            <LoadingButton
-              variant="outline"
-              loading={portal.isPending}
-              onClick={() => portal.mutate()}
-            >
-              <CreditCard />
-              Manage billing
-            </LoadingButton>
-          )}
-        </div>
+        {billing.complimentary ? (
+          <Badge variant="outline">Test account</Badge>
+        ) : pastDue ? (
+          <Badge variant="destructive">Payment failed</Badge>
+        ) : billing.cancel_at_period_end && billing.period_end ? (
+          <Badge variant="outline">Ends {formatDay(billing.period_end)}</Badge>
+        ) : (
+          <Badge variant="outline">Active</Badge>
+        )}
+      </div>
+      <p className="-mt-2 text-sm text-muted-foreground">
+        {billing.complimentary
+          ? `Complimentary, nothing is billed · ${billing.checks_included} checks a month`
+          : `${price}/month · ${billing.checks_included} checks a month · extra checks $1 each`}
+      </p>
+      <div className="flex flex-wrap gap-2 [&>*]:flex-1">
+        {!billing.complimentary && (
+          <LoadingButton
+            loading={portal.isPending}
+            onClick={() => portal.mutate()}
+          >
+            <CreditCard />
+            Manage billing
+          </LoadingButton>
+        )}
+        {billing.plan && !billing.cancel_at_period_end && (
+          <SwitchPlan billing={billing} />
+        )}
       </div>
       {pastDue && (
-        <div className="px-5 pb-5 sm:px-6">
-          <Alert variant="destructive">
-            <AlertTitle>Your last payment didn't go through</AlertTitle>
-            <AlertDescription>
-              Update your card under Manage billing to keep your plan. Checks
-              keep working while Stripe retries the payment.
-            </AlertDescription>
-          </Alert>
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Your last payment didn't go through</AlertTitle>
+          <AlertDescription>
+            Update your card under Manage billing to keep your plan. Checks keep
+            working while Stripe retries the payment.
+          </AlertDescription>
+        </Alert>
       )}
       <UsageMeter
         billing={billing}
         size="lg"
-        className="border-t bg-muted/50 p-5 sm:p-6"
+        className="mt-auto rounded-xl border bg-muted/60 p-4"
       />
     </section>
   )
@@ -203,9 +199,12 @@ export function NoPlanCard({ billing }: { billing: BillingOut }) {
           className="mt-6 rounded-lg border bg-muted/50 p-5"
         />
       )}
-      <div className="mt-6 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {TILES.map((tile) => (
-          <div key={tile.id} className="flex flex-col bg-card p-5">
+          <div
+            key={tile.id}
+            className="flex flex-col rounded-xl border bg-muted/60 p-5"
+          >
             <p className="text-sm font-semibold">{tile.name}</p>
             <p className="mt-3">
               <span className="font-display text-4xl font-medium tracking-tight">

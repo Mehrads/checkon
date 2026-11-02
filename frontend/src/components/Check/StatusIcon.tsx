@@ -53,7 +53,7 @@ export function StatusIcon({ status }: { status: Status }) {
   return <VerdictIcon verdict={STATUS_VERDICT[status]} className="size-7" />
 }
 
-const STATUS_LABEL: Record<Status, string> = {
+export const STATUS_LABEL: Record<Status, string> = {
   compliant: "Meets the rules",
   not_compliant: "Doesn't meet the rules",
   needs_input: "Needs answers",

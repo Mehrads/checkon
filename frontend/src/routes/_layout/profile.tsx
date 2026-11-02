@@ -29,10 +29,7 @@ function Profile() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading
-        eyebrow="Your account"
-        title={canCreate ? "Client workspaces" : "Company profile"}
-      >
+      <PageHeading title={canCreate ? "Client workspaces" : "Company profile"}>
         {canCreate
           ? "A company profile for each client. Checks use the one you pick and share your plan's checks."
           : "Each check starts from these facts, so it doesn't ask for them."}
@@ -57,9 +54,11 @@ function Profile() {
       ) : (
         <>
           {canCreate && (
-            <Workspaces workspaces={workspaces} current={current} />
+            <div data-dock="Clients">
+              <Workspaces workspaces={workspaces} current={current} />
+            </div>
           )}
-          <div className="space-y-3">
+          <div data-dock="Company profile" className="space-y-3">
             {canCreate && (
               <h2 className="font-display text-2xl font-medium tracking-[-0.01em]">
                 Company profile for {current.name}
@@ -67,12 +66,16 @@ function Profile() {
             )}
             <ProfileForm key={current.id} profile={current} />
           </div>
-          <ArchiveSetting
-            key={current.id}
-            profile={current}
-            client={canCreate}
-          />
-          <PayBands workspaceId={current.id} />
+          <div data-dock="Archive">
+            <ArchiveSetting
+              key={current.id}
+              profile={current}
+              client={canCreate}
+            />
+          </div>
+          <div data-dock="Pay ranges">
+            <PayBands workspaceId={current.id} />
+          </div>
           <p className="text-xs text-muted-foreground">
             {current.archive_postings
               ? "We store these company facts and pay ranges with your account. This workspace's archive is on: we save the posting when you apply fixes."

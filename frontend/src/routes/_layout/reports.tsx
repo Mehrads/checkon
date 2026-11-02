@@ -24,7 +24,7 @@ function Reports() {
   const { data, isPending } = useMyReports()
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading eyebrow="Your account" title="Reports">
+      <PageHeading title="Reports">
         Reports on your job board that you saved here. Open one to fix its
         postings.
       </PageHeading>

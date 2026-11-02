@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { isLoggedIn } from "@/hooks/useAuth"
+import { useStickyEnd } from "@/hooks/useStickyEnd"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import { ApplicationForm, FORM_NOTES } from "./ApplicationForm"
@@ -58,6 +59,16 @@ const FREE_NOTE =
   "Free once a week, no sign-up. We don't keep your posting after the check unless you choose to share it with us."
 
 type Input = "text" | "link"
+
+/** One side of the results: whichever is shorter holds its end in view while the other is read. */
+function ResultColumn({ children }: { children: ReactNode }) {
+  const ref = useStickyEnd<HTMLDivElement>()
+  return (
+    <div ref={ref} className="min-w-0 lg:sticky">
+      {children}
+    </div>
+  )
+}
 
 /** More checks, for a refusal on the public page: a free account for visitors, the plans for everyone. */
 function SeePlans() {
@@ -298,7 +309,8 @@ export function Checker({
       {/* #check is the public page's hero (landing.css gives it the photo); the app's checker isn't */}
       <section
         id={hero ? "check" : undefined}
-        className="scroll-mt-20"
+        data-dock={hero ? undefined : "Check"}
+        className={hero ? "scroll-mt-20" : undefined}
         hidden={Boolean(opened)}
       >
         <div
@@ -441,9 +453,9 @@ export function Checker({
       {(check || error || busy) && (
         <section
           ref={results}
+          data-dock={hero ? undefined : "Results"}
           className={cn(
-            "scroll-mt-20",
-            hero ? "border-t bg-muted/30" : !opened && "pt-6",
+            hero ? "scroll-mt-20 border-t bg-muted/30" : !opened && "pt-6",
           )}
         >
           <div
@@ -492,33 +504,41 @@ export function Checker({
                     />
                   )}
                 <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-                  <Findings
-                    checkId={check.check_id}
-                    report={check.report}
-                    text={check.text}
-                    formText={check.form_text}
-                    url={check.url}
-                  />
-                  {check.refinement ? (
-                    <Fixes
+                  <ResultColumn>
+                    <Findings
                       checkId={check.check_id}
-                      refinement={check.refinement}
-                      choices={choices}
-                      onChange={setChoices}
-                      onApply={() => accept.mutate()}
-                      applying={accept.isPending}
-                      onPayConfirmed={check.workspace_id ? show : undefined}
+                      report={check.report}
+                      text={check.text}
+                      formText={check.form_text}
+                      url={check.url}
                     />
-                  ) : (
-                    refine.isPending && (
-                      <div className="rounded-xl border bg-card p-5 text-sm text-muted-foreground shadow-sm">
-                        Writing suggested fixes…
-                      </div>
-                    )
-                  )}
+                  </ResultColumn>
+                  <ResultColumn>
+                    {check.refinement ? (
+                      <Fixes
+                        checkId={check.check_id}
+                        refinement={check.refinement}
+                        choices={choices}
+                        onChange={setChoices}
+                        onApply={() => accept.mutate()}
+                        applying={accept.isPending}
+                        onPayConfirmed={check.workspace_id ? show : undefined}
+                      />
+                    ) : (
+                      refine.isPending && (
+                        <div className="rounded-xl border bg-card p-5 text-sm text-muted-foreground shadow-sm">
+                          Writing suggested fixes…
+                        </div>
+                      )
+                    )}
+                  </ResultColumn>
                 </div>
                 {final && (
-                  <div ref={editor} className="scroll-mt-20">
+                  <div
+                    ref={editor}
+                    data-dock={hero ? undefined : "Your posting"}
+                    className={cn(hero && "scroll-mt-20")}
+                  >
                     <PostingEditor
                       final={final}
                       archiveLink={(label, postingId) => (

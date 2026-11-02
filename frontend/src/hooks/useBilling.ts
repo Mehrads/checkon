@@ -35,14 +35,16 @@ export function useBilling() {
   })
 }
 
-/** Checks on the plan, for one client workspace (Agency) or all of them. */
+const CHECKS_LOADED = 100 // the most the API sends at once
+
+/** The latest checks on the plan, for one client workspace (Agency) or all of them. */
 export function usePaidChecks(workspaceId?: string) {
   return useQuery({
     queryKey: ["paidChecks", workspaceId ?? "all"],
     queryFn: async () =>
       (
         await BillingService.readPaidChecks({
-          query: { workspace_id: workspaceId },
+          query: { workspace_id: workspaceId, limit: CHECKS_LOADED },
         })
       ).data,
     enabled: isLoggedIn(),

@@ -49,7 +49,12 @@ const queryClient = new QueryClient({
   }),
 })
 
-const router = createRouter({ routeTree })
+const router = createRouter({
+  routeTree,
+  // Back returns to where you were on the page; a new page starts at its top, in the app's panel too
+  scrollRestoration: true,
+  scrollToTopSelectors: ["#app-scroll"],
+})
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router
