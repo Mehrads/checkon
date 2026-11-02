@@ -12,7 +12,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any, Literal, cast
 from urllib.parse import quote, urljoin, urlsplit
 
@@ -128,6 +128,15 @@ def _compose(title: str, location: str | None, *parts: str | None) -> str:
 def _money(value: Any) -> str:
     amount = Decimal(str(value))
     return f"${amount:,.2f}" if amount != amount.to_integral() else f"${amount:,.0f}"
+
+
+def _amount(value: Any) -> Decimal | None:
+    """A pay figure from a page's own data, unless it isn't a number: "Competitive", "$20/hr"."""
+    try:
+        amount = Decimal(str(value))
+    except InvalidOperation:
+        return None
+    return amount if amount.is_finite() else None  # Decimal reads "NaN" and "Infinity" as numbers
 
 
 # Greenhouse: https://developers.greenhouse.io/job-board.html
@@ -360,10 +369,10 @@ def _from_json_ld(posting: dict[str, Any], page: str, today: date) -> Found | No
     url = str(posting.get("url") or "") or f"{page}#{re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')}"
     pay = None
     if isinstance(salary := posting.get("baseSalary"), dict) and isinstance(value := salary.get("value"), dict):
-        low, high = value.get("minValue", value.get("value")), value.get("maxValue", value.get("value"))
+        low, high = (_amount(value.get(key, value.get("value"))) for key in ("minValue", "maxValue"))
         if low is not None and high is not None:
             period = _PERIOD.get(str(value.get("unitText") or "").upper(), "")
-            figures = _money(low) if str(low) == str(high) else f"{_money(low)} - {_money(high)}"
+            figures = _money(low) if low == high else f"{_money(low)} - {_money(high)}"
             pay = f"Pay: {figures} {salary.get('currency') or ''} {period}".replace("  ", " ").strip()
     description = str(posting.get("description") or "")
     if "&lt;" in description:  # HTML escaped once more

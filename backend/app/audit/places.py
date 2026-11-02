@@ -30,13 +30,26 @@ ONTARIO_CITIES = {
 _CITY = re.compile(r"\b(?:" + "|".join(map(re.escape, sorted(ONTARIO_CITIES, key=len, reverse=True))) + r")\b", re.I)
 _ONTARIO = re.compile(r"\bontario\b|\bont\b\.?", re.IGNORECASE)
 _ON = re.compile(r"(?:^|[\s,(/;|])ON(?=$|[\s,)/;|.])")
+_US_STATE_CODES = (
+    r"A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY]"
+)
+_US_STATE_NAMES = (
+    r"alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|district of columbia|florida|georgia"
+    r"|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota"
+    r"|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina"
+    r"|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah"
+    r"|vermont|virginia|washington|west virginia|wisconsin|wyoming"
+)
 # Another country, or a US state after a comma: "Ottawa, IL" is in Illinois
 _ABROAD = re.compile(
     r"(?i:\b(?:united states|usa|u\.s\.a?\.?|united kingdom|uk|england|australia|india|ireland)\b)"
-    r"|,\s*(?:A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]"
-    r"|W[AIVY])\b",
+    rf"|,\s*(?:{_US_STATE_CODES})\b",
 )
-_CANADA = re.compile(r"\bcanada\b|\bcanadian\b", re.IGNORECASE)
+# The country, not a town in a US state: "Canada, Nevada, US". "Canada, CA" is the country, by name and by code.
+_CANADA = re.compile(
+    rf"\bcanada\b(?!\s*,\s*(?:{_US_STATE_NAMES}|(?-i:(?!CA\s*$)(?:{_US_STATE_CODES})))\b)|\bcanadian\b",
+    re.IGNORECASE,
+)
 _PROVINCE_NAMES = (
     r"british columbia|alberta|saskatchewan|manitoba|qu[ée]bec|nova scotia|new brunswick|newfoundland|labrador"
     r"|prince edward island|yukon|northwest territories|nunavut"
