@@ -171,6 +171,27 @@ test("The hero's accuracy link and the agency band are counted", async ({
   expect(sent).toContainEqual(["agency-guide", null])
 })
 
+test("The hero links to the Chrome extension on a computer, and the click is counted", async ({
+  page,
+  context,
+}) => {
+  const store =
+    "https://chromewebstore.google.com/detail/checkon-ontario-job-posti/mbpmobhcmimbohoijbbhckhinhggchdp"
+  // The click opens a new tab; it never reaches the real store
+  await context.route(`${store}*`, (route) => route.fulfill({ body: "" }))
+  await recordEvents(page)
+  await open(page, "/check")
+  const link = page.getByRole("link", { name: /free Chrome extension/ })
+  await expect(link).toHaveAttribute("href", store)
+  const popup = page.waitForEvent("popup")
+  await link.click()
+  expect((await popup).url()).toBe(store)
+  expect(await events(page)).toContainEqual(["hero-extension", null])
+
+  await page.setViewportSize({ width: 375, height: 812 })
+  await expect(link).toBeHidden()
+})
+
 test("The template copies, and the copy is counted", async ({
   page,
   context,
