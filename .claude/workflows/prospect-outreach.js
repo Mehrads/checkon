@@ -34,6 +34,8 @@ const OPT_OUT = 'Reply "no thanks" and I won\'t email again.'
 const mailbox = sender.from ?? sender.email
 // A contact whose own address isn't published gets the LinkedIn note only.
 const NO_ADDRESS = 'no personal address published, no email'
+// A named contact with no profile URL in search results still gets a note, for the sender to find by name.
+const NO_PROFILE = 'find the profile by name'
 // LinkedIn's limit for an invitation note from a free account
 const NOTE_CHARS = 200
 
@@ -111,7 +113,7 @@ const PITCH = {
     contact_note: { type: 'string', description: 'one short line: how sure, or who else might own hiring' },
     linkedin_url: { type: 'string', description: 'their public profile, as a search result showed it; empty if unsure' },
     linkedin_source: { type: 'string', description: 'the search query and result that showed the profile' },
-    linkedin_note: { type: 'string', description: `the invitation note, at most ${NOTE_CHARS} characters; empty with no profile` },
+    linkedin_note: { type: 'string', description: `the invitation note, at most ${NOTE_CHARS} characters; empty only with no contact_name` },
     contact_email: { type: 'string', description: "the person's own address, only if published on a public page" },
     email_source: { type: 'string', description: 'the public page where the address is published' },
     contact_sources: { type: 'array', items: { type: 'string' } },
@@ -229,7 +231,7 @@ Their board: ${company.board_url}${company.website ? `; website: ${company.websi
 1. The contact: the person who owns hiring at ${company.name} for Ontario or Canada (Head of People or Talent, HR
    Manager, Talent Acquisition lead; for a small company, a founder or COO), currently in that role. Use WebSearch
    over public sources only: the company's own pages, press releases, event bios. Record every page you used in
-   contact_sources. If you can't name someone with confidence, leave contact_name empty and stop at step 4.
+   contact_sources. If you can't name someone with confidence, leave contact_name empty and skip to step 6.
 2. Their LinkedIn profile: search for it, e.g. "site:linkedin.com/in <name> ${company.name}", and take the profile
    URL as the search result shows it. NEVER open, fetch or browse linkedin.com, signed in or not: its terms forbid
    automated access. Keep the URL only if the result's title and snippet match the person, the company and the
@@ -238,8 +240,9 @@ Their board: ${company.board_url}${company.website ? `; website: ${company.websi
    or media contact, a speaker bio, the company's team page); put that page in email_source. NEVER a shared inbox
    (careers@, jobs@, recruiting@, recruitment@, talent@, hr@, people@, info@ and the like), and never guessed or built
    from a name pattern. Otherwise leave contact_email empty: the LinkedIn note is enough.
-4. The LinkedIn note, only with a profile: at most ${NOTE_CHARS} characters including spaces and the link (count
-   them; LinkedIn cuts longer notes from a free account), Canadian spelling, no greeting line of its own:
+4. The LinkedIn note, for every named contact, even with no profile URL (the sender then finds them by name): at
+   most ${NOTE_CHARS} characters including spaces and the link (count them; LinkedIn cuts longer notes from a free
+   account), Canadian spelling, no greeting line of its own:
    "Hi <first name>, I checked ${company.name}'s open Ontario postings against Ontario's new posting rules; <n> may
    need changes. Free report: <the report link exactly as above> - Mehrad"
    Adjust the words to fit, keep the report link whole, and never say "illegal" or "breaks the law".
@@ -269,7 +272,7 @@ ${DATA}`,
 
 const done = results.filter(Boolean)
 const toDraft = done.filter((r) => r.pitch?.contact_email && r.pitch?.subject && r.pitch?.body)
-const notes = done.filter((r) => r.pitch?.linkedin_url && r.pitch?.linkedin_note)
+const notes = done.filter((r) => r.pitch?.contact_name && r.pitch?.linkedin_note)
 
 // One agent makes every draft in turn: agents sharing one browser pane would type into each other's drafts.
 let drafted = {}
@@ -320,20 +323,21 @@ phase('Record')
 await agent(
   `Record this outreach run. Rows (JSON): ${JSON.stringify(rows)}
 LinkedIn notes to send (JSON): ${JSON.stringify(notes.map(({ company, checked, pitch }) => ({
-    company: company.name, name: pitch.contact_name, title: pitch.contact_title, profile: pitch.linkedin_url,
-    report: checked?.report_link ?? '', note: pitch.linkedin_note,
+    company: company.name, name: pitch.contact_name, title: pitch.contact_title,
+    profile: pitch.linkedin_url || NO_PROFILE, report: checked?.report_link ?? '', note: pitch.linkedin_note,
   })))}
 ${ROOT}; then:
 1. Write "$ROOT/${runDate}/linkedin-notes.md" for the sender to work through by hand: one section per note with
-   the company, the person's name and title, their profile URL, the report link, and the note in a code block so it
-   copies cleanly, with its character count. If the file already exists from an earlier run today, append.
+   the company, the person's name and title, their profile (a URL, or "${NO_PROFILE}"), the report link, and the note
+   in a code block so it copies cleanly, with its character count. If the file already exists from an earlier run
+   today, append.
 2. Write "$ROOT/${runDate}/prospects.csv" with a header and one line per row, columns in this order:
    company, board_url, folder, confirmed, dropped, report, contact, contact_note, linkedin, note, email,
    email_source, draft, usd (quote fields as CSV needs).
    If the file already exists from an earlier run today, append the rows without a second header.
 3. Append to "$ROOT/contacted.csv" (create it with the header "date,company,board_url,email,draft" if missing) one
    line per row that has a LinkedIn note or a created draft, with date ${runDate}; in the draft column put the
-   draft status, or "linkedin note to send: <profile URL>" when there's no email.
+   draft status, or "linkedin note to send: <the profile from the notes above>" when there's no email.
 Reply with one line: the file paths.`,
   { label: 'record the run', effort: 'low' },
 )
