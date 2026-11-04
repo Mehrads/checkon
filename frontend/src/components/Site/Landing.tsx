@@ -79,7 +79,19 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-1.5">
-          <Appearance className="size-8 rounded-full border-0 bg-solid text-on-solid hover:bg-solid/85 hover:text-on-solid dark:bg-solid dark:hover:bg-solid/85" />
+          {/* Phones follow the system theme, which leaves room for Pricing beside the main button */}
+          <div className="hidden sm:block">
+            <Appearance className="size-8 rounded-full border-0 bg-solid text-on-solid hover:bg-solid/85 hover:text-on-solid dark:bg-solid dark:hover:bg-solid/85" />
+          </div>
+          {/* The sections menu is hidden below lg; pricing stays one tap away */}
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className="px-2.5 lg:hidden"
+          >
+            <a href="#pricing">Pricing</a>
+          </Button>
           <Button
             asChild
             size="sm"
@@ -91,7 +103,10 @@ export function SiteHeader() {
             </Link>
           </Button>
           <Button asChild size="sm">
-            <a href="#check">Check a posting</a>
+            <a href="#check">
+              <span className="max-[359px]:hidden">Check a posting</span>
+              <span className="hidden max-[359px]:inline">Check</span>
+            </a>
           </Button>
         </div>
       </div>

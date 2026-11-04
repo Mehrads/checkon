@@ -4,7 +4,7 @@ from pathlib import Path
 import sentry_sdk
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.routing import APIRoute
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
@@ -89,6 +89,14 @@ for page_path, page_file in [*PRERENDERED.items(), *((path, "index.html") for pa
     app.add_api_route(
         page_path, _prerendered(page_file), methods=["GET", "HEAD"], include_in_schema=False, tags=["pages"]
     )
+
+
+def _pricing() -> RedirectResponse:
+    """Pricing is a section of the check page, not a page of its own: the address people type or share goes there."""
+    return RedirectResponse("/check#pricing")
+
+
+app.add_api_route("/pricing", _pricing, methods=["GET", "HEAD"], include_in_schema=False, tags=["pages"])
 
 # Any other address the build's files don't have is a 404 (below), so search engines don't take it for a page. In
 # development there may be no build (the tests, CI's backend job); production refuses to start without one.
