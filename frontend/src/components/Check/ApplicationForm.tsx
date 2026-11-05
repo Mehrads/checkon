@@ -10,9 +10,8 @@ export const MAX_FORM_CHARS = 4000
 
 /** What checking the form costs: one more check, which the weekly free check doesn't leave room for. */
 export const FORM_NOTES = {
-  plan: "Checking the form uses one more check from your plan.",
-  check: "Checking the form uses one more check.",
-  free: "Checking the form uses a second check. The free check is one a week, so the form needs a plan.",
+  account: "Checking the form uses one more check.",
+  free: "Checking the form uses a second check. The free check is one a week, so the form needs an account.",
 }
 
 const HELP =

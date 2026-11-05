@@ -1,6 +1,6 @@
 # Backend
 
-FastAPI backend from the Full Stack FastAPI Template, plus the compliance core. Steps 1–5 of `../04-V1-Scope.md`: the rule pack, the rule engine, the normaliser, the money parser, the Inspector, the Refiner and the free-check API.
+FastAPI backend from the Full Stack FastAPI Template, plus the compliance core: the rule pack, the rule engine, the normaliser, the money parser, the Inspector, the Refiner, the free-check API and the signed-in account features.
 
 - `app/api/routes/checks.py`: `POST /api/v1/inspect`, `/refine`, `/answers`, `/patches/accept`. Checks live in memory for an hour (`app/api/check_store.py`).
 - `app/compliance/answers.py`: answers to questions re-run the rules in code, with no LLM call.
@@ -15,7 +15,7 @@ FastAPI backend from the Full Stack FastAPI Template, plus the compliance core. 
 - `app/compliance/refiner.py`: one patch per failing finding, applied together, re-inspected and checked against acceptance tests 1–5; LLM rewrites get one retry, anything still failing is dropped with guidance.
 - `rulepacks/CA-ON/wording.yaml`: the wording library (draft, needs lawyer sign-off).
 - `prompts/`: the extraction, classification and rewrite prompts. Their hash is the `prompts` version in every report.
-- `app/pay/`: pay range suggestions for paid plans (`POST /api/v1/pay/suggest`, `/pay/confirm`, in `app/api/routes/pay.py`). `jobbank.py` reads Job Bank's Ontario wages and place names from `app/pay/data/`; `suggest.py` names the occupation (NOC 2021), searches current postings and builds the range within the yearly cap. A confirmed range is saved as the job title's band (`pay_band`) and goes through the Refiner like an answer.
+- `app/pay/`: pay range suggestions for signed-in accounts (`POST /api/v1/pay/suggest`, `/pay/confirm`, in `app/api/routes/pay.py`). `jobbank.py` reads Job Bank's Ontario wages and place names from `app/pay/data/`; `suggest.py` names the occupation (NOC 2021), searches current postings and builds the range within the yearly cap. A confirmed range is saved as the job title's band (`pay_band`) and goes through the Refiner like an answer.
 
 Refresh the Job Bank wages when Job Bank publishes a new year (usually November or December), then review and commit the diff in `app/pay/data/`:
 

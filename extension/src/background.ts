@@ -1,5 +1,5 @@
 // Opens the CheckON side panel from the toolbar button or the right-click menu.
-// Nothing is checked here: the side panel sends the posting to checkon.ca.
+// Nothing is checked here: the side panel sends the posting to the CheckON API it was built for.
 //
 // The toolbar click is handled here rather than with setPanelBehavior({ openPanelOnActionClick }):
 // a click Chrome handles itself opens the panel but grants no activeTab access, so the panel

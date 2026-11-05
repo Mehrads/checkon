@@ -171,12 +171,8 @@ function PasswordForm({
             to="/signup"
             className="font-medium text-foreground underline underline-offset-4"
           >
-            Create a free one
+            Create one
           </RouterLink>
-          , or{" "}
-          <a href="/check#pricing" className="underline underline-offset-4">
-            see the plans
-          </a>
           .
         </p>
       </form>

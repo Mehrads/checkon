@@ -18,7 +18,7 @@ import {
 } from "@/components/Check/ApplicationForm"
 import { Findings } from "@/components/Check/Findings"
 import { type Choices, defaultChoices, Fixes } from "@/components/Check/Fixes"
-import { planNote } from "@/components/Check/labels"
+import { accountNote } from "@/components/Check/labels"
 import { PostingEditor } from "@/components/Check/PostingEditor"
 import { LINK_REFUSALS, PostingLink } from "@/components/Check/PostingLink"
 import { Questions } from "@/components/Check/Questions"
@@ -43,10 +43,9 @@ import {
   readFromPage,
   writeToPage,
 } from "./page"
+import { SITE } from "./site"
 
 const MAX_CHARS = 8000
-const SITE = new URL(import.meta.env.VITE_API_URL ?? "https://checkon.ca")
-  .origin
 
 const SOURCE_TEXT = {
   selection: "From the text you selected",
@@ -79,14 +78,12 @@ function errorMessage(error: Error): string {
 }
 
 /** The check in the browser's side panel: read the posting from the page, check it, write the fixes back.
- * Visitors get the free check; a signed-in customer's checks count against their plan and start from their
+ * Visitors get the free check; a signed-in user's checks are saved to their account and start from their
  * company profile. */
 export function Panel() {
   const account = useAccount()
-  const onPlan = Boolean(account.billing?.plan) // a free account's checks count like a plan's
-  const paid = onPlan && account.billing?.plan !== "free" // a company profile and client workspaces
-  const { workspaces, current, canCreate } = useWorkspaces(paid)
-  const profile = paid ? current : undefined
+  const { workspaces, current, clients } = useWorkspaces(account.isSignedIn)
+  const profile = account.isSignedIn ? current : undefined
   const [loggingIn, setLoggingIn] = useState(false)
   const [input, setInput] = useState<"text" | "link">("text")
   const [text, setText] = useState("")
@@ -373,7 +370,7 @@ export function Panel() {
         <AccountBar account={account} onLogIn={() => setLoggingIn(true)} />
       )}
 
-      {profile && canCreate && (
+      {profile && clients && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>Checking for</span>
           <WorkspaceSwitcher
@@ -444,7 +441,7 @@ export function Panel() {
           <div className="mt-2">
             <ProfileNote
               profile={profile}
-              client={canCreate}
+              client={clients}
               edit={(label) => (
                 <a
                   href={`${SITE}/profile`}
@@ -462,7 +459,7 @@ export function Panel() {
           className="mt-4"
           value={form}
           onChange={setForm}
-          note={FORM_NOTES[onPlan ? "plan" : "free"]}
+          note={FORM_NOTES[account.isSignedIn ? "account" : "free"]}
           action={
             <LoadingButton
               type="button"
@@ -585,11 +582,8 @@ export function Panel() {
       )}
 
       <footer className="mt-auto border-t pt-3 text-xs text-muted-foreground">
-        {account.billing?.plan_name
-          ? planNote(
-              account.billing.plan_name,
-              Boolean(profile?.archive_postings),
-            )
+        {account.isSignedIn
+          ? accountNote(Boolean(profile?.archive_postings))
           : "One free check a week."}{" "}
         Not legal advice.{" "}
         <a

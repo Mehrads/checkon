@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { SITE } from "./utils/site"
 
 // The public rule pages, signed out: what a visitor or a search engine sees once the app runs
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -40,15 +41,15 @@ for (const { en, fr } of PAGES) {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         "href",
-        `https://checkon.ca${path}`,
+        `${SITE}${path}`,
       )
       await expect(
         page.locator(`link[rel="alternate"][hreflang="${lang}"]`),
-      ).toHaveAttribute("href", `https://checkon.ca${other}`)
+      ).toHaveAttribute("href", `${SITE}${other}`)
       await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
         "content",
-        "https://checkon.ca/og-image.png",
+        `${SITE}/og-image.png`,
       )
     }
   })

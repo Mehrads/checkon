@@ -8,15 +8,10 @@ import { PageHeading } from "@/components/Common/PageHeading"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useRefreshAccount } from "@/hooks/useAccount"
 import { useAudit } from "@/hooks/useAudits"
-import {
-  apiMessage,
-  apiStatus,
-  isPaid,
-  useBilling,
-  useRefreshBilling,
-} from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
+import { apiMessage, apiStatus } from "@/lib/api"
 
 export const Route = createFileRoute("/_layout/audits/$auditId/$postingId")({
   component: PostingCheck,
@@ -33,9 +28,8 @@ export const Route = createFileRoute("/_layout/audits/$auditId/$postingId")({
 function PostingCheck() {
   const { auditId, postingId } = Route.useParams()
   const queryClient = useQueryClient()
-  const refresh = useRefreshBilling()
-  const { data: billing } = useBilling()
-  const { workspaces, canCreate } = useWorkspaces(isPaid(billing))
+  const refresh = useRefreshAccount()
+  const { workspaces, clients } = useWorkspaces(true)
   const { data: audit } = useAudit(auditId)
   const posting = audit?.postings.find((p) => p.id === postingId)
   const profile = workspaces.find((w) => w.id === audit?.workspace_id)
@@ -117,7 +111,7 @@ function PostingCheck() {
           opened={check.data}
           onChecked={refresh}
           profile={profile}
-          client={canCreate}
+          client={clients}
         />
       ) : expired || unchecked ? (
         <Alert>

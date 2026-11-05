@@ -12,6 +12,7 @@ import {
 import { RULES } from "@/components/Site/rules/en"
 import { Button } from "@/components/ui/button"
 import { track } from "@/lib/analytics"
+import { SITE } from "@/lib/seo"
 
 // Every item matches the rule pages (components/Site/rules/en.tsx), the rule pack and docs/law-review-2026-10.md;
 // change it when they change. Content pages may name the rules and cite the sections.
@@ -122,7 +123,7 @@ const GROUPS: { title: string; note?: string; items: Item[] }[] = [
 
 /** The list as plain text, to paste into a document or a task tool. */
 const PLAIN = [
-  "Ontario job posting checklist (checkon.ca/ontario-job-posting-checklist)",
+  `Ontario job posting checklist (${SITE}/ontario-job-posting-checklist)`,
   ...GROUPS.flatMap((group) => [
     "",
     group.title,

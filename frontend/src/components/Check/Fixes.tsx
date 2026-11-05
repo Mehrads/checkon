@@ -29,7 +29,7 @@ interface FixesProps {
   onChange: (choices: Choices) => void
   onApply: () => void
   applying: boolean
-  /** A paying customer's check: offer a pay range suggestion; the check with the confirmed range comes back. */
+  /** A signed-in user's check: offer a pay range suggestion; the check with the confirmed range comes back. */
   onPayConfirmed?: (check: CheckOut) => void
 }
 

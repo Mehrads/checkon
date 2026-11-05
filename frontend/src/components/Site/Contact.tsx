@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { Mail } from "lucide-react"
-import { createContext, type ReactNode, useContext, useState } from "react"
+import { useState } from "react"
 
 import { ChecksService, type ContactIn } from "@/client"
 import { Input } from "@/components/ui/input"
@@ -9,46 +9,20 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 
-export type Interest = ContactIn["interest"]
+type Interest = ContactIn["interest"]
 
 const INTERESTS: { value: Interest; label: string }[] = [
-  { value: "starter", label: "Starter" },
-  { value: "agency", label: "Agency" },
   { value: "custom", label: "Custom setup" },
   { value: "other", label: "Something else" },
 ]
 
-export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL as
-  | string
-  | undefined
-
-// Pricing buttons preset what the message is about, then scroll to the form.
-const ContactContext = createContext<{
-  interest: Interest
-  contactAbout: (interest: Interest) => void
-}>({ interest: "other", contactAbout: () => {} })
-
-export function ContactProvider({ children }: { children: ReactNode }) {
-  const [interest, setInterest] = useState<Interest>("other")
-  const contactAbout = (next: Interest) => {
-    setInterest(next)
-    document
-      .getElementById("contact")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
-  return (
-    <ContactContext.Provider value={{ interest, contactAbout }}>
-      {children}
-    </ContactContext.Provider>
-  )
-}
-
-export const useContact = () => useContext(ContactContext)
+/** Shown beside the form when the site's operator sets one (VITE_CONTACT_EMAIL); otherwise the form alone. */
+export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || undefined
 
 const EMPTY = { name: "", email: "", company: "", message: "" }
 
 export function ContactForm() {
-  const { interest, contactAbout } = useContact()
+  const [interest, setInterest] = useState<Interest>("other")
   const [form, setForm] = useState(EMPTY)
   const send = useMutation({
     mutationFn: (body: ContactIn) => ChecksService.contact({ body }),
@@ -62,9 +36,9 @@ export function ContactForm() {
   if (send.isSuccess) {
     return (
       <div className="rounded-xl border bg-card p-6 shadow-sm">
-        <p className="font-medium">Thanks, we got your message.</p>
+        <p className="font-medium">Thanks, your message was sent.</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          We'll reply to {form.email} soon.
+          The reply will go to {form.email}.
         </p>
       </div>
     )
@@ -94,7 +68,7 @@ export function ContactForm() {
               key={option.value}
               type="button"
               aria-pressed={interest === option.value}
-              onClick={() => contactAbout(option.value)}
+              onClick={() => setInterest(option.value)}
               className={cn(
                 "rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-accent",
                 interest === option.value &&
@@ -143,7 +117,7 @@ export function ContactForm() {
           value={form.message}
           onChange={set("message")}
           maxLength={2000}
-          placeholder="How many postings a month, which HR system you use, what you'd like automated…"
+          placeholder="Your question, or what you'd like set up…"
           className="min-h-28 w-full rounded-md border bg-transparent p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         />
       </div>

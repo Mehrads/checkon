@@ -1,5 +1,5 @@
-"""The company profile a paying customer's checks start from (PRD FR2), and Agency's client workspaces (FR10):
-list, create, rename, archive, and pick the one checks use.
+"""The company profiles a signed-in account's checks start from, one per client workspace: list, create, rename,
+archive, and pick the one checks use.
 """
 
 import uuid
@@ -10,14 +10,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlmodel import col, func, select
 
-from app.api.billing import PlanAccess, paid_access
+from app.api.accounts import Access, access_for
 from app.api.deps import CurrentUser, SessionDep
 from app.api.routes.checks import get_pack
 from app.api.workspaces import (
     MAX_WORKSPACES,
     Wording,
     current_workspace,
-    has_workspaces,
     label,
     open_workspaces,
 )
@@ -26,23 +25,13 @@ from app.models import Workspace, get_datetime_utc
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
 
-def get_plan_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = paid_access(session, user)
-    if access is None:
-        raise HTTPException(status_code=403, detail="A company profile comes with a paid plan.")
+def get_access(session: SessionDep, user: CurrentUser) -> Access:
+    access = access_for(session, user)
+    assert access is not None  # CurrentUser is signed in
     return access
 
 
-PlanAccessDep = Annotated[PlanAccess, Depends(get_plan_access)]
-
-
-def get_agency_access(access: PlanAccessDep) -> PlanAccess:
-    if not has_workspaces(access):
-        raise HTTPException(status_code=403, detail="Client workspaces come with the Agency plan.")
-    return access
-
-
-AgencyAccessDep = Annotated[PlanAccess, Depends(get_agency_access)]
+AccessDep = Annotated[Access, Depends(get_access)]
 
 
 def _clean(value: Any) -> Any:
@@ -66,7 +55,7 @@ class WorkspacePublic(BaseModel):
 class WorkspacesPublic(BaseModel):
     data: list[WorkspacePublic]  # open workspaces, oldest first
     current_id: uuid.UUID  # the one checks use
-    can_create: bool  # Agency: several client workspaces
+    can_create: bool  # under the limit of open workspaces
 
 
 class WorkspaceCreate(BaseModel):
@@ -108,7 +97,7 @@ def _public(workspace: Workspace) -> WorkspacePublic:
     )
 
 
-def _mine(session: SessionDep, access: PlanAccess, workspace_id: uuid.UUID) -> Workspace:
+def _mine(session: SessionDep, access: Access, workspace_id: uuid.UUID) -> Workspace:
     workspace = session.get(Workspace, workspace_id)
     if workspace is None or workspace.customer_id != access.customer.id or workspace.archived_at is not None:
         raise HTTPException(status_code=404, detail="Workspace not found.")
@@ -116,17 +105,17 @@ def _mine(session: SessionDep, access: PlanAccess, workspace_id: uuid.UUID) -> W
 
 
 @router.get("/", response_model=WorkspacesPublic)
-def read_workspaces(session: SessionDep, access: PlanAccessDep) -> Any:
+def read_workspaces(session: SessionDep, access: AccessDep) -> Any:
     """The customer's open workspaces and the one checks use. Starter has exactly one."""
     current = current_workspace(session, access)
-    workspaces = open_workspaces(session, access.customer) if has_workspaces(access) else [current]
+    workspaces = open_workspaces(session, access.customer)
     return WorkspacesPublic(
-        data=[_public(w) for w in workspaces], current_id=current.id, can_create=has_workspaces(access)
+        data=[_public(w) for w in workspaces], current_id=current.id, can_create=len(workspaces) < MAX_WORKSPACES
     )
 
 
 @router.post("/", response_model=WorkspacePublic, status_code=201)
-def create_workspace(body: WorkspaceCreate, session: SessionDep, access: AgencyAccessDep) -> Any:
+def create_workspace(body: WorkspaceCreate, session: SessionDep, access: AccessDep) -> Any:
     """A workspace for a new client, with an empty company profile. Checks use it from now on."""
     opened = session.exec(
         select(func.count()).select_from(Workspace).where(
@@ -146,13 +135,13 @@ def create_workspace(body: WorkspaceCreate, session: SessionDep, access: AgencyA
 
 
 @router.get("/current", response_model=WorkspacePublic)
-def read_current_workspace(session: SessionDep, access: PlanAccessDep) -> Any:
+def read_current_workspace(session: SessionDep, access: AccessDep) -> Any:
     """The company profile the customer's checks use."""
     return _public(current_workspace(session, access))
 
 
 @router.put("/current", response_model=WorkspacePublic)
-def switch_workspace(body: CurrentIn, session: SessionDep, access: AgencyAccessDep) -> Any:
+def switch_workspace(body: CurrentIn, session: SessionDep, access: AccessDep) -> Any:
     """Pick the client workspace checks use, on the website and in the extension."""
     workspace = _mine(session, access, body.workspace_id)
     access.user.workspace_id = workspace.id
@@ -164,7 +153,7 @@ def switch_workspace(body: CurrentIn, session: SessionDep, access: AgencyAccessD
 
 @router.patch("/{workspace_id}", response_model=WorkspacePublic)
 def update_workspace(
-    workspace_id: uuid.UUID, body: WorkspaceUpdate, session: SessionDep, access: PlanAccessDep
+    workspace_id: uuid.UUID, body: WorkspaceUpdate, session: SessionDep, access: AccessDep
 ) -> Any:
     """Rename a workspace or change its company profile: the fields sent, such as one answer saved during a
     check."""
@@ -185,7 +174,7 @@ def update_workspace(
 
 
 @router.post("/{workspace_id}/archive", response_model=WorkspacesPublic)
-def archive_workspace(workspace_id: uuid.UUID, session: SessionDep, access: AgencyAccessDep) -> Any:
+def archive_workspace(workspace_id: uuid.UUID, session: SessionDep, access: AccessDep) -> Any:
     """Hide a client's workspace from the switcher and stop using its profile. Its past checks keep its name."""
     workspace = _mine(session, access, workspace_id)
     if len(open_workspaces(session, access.customer)) <= 1:

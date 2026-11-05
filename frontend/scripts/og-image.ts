@@ -52,7 +52,7 @@ const html = `<!doctype html><html><head><style>
   </div>
   <div class="foot">
     <div class="rules">${RULES.map((rule) => `<span>${rule}</span>`).join("")}</div>
-    <span class="site">checkon.ca</span>
+    <span class="site">Open source · Apache-2.0</span>
   </div>
 </body></html>`
 

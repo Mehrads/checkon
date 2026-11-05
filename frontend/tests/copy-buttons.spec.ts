@@ -4,8 +4,6 @@ import { expect, type Page, test } from "@playwright/test"
 // clipboard API refused, as the Claude desktop app's browser pane does
 test.use({ storageState: { cookies: [], origins: [] } })
 
-const REPORT_LINK_TOKEN = "copy-test-token"
-
 async function signIn(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem("access_token", "copy-test")
@@ -31,45 +29,6 @@ async function signIn(page: Page) {
     }),
   )
 }
-
-test("The outreach page copies a report link where the clipboard API is refused", async ({
-  page,
-  context,
-}) => {
-  await context.grantPermissions(["clipboard-read"])
-  await signIn(page)
-  await page.route("**/api/v1/outreach/reports", (route) =>
-    route.fulfill({
-      json: [
-        {
-          token: REPORT_LINK_TOKEN,
-          company: "Northgate Logistics",
-          url: "https://jobs.example.com/northgate",
-          created_at: "2026-10-27T12:00:00Z",
-          postings: 3,
-          to_fix: 2,
-          saved_at: null,
-          views: 0,
-          first_viewed_at: null,
-          saved_by: null,
-        },
-      ],
-    }),
-  )
-  await page.goto("/outreach")
-
-  // By its row: the button's name changes to "Copied"
-  const button = page
-    .getByRole("row", { name: /Northgate Logistics/ })
-    .getByRole("button")
-  await expect(button).toHaveText("Copy link")
-  await button.click()
-  await expect(button).toContainText("Copied")
-  await expect(button).toBeFocused()
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    `${new URL(page.url()).origin}/report/${REPORT_LINK_TOKEN}`,
-  )
-})
 
 test("The audit report copies its summary where the clipboard API is refused", async ({
   page,

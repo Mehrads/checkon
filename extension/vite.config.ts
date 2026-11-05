@@ -7,8 +7,11 @@ import { defineConfig, type Plugin } from "vite"
 const dir = import.meta.dirname
 const pkg = JSON.parse(readFileSync(path.join(dir, "package.json"), "utf8"))
 
-// The API the extension calls. A build for a local backend sets VITE_API_URL=http://localhost:8000.
-const API_URL = process.env.VITE_API_URL || "https://checkon.ca"
+// The API the extension calls: your own CheckON server, set when you build (extension/README.md). The local
+// backend unless VITE_API_URL says otherwise. VITE_SITE_URL is where its website lives, for the panel's links
+// (log-in help, the company profile, the archive, privacy); by default the API's own address, which serves it.
+const API_URL = process.env.VITE_API_URL || "http://localhost:8000"
+const SITE_URL = process.env.VITE_SITE_URL || API_URL
 
 const ICONS = {
   "16": "icons/icon-16.png",
@@ -74,6 +77,7 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     "import.meta.env.VITE_API_URL": JSON.stringify(API_URL),
+    "import.meta.env.VITE_SITE_URL": JSON.stringify(SITE_URL),
   },
   plugins: [react(), tailwindcss(), manifest(mode)],
   build: {

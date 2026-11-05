@@ -1,4 +1,4 @@
-"""Add real postings to the golden set from a public job board (PRD §7: public ATS boards and careers pages,
+"""Add real postings to the golden set from a public job board (public ATS boards and careers pages only,
 respecting robots.txt; never LinkedIn or Indeed scraping).
 
     uv run python -m app.evals.collect https://boards.greenhouse.io/acme [--max 5]

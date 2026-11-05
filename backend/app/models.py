@@ -50,11 +50,11 @@ class User(UserBase, table=True):
     hashed_password: str
     created_at: datetime | None = Field(default_factory=get_datetime_utc)
     items: list[Item] = Relationship(back_populates="owner", cascade_delete=True)
-    # The paying customer this user checks for; None for admins and anyone without a plan
+    # The account this user checks for (app/api/accounts.py); made the first time they need it
     customer_id: uuid.UUID | None = Field(
         default=None, foreign_key="customer.id", ondelete="SET NULL", index=True
     )
-    # The client workspace this user last picked (Agency); None means the customer's first
+    # The client workspace this user last picked; None means the account's first
     workspace_id: uuid.UUID | None = Field(
         default=None, foreign_key="workspace.id", ondelete="SET NULL"
     )
@@ -207,7 +207,7 @@ class Feedback(SQLModel, table=True):
 
 
 class ContactMessage(SQLModel, table=True):
-    """A message from the site's contact form: plans, custom setups, questions."""
+    """A message from the site's contact form: custom setups and questions."""
 
     __tablename__ = "contact_message"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -221,7 +221,7 @@ class ContactMessage(SQLModel, table=True):
 
 
 class UsageEvent(SQLModel, table=True):
-    """One step of a check, free or on a plan (`plan`), for the success metrics (PRD §2). Never holds posting text; `visitor` is an
+    """One step of a check, a visitor's or a signed-in account's (`plan`), for the usage stats. Never holds posting text; `visitor` is an
     HMAC of the anonymous cookie, kept (unlike the week-long quota keys) so returning visitors can be counted.
     """
 
@@ -236,35 +236,23 @@ class UsageEvent(SQLModel, table=True):
     duration_ms: int | None = None
     usd: Decimal | None = Field(default=None, max_digits=12, decimal_places=6)
     count: int | None = None  # fixes applied, on accept
-    plan: str | None = Field(default=None, max_length=16)  # starter or agency for a paid check; None when free
+    plan: str | None = Field(default=None, max_length=16)  # "account" for a signed-in check; None for a free check
 
 
-# Paid plans (Stripe Billing). Card details stay with Stripe; we keep the ids and the subscription's state.
+# Signed-in accounts (app/api/accounts.py). The table and class names come from the hosted service this code
+# started as: a Customer is an account, and a PaidCheck is one of its checks.
 
 
 class Customer(SQLModel, table=True):
-    """One Stripe customer and its subscription. Its users share the plan's checks for the billing period.
-
-    A complimentary customer is our own test account (`python -m app.test_account`): a plan that stays active
-    with no Stripe customer or subscription behind it. Nothing is billed, and its checks are left out of the
-    usage stats.
-    """
+    """An account: the users who share its company profiles, check history, audits, pay ranges and archive."""
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime = Field(default_factory=get_datetime_utc)
-    stripe_customer_id: str | None = Field(default=None, unique=True, max_length=255)  # None when complimentary
-    email: str | None = Field(default=None, max_length=255)  # the email given at Checkout
-    stripe_subscription_id: str | None = Field(default=None, max_length=255)
-    plan: str | None = Field(default=None, max_length=16)  # starter or agency
-    subscription_status: str | None = Field(default=None, max_length=32)  # Stripe's: active, past_due, canceled…
-    current_period_start: datetime | None = None
-    current_period_end: datetime | None = None
-    cancel_at_period_end: bool = False
-    complimentary: bool = False
+    email: str | None = Field(default=None, max_length=255)  # the first user's email
 
 
 class PaidCheck(SQLModel, table=True):
-    """A check that counted against a plan: the allowance and the customer's history. Never the posting text,
+    """A signed-in check: the account's history, and its limit when the server sets one. Never the posting text,
     which only the archive keeps (ArchivedPosting), when the workspace's archive is on."""
 
     __tablename__ = "paid_check"
@@ -276,15 +264,13 @@ class PaidCheck(SQLModel, table=True):
     title: str | None = Field(default=None, max_length=255)  # the job title, as written in the posting
     status: str = Field(max_length=32)  # the report status when checked
     final_status: str | None = Field(default=None, max_length=32)  # after the fixes were applied
-    extra: bool = False  # past the plan's checks for the period, so billed at the extra-check price
-    reported_at: datetime | None = None  # when an extra check was sent to Stripe's meter
     workspace_id: uuid.UUID | None = Field(default=None, foreign_key="workspace.id", ondelete="SET NULL", index=True)
 
 
 class Workspace(SQLModel, table=True):
-    """The company a customer checks postings for, and its company profile (PRD FR2): facts every check starts
-    from, so the check doesn't ask or search for them. Starter has one; Agency has one per client (FR10), and
-    the plan's checks are shared by all of them. Company facts only, never posting text. None means not given,
+    """The company an account checks postings for, and its company profile: facts every check starts from, so
+    the check doesn't ask or search for them. An account has one, and one per client if it hires for others.
+    Company facts only, never posting text. None means not given,
     and the check asks or searches as it does without a profile.
     """
 
@@ -299,12 +285,12 @@ class Workspace(SQLModel, table=True):
     meets_headcount_threshold: bool | None = None  # "25 or more" without an exact figure; None when headcount is set
     uses_ai_in_hiring: bool | None = None  # AI screens, assesses or selects applicants, by them or a recruiter
     wording: str = Field(default="formal", max_length=16)  # the wording library's variant: formal or plain
-    archive_postings: bool = False  # the archive is on (FR11): each check's applied posting is kept
+    archive_postings: bool = False  # the archive is on: each check's applied posting is kept
     updated_at: datetime | None = None  # when the profile was last saved
 
 
 class ArchivedPosting(SQLModel, table=True):
-    """A posting a paying customer applied fixes to, kept as their record (PRD FR11) when the workspace's archive
+    """A posting an account applied fixes to, kept as their record when the workspace's archive
     is on: the text as applied, or as they last saved it after editing, plus the application form's text and the
     documents the posting links to (ArchivedFile). Deleted on `delete_on`, three years after the takedown date
     the customer enters, and kept until they enter one. Goes with its check, its workspace and the customer.
@@ -337,15 +323,6 @@ class ArchivedFile(SQLModel, table=True):
     data: bytes = Field(sa_column=Column(LargeBinary, nullable=False))
 
 
-class StripeEvent(SQLModel, table=True):
-    """Webhook events already processed, so a redelivered event changes nothing."""
-
-    __tablename__ = "stripe_event"
-    id: str = Field(primary_key=True, max_length=255)
-    type: str = Field(max_length=64)
-    received_at: datetime = Field(default_factory=get_datetime_utc)
-
-
 class EmployerSizeSearch(SQLModel, table=True):
     """An employer-size web search (app/compliance/employer.py), kept 30 days so restarts and deploys don't
     repeat it. Keyed by the employer's name and the job location; no posting text is stored.
@@ -359,7 +336,7 @@ class EmployerSizeSearch(SQLModel, table=True):
 
 
 class PayBand(SQLModel, table=True):
-    """A pay range the customer confirmed for a job title (PRD FR9), kept with the company profile or client
+    """A pay range the account confirmed for a job title, kept with the company profile or client
     workspace the check used: the next pay suggestion for that title starts from it. Never posting text.
     """
 
@@ -390,8 +367,8 @@ class PayPostingSearch(SQLModel, table=True):
 
 
 class Audit(SQLModel, table=True):
-    """A careers page audit (PRD FR13): the open Ontario postings on a customer's job board or careers page, each
-    checked against the plan for one workspace. The page's address and each posting's title, place, link and
+    """A careers page audit: the open Ontario postings on an account's job board or careers page, each checked
+    for one workspace. The page's address and each posting's title, place, link and
     result; never the posting text.
     """
 
@@ -425,46 +402,3 @@ class AuditPosting(SQLModel, table=True):
     note: str | None = Field(default=None, max_length=255)  # why it wasn't checked
     check_id: str | None = Field(default=None, max_length=64)  # the full check, in memory for an hour
     checked_at: datetime | None = None  # when the check started (status checking) or finished
-
-
-class OutreachReport(SQLModel, table=True):
-    """A careers page audit we ran for outreach, before the company asked for anything (the outreach workflow in
-    .claude/workflows): the open Ontario postings on its public board, what each may miss with the posting's own
-    words, and its application form's. Opened by its private link, with no sign-in. The company can save it to
-    a free or paid account (customer_id); one nobody saves is deleted after REPORT_DAYS. Short quotes from
-    public postings only, never a posting's whole text, and no contact details.
-    """
-
-    __tablename__ = "outreach_report"
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    token: str = Field(max_length=64, unique=True, index=True)  # the private link's secret
-    created_at: datetime = Field(default_factory=get_datetime_utc, index=True)
-    company: str = Field(max_length=255)
-    url: str = Field(max_length=2048)  # the board or careers page audited
-    found: int  # open postings on the board, anywhere
-    outside_ontario: int  # of those, the ones for work elsewhere, left out
-    # The hiring-process questions answered on the report: rule id to yes, no or unsure
-    checklist: dict[str, str] = Field(default_factory=dict, sa_column=Column(JSON))
-    customer_id: uuid.UUID | None = Field(default=None, foreign_key="customer.id", ondelete="SET NULL", index=True)
-    saved_at: datetime | None = None
-    first_viewed_at: datetime | None = None  # by anyone but us
-    views: int = 0
-
-
-class OutreachPosting(SQLModel, table=True):
-    """One posting in an outreach report: what the board lists publicly and what the check found."""
-
-    __tablename__ = "outreach_posting"
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    report_id: uuid.UUID = Field(foreign_key="outreach_report.id", nullable=False, ondelete="CASCADE", index=True)
-    position: int  # order in the report
-    title: str = Field(max_length=255)
-    location: str | None = Field(default=None, max_length=255)
-    url: str = Field(max_length=2048)  # the posting's public page
-    where: str = Field(max_length=16)  # ontario, or canada (Canada-wide, which may be filled in Ontario)
-    status: str = Field(max_length=32)  # a report status, refused or failed
-    # [{rule, verdict, message, quotes}], worst first: what the posting may miss and its words for each
-    findings: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
-    form_status: str | None = Field(default=None, max_length=32)  # the application form's; None when not read
-    form_findings: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON))
-    note: str | None = Field(default=None, max_length=255)  # why it wasn't checked

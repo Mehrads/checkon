@@ -1,13 +1,15 @@
 // Umami Cloud: cookieless page views and a few named events, so no consent banner is needed.
-// Off unless VITE_UMAMI_WEBSITE_ID is set, and it only counts visits on the public domain,
-// so local work and the run.app address stay out of the numbers.
+// Off unless VITE_UMAMI_WEBSITE_ID is set, and it only counts visits on the site's own domain (VITE_SITE_URL),
+// so other addresses the same build is served on stay out of the numbers.
 //
 // Analytics must never break the check: ad blockers often block the script, so `track` only calls
 // Umami once it has really loaded, and swallows any error. (Don't give the script an id: browsers
 // expose element ids as globals, so `window.umami` would become the script tag itself.)
 
-const WEBSITE_ID = import.meta.env.VITE_UMAMI_WEBSITE_ID as string | undefined
-const DOMAINS = "checkon.ca"
+import { SITE } from "./seo"
+
+const WEBSITE_ID = import.meta.env.VITE_UMAMI_WEBSITE_ID
+const DOMAINS = new URL(SITE).hostname
 
 type EventData = Record<string, string | number>
 

@@ -559,7 +559,7 @@ export const RULES: Record<RuleId, Rule> = {
       note: "Chaque version publiée doit être conservée, pas seulement la dernière.",
     },
     check:
-      "Une annonce ne peut pas enfreindre cette règle, alors elle ne fait pas partie de la vérification. Chaque résultat de CheckON se termine par un rappel de cette règle, sous « After you post » (après l'affichage). Les forfaits Starter et Agency offrent une archive facultative qui conserve la version finale de chaque annonce approuvée, avec son formulaire de candidature et ses documents liés, pendant trois ans après la date de retrait que vous indiquez. Elle ne garde que la version finale : conservez vous-même les versions antérieures.",
+      "Une annonce ne peut pas enfreindre cette règle, alors elle ne fait pas partie de la vérification. Chaque résultat de CheckON se termine par un rappel de cette règle, sous « After you post » (après l'affichage). Un compte CheckON offre une archive facultative qui conserve la version finale de chaque annonce approuvée, avec son formulaire de candidature et ses documents liés, pendant trois ans après la date de retrait que vous indiquez. Elle ne garde que la version finale : conservez vous-même les versions antérieures.",
     faq: [
       {
         q: "Pendant combien de temps les employeurs de l'Ontario conservent-ils les offres d'emploi?",
@@ -579,7 +579,7 @@ export const RULES: Record<RuleId, Rule> = {
       },
       {
         q: "CheckON conserve-t-il mes annonces?",
-        a: "Seulement si vous activez l'archive d'un forfait Starter ou Agency. Elle conserve la version finale de chaque annonce approuvée, pas chaque révision.",
+        a: "Seulement si vous activez l'archive dans un compte CheckON. Elle conserve la version finale de chaque annonce approuvée, pas chaque révision.",
       },
     ],
   },

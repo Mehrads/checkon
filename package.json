@@ -1,5 +1,6 @@
 {
-  "name": "fastapi-full-stack-template",
+  "name": "checkon",
+  "license": "Apache-2.0",
   "private": true,
   "workspaces": [
     "frontend",

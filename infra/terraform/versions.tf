@@ -12,9 +12,9 @@ terraform {
     }
   }
 
-  # State holds the generated passwords, so it lives in a private, versioned bucket (infra/README.md).
+  # State holds the generated passwords, so it lives in a private, versioned bucket (infra/README.md). Create
+  # yours first, then run `terraform init -backend-config="bucket=YOUR-PROJECT-ID-tfstate"`.
   backend "gcs" {
-    bucket = "compliance-512120-tfstate"
     prefix = "posting-checker"
   }
 }

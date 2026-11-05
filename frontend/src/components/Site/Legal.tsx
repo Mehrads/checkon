@@ -5,9 +5,8 @@ import type { ReactNode } from "react"
 import { Appearance } from "@/components/Common/Appearance"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { CONTACT_EMAIL } from "./Contact"
 import { Brand, SiteFooter } from "./Landing"
-
-export const LEGAL_EMAIL = "info@checkon.ca"
 
 /** The privacy policy and the terms: a header, the draft notice, then the sections. */
 export function LegalPage({
@@ -91,14 +90,20 @@ export function Code({ children }: { children: ReactNode }) {
   )
 }
 
-export const Mail = () => (
-  <a
-    href={`mailto:${LEGAL_EMAIL}`}
-    className="text-primary underline-offset-4 hover:underline"
-  >
-    {LEGAL_EMAIL}
-  </a>
-)
+/** "the site's operator": whoever runs this copy of CheckON, by email when they set an address
+ * (VITE_CONTACT_EMAIL), otherwise through the contact form. */
+export function Operator() {
+  const className = "text-primary underline-offset-4 hover:underline"
+  return CONTACT_EMAIL ? (
+    <a href={`mailto:${CONTACT_EMAIL}`} className={className}>
+      the site's operator
+    </a>
+  ) : (
+    <Link to="/check" hash="contact" className={className}>
+      the site's operator
+    </Link>
+  )
+}
 
 export function PageLink({
   to,

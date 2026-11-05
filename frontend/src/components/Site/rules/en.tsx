@@ -553,7 +553,7 @@ export const RULES: Record<RuleId, Rule> = {
       note: "Each version that was public needs a copy, not just the last one.",
     },
     check:
-      "A posting can't break this rule, so it isn't part of the check. Every CheckON result ends with a reminder of it under \"After you post\". On Starter and Agency plans you can turn on an archive that keeps the final version of each posting you approve, with its application form and linked documents, for three years after the takedown date you enter. It keeps the final version only, so keep earlier versions yourself.",
+      "A posting can't break this rule, so it isn't part of the check. Every CheckON result ends with a reminder of it under \"After you post\". With a CheckON account you can turn on an archive that keeps the final version of each posting you approve, with its application form and linked documents, for three years after the takedown date you enter. It keeps the final version only, so keep earlier versions yourself.",
     faq: [
       {
         q: "How long do Ontario employers keep job postings?",
@@ -573,7 +573,7 @@ export const RULES: Record<RuleId, Rule> = {
       },
       {
         q: "Does CheckON keep my postings?",
-        a: "Not unless you turn on the archive on a Starter or Agency plan. It keeps the final version of each posting you approve, not every revision.",
+        a: "Not unless you turn on the archive in a CheckON account. It keeps the final version of each posting you approve, not every revision.",
       },
     ],
   },

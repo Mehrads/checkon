@@ -189,7 +189,7 @@ def write(meta: dict[str, Any], rows: list[dict[str, str]], where: dict[str, str
 
 
 def main(directory: Path = DATA_DIR) -> None:
-    with httpx.Client(headers={"User-Agent": "CheckON wage refresh (https://checkon.ca)"}) as client:
+    with httpx.Client(headers={"User-Agent": "CheckON wage refresh (https://github.com/Mehrads/checkon)"}) as client:
         meta, rows = wages(client)
         census = census_places(client)
         postings, month = posting_places(client, meta["regions"])

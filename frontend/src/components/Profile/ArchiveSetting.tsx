@@ -3,17 +3,17 @@ import { Link } from "@tanstack/react-router"
 import type { WorkspacePublic } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { apiMessage } from "@/hooks/useBilling"
 import useCustomToast from "@/hooks/useCustomToast"
 import { useSaveProfile } from "@/hooks/useWorkspace"
+import { apiMessage } from "@/lib/api"
 
-/** The archive switch for one workspace (PRD FR11): off until the customer turns it on. */
+/** The archive switch for one workspace (PRD FR11): off until the user turns it on. */
 export function ArchiveSetting({
   profile,
   client,
 }: {
   profile: WorkspacePublic
-  /** Agency: say whose postings are kept. */
+  /** With client workspaces: say whose postings are kept. */
   client: boolean
 }) {
   const { showErrorToast } = useCustomToast()

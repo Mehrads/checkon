@@ -1,6 +1,6 @@
 """Sentence classification with constrained labels (Technical Design §4, step 5).
 
-v1 sends every label to Haiku 5.5 directly; the Jev cascade is not in v1 (04-V1-Scope.md, section 4).
+v1 sends every label to Haiku 5.5 directly; the Jev cascade is not in v1.
 The prompt carries each rule's citation and labelled examples from the rule pack, never a paraphrase of the law.
 """
 

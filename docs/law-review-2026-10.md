@@ -1,5 +1,7 @@
 # CheckON against Ontario's job posting law: review of October 2026
 
+> Some references below (`01-PRD.md`, `04-V1-Scope.md`) are to planning documents of the hosted service that aren't in this repository.
+
 Reviewed on 2026-10-21 against the official text. Nothing here is legal sign-off: every rule marked `interpretation: true` in `backend/rulepacks/CA-ON/rules.yaml` still needs an employment lawyer's review, and the questions for that review are in section 6.
 
 **Result in one paragraph.** The thresholds in the rule pack match the law (25 employees inclusive; $50,000 range limit inclusive; $200,000 exemption strict). Twelve mismatches were found and fixed, each with a test: citations now name verified sections; the $200,000 exemption is read from the posting itself instead of always asking the employer; commission is treated as wages; "automated system" wording no longer counts as an AI disclosure; the Canadian-experience examples now carry the Ministry's categories (education credentials, professional network, and the licensing exclusion); the applicability questions follow the Ministry's counting rule and no longer fire on every posting; and the results page shows each rule's citation. Live Claude runs labelled 32 of 32 sample sentences as expected and gave the expected verdicts on four edge-case postings, for about US$0.07 in API fees. Fourteen points of interpretation are left for the lawyer.
@@ -117,7 +119,7 @@ Each fix has a test; the file is named. Rule pack version is now `CA-ON@1.1.0` (
 9. **Every live check asked "Is this posting open only to your existing employees?"** because `extract.md` let the model answer unknown when the text said nothing. Reg. s. 2 (1) (c) excludes a posting "restricted to existing employees": no restriction in the text means not restricted. The prompt now says so; the live posting sample went from 4/4 `needs_input` to the expected gate verdicts. The same prompt now treats an Ontario-based role with travel or hybrid work as work in Ontario (Reg. s. 2 (1) (d)(ii) excludes it only where the outside work is not a continuation of Ontario work; the continuation test itself is Q9). Tests: `applicability.yaml` "hybrid role based in Ontario", "remote role ..." cases; `test_live.py::test_live_law_review_postings`.
 10. **The vacancy question lacked the guide's definition.** Now asks about "a position that is imminently available for a qualified candidate to fill".
 11. **The results page did not show the rule's citation** although 04-V1-Scope §2 promises it and the API returns it. `frontend/src/components/Check/Findings.tsx` renders `result.citation` under each finding (biome clean; the landing page was not touched).
-12. **Design doc drift.** `02-Technical-Design.md` §2 sources line (sections verified, guide linked), the ON-PAY-01 row ("employer confirms" removed; commission is wages), the §8 Layer 1 table, and the §14 commission question.
+12. **Design doc drift.** `docs/technical-design.md` §2 sources line (sections verified, guide linked), the ON-PAY-01 row ("employer confirms" removed; commission is wages), the §8 Layer 1 table, and the §14 commission question.
 
 Not a mismatch, but checked: the 25-employee boundary (24 / 25 / 26 cases), the $50,000 boundary by unit, the $200,000 boundary at exactly $200,000 and $200,001, the posting-date boundary (2025-12-31 vs 2026-01-01), "competitive salary" / "DOE" (no figure → fail), the pay placeholder (needs_input), talent-pool postings (public posting; must say there is no existing vacancy), the employer's vacancy answer alone not satisfying s. 8.5 (the posting must say it), and AI use unknown with a "we don't use AI" statement (still asks). Multiple postings and French text are refused before any verdict (`test_inspector.py`, existing).
 
@@ -175,7 +177,7 @@ What the live runs do not prove: accuracy on real postings at scale. The 300-pos
 ## 8. Docs and site copy checked
 
 - `01-PRD.md` §4: the six rules and "25+ employees in Ontario on the posting date" match the law. Row 6 "3 years after it closes" matches s. 15 (7.1) ("after access ... is removed").
-- `02-Technical-Design.md` §2: updated as in section 4, item 12. The ON-APPL-02 row already carried the (d)(ii) continuation wording.
+- `docs/technical-design.md` §2: updated as in section 4, item 12. The ON-APPL-02 row already carried the (d)(ii) continuation wording.
 - `04-V1-Scope.md`: no legal claims beyond the rule list; the headcount-by-search decision is recorded there and discussed in section 5.
 - `Landing.tsx`: accurate; one FAQ entry suggested (section 5). The footer's "Not legal advice" stands.
 - Results page: now shows the citation. The `interpretation` flag is still not shown to users; whether to say "our reading, pending legal review" on those rules is a product decision for before launch.
@@ -188,4 +190,4 @@ What the live runs do not prove: accuracy on real postings at scale. The 300-pos
 
 ## 10. Files changed on this branch
 
-`backend/rulepacks/CA-ON/rules.yaml` (pack 1.1.0), `backend/rulepacks/CA-ON/tests/{pay,applicability,cex,vacancy,ai}.yaml`, `backend/app/compliance/checks.py`, `backend/prompts/extract.md`, `backend/prompts/classify.md`, `backend/tests/compliance/{test_rulepack,test_engine,test_inspector,test_live}.py`, `frontend/src/components/Check/Findings.tsx`, `02-Technical-Design.md`, this report. `wording.yaml` is unchanged; `reviewed_by` stays empty everywhere.
+`backend/rulepacks/CA-ON/rules.yaml` (pack 1.1.0), `backend/rulepacks/CA-ON/tests/{pay,applicability,cex,vacancy,ai}.yaml`, `backend/app/compliance/checks.py`, `backend/prompts/extract.md`, `backend/prompts/classify.md`, `backend/tests/compliance/{test_rulepack,test_engine,test_inspector,test_live}.py`, `frontend/src/components/Check/Findings.tsx`, `docs/technical-design.md`, this report. `wording.yaml` is unchanged; `reviewed_by` stays empty everywhere.

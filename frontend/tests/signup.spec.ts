@@ -5,7 +5,9 @@ import { logInUser } from "./utils/user"
 
 test.use({ storageState: { cookies: [], origins: [] } })
 
-test("A visitor signs up for a free account and logs in to it", async ({
+const CLOSED = "Sign-up is closed on this server. Ask its admin for an account."
+
+test("A visitor signs up and logs in, when the server's sign-up is open", async ({
   page,
   request,
 }) => {
@@ -14,13 +16,17 @@ test("A visitor signs up for a free account and logs in to it", async ({
 
   await page.goto("/signup")
   await expect(
-    page.getByRole("heading", { name: "Create a free account" }),
+    page.getByRole("heading", { name: "Create an account" }),
   ).toBeVisible()
   await page.getByTestId("email-input").fill(email)
   await page.getByRole("button", { name: "Email me a link" }).click()
-  await expect(
-    page.getByRole("heading", { name: "Check your email" }),
-  ).toBeVisible()
+  const sent = page.getByRole("heading", { name: "Check your email" })
+  const closed = page.getByRole("heading", { name: "Sign-up is closed" })
+  await expect(sent.or(closed)).toBeVisible()
+  test.skip(
+    await closed.isVisible(),
+    "Sign-up is closed on this server (SIGNUP_OPEN isn't set)",
+  )
 
   // Sent after the response, so it can take a moment longer than a sign-in code
   const emailHtml = await waitForEmailHtml({
@@ -28,7 +34,7 @@ test("A visitor signs up for a free account and logs in to it", async ({
     query: `to:${email}`,
     timeout: 20000,
   })
-  expect(emailHtml).toContain("Your free account is ready")
+  expect(emailHtml).toContain("account is ready")
   const setUrl = emailHtml
     .match(/\/reset-password\?token=[^"]+/)?.[0]
     ?.replace(/&amp;/g, "&")
@@ -41,21 +47,35 @@ test("A visitor signs up for a free account and logs in to it", async ({
   await page.waitForURL(/\/login/)
 
   await logInUser(page, email, password)
-  await expect(
-    page.getByRole("heading", { name: "Free account" }),
-  ).toBeVisible()
-  await expect(page.getByText("of 5 checks this period")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Past checks" })).toBeVisible()
+  await expect(page.getByRole("group", { name: "Checks used" })).toContainText(
+    "0",
+  )
 })
 
-test("The log-in page offers a free account", async ({ page }) => {
+test("A closed sign-up shows the server's message instead of the form", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/signup", (route) =>
+    route.fulfill({
+      status: 403,
+      json: { detail: { reason: "signup_closed", message: CLOSED } },
+    }),
+  )
+  await page.goto("/signup")
+  await page.getByTestId("email-input").fill(randomEmail())
+  await page.getByRole("button", { name: "Email me a link" }).click()
+  await expect(
+    page.getByRole("heading", { name: "Sign-up is closed" }),
+  ).toBeVisible()
+  await expect(page.getByText(CLOSED)).toBeVisible()
+  await expect(page.getByTestId("email-input")).toHaveCount(0)
+  await page.getByRole("link", { name: "Log in" }).click()
+  await expect(page).toHaveURL("/login")
+})
+
+test("The log-in page links to sign-up", async ({ page }) => {
   await page.goto("/login")
-  await page.getByRole("link", { name: "Create a free one" }).click()
+  await page.getByRole("link", { name: "Create one" }).click()
   await expect(page).toHaveURL("/signup")
-})
-
-test("A report link that doesn't exist says so", async ({ page }) => {
-  await page.goto("/report/not-a-real-report")
-  await expect(
-    page.getByRole("heading", { name: "This report isn't available" }),
-  ).toBeVisible()
 })

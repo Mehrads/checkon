@@ -1,5 +1,5 @@
-// A paying customer's sign-in, kept in the extension's own storage (chrome.storage.local), so their
-// checks in the side panel count against their plan. Visitors who never sign in get the free check.
+// A user's sign-in, kept in the extension's own storage (chrome.storage.local), so their checks in the
+// side panel are saved to their account. Visitors who never sign in get the free check.
 // The API client reads the token through `currentToken`, which must answer synchronously, so the
 // stored value is loaded once before the panel renders.
 

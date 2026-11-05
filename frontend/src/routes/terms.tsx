@@ -1,20 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { LegalPage, List, Mail, PageLink, Part } from "@/components/Site/Legal"
+import {
+  LegalPage,
+  List,
+  Operator,
+  PageLink,
+  Part,
+} from "@/components/Site/Legal"
 import { pageHead } from "@/lib/seo"
 
-// Every statement about plans and billing here describes what the code and the Stripe setup do
-// (backend/app/api/billing.py, infra/README.md "Stripe"); change this page when they change.
-const DRAFTED = "October 27, 2026"
+// Every statement here describes what the code does; change this page when that changes. Whoever runs a copy of
+// CheckON adds their own terms: who they are, the law that applies and how they handle accounts.
+const DRAFTED = "November 5, 2026"
 
 export const Route = createFileRoute("/terms")({
   component: TermsPage,
   head: () =>
     pageHead({
       path: "/terms",
-      title: "CheckON: Terms of service",
+      title: "CheckON: Terms of use",
       description:
-        "The terms for using CheckON, including paid plans: billing, renewal, cancellation and refunds.",
+        "The terms for using CheckON: what a check does, accounts, your postings and fair use.",
     }),
 })
 
@@ -22,42 +28,29 @@ function TermsPage() {
   return (
     <LegalPage
       eyebrow="Terms"
-      title="Terms of service"
+      title="Terms of use"
       drafted={DRAFTED}
-      draftNote="These terms describe how CheckON's plans work today. A lawyer hasn't reviewed them yet, so the wording may change before it's final."
+      draftNote="These terms describe how the CheckON software works. They aren't reviewed by a lawyer, and whoever runs this site should complete them before relying on them."
     >
       <p className="text-muted-foreground">
-        These terms apply when you use CheckON (checkon.ca), including the free
-        check, free accounts, the browser extension and the paid plans. By using
-        CheckON, or by subscribing to a plan, you agree to them. If you
-        subscribe for a business, you agree for that business and confirm you
-        may do so.
+        These terms apply when you use this site, including the free check,
+        accounts and the browser extension. CheckON is open-source software
+        under the Apache-2.0 licence; this site is run by its operator. By using
+        it, you agree to these terms.
       </p>
 
       <Part title="The short version">
         <List>
           <li>
-            A free account needs only your email. It includes 5 checks every 30
-            days and keeps a history of your checks.
-          </li>
-          <li>
-            Starter and Agency are monthly subscriptions in Canadian dollars,
-            paid by card through Stripe. They renew every month until you
-            cancel.
-          </li>
-          <li>
-            Each plan includes a number of checks per billing period. Extra
-            checks cost $1 each and are billed on your next invoice.
-          </li>
-          <li>
-            Cancel anytime under Manage billing. Your plan runs to the end of
-            the period you've paid for, and we don't charge you again.
-          </li>
-          <li>We don't refund partial months, except as described below.</li>
-          <li>
             CheckON checks postings against Ontario's job posting requirements.
             It isn't legal advice.
           </li>
+          <li>
+            Visitors get the free check. An account adds a check history,
+            company profiles, client workspaces, pay suggestions, careers page
+            audits and the archive.
+          </li>
+          <li>Nothing is billed.</li>
         </List>
       </Part>
 
@@ -76,215 +69,78 @@ function TermsPage() {
         </p>
       </Part>
 
-      <Part title="Free accounts">
+      <Part title="Checks and limits">
         <List>
           <li>
-            Sign up with your email; no card. We email you a link to set your
-            password, which works for 48 hours.
+            The free check, for visitors who aren't signed in, has a weekly
+            limit set by the site's operator, and pauses for the rest of the day
+            once its daily spending cap is reached.
           </li>
           <li>
-            A free account includes 5 checks every 30 days, counted from the day
-            you sign up. A check counts the same way as on a plan (below).
-            Unused checks don't carry over, and there are no extra checks: once
-            they're used, the next ones come with the next 30 days.
-          </li>
-          <li>
-            It keeps a history of your checks and the reports you save. Company
-            profiles, pay suggestions, careers page audits and the archive come
-            with Starter and Agency.
-          </li>
-          <li>
-            When demand is high, we may pause free checks, a free account's
-            included, for the rest of the day.
-          </li>
-          <li>
-            If you subscribe, your check history and saved reports move to your
-            plan.
-          </li>
-        </List>
-      </Part>
-
-      <Part title="Plans and checks">
-        <List>
-          <li>
-            <strong>Starter</strong> is $79 a month and includes 50 checks per
-            billing period. <strong>Agency</strong> is $249 a month and includes
-            300. Prices are in Canadian dollars. Sales taxes such as HST are
-            added where they apply.
+            The operator may also limit each account's checks in any 30 days.
+            Your account page shows how many you've used.
           </li>
           <li>
             A check counts when CheckON shows you its results. Text that isn't
-            one job posting, and checks that fail on our side, don't count.
-            Answering the check's questions and applying its fixes don't count
-            again.
-          </li>
-          <li>Unused checks don't carry over to the next period.</li>
-          <li>
-            <strong>Extra checks.</strong> After your plan's checks are used,
-            each further check in the same period costs $1. They're added to the
-            invoice at the start of your next period. To protect you from a
-            surprise bill, checks pause after 200 extra checks in a period until
-            the next one starts. Email us if you need more.
-          </li>
-          <li>
-            The checks belong to the business that subscribes and may only be
-            used for its own postings, or, on Agency, for the clients it posts
-            for.
+            one job posting, and checks that fail, don't count. Answering the
+            check's questions and applying its fixes don't count again. Checking
+            an application form uses one more check.
           </li>
         </List>
-      </Part>
-
-      <Part title="Billing and renewal">
-        <List>
-          <li>
-            Payments are handled by Stripe. We never see or store your card
-            number.
-          </li>
-          <li>
-            Your plan's monthly fee is charged at the start of each billing
-            period, and the plan renews automatically every month until you
-            cancel.
-          </li>
-          <li>
-            Stripe emails your receipts. Your invoices are under Manage billing
-            on your account page.
-          </li>
-          <li>
-            If a payment fails, Stripe tries again over the following days and
-            your checks keep working meanwhile. If the payment still doesn't go
-            through, your plan ends and your account goes back to the free
-            check.
-          </li>
-          <li>
-            We may change a plan's price. We'll email you at least 30 days
-            before, and the new price starts with your next period after that.
-            If you don't want it, cancel before then.
-          </li>
-        </List>
-      </Part>
-
-      <Part title="Changing plans">
-        <p>
-          You can switch between Starter and Agency at any time on your account
-          page. The switch happens straight away: we charge or credit the price
-          difference for the rest of the current period, and the new plan's
-          checks apply to the whole period.
-        </p>
-      </Part>
-
-      <Part title="Cancelling">
-        <List>
-          <li>
-            Cancel anytime under Manage billing on your account page. Your plan
-            stays active until the end of the period you've paid for, then ends.
-            We don't charge the monthly fee again.
-          </li>
-          <li>
-            Extra checks you ran before the plan ends are billed on a final
-            invoice.
-          </li>
-          <li>
-            After your plan ends you can still sign in, see your past checks and
-            use the free check. You can subscribe again at any time.
-          </li>
-        </List>
-      </Part>
-
-      <Part title="Refunds">
-        <p>
-          Monthly fees and extra checks aren't refundable once a period has
-          started, and we don't refund partial months when you cancel or switch
-          to a smaller plan. If we charged you by mistake, or a problem on our
-          side kept you from using CheckON for a large part of a period, email{" "}
-          <Mail /> within 30 days of the charge and we'll make it right with a
-          refund or a credit. This doesn't limit any refund the law gives you.
-        </p>
       </Part>
 
       <Part title="Your account">
         <List>
           <li>
-            When you sign up for a free account, or subscribe without one, we
-            create an account with your email and email you a link to set a
-            password. Signing in takes your password and a code we email you.
+            The operator decides who gets an account: by sign-up with your
+            email, when it's open, or by adding you themselves. You set your
+            password from a link that works for 48 hours. Signing in takes your
+            password and a code emailed to you.
           </li>
           <li>
-            Keep your password to yourself, and tell us at <Mail /> if you think
+            Keep your password to yourself, and tell <Operator /> if you think
             someone else has used your account.
           </li>
-          <li>
-            To delete your account, cancel any paid plan first, then delete it
-            under Settings. A free account can be deleted anytime.
-          </li>
+          <li>You can delete your account anytime under Settings.</li>
         </List>
       </Part>
 
       <Part title="Your postings">
         <p>
-          You keep all rights to the postings you check. You let us process them
-          only to run the check, show you the results and, if you turn it on,
-          keep them in your archive. Only paste postings you're allowed to share
-          with us. How we handle them, including what we keep, is in our{" "}
-          <PageLink to="/privacy">privacy policy</PageLink>.
-        </p>
-      </Part>
-
-      <Part title="Reports on your postings">
-        <p>
-          If we send you a report on your company's job postings, it's a summary
-          of what those postings may miss, based on what they said when we read
-          them. Like a check, it isn't legal advice, and some results depend on
-          facts only you know, such as how many employees you have. Anyone with
-          its link can open it, so share it only with people you want to see it.
-          Save it to a free account to keep it; otherwise we delete it 90 days
-          after we make it. Email <Mail /> to have it deleted sooner.
+          You keep all rights to the postings you check. You let this site
+          process them only to run the check, show you the results and, if you
+          turn it on, keep them in your archive. Only paste postings you're
+          allowed to share. How they're handled, including what's kept, is on
+          the <PageLink to="/privacy">privacy page</PageLink>.
         </p>
       </Part>
 
       <Part title="Fair use">
-        <p>Don't use CheckON to:</p>
+        <p>Don't use this site to:</p>
         <List>
           <li>break the law or post discriminatory or misleading job ads;</li>
           <li>
-            get around the free check's limits or your plan's checks, for
-            example with many accounts or scripts;
-          </li>
-          <li>
-            copy, resell or rebuild CheckON, its rules or its wording, or try to
-            get them out of the service;
+            get around the free check's limits or your account's, for example
+            with many accounts or scripts;
           </li>
           <li>disrupt or overload the service, or break its security.</li>
         </List>
+        <p>The operator may suspend an account that does.</p>
+      </Part>
+
+      <Part title="No guarantee">
         <p>
-          We may suspend an account that does. Where we can, we'll tell you
-          first and give you a chance to fix it.
+          CheckON is provided as it is, without warranty, as the Apache-2.0
+          licence says. Its results may be wrong or incomplete, and the service
+          may stop. As far as the law allows, neither the operator nor CheckON's
+          authors are responsible for losses from using it.
         </p>
       </Part>
 
-      <Part title="No guarantee, and our liability">
+      <Part title="Questions and changes">
         <p>
-          We work to keep CheckON accurate and available, but we can't promise
-          that every result is correct or complete, or that the service never
-          stops. CheckON is provided as it is. As far as the law allows, we
-          aren't responsible for indirect losses, such as lost profits, and our
-          total responsibility for any claim is limited to what you paid us in
-          the 12 months before it.
-        </p>
-      </Part>
-
-      <Part title="Changes to these terms">
-        <p>
-          When we change these terms, we'll update this page and the date at the
-          top. For a change that affects paying customers, we'll email you at
-          least 30 days before it applies.
-        </p>
-      </Part>
-
-      <Part title="Law and contact">
-        <p>
-          These terms are governed by the laws of Ontario and the federal laws
-          of Canada that apply there. Questions about them, or about a charge:{" "}
-          <Mail />.
+          Questions about these terms go to <Operator />. When the terms change,
+          this page and its date change too.
         </p>
       </Part>
     </LegalPage>

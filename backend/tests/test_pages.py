@@ -30,14 +30,6 @@ def test_prerendered_pages_are_served_at_their_paths(site: Path) -> None:
     assert client.get("/terms").text == "<html>shell</html>"  # not rendered in this build: the app
 
 
-@pytest.mark.usefixtures("site")
-def test_pricing_opens_the_plans_on_the_check_page() -> None:
-    client = TestClient(api, follow_redirects=False)
-    response = client.get("/pricing", headers={"Accept": "text/html"})
-    assert (response.status_code, response.headers["location"]) == (307, "/check#pricing")
-    assert client.head("/pricing").status_code == 307
-
-
 def test_without_a_build_the_pages_are_404(site: Path) -> None:
     (site / "index.html").unlink()
     assert TestClient(api).get("/check").status_code == 404

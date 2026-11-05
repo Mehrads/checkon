@@ -14,8 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import useAuth from "@/hooks/useAuth"
-import { isPaid, useBilling } from "@/hooks/useBilling"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { cn } from "@/lib/utils"
 import { getInitials } from "@/utils"
@@ -95,11 +94,11 @@ function QuickCheck() {
   )
 }
 
-/** The thin bar across the top: who's signed in, a quick way into a check, the Agency client, the theme. */
+/** The thin bar across the top: who's signed in, a quick way into a check, the client (once the account has
+ * several workspaces), the theme. */
 export function TopBar() {
-  const { data: billing } = useBilling()
-  const { workspaces, current, canCreate } = useWorkspaces(isPaid(billing))
-  const client = canCreate && current ? current : undefined
+  const { workspaces, current, clients } = useWorkspaces(isLoggedIn())
+  const client = clients && current ? current : undefined
   return (
     <header className="glass-bar absolute inset-x-2 top-2 z-20 flex h-12 items-center gap-1.5 rounded-full px-2 md:inset-x-(--shell-x) md:top-3">
       <RailMenu className="md:hidden" />

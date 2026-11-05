@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router"
 
 import {
   CopyBlock,
-  GuideButton,
   GuideCta,
   GuidePage,
   guideHead,
@@ -216,20 +215,12 @@ function Recruiters() {
       <GuideCta
         id="recruiters"
         title="Check every client's postings the same way"
-        label="See the Agency plan"
-        hash="pricing"
-        cta="agency-plan"
-        more={
-          <GuideButton id="recruiters" to="/check" hash="check" cta="check">
-            Check a posting free
-          </GuideButton>
-        }
       >
         <p>
-          CheckON's Agency plan gives each client a workspace with its own
-          company profile, so each check starts from that client's answers. You
-          can audit a client's careers page, fix each posting with a check, and
-          keep an archive of the postings you approved.
+          A CheckON account gives each client a workspace with its own company
+          profile, so each check starts from that client's answers. You can
+          audit a client's careers page, fix each posting with a check, and keep
+          an archive of the postings you approved.
         </p>
       </GuideCta>
     </GuidePage>

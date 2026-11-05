@@ -1,4 +1,4 @@
-"""Usage events for the success metrics (PRD §2): one row per step of a check, with its timing and model
+"""Usage events for the usage stats: one row per step of a check, with its timing and model
 cost, and the plan for a paid check. No posting text is stored, and the visitor is an HMAC of the anonymous
 cookie.
 """

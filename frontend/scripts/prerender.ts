@@ -2,7 +2,8 @@
  * title, description, canonical link and Open Graph tags go into the head, in place of index.html's (which also
  * keep the app's own pages out of search results), marked so the app removes them when it starts (its routes render
  * their own); its content goes inside #root, marked so index.html can hide it from someone signed in until the app
- * has rendered. Then 404.html, which the API sends for unknown addresses, and the sitemap of the public pages. */
+ * has rendered. Then 404.html, which the API sends for unknown addresses, the sitemap of the public pages, and
+ * robots.txt pointing at it. Both use the site's address from VITE_SITE_URL (src/lib/seo.ts). */
 
 import { readFile, writeFile } from "node:fs/promises"
 import { join } from "node:path"
@@ -77,3 +78,9 @@ await writeFile(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`,
 )
 console.log(`sitemap.xml: ${urls.length} pages`)
+
+await writeFile(
+  join(OUT, "robots.txt"),
+  `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`,
+)
+console.log(`robots.txt: sitemap at ${SITE}/sitemap.xml`)

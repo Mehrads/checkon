@@ -5,12 +5,11 @@ import {
   Link as RouterLink,
   redirect,
 } from "@tanstack/react-router"
-import { MailCheck } from "lucide-react"
+import { LockKeyhole, MailCheck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { SignupService } from "@/client"
-import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
 import { AuthHeading, AuthLayout } from "@/components/Common/AuthLayout"
 import {
   Form,
@@ -25,6 +24,7 @@ import { LoadingButton } from "@/components/ui/loading-button"
 import { isLoggedIn } from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { track } from "@/lib/analytics"
+import { apiMessage, apiReason } from "@/lib/api"
 import { noindex } from "@/lib/seo"
 import { handleError } from "@/utils"
 
@@ -36,31 +36,25 @@ type FormData = z.infer<typeof formSchema>
 
 export const Route = createFileRoute("/signup")({
   component: SignUp,
-  // An outreach report's token: it's saved to the account after the first log-in
-  validateSearch: z.object({ report: z.string().optional().catch(undefined) }),
-  beforeLoad: async ({ search }) => {
+  beforeLoad: async () => {
     if (isLoggedIn()) {
-      throw redirect(
-        search.report
-          ? { to: "/report/$token", params: { token: search.report } }
-          : { to: "/" },
-      )
+      throw redirect({ to: "/" })
     }
   },
   head: () => ({
-    meta: [{ title: "Create a free account - CheckON" }, ...noindex().meta],
+    meta: [{ title: "Create an account - CheckON" }, ...noindex().meta],
   }),
 })
 
 const GETS = [
-  `${FREE_ACCOUNT_CHECKS} checks every 30 days, by pasting a posting or its link`,
-  "Fixes you approve one by one, then copy",
+  "Checks by pasting a posting or its link, with fixes you approve one by one",
+  "A company profile for each client, and careers page audits",
   "A history of what you checked",
 ]
 
-/** A free account: an email, then a link to set the password. No card. */
+/** An account: an email, then a link to set the password. The server can close sign-up (SIGNUP_OPEN); then it
+ * answers 403 "signup_closed" with a message to show instead of the form. */
 function SignUp() {
-  const { report } = Route.useSearch()
   const { showErrorToast } = useCustomToast()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -68,10 +62,12 @@ function SignUp() {
   })
   const mutation = useMutation({
     mutationFn: async (data: FormData) =>
-      (await SignupService.signUp({ body: { email: data.email, report } }))
-        .data,
+      (await SignupService.signUp({ body: { email: data.email } })).data,
     onSuccess: () => track("signup"),
-    onError: handleError.bind(showErrorToast),
+    onError: (error) => {
+      if (apiReason(error) !== "signup_closed")
+        handleError.call(showErrorToast, error)
+    },
   })
 
   if (mutation.isSuccess) {
@@ -92,6 +88,28 @@ function SignUp() {
     )
   }
 
+  if (mutation.error && apiReason(mutation.error) === "signup_closed") {
+    return (
+      <AuthLayout>
+        <div className="flex flex-col gap-6" data-testid="signup-closed">
+          <LockKeyhole className="size-9 text-primary" aria-hidden="true" />
+          <AuthHeading title="Sign-up is closed">
+            {apiMessage(
+              mutation.error,
+              "Sign-up is closed on this server. Ask its admin for an account.",
+            )}
+          </AuthHeading>
+          <div className="border-t pt-5 text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <RouterLink to="/login" className="underline underline-offset-4">
+              Log in
+            </RouterLink>
+          </div>
+        </div>
+      </AuthLayout>
+    )
+  }
+
   return (
     <AuthLayout>
       <Form {...form}>
@@ -99,10 +117,8 @@ function SignUp() {
           onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
           className="flex flex-col gap-6"
         >
-          <AuthHeading title="Create a free account">
-            {report
-              ? "Your report is saved to it, and you can fix each posting from there."
-              : "No card, no plan to choose."}
+          <AuthHeading title="Create an account">
+            Just your email. We send a link to set your password.
           </AuthHeading>
 
           <ul className="space-y-2 text-sm">
@@ -160,13 +176,7 @@ function SignUp() {
 
           <div className="border-t pt-5 text-sm text-muted-foreground">
             Already have an account?{" "}
-            <RouterLink
-              to="/login"
-              search={
-                report ? { redirect: `/report/${report}?save=1` } : undefined
-              }
-              className="underline underline-offset-4"
-            >
+            <RouterLink to="/login" className="underline underline-offset-4">
               Log in
             </RouterLink>
           </div>

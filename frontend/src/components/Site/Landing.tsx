@@ -6,22 +6,13 @@ import { Link } from "@tanstack/react-router"
 import { ArrowRight, Check, ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
 
-import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
 import { Appearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
 import { Button } from "@/components/ui/button"
-import { LoadingButton } from "@/components/ui/loading-button"
 import { isLoggedIn } from "@/hooks/useAuth"
-import { apiStatus, type PlanId, useCheckout } from "@/hooks/useBilling"
-import useCustomToast from "@/hooks/useCustomToast"
 import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
-import {
-  CONTACT_EMAIL,
-  ContactForm,
-  type Interest,
-  useContact,
-} from "./Contact"
+import { CONTACT_EMAIL, ContactForm } from "./Contact"
 import { GUIDE_IDS, GUIDES } from "./guides"
 import { Photo } from "./Media"
 import { RULES } from "./rules/en"
@@ -33,14 +24,15 @@ const NAV = [
   { href: "#how", label: "How it works" },
   { href: "#sample", label: "Sample result" },
   { href: "#audit", label: "Careers page audit" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "#open-source", label: "Open source" },
 ]
 const NAV_PAGES = [
   { to: GUIDES.accuracy.path, label: "Accuracy" },
   { to: "/ontario-job-posting-requirements", label: "Guides" },
 ]
-const EXTENSION_URL =
-  "https://chromewebstore.google.com/detail/checkon-ontario-job-posti/mbpmobhcmimbohoijbbhckhinhggchdp"
+/** The source code, and the browser extension in it (built against your own server: extension/README.md). */
+export const REPO_URL = "https://github.com/Mehrads/checkon"
+const EXTENSION_URL = `${REPO_URL}/tree/main/extension`
 
 export function Brand({ href = "#check" }: { href?: string }) {
   return (
@@ -79,19 +71,10 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-1.5">
-          {/* Phones follow the system theme, which leaves room for Pricing beside the main button */}
+          {/* Phones follow the system theme, which leaves room for the main button */}
           <div className="hidden sm:block">
             <Appearance className="size-8 rounded-full border-0 bg-solid text-on-solid hover:bg-solid/85 hover:text-on-solid dark:bg-solid dark:hover:bg-solid/85" />
           </div>
-          {/* The sections menu is hidden below lg; pricing stays one tap away */}
-          <Button
-            asChild
-            size="sm"
-            variant="ghost"
-            className="px-2.5 lg:hidden"
-          >
-            <a href="#pricing">Pricing</a>
-          </Button>
           <Button
             asChild
             size="sm"
@@ -201,7 +184,7 @@ export function HeroIntro() {
           onClick={() => track("hero-extension")}
           className={link}
         >
-          Check in your ATS or job board with the free Chrome extension
+          Check in your ATS or job board with the Chrome extension
           <ExternalLink className="size-4 shrink-0" aria-hidden="true" />
         </a>
       </p>
@@ -231,7 +214,7 @@ export function SampleHint() {
   )
 }
 
-/** For agencies, the plan's buyers: what the Agency plan adds when you post for many clients. */
+/** For agencies: what an account adds when you post for many clients. */
 export function ForAgencies() {
   const points = [
     "A workspace per client, each with its own company profile, so a check starts from that client's answers",
@@ -273,10 +256,10 @@ export function ForAgencies() {
               <Button asChild size="lg">
                 <Link
                   to="/check"
-                  hash="pricing"
-                  onClick={() => track("agency-plan")}
+                  hash="check"
+                  onClick={() => track("agency-check")}
                 >
-                  See the Agency plan
+                  Check a posting
                 </Link>
               </Button>
               <Button
@@ -365,170 +348,58 @@ export function HowItWorks() {
   )
 }
 
-interface Plan {
-  name: string
-  price: string
-  period?: string
-  note: string
-  features: string[]
-  cta: { label: string; interest?: Interest; checkout?: PlanId; signup?: true }
-  highlight?: boolean
-}
-
-const PLANS: Plan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    note: "No card. Or check once a week without signing up.",
-    features: [
-      `${FREE_ACCOUNT_CHECKS} checks a month`,
-      "History of your checks",
-      "Compliant rewrite you approve",
-      "Edit and copy the result",
-    ],
-    cta: { label: "Create a free account", signup: true },
-    highlight: true,
-  },
-  {
-    name: "Starter",
-    price: "$79",
-    period: "/month",
-    note: "Billed monthly, cancel anytime. Extra checks $1 each.",
-    features: [
-      "50 checks a month",
-      "History of your checks",
-      "Company profile",
-      "Pay range suggestions",
-      "Archive of approved postings",
-    ],
-    cta: { label: "Subscribe", interest: "starter", checkout: "starter" },
-  },
-  {
-    name: "Agency",
-    price: "$249",
-    period: "/month",
-    note: "Billed monthly, cancel anytime. Extra checks $1 each.",
-    features: [
-      "300 checks a month",
-      "A workspace per client",
-      "Archive of approved postings",
-    ],
-    cta: { label: "Subscribe", interest: "agency", checkout: "agency" },
-  },
-  {
-    name: "Custom setup",
-    price: "Quote",
-    note: "Priced for your setup",
-    features: [
-      "Connect your HR system",
-      "Your wording and approvals",
-      "Tested on your own postings",
-    ],
-    cta: { label: "Contact us for a quote", interest: "custom" },
-  },
+const OPEN_SOURCE = [
+  "Free to use, under the Apache-2.0 licence",
+  "Run it on your own server, and build the Chrome extension against it",
+  "The rules, prompts and rule data are in the code, to read and change",
 ]
 
-function PricingSection({ children }: { children: ReactNode }) {
+/** CheckON is free and open source: anyone can run their own copy. */
+export function OpenSource() {
   return (
-    <section id="pricing" className="scroll-mt-16">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <Kicker>Pricing</Kicker>
-            <Heading className="mt-5 max-w-2xl">
-              Start free. Pay when it's part of the job.
-            </Heading>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Prices in Canadian dollars, plus tax where it applies.
+    <section id="open-source" className="scroll-mt-16">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
+          <Kicker>Open source</Kicker>
+          <Heading className="mt-5">Free, and yours to run</Heading>
+          <p className="mt-5 text-muted-foreground">
+            CheckON's code is public. Use this site, or host CheckON yourself
+            for your team.
           </p>
         </div>
-        {children}
+        <div className="lg:col-span-6 lg:col-start-7 lg:mt-2">
+          <ul className="space-y-3">
+            {OPEN_SOURCE.map((point) => (
+              <li
+                key={point}
+                className="flex gap-3 rounded-xl border bg-card p-5 shadow-sm"
+              >
+                <Check
+                  className="mt-1 size-4 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                {point}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <a
+                href={REPO_URL}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => track("open-source")}
+              >
+                See the code on GitHub <ExternalLink />
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <a href="#check">Check a posting</a>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
-  )
-}
-
-export function Pricing() {
-  const { contactAbout } = useContact()
-  const { showErrorToast } = useCustomToast()
-  // Until Stripe is set up (503), or if the payment page can't open, the plan buttons fall back to the contact form.
-  const checkout = useCheckout((plan, error) => {
-    const status = apiStatus(error)
-    if (status === 409) {
-      window.location.assign("/")
-      return
-    }
-    if (status !== 503)
-      showErrorToast(
-        "We couldn't open the payment page. Send us a message instead.",
-      )
-    contactAbout(plan)
-  })
-  return (
-    <PricingSection>
-      <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.name}
-            className={cn(
-              "flex flex-col rounded-xl border p-6 shadow-sm",
-              plan.highlight ? "tile-accent border-transparent" : "bg-card",
-            )}
-          >
-            <h3 className="text-sm font-semibold">{plan.name}</h3>
-            <p className="mt-4">
-              <span className="font-display text-5xl font-medium tracking-tight">
-                {plan.price}
-              </span>
-              {plan.period && (
-                <span className="text-sm text-muted-foreground">
-                  {plan.period}
-                </span>
-              )}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">{plan.note}</p>
-            <ul className="mt-6 flex-1 space-y-2 border-t pt-5 text-sm">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <Check
-                    className="mt-0.5 size-4 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            {plan.cta.interest ? (
-              <LoadingButton
-                variant="outline"
-                className="mt-6"
-                loading={
-                  checkout.isPending && checkout.variables === plan.cta.checkout
-                }
-                disabled={checkout.isPending}
-                onClick={() => {
-                  if (!plan.cta.interest) return
-                  track("plan-click", { plan: plan.cta.interest })
-                  if (plan.cta.checkout) checkout.mutate(plan.cta.checkout)
-                  else contactAbout(plan.cta.interest)
-                }}
-              >
-                {plan.cta.label}
-              </LoadingButton>
-            ) : (
-              <Button asChild className="mt-6">
-                {plan.cta.signup && !isLoggedIn() ? (
-                  <Link to="/signup">{plan.cta.label}</Link>
-                ) : (
-                  <a href="#check">Check a posting</a>
-                )}
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-    </PricingSection>
   )
 }
 
@@ -547,7 +418,7 @@ export const QUESTIONS = [
   },
   {
     q: "Do you keep my posting?",
-    a: "No. It's processed by our AI provider to run the check and held for up to an hour while you review the results. We keep it only if you share it when you report a problem, or turn on the archive on a paid plan. Otherwise a plan keeps only the date, job title and result of each check.",
+    a: "No. It's sent to the AI provider to run the check and held for up to an hour while you review the results. It's kept only if you share it when you report a problem, or turn on the archive for a company profile. Otherwise an account keeps only the date, job title and result of each check.",
   },
   {
     q: "What does the rewrite change?",
@@ -558,8 +429,8 @@ export const QUESTIONS = [
     a: "It checks the posting you paste or link to, and its application form when you add the form's questions (that uses one more check). A document the posting links to, and anything that happens after you post, are outside the check.",
   },
   {
-    q: "How do I get more checks or a custom setup?",
-    a: "Create a free account for 5 checks a month, no card needed. For more, pick Starter or Agency above, or contact us below for a custom setup. Plans are billed monthly and you can cancel anytime.",
+    q: "Does it cost anything?",
+    a: "No. CheckON is free and open source under the Apache-2.0 licence. Without an account you get the free check; an account adds a company profile, client workspaces, careers page audits and the archive. You can also run CheckON on your own server.",
   },
 ]
 
@@ -611,10 +482,10 @@ export function ContactSection() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
           <Kicker>Contact</Kicker>
-          <Heading className="mt-5">Talk to us</Heading>
+          <Heading className="mt-5">Get in touch</Heading>
           <p className="mt-5 text-muted-foreground">
-            Questions, a plan for your team, or a custom setup for your HR
-            system. Send a message and we'll reply by email.
+            Questions about CheckON, or a setup for your team. The message goes
+            to whoever runs this site, and the reply comes by email.
           </p>
         </div>
         <div className="lg:col-span-7 lg:col-start-6">
@@ -712,7 +583,14 @@ export function SiteFooter({
             >
               {isLoggedIn() ? "Your account" : "Log in"}
             </Link>
-            <span>© {new Date().getFullYear()} CheckON · checkon.ca</span>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground"
+            >
+              CheckON · open source, Apache-2.0
+            </a>
           </p>
         </div>
       </div>

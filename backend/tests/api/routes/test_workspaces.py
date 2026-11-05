@@ -5,7 +5,6 @@ scoped to a client workspace and share one allowance; Starter has one profile an
 """
 
 import secrets
-import uuid
 from collections.abc import Generator
 from datetime import date
 from decimal import Decimal
@@ -16,7 +15,13 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, col, delete, select
 
 from app.api.free_check import rate_limited
-from app.api.routes.checks import get_limits, get_llm, get_posting_date, get_sizes, get_usage
+from app.api.routes.checks import (
+    get_limits,
+    get_llm,
+    get_posting_date,
+    get_sizes,
+    get_usage,
+)
 from app.compliance.classification import Classification
 from app.compliance.employer import EmployerSize
 from app.compliance.extraction import Extraction
@@ -25,11 +30,11 @@ from app.compliance.wording import load_wording
 from app.core.config import settings
 from app.main import app
 from app.models import Customer, PaidCheck, User, Workspace
-from tests.api.routes.test_billing import make_customer, make_user
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_api import MemoryLimits, MemoryUsage
 from tests.compliance.test_employer import MemorySizes
 from tests.compliance.test_inspector import POSTING, extraction, labels
+from tests.utils.accounts import make_customer, make_user
 
 API = settings.API_V1_STR
 SIZE = {"found": True, "total_employees_min": 900, "total_employees_max": 1100, "ontario_employees_min": None,
@@ -50,8 +55,8 @@ def llm() -> Generator[FakeLLM]:
         app.dependency_overrides.pop(dependency, None)
 
 
-def customer_headers(db: Session, plan: str = "starter") -> dict[str, str]:
-    return make_user(db, make_customer(db, plan=plan))[1]
+def customer_headers(db: Session) -> dict[str, str]:
+    return make_user(db, make_customer(db))[1]
 
 
 def check(
@@ -127,12 +132,17 @@ def test_the_profile_picks_the_plain_wording(client: TestClient, db: Session, ll
     assert disclosure["after"].strip() == load_wording("CA-ON").text("ai_disclosure", "plain")
 
 
-def test_visitors_get_no_profile(client: TestClient, db: Session) -> None:
+def test_visitors_get_no_profile(client: TestClient) -> None:
     assert client.get(f"{API}/workspaces/current").status_code == 401
-    _, no_plan = make_user(db)  # signed in without a plan
-    assert client.get(f"{API}/workspaces/current", headers=no_plan).status_code == 403
-    _, lapsed = make_user(db, make_customer(db, status="canceled"))
-    assert client.get(f"{API}/workspaces/current", headers=lapsed).status_code == 403
+
+
+def test_a_new_user_gets_an_account_and_a_profile(client: TestClient, db: Session) -> None:
+    user, headers = make_user(db)  # no account yet: the first signed-in request makes one
+    profile = client.get(f"{API}/workspaces/current", headers=headers)
+    assert profile.status_code == 200
+    db.refresh(user)
+    assert user.customer_id is not None
+    assert client.get(f"{API}/workspaces/current", headers=headers).json()["id"] == profile.json()["id"]
 
 
 def test_editing_the_profile(client: TestClient, db: Session) -> None:
@@ -159,7 +169,8 @@ def test_editing_the_profile(client: TestClient, db: Session) -> None:
 
 
 def test_deleting_the_last_account_deletes_the_profile(client: TestClient, db: Session) -> None:
-    customer = make_customer(db, cancel=True)  # a cancelled plan, so the account can be deleted
+    customer = make_customer(db)
+    customer_id = customer.id
     _, first = make_user(db, customer)
     _, second = make_user(db, customer)
     save_profile(client, first, employer_name="Acme Payroll")
@@ -168,10 +179,11 @@ def test_deleting_the_last_account_deletes_the_profile(client: TestClient, db: S
     assert len(db.exec(mine).all()) == 1  # the other user still checks with it
     assert client.delete(f"{API}/users/me", headers=second).status_code == 200
     assert db.exec(mine).all() == []
-    assert db.get(Customer, customer.id) is not None  # billing records stay
+    db.expunge(customer)
+    assert db.get(Customer, customer_id) is None  # the account and its history go with the last user
 
 
-# Client workspaces (Agency)
+# Client workspaces
 
 
 def create(client: TestClient, headers: dict[str, str], name: str) -> dict[str, Any]:
@@ -186,11 +198,11 @@ def patch(client: TestClient, headers: dict[str, str], workspace: dict[str, Any]
 
 def history(client: TestClient, headers: dict[str, str], workspace: dict[str, Any] | None = None) -> list[Any]:
     params = {"workspace_id": workspace["id"]} if workspace else {}
-    return client.get(f"{API}/billing/checks", params=params, headers=headers).json()["data"]
+    return client.get(f"{API}/account/checks", params=params, headers=headers).json()["data"]
 
 
 def test_each_client_workspace_has_its_own_profile_and_history(client: TestClient, db: Session, llm: FakeLLM) -> None:
-    headers = customer_headers(db, plan="agency")
+    headers = customer_headers(db)
     acme, beta = create(client, headers, "Acme Retail"), create(client, headers, "  Beta   Foods ")
     assert (acme["name"], beta["name"], beta["employer_name"], beta["updated_at"]) == ("Acme Retail", "Beta Foods", None, None)
     patch(client, headers, acme, headcount=300, uses_ai_in_hiring=False)
@@ -206,12 +218,12 @@ def test_each_client_workspace_has_its_own_profile_and_history(client: TestClien
     assert [c["workspace_name"] for c in history(client, headers, acme)] == ["Acme Retail"]
     assert [c["workspace_name"] for c in history(client, headers, beta)] == ["Beta Foods", "Beta Foods"]
     assert len(history(client, headers)) == 3
-    billing = client.get(f"{API}/billing", headers=headers).json()
-    assert billing["checks_used"] == 3  # one allowance, shared by every workspace
+    account = client.get(f"{API}/account", headers=headers).json()
+    assert (account["checks_used"], account["checks_limit"]) == (3, None)  # one account, shared by every workspace
 
 
 def test_switching_renaming_and_archiving(client: TestClient, db: Session, llm: FakeLLM) -> None:
-    headers = customer_headers(db, plan="agency")
+    headers = customer_headers(db)
     first = client.get(f"{API}/workspaces/current", headers=headers).json()  # the empty one every customer gets
     second = create(client, headers, "Beta Foods")
     listed = client.get(f"{API}/workspaces/", headers=headers).json()
@@ -239,37 +251,13 @@ def test_switching_renaming_and_archiving(client: TestClient, db: Session, llm: 
 
 
 def test_workspaces_belong_to_one_customer(client: TestClient, db: Session, llm: FakeLLM) -> None:
-    mine, theirs = customer_headers(db, plan="agency"), customer_headers(db, plan="agency")
+    mine, theirs = customer_headers(db), customer_headers(db)
     other = create(client, theirs, "Their client")
     assert check(client, llm, mine, workspace=other["id"], status=409)  # never another customer's profile
     assert patch(client, mine, other, uses_ai_in_hiring=True).status_code == 404
     assert client.put(f"{API}/workspaces/current", json={"workspace_id": other["id"]}, headers=mine).status_code == 404
     assert client.post(f"{API}/workspaces/{other['id']}/archive", headers=mine).status_code == 404
     assert history(client, mine, other) == []
-
-
-def test_starter_has_one_profile_and_no_workspaces(client: TestClient, db: Session, llm: FakeLLM) -> None:
-    headers = customer_headers(db, plan="starter")
-    profile = client.get(f"{API}/workspaces/current", headers=headers).json()
-    assert client.post(f"{API}/workspaces/", json={"name": "Second"}, headers=headers).status_code == 403
-    assert client.put(f"{API}/workspaces/current", json={"workspace_id": profile["id"]}, headers=headers).status_code == 403
-    assert client.post(f"{API}/workspaces/{profile['id']}/archive", headers=headers).status_code == 403
-    listed = client.get(f"{API}/workspaces/", headers=headers).json()
-    assert ([w["id"] for w in listed["data"]], listed["can_create"]) == ([profile["id"]], False)
-    assert check(client, llm, headers, workspace=str(uuid.uuid4()))["workspace_id"] == profile["id"]  # no picking
-
-
-def test_after_a_downgrade_starter_keeps_the_last_workspace(client: TestClient, db: Session, llm: FakeLLM) -> None:
-    customer = make_customer(db, plan="agency")
-    _, headers = make_user(db, customer)
-    client.get(f"{API}/workspaces/current", headers=headers)
-    client_two = create(client, headers, "Client two")
-    customer.plan = "starter"
-    db.add(customer)
-    db.commit()
-    listed = client.get(f"{API}/workspaces/", headers=headers).json()
-    assert ([w["id"] for w in listed["data"]], listed["current_id"]) == ([client_two["id"]], client_two["id"])
-    assert check(client, llm, headers)["workspace_id"] == client_two["id"]
 
 
 @pytest.fixture(autouse=True, scope="module")

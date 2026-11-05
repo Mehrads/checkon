@@ -42,7 +42,7 @@ function useSections(scroller: RefObject<HTMLElement | null>) {
 
     const update = () => {
       frame = 0
-      // On the page, not in the markup: a page can reorder its sections (a report's link puts the check first)
+      // On the page, not in the markup: a page can reorder its sections (a link from the top bar puts the check first)
       const found = [...root.querySelectorAll<HTMLElement>("[data-dock]")]
         .filter((element) => element.offsetParent !== null)
         .map((element) => ({

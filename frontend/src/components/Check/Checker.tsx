@@ -12,7 +12,6 @@ import {
   type WorkspacePublic,
   type WorkspaceUpdate,
 } from "@/client"
-import { FREE_ACCOUNT_CHECKS } from "@/components/Billing/UsageMeter"
 import {
   ProfileNote,
   profileAnswers,
@@ -56,7 +55,7 @@ function refusalReason(error: Error): string {
 }
 
 const FREE_NOTE =
-  "Free once a week, no sign-up. We don't keep your posting after the check unless you choose to share it with us."
+  "Free once a week, no sign-up. Your posting isn't kept after the check unless you choose to share it."
 
 type Input = "text" | "link"
 
@@ -70,30 +69,19 @@ function ResultColumn({ children }: { children: ReactNode }) {
   )
 }
 
-/** More checks, for a refusal on the public page: a free account for visitors, the plans for everyone. */
-function SeePlans() {
-  if (isLoggedIn()) {
-    return (
-      <span>
-        {" "}
-        Need more checks?{" "}
-        <a href="#pricing" className="underline underline-offset-4">
-          See the plans
-        </a>
-        .
-      </span>
-    )
-  }
+/** More checks, for a visitor's refusal on the public page: an account on this server. */
+function MoreChecks() {
+  if (isLoggedIn()) return null
   return (
     <span>
       {" "}
       Want more?{" "}
-      <Link to="/signup" className="underline underline-offset-4">
-        Create a free account
-      </Link>{" "}
-      for {FREE_ACCOUNT_CHECKS} checks a month, or{" "}
       <Link to="/login" className="underline underline-offset-4">
-        log in
+        Log in
+      </Link>{" "}
+      or{" "}
+      <Link to="/signup" className="underline underline-offset-4">
+        create an account
       </Link>
       .
     </span>
@@ -103,12 +91,12 @@ function SeePlans() {
 /** The check. On the public page (`hero`) the paste form sits beside `intro` and results open below it in a
  * full-width band; in the signed-in app (`app`) everything stacks inside the page. The posting is pasted or
  * given as a link the server reads; its application form, when added, is checked right after it as one more
- * check. A signed-in customer's check counts against their plan and starts from their company `profile` (the
- * API reads the sign-in), which on Agency is the picked `client`'s; `editProfile` renders the link to change
- * it. `onChecked` runs after each check and after fixes are applied. `opened` shows a check made elsewhere (a
- * posting from a careers page audit) without the paste form, and writes its fixes as it opens. `initialUrl`
- * opens the form on a posting's link, ready to check (a posting from a report). `hint` sits under the check
- * button (the public page's link to its sample result). */
+ * check. A signed-in user's check is saved to their account and starts from their company `profile` (the API
+ * reads the sign-in), which is the picked client's when the account has several (`client`); `editProfile` renders
+ * the link to change it. `onChecked` runs after each check and after fixes are applied. `opened` shows a check
+ * made elsewhere (a posting from a careers page audit) without the paste form, and writes its fixes as it opens.
+ * `initialUrl` opens the form on a posting's link, ready to check (a link pasted in the top bar). `hint` sits
+ * under the check button (the public page's link to its sample result). */
 export function Checker({
   intro,
   layout = "hero",
@@ -397,16 +385,14 @@ export function Checker({
               className={cn("mt-4", hero && "max-sm:order-3")}
               value={form}
               onChange={setForm}
-              note={
-                FORM_NOTES[profile ? "plan" : isLoggedIn() ? "check" : "free"]
-              }
+              note={FORM_NOTES[isLoggedIn() ? "account" : "free"]}
               onCheck={busy ? undefined : formAlone}
               checking={checkForm.isPending}
               error={
                 formError && (
                   <>
                     {formError}
-                    {formRefusal === "quota" && hero && <SeePlans />}
+                    {formRefusal === "quota" && hero && <MoreChecks />}
                   </>
                 )
               }
@@ -471,7 +457,7 @@ export function Checker({
                 <AlertTitle>We couldn't finish the check</AlertTitle>
                 <AlertDescription>
                   {error}
-                  {refusal === "quota" && hero && <SeePlans />}
+                  {refusal === "quota" && hero && <MoreChecks />}
                 </AlertDescription>
               </Alert>
             )}

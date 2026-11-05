@@ -21,7 +21,6 @@ export const ORGANIZATION = {
   "@id": `${SITE}/#organization`,
   name: "CheckON",
   url: `${SITE}/check`,
-  email: "info@checkon.ca",
   logo: `${SITE}/icon-512.png`,
   areaServed: { "@type": "AdministrativeArea", name: "Ontario, Canada" },
 }

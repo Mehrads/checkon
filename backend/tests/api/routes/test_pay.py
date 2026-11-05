@@ -1,5 +1,5 @@
-"""Pay range suggestions through the API, against Postgres, with a scripted LLM (no network): paid plans only, the
-cost counted, nothing written into a posting until the customer confirms, and the confirmed range saved as the
+"""Pay range suggestions through the API, against Postgres, with a scripted LLM (no network): signed-in checks
+only, the cost counted, nothing written into a posting until the user confirms, and the confirmed range saved as the
 job title's band in the check's workspace. Run `docker compose up -d db` and migrate first.
 """
 
@@ -24,7 +24,7 @@ from app.core.config import settings
 from app.main import app
 from app.models import PayBand, Workspace
 from app.pay.suggest import OccupationMatch
-from tests.api.routes.test_billing import make_customer, make_user
+from tests.utils.accounts import make_customer, make_user
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_api import MemoryLimits, MemoryUsage
 from tests.compliance.test_employer import MemorySizes
@@ -125,7 +125,7 @@ def test_suggest_then_confirm(client: TestClient, db: Session, env: dict[str, An
     # The cost is counted, once, in the usage events and the day's spend meter.
     [event] = [e for e in usage.events if e["kind"] == "pay_suggest"]
     assert (event["usd"], event["status"], event["plan"], event["check_id"]) == (
-        Decimal("0.031"), "suggested", "starter", check["check_id"],
+        Decimal("0.031"), "suggested", "account", check["check_id"],
     )  # fmt: skip
     assert limits.spent == Decimal("0.031")
     assert suggest(client, headers, check["check_id"]).json() == found  # asked again: no new model calls
@@ -157,19 +157,15 @@ def test_suggest_then_confirm(client: TestClient, db: Session, env: dict[str, An
     assert found["suggested"] == found["band"] and found["flag"] is None
 
 
-def test_paid_plans_only(client: TestClient, db: Session, env: dict[str, Any]) -> None:
+def test_signed_in_checks_only(client: TestClient, db: Session, env: dict[str, Any]) -> None:
     llm = env["llm"]
     _, paid = make_user(db, make_customer(db))
     free = checked(client, llm)  # a visitor's free check keeps the placeholder
     assert pay_patch(free)["after"].strip() == "[Pay range: add before publishing]"
 
     assert suggest(client, {}, free["check_id"]).status_code == 401
-    _, no_plan = make_user(db)
-    assert suggest(client, no_plan, free["check_id"]).status_code == 403
-    _, lapsed = make_user(db, make_customer(db, status="canceled"))
-    assert suggest(client, lapsed, free["check_id"]).status_code == 403
-    refused = suggest(client, paid, free["check_id"])  # a paying customer can't use someone's free check
-    assert refused.status_code == 403 and refused.json()["detail"] == "Pay range suggestions are for checks on your paid plan."
+    refused = suggest(client, paid, free["check_id"])  # an account can't use a visitor's free check
+    assert refused.status_code == 403 and refused.json()["detail"] == "Pay range suggestions are for checks you ran signed in."
 
     mine = checked(client, llm, paid)
     _, other = make_user(db, make_customer(db))
@@ -208,7 +204,7 @@ def test_confirm_keeps_the_range_within_the_cap(client: TestClient, db: Session,
 
 def test_an_agency_band_belongs_to_the_checks_client(client: TestClient, db: Session, env: dict[str, Any]) -> None:
     llm = env["llm"]
-    _, headers = make_user(db, make_customer(db, plan="agency"))
+    _, headers = make_user(db, make_customer(db))
     first = client.get(f"{API}/workspaces/current", headers=headers).json()
     second = client.post(f"{API}/workspaces/", json={"name": "Maple Grocers"}, headers=headers).json()
     check = checked(client, llm, headers, workspace_id=second["id"])
@@ -219,7 +215,7 @@ def test_an_agency_band_belongs_to_the_checks_client(client: TestClient, db: Ses
     assert [(b["title"], b["min"], b["max"], b["unit"]) for b in bands] == [("Payroll Specialist", "70000.00", "80000.00", "year")]
     assert client.get(f"{API}/pay/bands", params={"workspace_id": first["id"]}, headers=headers).json()["data"] == []
 
-    _, stranger = make_user(db, make_customer(db, plan="agency"))
+    _, stranger = make_user(db, make_customer(db))
     assert client.delete(f"{API}/pay/bands/{bands[0]['id']}", headers=stranger).status_code == 404
     assert client.delete(f"{API}/pay/bands/{bands[0]['id']}", headers=headers).status_code == 200
     assert db.get(Workspace, uuid.UUID(second["id"])) is not None

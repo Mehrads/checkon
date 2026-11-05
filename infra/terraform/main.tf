@@ -20,11 +20,9 @@ locals {
     SMTP_PORT                      = tostring(var.smtp_port)
     SMTP_USER                      = var.smtp_user
     EMAILS_FROM_EMAIL              = var.emails_from
-    # Paid plans (infra/README.md, "Stripe"). Empty price ids keep Checkout off.
-    STRIPE_PRICE_STARTER     = var.stripe_price_starter
-    STRIPE_PRICE_AGENCY      = var.stripe_price_agency
-    STRIPE_PRICE_EXTRA_CHECK = var.stripe_price_extra_check
-    STRIPE_AUTOMATIC_TAX     = tostring(var.stripe_automatic_tax)
+    # Signed-in accounts (backend/app/api/accounts.py): who can sign up, and each account's checks in 30 days.
+    SIGNUP_OPEN                = tostring(var.signup_open)
+    ACCOUNT_CHECKS_PER_30_DAYS = tostring(var.account_checks_per_30_days)
     # Langfuse traces, metadata only (infra/README.md, "Langfuse"). Off while the keys are `replace-me`.
     LANGFUSE_BASE_URL = var.langfuse_base_url
   }
@@ -34,11 +32,8 @@ locals {
     DATABASE_URL             = google_secret_manager_secret.generated["database-url"].secret_id
     SECRET_KEY               = google_secret_manager_secret.generated["secret-key"].secret_id
     FIRST_SUPERUSER_PASSWORD = google_secret_manager_secret.generated["first-superuser-password"].secret_id
-    OUTREACH_API_KEY         = google_secret_manager_secret.generated["outreach-api-key"].secret_id
     ANTHROPIC_API_KEY        = google_secret_manager_secret.manual["anthropic-api-key"].secret_id
     SMTP_PASSWORD            = google_secret_manager_secret.manual["smtp-password"].secret_id
-    STRIPE_SECRET_KEY        = google_secret_manager_secret.manual["stripe-secret-key"].secret_id
-    STRIPE_WEBHOOK_SECRET    = google_secret_manager_secret.manual["stripe-webhook-secret"].secret_id
     LANGFUSE_PUBLIC_KEY      = google_secret_manager_secret.manual["langfuse-public-key"].secret_id
     LANGFUSE_SECRET_KEY      = google_secret_manager_secret.manual["langfuse-secret-key"].secret_id
   }
@@ -132,18 +127,11 @@ resource "random_password" "first_superuser" {
   special = false
 }
 
-# The outreach workflow sends it to save reports (app/api/routes/reports.py); copy it into the local .env.
-resource "random_password" "outreach_api_key" {
-  length  = 48
-  special = false
-}
-
 locals {
   generated_secrets = {
     "database-url"             = "postgresql+psycopg://app:${random_password.db.result}@localhost/app?host=/cloudsql/${google_sql_database_instance.db.connection_name}"
     "secret-key"               = random_password.secret_key.result
     "first-superuser-password" = random_password.first_superuser.result
-    "outreach-api-key"         = random_password.outreach_api_key.result
   }
 }
 
@@ -168,8 +156,7 @@ resource "google_secret_manager_secret_version" "generated" {
 
 resource "google_secret_manager_secret" "manual" {
   for_each = toset([
-    "anthropic-api-key", "smtp-password", "stripe-secret-key", "stripe-webhook-secret", "langfuse-public-key",
-    "langfuse-secret-key",
+    "anthropic-api-key", "smtp-password", "langfuse-public-key", "langfuse-secret-key",
   ])
   secret_id = "${local.name}-${each.value}"
   replication {

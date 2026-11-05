@@ -28,8 +28,8 @@ const BAD_TOKEN = "Could not validate credentials"
 const handleApiError = (error: Error) => {
   if (!(error instanceof AxiosError)) return
   const { status, data } = error.response ?? {}
-  // Only a sign-in that no longer works logs out. Other 403s, such as "The archive comes with a paid plan", are
-  // the page's to show.
+  // Only a sign-in that no longer works logs out. Other 403s, such as an admin-only page, are the page's to
+  // show.
   if (status === 401 || (status === 403 && data?.detail === BAD_TOKEN)) {
     localStorage.removeItem("access_token")
     // Log in again, then come back to this page

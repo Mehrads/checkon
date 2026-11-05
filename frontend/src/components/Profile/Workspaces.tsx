@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
-import { apiMessage } from "@/hooks/useBilling"
 import useCustomToast from "@/hooks/useCustomToast"
 import {
   useArchiveWorkspace,
@@ -23,6 +22,7 @@ import {
   useSaveProfile,
   useSwitchWorkspace,
 } from "@/hooks/useWorkspace"
+import { apiMessage } from "@/lib/api"
 
 function Rename({
   workspace,
@@ -132,7 +132,7 @@ function ArchiveButton({
   )
 }
 
-function NewWorkspace() {
+function NewWorkspace({ disabled }: { disabled: boolean }) {
   const { showErrorToast, showSuccessToast } = useCustomToast()
   const create = useCreateWorkspace()
   const [name, setName] = useState("")
@@ -165,7 +165,10 @@ function NewWorkspace() {
         type="submit"
         variant="outline"
         loading={create.isPending}
-        disabled={!name.trim()}
+        disabled={disabled || !name.trim()}
+        title={
+          disabled ? "You have the most workspaces open at once" : undefined
+        }
       >
         <Plus />
         Add client workspace
@@ -174,14 +177,16 @@ function NewWorkspace() {
   )
 }
 
-/** Agency: a workspace per client, each with its own company profile. Checks use the one picked here or in
- * the switcher; the plan's checks are shared by all of them. */
+/** A workspace per client, each with its own company profile. Checks use the one picked here or in the switcher;
+ * the account's checks are shared by all of them. `canCreate`: under the server's cap on open workspaces. */
 export function Workspaces({
   workspaces,
   current,
+  canCreate,
 }: {
   workspaces: WorkspacePublic[]
   current: WorkspacePublic
+  canCreate: boolean
 }) {
   const [renaming, setRenaming] = useState<string | null>(null)
   const switcher = useSwitchWorkspace()
@@ -234,7 +239,7 @@ export function Workspaces({
           </li>
         ))}
       </ul>
-      <NewWorkspace />
+      <NewWorkspace disabled={!canCreate} />
     </section>
   )
 }

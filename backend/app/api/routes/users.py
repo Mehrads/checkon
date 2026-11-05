@@ -5,17 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import col, delete, func, select
 
 from app import crud
-from app.api.billing import paid_plan
-from app.api.workspaces import forget_profiles
 from app.api.deps import (
     CurrentUser,
     SessionDep,
     get_current_active_superuser,
 )
+from app.api.workspaces import forget_profiles
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
-    Customer,
     Item,
     Message,
     UpdatePassword,
@@ -139,17 +137,6 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     if current_user.is_superuser:
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
-        )
-    customer = (
-        session.get(Customer, current_user.customer_id)
-        if current_user.customer_id
-        else None
-    )
-    if paid_plan(customer) and customer and not customer.cancel_at_period_end and not customer.complimentary:
-        # Deleting the account wouldn't stop the subscription (a complimentary account has none)
-        raise HTTPException(
-            status_code=409,
-            detail="Cancel your plan under Manage billing first, then delete your account.",
         )
     session.delete(current_user)
     forget_profiles(session, current_user.customer_id)

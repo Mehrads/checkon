@@ -27,7 +27,7 @@ variable "extension_ids" {
 }
 
 variable "domain" {
-  description = "Public domain, for example checkon.ca. Setting it adds the load balancer in lb.tf (infra/README.md, step 5)."
+  description = "Public domain, for example checker.example.com. Setting it adds the load balancer in lb.tf (infra/README.md, step 5)."
   type        = string
   default     = ""
 }
@@ -87,31 +87,16 @@ variable "free_check_daily_spend_cap_usd" {
   default = "5"
 }
 
-# Stripe (infra/README.md, "Stripe"): price ids from the Stripe Dashboard, live mode in production.
-# The secret key and webhook signing secret live in Secret Manager, not here.
-
-variable "stripe_price_starter" {
-  description = "Price id of the Starter monthly fee, for example price_1Q…"
-  type        = string
-  default     = ""
-}
-
-variable "stripe_price_agency" {
-  description = "Price id of the Agency monthly fee."
-  type        = string
-  default     = ""
-}
-
-variable "stripe_price_extra_check" {
-  description = "Price id of the $1 usage-based extra-check price on the checkon_extra_check meter."
-  type        = string
-  default     = ""
-}
-
-variable "stripe_automatic_tax" {
-  description = "Have Stripe Tax add HST at Checkout. Turn on only once registered for GST/HST and the registration is added in Stripe."
+variable "signup_open" {
+  description = "Let anyone make an account. Off: only an admin adds users (Admin > Users). Each account's checks are paid for by you."
   type        = bool
   default     = false
+}
+
+variable "account_checks_per_30_days" {
+  description = "Each signed-in account's checks in any 30 days; 0 means no limit."
+  type        = number
+  default     = 0
 }
 
 variable "langfuse_base_url" {

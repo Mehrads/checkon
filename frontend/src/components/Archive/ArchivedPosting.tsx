@@ -32,9 +32,9 @@ import {
   useUpdateArchived,
   useUploadArchivedFile,
 } from "@/hooks/useArchive"
-import { apiMessage } from "@/hooks/useBilling"
 import useCustomToast from "@/hooks/useCustomToast"
-import { formatDay } from "../Billing/UsageMeter"
+import { apiMessage } from "@/lib/api"
+import { formatDay } from "@/lib/utils"
 
 export const MAX_DOCUMENTS = 5
 const ACCEPT = ".pdf,.docx,.png,.jpg,.jpeg"
@@ -215,7 +215,6 @@ function ApplicationForm({ posting }: { posting: ArchivedPostingPublic }) {
   const update = useUpdateArchived(posting.id)
   const [form, setForm] = useState(posting.application_form ?? "")
   const changed = form.trim() !== (posting.application_form ?? "")
-  if (posting.read_only && !posting.application_form) return null
 
   return (
     <section className="space-y-2">
@@ -229,33 +228,30 @@ function ApplicationForm({ posting }: { posting: ArchivedPostingPublic }) {
       <textarea
         aria-label="Application form"
         value={form}
-        readOnly={posting.read_only}
         onChange={(event) => setForm(event.target.value.slice(0, 20_000))}
         placeholder="Name, email, resume, screening questions…"
         className="min-h-28 w-full resize-y rounded-lg border bg-background p-3 text-sm leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
       />
-      {!posting.read_only && (
-        <LoadingButton
-          size="sm"
-          variant="outline"
-          loading={update.isPending}
-          disabled={!changed}
-          onClick={() =>
-            update.mutate(
-              { application_form: form },
-              {
-                onSuccess: () => showSuccessToast("Application form saved."),
-                onError: (error) =>
-                  showErrorToast(
-                    apiMessage(error, "We couldn't save the application form."),
-                  ),
-              },
-            )
-          }
-        >
-          Save the form
-        </LoadingButton>
-      )}
+      <LoadingButton
+        size="sm"
+        variant="outline"
+        loading={update.isPending}
+        disabled={!changed}
+        onClick={() =>
+          update.mutate(
+            { application_form: form },
+            {
+              onSuccess: () => showSuccessToast("Application form saved."),
+              onError: (error) =>
+                showErrorToast(
+                  apiMessage(error, "We couldn't save the application form."),
+                ),
+            },
+          )
+        }
+      >
+        Save the form
+      </LoadingButton>
     </section>
   )
 }
@@ -266,7 +262,6 @@ function Documents({ posting }: { posting: ArchivedPostingPublic }) {
   const remove = useDeleteArchivedFile(posting.id)
   const picker = useRef<HTMLInputElement>(null)
   const full = posting.documents.length >= MAX_DOCUMENTS
-  if (posting.read_only && posting.documents.length === 0) return null
 
   const download = (file: { id: string; name: string }) =>
     downloadArchivedFile(posting.id, file).catch((error) =>
@@ -325,36 +320,32 @@ function Documents({ posting }: { posting: ArchivedPostingPublic }) {
           ))}
         </ul>
       )}
-      {!posting.read_only && (
-        <>
-          <input
-            ref={picker}
-            type="file"
-            accept={ACCEPT}
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              event.target.value = ""
-              if (file)
-                upload.mutate(file, {
-                  onError: (error) =>
-                    showErrorToast(
-                      apiMessage(error, "We couldn't upload that document."),
-                    ),
-                })
-            }}
-          />
-          <LoadingButton
-            size="sm"
-            variant="outline"
-            loading={upload.isPending}
-            disabled={full}
-            onClick={() => picker.current?.click()}
-          >
-            <Upload /> {full ? "5 documents added" : "Add a document"}
-          </LoadingButton>
-        </>
-      )}
+      <input
+        ref={picker}
+        type="file"
+        accept={ACCEPT}
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+          event.target.value = ""
+          if (file)
+            upload.mutate(file, {
+              onError: (error) =>
+                showErrorToast(
+                  apiMessage(error, "We couldn't upload that document."),
+                ),
+            })
+        }}
+      />
+      <LoadingButton
+        size="sm"
+        variant="outline"
+        loading={upload.isPending}
+        disabled={full}
+        onClick={() => picker.current?.click()}
+      >
+        <Upload /> {full ? "5 documents added" : "Add a document"}
+      </LoadingButton>
     </section>
   )
 }

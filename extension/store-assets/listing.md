@@ -31,7 +31,7 @@ in, such as the pay range, it leaves a clearly marked placeholder and tells you 
 Works in rich text editors, plain text boxes and editors inside frames. Select part of a page and right-click
 "Check with CheckON" to check just that text. You can also check the application form's questions.
 
-One free check a week, no sign-up. Paying customers log in to use their plan's checks, company profiles and client
+One free check a week, no sign-up. Log in with a CheckON account to use its company profiles and client
 workspaces.
 
 CheckON is a compliance aid, not legal advice. We keep the date, job title and result of a check, never the posting
@@ -55,7 +55,7 @@ fixes the user accepts back into the job form.
   accepted fixes into the job form's editor, on the tab the user clicked CheckON on.
 - `contextMenus`: Adds the right-click "Check with CheckON" item for checking selected text.
 - `storage`: Passes the right-click request to the side panel (session storage, cleared when the browser closes),
-  and keeps a paying customer signed in (local storage, until they log out).
+  and keeps a signed-in user signed in (local storage, until they log out).
 - Host permission `https://checkon.ca/*`: The check runs on CheckON's own API at checkon.ca.
 
 **Remote code:** No, I am not using remote code. All scripts are in the package.
@@ -64,7 +64,7 @@ fixes the user accepts back into the job form.
 
 - Website content: the job posting text (and application form questions) on the page, sent to checkon.ca to run
   the check the user asked for.
-- Personally identifiable information and authentication information: only for paying customers who log in, their
+- Personally identifiable information and authentication information: only for users who log in, their
   email address and password are sent to checkon.ca to sign in, and the sign-in token is kept in the extension's
   storage.
 
@@ -78,5 +78,4 @@ fixes the user accepts back into the job form.
 
 ## Distribution
 
-Public, all regions. Payments: contains in-app purchases (logging in unlocks a paid plan's features; the plans are
-bought on checkon.ca).
+Public, all regions. Payments: free, no in-app purchases.

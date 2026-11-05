@@ -1,10 +1,12 @@
 # Golden set
 
-The labelled postings behind the release gates (Technical Design §8, layer 2; 04-V1-Scope §3). Nothing ships until the gates pass on the full set: 300 English postings, each labelled per rule by two people.
+The labelled postings behind the release gates (Technical Design §8, layer 2). The target is 300 English postings, each labelled per rule by two people.
+
+**Not in this repository:** the `real` slice and the collected part of `out_of_scope`. They were copies of employers' public job postings, which aren't ours to republish. Collect your own with `app.evals.collect` (below); the synthetic and adversarial cases are here in full.
 
 | Slice | Target | What goes in it |
 | --- | --- | --- |
-| `real` | 150 | Ontario postings from public job boards (Greenhouse, Lever, Ashby, SmartRecruiters) and careers pages, collected with `app.evals.collect`. Never LinkedIn or Indeed scraping (PRD §7). |
+| `real` | 150 | Ontario postings from public job boards (Greenhouse, Lever, Ashby, SmartRecruiters) and careers pages, collected with `app.evals.collect`. Never LinkedIn or Indeed scraping: their terms forbid it. |
 | `synthetic` | 100 | Written cases, at least 20 per content rule (pay, vacancy, AI, Canadian experience): boundaries and rephrasings. |
 | `out_of_scope` | 25 | Work outside Ontario (collected), internal-only postings, general recruitment campaigns, employers under 25. |
 | `adversarial` | 25 | A labelled case with injected instructions or odd formatting (tables, bullets, HTML). Its labels are the original's, since the injection mustn't change a verdict. |

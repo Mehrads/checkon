@@ -2,7 +2,11 @@
  * other languages it's in, and the Open Graph tags with the site's preview image. The public pages are also rendered
  * to HTML at build time (src/prerender.tsx), so these tags are in the page before any script runs. */
 
-export const SITE = "https://checkon.ca"
+/** The site's own address, for canonical links, Open Graph tags, the sitemap and robots.txt: VITE_SITE_URL, set at
+ * build time by whoever runs it (frontend/.env has the local default). */
+export const SITE = (
+  import.meta.env.VITE_SITE_URL || "http://localhost:5173"
+).replace(/\/+$/, "")
 
 /** The link preview image (public/og-image.png, made by scripts/og-image.ts). */
 const IMAGE = {

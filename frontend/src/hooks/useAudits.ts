@@ -9,12 +9,12 @@ import {
   type PreviewIn,
   type StartIn,
 } from "@/client"
-import { apiMessage } from "./useBilling"
+import { apiMessage } from "@/lib/api"
 
 /** Postings of one audit checked at the same time (the API allows a few). */
 const AT_ONCE = 2
 
-/** The customer's careers page audits, newest first: one client's (Agency) or all of them. */
+/** The account's careers page audits, newest first: one client's or all of them. */
 export function useAudits(workspaceId?: string) {
   return useQuery({
     queryKey: ["audits", workspaceId ?? "all"],
@@ -103,11 +103,14 @@ export function useRunAudit(auditId: string, onChecked?: () => void) {
             if (reason(error) === "busy") {
               queue.push(posting)
               await new Promise((resolve) => setTimeout(resolve, 3000))
-            } else if (reason(error) === "plan_limit") {
+            } else if (reason(error) === "account_limit") {
               update(posting)
               active.current = false
               setStopped(
-                apiMessage(error as Error, "Your plan's checks ran out."),
+                apiMessage(
+                  error as Error,
+                  "You've used your checks for the last 30 days.",
+                ),
               )
             } else {
               update({

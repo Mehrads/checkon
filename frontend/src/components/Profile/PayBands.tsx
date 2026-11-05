@@ -3,9 +3,9 @@ import { Trash2 } from "lucide-react"
 
 import { type BandPublic, PayService } from "@/client"
 import { Button } from "@/components/ui/button"
-import { apiMessage } from "@/hooks/useBilling"
 import useCustomToast from "@/hooks/useCustomToast"
-import { formatDay } from "../Billing/UsageMeter"
+import { apiMessage } from "@/lib/api"
+import { formatDay } from "@/lib/utils"
 
 const PER = {
   hour: "an hour",

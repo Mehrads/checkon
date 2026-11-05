@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test"
 
-// The signed-in frame and its dashboard. Signed in as the first superuser (auth.setup.ts), who has no plan, so the
-// API's answers about the plan, its checks and its workspace are stood in for here.
+// The signed-in frame and its dashboard. Signed in as the first superuser (auth.setup.ts); the API's answers about
+// the account's checks and its workspace are stood in for here.
 
 const DAY = 24 * 60 * 60 * 1000
 
@@ -13,31 +13,17 @@ const CHECKS = Array.from({ length: 24 }, (_, index) => ({
   title: index === 3 ? "Payroll Administrator" : `Warehouse Associate ${index}`,
   status: STATUSES[index % 3],
   final_status: null,
-  extra: false,
   workspace_name: null,
 }))
 
-const BILLING = {
-  checkout_enabled: true,
-  has_billing: true,
-  complimentary: false,
-  plan: "starter",
-  plan_name: "Starter",
-  status: "active",
-  checks_included: 50,
-  checks_used: 24,
-  extra_checks: 0,
-  extra_checks_max: 100,
-  period_start: new Date(Date.now() - 10 * DAY).toISOString(),
-  period_end: new Date(Date.now() + 20 * DAY).toISOString(),
-  cancel_at_period_end: false,
-}
+// A server that limits each account to 50 checks in any 30 days
+const ACCOUNT = { checks_used: 24, checks_limit: 50, signup_open: false }
 
-async function onPlan(page: Page) {
-  await page.route("**/api/v1/billing", (route) =>
-    route.fulfill({ json: BILLING }),
+async function withChecks(page: Page) {
+  await page.route("**/api/v1/account", (route) =>
+    route.fulfill({ json: ACCOUNT }),
   )
-  await page.route("**/api/v1/billing/checks*", (route) =>
+  await page.route("**/api/v1/account/checks*", (route) =>
     route.fulfill({ json: { data: CHECKS, count: CHECKS.length } }),
   )
   await page.route("**/api/v1/workspaces/", (route) =>
@@ -45,14 +31,14 @@ async function onPlan(page: Page) {
       json: {
         data: [{ id: "workspace-1", name: "Harbour Foods" }],
         current_id: "workspace-1",
-        can_create: false,
+        can_create: true,
       },
     }),
   )
 }
 
 async function openDashboard(page: Page) {
-  await onPlan(page)
+  await withChecks(page)
   await page.goto("/")
   await expect(page.getByRole("heading", { name: "Past checks" })).toBeVisible()
 }
@@ -159,7 +145,7 @@ test("A new page starts at the top, and Back returns to where you were", async (
 
 test("A page that fits on screen has no tabs to jump to", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
-  await onPlan(page)
+  await withChecks(page)
   await page.goto("/settings")
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
   await expect(dock(page).getByRole("listitem")).toHaveCount(0)
@@ -172,7 +158,7 @@ test("The + opens the check from any page, ready to paste into", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
-  await onPlan(page)
+  await withChecks(page)
   await page.goto("/settings")
   await dock(page).getByRole("button", { name: "Check a posting" }).click()
   await expect(page).toHaveURL("/")
@@ -182,7 +168,7 @@ test("The + opens the check from any page, ready to paste into", async ({
 
 test("A link pasted in the top bar opens in the checker", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
-  await onPlan(page)
+  await withChecks(page)
   await page.goto("/settings")
   const link = "https://jobs.example.com/warehouse-associate"
   await page.getByLabel("A posting's link to check").fill(link)
@@ -197,7 +183,7 @@ test("The overview's numbers come from the account's checks", async ({
   await openDashboard(page)
   const tile = (name: string) => page.getByRole("group", { name })
   await expect(tile("Checks used")).toContainText("24")
-  await expect(tile("Checks used")).toContainText("of 50 this period")
+  await expect(tile("Checks used")).toContainText("of 50 in the last 30 days")
   await expect(tile("Checks left")).toContainText("26")
   await expect(tile("Meet the rules")).toContainText("8")
   await expect(tile("Meet the rules")).toContainText("Latest 24 checks")

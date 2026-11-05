@@ -111,10 +111,10 @@ def test_contact_message_is_saved(client: TestClient, db: Session) -> None:
     from app.models import ContactMessage
 
     email = f"{secrets.token_hex(4)}@agency.example"
-    body = {"name": "Dana", "email": email, "company": "Agency Inc.", "interest": "agency", "message": "Pricing for 12 clients?"}
+    body = {"name": "Dana", "email": email, "company": "Agency Inc.", "interest": "custom", "message": "A Workday integration?"}
     assert client.post(f"{API}/contact", json=body).status_code == 201
     row = db.exec(select(ContactMessage).where(ContactMessage.email == email)).one()
-    assert (row.interest, row.company) == ("agency", "Agency Inc.")
+    assert (row.interest, row.company) == ("custom", "Agency Inc.")
 
 
 def test_contact_message_is_emailed_to_the_owner(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -132,5 +132,5 @@ def test_contact_message_is_emailed_to_the_owner(client: TestClient, monkeypatch
 
 
 def test_contact_needs_a_valid_email(client: TestClient) -> None:
-    body = {"name": "Dana", "email": "nope", "interest": "starter", "message": "Hi"}
+    body = {"name": "Dana", "email": "nope", "interest": "other", "message": "Hi"}
     assert client.post(f"{API}/contact", json=body).status_code == 422

@@ -1,4 +1,4 @@
-"""The archive of approved postings (PRD FR11): list a customer's archived postings by workspace and search them,
+"""The archive of approved postings: list an account's archived postings by workspace and search them,
 view one, save an edit, add the application form and linked documents, mark it taken down, delete it, and
 download a workspace's archive as a zip. Postings are saved by applying fixes (routes/checks.py).
 """
@@ -34,11 +34,9 @@ from app.api.archive import (
     owned_posting,
     owned_workspace,
     purge_soon,
-    require_plan,
     today,
     toronto_date,
 )
-from app.api.billing import Plan
 from app.api.deps import CurrentUser, SessionDep
 from app.api.workspaces import label
 from app.models import (
@@ -54,12 +52,12 @@ from app.models import (
 router = APIRouter(prefix="/archive", tags=["archive"])
 
 
-def get_owner(session: SessionDep, user: CurrentUser, background: BackgroundTasks) -> tuple[Customer, Plan | None]:
+def get_owner(session: SessionDep, user: CurrentUser, background: BackgroundTasks) -> Customer:
     background.add_task(purge_soon)
     return archive_owner(session, user)
 
 
-OwnerDep = Annotated[tuple[Customer, Plan | None], Depends(get_owner)]
+OwnerDep = Annotated[Customer, Depends(get_owner)]
 
 
 class ArchiveWorkspace(BaseModel):
@@ -86,7 +84,6 @@ class ArchivedPostingsPublic(BaseModel):
     data: list[ArchivedPostingSummary]  # newest first
     count: int
     workspaces: list[ArchiveWorkspace]  # open ones, and archived ones that still have postings
-    read_only: bool  # the plan has ended: nothing new can be saved
 
 
 class ArchivedFilePublic(BaseModel):
@@ -102,7 +99,6 @@ class ArchivedPostingPublic(ArchivedPostingSummary):
     text: str
     application_form: str | None
     documents: list[ArchivedFilePublic]
-    read_only: bool
 
 
 class ArchivedPostingUpdate(BaseModel):
@@ -143,7 +139,7 @@ def _documents(session: SessionDep, posting: ArchivedPosting) -> list[ArchivedFi
     return [ArchivedFilePublic.model_validate(row._mapping) for row in rows]
 
 
-def _public(session: SessionDep, posting: ArchivedPosting, plan: Plan | None) -> ArchivedPostingPublic:
+def _public(session: SessionDep, posting: ArchivedPosting) -> ArchivedPostingPublic:
     workspace = session.get(Workspace, posting.workspace_id)
     paid = session.get(PaidCheck, posting.paid_check_id)
     documents = _documents(session, posting)
@@ -151,7 +147,6 @@ def _public(session: SessionDep, posting: ArchivedPosting, plan: Plan | None) ->
     return ArchivedPostingPublic.model_validate({
         **_summary(posting, workspace, paid.final_status if paid else None, len(documents)),
         "text": posting.text, "application_form": posting.application_form, "documents": documents,
-        "read_only": plan is None,
     })  # fmt: skip
 
 
@@ -167,7 +162,7 @@ def read_archive(
 ) -> Any:  # fmt: skip
     """The customer's archived postings, newest first: all workspaces or one, searched by job title and the day
     they were saved (Toronto time)."""
-    customer, plan = owner
+    customer = owner
     mine = [col(ArchivedPosting.customer_id) == customer.id, kept(today())]
     if workspace_id is not None:
         mine.append(col(ArchivedPosting.workspace_id) == owned_workspace(session, customer, workspace_id).id)
@@ -204,7 +199,7 @@ def read_archive(
         .order_by(col(Workspace.created_at))
     ).all()  # fmt: skip
     return ArchivedPostingsPublic(
-        data=data, count=count, read_only=plan is None,
+        data=data, count=count,
         workspaces=[
             ArchiveWorkspace(id=w.id, name=label(w), archive_postings=w.archive_postings, archived=w.archived_at is not None)
             for w in workspaces
@@ -216,7 +211,7 @@ def read_archive(
 def export_archive(session: SessionDep, owner: OwnerDep, workspace_id: uuid.UUID) -> Any:
     """A workspace's archive as a zip: an index page, and a folder per posting with the posting, its
     application form and its linked documents."""
-    customer, _ = owner
+    customer = owner
     workspace = owned_workspace(session, customer, workspace_id)
     name = f"CheckON archive - {label(workspace)} - {today().isoformat()}.zip"
     return StreamingResponse(
@@ -227,21 +222,19 @@ def export_archive(session: SessionDep, owner: OwnerDep, workspace_id: uuid.UUID
 
 @router.get("/{posting_id}", response_model=ArchivedPostingPublic)
 def read_archived_posting(posting_id: uuid.UUID, session: SessionDep, owner: OwnerDep) -> Any:
-    customer, plan = owner
-    return _public(session, owned_posting(session, customer, posting_id), plan)
+    customer = owner
+    return _public(session, owned_posting(session, customer, posting_id))
 
 
 @router.patch("/{posting_id}", response_model=ArchivedPostingPublic)
 def update_archived_posting(
     posting_id: uuid.UUID, body: ArchivedPostingUpdate, session: SessionDep, owner: OwnerDep
 ) -> Any:
-    """Mark a posting taken down (or still up), or save its application form's text. A takedown date can be
-    set after the plan ends, so the posting is still deleted on time; the form can't."""
-    customer, plan = owner
+    """Mark a posting taken down (or still up), or save its application form's text."""
+    customer = owner
     posting = owned_posting(session, customer, posting_id)
     update = body.model_dump(exclude_unset=True)
     if "application_form" in update:
-        require_plan(plan)
         posting.application_form = (update["application_form"] or "").strip() or None
     if "taken_down_on" in update:
         down = update["taken_down_on"]
@@ -254,26 +247,25 @@ def update_archived_posting(
     session.add(posting)
     session.commit()
     session.refresh(posting)
-    return _public(session, posting, plan)
+    return _public(session, posting)
 
 
 @router.put("/{posting_id}/text", response_model=ArchivedPostingPublic)
 def save_archived_text(posting_id: uuid.UUID, body: ArchivedTextIn, session: SessionDep, owner: OwnerDep) -> Any:
     """Replace the archived text with the posting as edited after applying the fixes: what actually goes up."""
-    customer, plan = owner
-    require_plan(plan)
+    customer = owner
     posting = owned_posting(session, customer, posting_id)
     posting.text, posting.updated_at = body.text, get_datetime_utc()
     session.add(posting)
     session.commit()
     session.refresh(posting)
-    return _public(session, posting, plan)
+    return _public(session, posting)
 
 
 @router.delete("/{posting_id}", response_model=Message)
 def delete_archived_posting(posting_id: uuid.UUID, session: SessionDep, owner: OwnerDep) -> Any:
     """Delete a posting and its documents now, before its three years are up."""
-    customer, _ = owner
+    customer = owner
     session.delete(owned_posting(session, customer, posting_id))
     session.commit()
     return Message(message="Deleted from the archive.")
@@ -282,8 +274,7 @@ def delete_archived_posting(posting_id: uuid.UUID, session: SessionDep, owner: O
 @router.post("/{posting_id}/files", response_model=ArchivedFilePublic, status_code=201)
 def upload_archived_file(posting_id: uuid.UUID, file: UploadFile, session: SessionDep, owner: OwnerDep) -> Any:
     """Add a document the posting links to: a PDF, Word (.docx), PNG or JPG file up to 10 MB, 5 per posting."""
-    customer, plan = owner
-    require_plan(plan)
+    customer = owner
     posting = owned_posting(session, customer, posting_id)
     if session.exec(select(func.count()).select_from(ArchivedFile).where(ArchivedFile.posting_id == posting.id)).one() >= MAX_FILES:
         raise HTTPException(status_code=409, detail=f"A posting can have {MAX_FILES} documents. Delete one first.")
@@ -302,7 +293,7 @@ def upload_archived_file(posting_id: uuid.UUID, file: UploadFile, session: Sessi
 
 @router.get("/{posting_id}/files/{file_id}", response_class=Response)
 def download_archived_file(posting_id: uuid.UUID, file_id: uuid.UUID, session: SessionDep, owner: OwnerDep) -> Any:
-    customer, _ = owner
+    customer = owner
     posting = owned_posting(session, customer, posting_id)
     stored = session.get(ArchivedFile, file_id)
     if stored is None or stored.posting_id != posting.id:
@@ -315,7 +306,7 @@ def download_archived_file(posting_id: uuid.UUID, file_id: uuid.UUID, session: S
 
 @router.delete("/{posting_id}/files/{file_id}", response_model=Message)
 def delete_archived_file(posting_id: uuid.UUID, file_id: uuid.UUID, session: SessionDep, owner: OwnerDep) -> Any:
-    customer, _ = owner
+    customer = owner
     posting = owned_posting(session, customer, posting_id)
     stored = session.get(ArchivedFile, file_id)
     if stored is None or stored.posting_id != posting.id:

@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useAudits } from "@/hooks/useAudits"
-import { formatDay } from "../Billing/UsageMeter"
+import { formatDay } from "@/lib/utils"
 import { shortAddress } from "./summary"
 
 const RESULTS: [string[], string][] = [
@@ -37,7 +37,7 @@ function results(audit: AuditSummary): string {
     .join(" · ")
 }
 
-/** Past careers page audits: date, page, results. With client workspaces (Agency), the picked `workspace`'s, or
+/** Past careers page audits: date, page, results. With client workspaces, the picked `workspace`'s, or
  * every client's. */
 export function PastAudits({ workspace }: { workspace?: WorkspacePublic }) {
   const [everyClient, setEveryClient] = useState(false)

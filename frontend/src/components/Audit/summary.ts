@@ -1,5 +1,5 @@
 import type { AuditPostingPublic, AuditPublic } from "@/client"
-import { formatDay } from "@/components/Billing/UsageMeter"
+import { formatDay } from "@/lib/utils"
 
 export const SOURCE_NAME: Record<AuditPublic["source"], string> = {
   greenhouse: "Greenhouse",

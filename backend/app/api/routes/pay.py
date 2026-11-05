@@ -1,7 +1,7 @@
-"""Pay range suggestions for a paying customer's check (PRD FR9, Technical Design §9): suggest a range with its
-sources, then confirm or edit it. A confirmed range is saved as that job title's band in the company profile or
-client workspace the check used, and goes through the Refiner like any confirmed fact, replacing the pay
-placeholder. Nothing is written into a posting until the customer confirms it. Free checks keep the placeholder.
+"""Pay range suggestions for a signed-in account's check (Technical Design §9): suggest a range with its sources,
+then confirm or edit it. A confirmed range is saved as that job title's band in the company profile or client
+workspace the check used, and goes through the Refiner like any confirmed fact, replacing the pay placeholder.
+Nothing is written into a posting until the user confirms it. Visitors' free checks keep the placeholder.
 """
 
 import time
@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import Session, col, select
 
-from app.api.billing import PlanAccess, paid_access
+from app.api.accounts import Access, access_for
 from app.api.check_store import CheckState
 from app.api.deps import CurrentUser, SessionDep
 from app.api.free_check import rate_limited, same_origin
@@ -43,15 +43,22 @@ from app.compliance.models import ExpectedPay, PayKind, PayUnit
 from app.compliance.rulepack import RulePack
 from app.models import Message, PayBand, Workspace, get_datetime_utc
 from app.pay.jobbank import JobBank, load_job_bank
-from app.pay.suggest import ConfirmedBand, PayLLM, PayRange, PostingCache, Suggestion, role_key, suggest
+from app.pay.suggest import (
+    ConfirmedBand,
+    PayLLM,
+    PayRange,
+    PostingCache,
+    Suggestion,
+    role_key,
+    suggest,
+)
 
 router = APIRouter(prefix="/pay", tags=["pay"], dependencies=[Depends(rate_limited), Depends(same_origin)])
 
 
-def get_pay_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = paid_access(session, user)
-    if access is None:
-        raise HTTPException(status_code=403, detail="Pay range suggestions come with a paid plan.")
+def get_pay_access(session: SessionDep, user: CurrentUser) -> Access:
+    access = access_for(session, user)
+    assert access is not None  # CurrentUser is signed in
     return access
 
 
@@ -63,7 +70,7 @@ def get_job_bank() -> JobBank:
     return load_job_bank()
 
 
-AccessDep = Annotated[PlanAccess, Depends(get_pay_access)]
+AccessDep = Annotated[Access, Depends(get_pay_access)]
 PostingsDep = Annotated[PostingCache, Depends(get_postings_cache)]
 JobBankDep = Annotated[JobBank, Depends(get_job_bank)]
 _CODE = r"^\d{5}$"
@@ -98,12 +105,12 @@ class BandsPublic(BaseModel):
     data: list[BandPublic]  # the workspace's confirmed ranges, by job title
 
 
-def _paid_check(session: Session, store: Any, access: PlanAccess, check_id: str) -> tuple[CheckState, Workspace]:
-    """The customer's own check on their plan, and the workspace it used. Another customer's check is refused."""
+def _paid_check(session: Session, store: Any, access: Access, check_id: str) -> tuple[CheckState, Workspace]:
+    """The account's own signed-in check, and the workspace it used. Another account's check is refused."""
     state = _state(store, check_id)
     workspace = session.get(Workspace, state.workspace_id) if state.workspace_id else None
     if state.plan is None or workspace is None or workspace.customer_id != access.customer.id:
-        raise HTTPException(status_code=403, detail="Pay range suggestions are for checks on your paid plan.")
+        raise HTTPException(status_code=403, detail="Pay range suggestions are for checks you ran signed in.")
     return state, workspace
 
 

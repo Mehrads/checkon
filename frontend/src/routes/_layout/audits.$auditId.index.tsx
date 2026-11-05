@@ -6,11 +6,11 @@ import { PageHeading } from "@/components/Common/PageHeading"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAudit } from "@/hooks/useAudits"
-import { apiMessage } from "@/hooks/useBilling"
+import { apiMessage } from "@/lib/api"
 
 export const Route = createFileRoute("/_layout/audits/$auditId/")({
   component: Report,
-  // Set when the customer has just picked the postings: their checks start as the page opens
+  // Set when the user has just picked the postings: their checks start as the page opens
   validateSearch: (search: Record<string, unknown>): { run?: boolean } => ({
     run: search.run === true || search.run === "true" ? true : undefined,
   }),

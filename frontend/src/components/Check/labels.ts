@@ -54,12 +54,10 @@ export function ruleName(rule: string): string {
   return RULE_NAMES[rule] ?? rule
 }
 
-/** The line under a customer's paste form: what a check on the plan keeps. `archive`: the workspace's
- * archive is on. Shared by the website and the extension. */
-export function planNote(planName: string, archive: boolean): string {
-  if (planName === "Free")
-    return "Checks count toward your free account. We keep the date, job title and result, never the posting."
+/** The line under a signed-in user's paste form: what a check keeps. `archive`: the workspace's archive is on.
+ * Shared by the website and the extension. */
+export function accountNote(archive: boolean): string {
   return archive
-    ? `Checks count toward your ${planName} plan. This workspace's archive is on: we save the posting when you apply fixes.`
-    : `Checks count toward your ${planName} plan. We keep the date, job title and result, never the posting.`
+    ? "Checks are saved to your account. This workspace's archive is on: the posting is saved when you apply fixes."
+    : "Checks are saved to your account: the date, job title and result, never the posting."
 }

@@ -1,4 +1,4 @@
-"""Limits on the free check (04-V1-Scope.md, section 4): a weekly quota per cookie and per IP, a per-IP
+"""Limits on the free check: a weekly quota per cookie and per IP, a per-IP
 rate limit, an origin check and a daily spend cap. Every limit is enforced on the server.
 """
 

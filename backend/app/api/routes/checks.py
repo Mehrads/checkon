@@ -1,7 +1,7 @@
 """The paste check (Technical Design §11): inspect (pasted text, or a posting's link the server reads), check the
 application form, refine, answer questions, accept patches, plus the research hooks (one question per result, a
 custom-solution request form, feedback) and the site's contact form. Visitors get the free check's limits; a
-signed-in customer on an active plan checks against the plan. The application form counts as one more check.
+signed-in user checks for their account (app/api/accounts.py). The application form counts as one more check.
 """
 
 import html
@@ -17,7 +17,6 @@ from typing import Annotated, Any, Literal, NamedTuple, Self
 from zoneinfo import ZoneInfo
 
 import anthropic
-import stripe
 from fastapi import (
     APIRouter,
     BackgroundTasks,
@@ -29,14 +28,8 @@ from fastapi import (
 from langfuse import Langfuse
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
+from app.api.accounts import ACCOUNT, AccountChecks, access_for, record_final_status
 from app.api.archive import purge_soon, save_applied
-from app.api.billing import (
-    PlanLimits,
-    plan_access,
-    record_final_status,
-    report_extra_checks_later,
-    stripe_client,
-)
 from app.api.check_store import CheckState, CheckStore
 from app.api.deps import OptionalUserDep, SessionDep
 from app.api.employer_cache import PostgresSizeCache
@@ -146,10 +139,10 @@ def get_sizes(session: SessionDep) -> SizeCache:
     return PostgresSizeCache(session)
 
 
-def get_plan_limits(session: SessionDep, user: OptionalUserDep) -> PlanLimits | None:
-    """None for visitors and for signed-in users without an active plan: they get the free check."""
-    access = plan_access(session, user)
-    return PlanLimits(session, access) if access else None
+def get_account_checks(session: SessionDep, user: OptionalUserDep) -> AccountChecks | None:
+    """None for visitors: they get the free check."""
+    access = access_for(session, user)
+    return AccountChecks(session, access) if access else None
 
 
 StoreDep = Annotated[CheckStore, Depends(get_store)]
@@ -159,8 +152,7 @@ DateDep = Annotated[date, Depends(get_posting_date)]
 LimitsDep = Annotated[Limits, Depends(get_limits)]
 UsageDep = Annotated[Usage, Depends(get_usage)]
 SizesDep = Annotated[SizeCache, Depends(get_sizes)]
-PlanDep = Annotated[PlanLimits | None, Depends(get_plan_limits)]
-MeterDep = Annotated[stripe.StripeClient | None, Depends(stripe_client)]
+PlanDep = Annotated[AccountChecks | None, Depends(get_account_checks)]
 LinkReaderDep = Annotated[LinkReader, Depends(get_link_reader)]
 LinkLimiterDep = Annotated[RateLimiter, Depends(get_link_limiter)]
 
@@ -171,9 +163,9 @@ class InspectIn(BaseModel):
 
     text: str | None = Field(default=None, min_length=1, max_length=MAX_POSTING_CHARS)
     url: str | None = Field(default=None, min_length=1, max_length=MAX_URL_CHARS)
-    # Left empty by the free check, which looks the employer up. A customer's company profile fills it in.
+    # Left empty by the free check, which looks the employer up. A signed-in account's company profile fills it in.
     meets_headcount_threshold: bool | None = None
-    workspace_id: uuid.UUID | None = None  # Agency: the client workspace picked in the switcher
+    workspace_id: uuid.UUID | None = None  # the client workspace picked in the switcher
 
     @model_validator(mode="after")
     def _text_or_url(self) -> Self:
@@ -274,8 +266,8 @@ def _spent(llm: StructuredLLM) -> Decimal:
 
 
 def _charge(limits: Limits, plan: str | None, llm: StructuredLLM) -> None:
-    """Free checks, a free account's included, count toward the day's spend cap; a paying customer's don't."""
-    if plan in (None, "free"):
+    """A visitor's free checks count toward the day's spend cap; a signed-in account's don't."""
+    if plan is None:
         limits.add_spend(_spent(llm))
 
 
@@ -302,24 +294,16 @@ def _free_check_allowed(
     return visitor
 
 
-def _plan_check_allowed(plan: PlanLimits, usage: Usage, limits: Limits | None = None) -> None:
+def _plan_check_allowed(plan: AccountChecks, usage: Usage) -> None:
+    """An account's checks, when the server limits them (ACCOUNT_CHECKS_PER_30_DAYS)."""
     if (next_check := plan.next_check()) is not None:
-        usage.record("quota", plan=plan.plan.id)
+        usage.record("quota", plan=ACCOUNT)
         day = next_check.astimezone(TORONTO).strftime("%B %-d")
-        if not plan.plan.paid:
-            raise refused(
-                429, "free_account_limit",
-                f"You've used your {plan.plan.checks} free checks. They start again on {day}, or choose a plan "
-                "for more.",
-            )  # fmt: skip
         raise refused(
-            429, "plan_limit",
-            f"You've used this billing period's checks and {settings.PLAN_EXTRA_CHECKS_MAX} extra checks. "
-            f"Checks start again on {day}. Contact us if you need more.",
+            429, "account_limit",
+            f"You've used your {settings.ACCOUNT_CHECKS_PER_30_DAYS} checks for the last 30 days. "
+            f"Your next check is available on {day}.",
         )  # fmt: skip
-    if not plan.plan.paid and limits is not None and not limits.budget_left():  # free accounts share the cap
-        usage.record("paused", plan=plan.plan.id)
-        raise refused(503, "paused", "Free checks are paused for the rest of today. Try again tomorrow.")
 
 
 def _refine(state: CheckState, pack: RulePack, llm: StructuredLLM) -> Refinement:
@@ -365,23 +349,23 @@ def _link_refusal(error: InputRefused, page: FetchedPosting) -> tuple[str, str]:
 def inspect_posting(
     body: InspectIn, request: Request, response: Response, background: BackgroundTasks, session: SessionDep,
     store: StoreDep, llm: LLMDep, pack: PackDep, today: DateDep, limits: LimitsDep, usage: UsageDep,
-    sizes: SizesDep, plan: PlanDep, meter: MeterDep, reader: LinkReaderDep, link_limiter: LinkLimiterDep,
+    sizes: SizesDep, plan: PlanDep, reader: LinkReaderDep, link_limiter: LinkLimiterDep,
     trace: TraceDep,
 ) -> Any:  # fmt: skip
     started = time.monotonic()
-    paid = plan.plan.id if plan else None
+    paid = ACCOUNT if plan else None
     if plan is None:
         visitor: Visitor | None = _free_check_allowed(request, response, limits, usage)
-    else:  # a customer's check: the plan's checks instead of the weekly limit and the spend cap
+    else:  # a signed-in check: the account's limit, if any, instead of the weekly limit and the spend cap
         visitor = None
-        _plan_check_allowed(plan, usage, limits)
+        _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
     text, url, page = body.text or "", None, None
     if body.url is not None:  # after the quota, so a visitor with no check left can't make us fetch pages
         limit = MAX_LINKED_CHARS if plan else MAX_POSTING_CHARS
         page = _read_link(body.url, request, reader, link_limiter, usage, who, paid, started, limit)
         text, url = page.text, page.url
-    # A customer's check starts from their company profile: its facts aren't asked or searched for.
+    # A signed-in check starts from the account's company profile: its facts aren't asked or searched for.
     workspace = current_workspace(session, plan.access, body.workspace_id) if plan else None
     ctx = profile_context(workspace) if workspace else Context()
     if body.meets_headcount_threshold is not None:
@@ -409,8 +393,6 @@ def inspect_posting(
     if plan:
         title = inspection.facts.title.value if inspection.facts.title else None
         plan.record(state.id, title, inspection.report.status.value, state.workspace_id)
-        if meter is not None:  # extra checks go to Stripe's meter after the response
-            background.add_task(report_extra_checks_later, meter, plan.customer_id)
     usage.record(
         "check", check_id=state.id, visitor=who, status=inspection.report.status.value,
         duration_ms=elapsed_ms(started), usd=_spent(llm), plan=paid,
@@ -428,8 +410,8 @@ FORM_REFUSALS = {
 
 @router.post("/form", response_model=CheckOut)
 def check_form(
-    body: FormIn, request: Request, response: Response, background: BackgroundTasks, store: StoreDep,
-    llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, meter: MeterDep, trace: TraceDep,
+    body: FormIn, request: Request, response: Response, store: StoreDep,
+    llm: LLMDep, pack: PackDep, limits: LimitsDep, usage: UsageDep, plan: PlanDep, trace: TraceDep,
 ) -> Any:  # fmt: skip
     """Check the posting's application form against the rules that cover it (ESA s. 8.3 (1)): one more check,
     on the same limits as the posting's."""
@@ -440,12 +422,12 @@ def check_form(
     form = parse_form(body.form)
     if not form.questions:
         raise refused(422, "empty_form", FORM_REFUSALS["empty_form"])
-    paid = plan.plan.id if plan else None
+    paid = ACCOUNT if plan else None
     if plan is None:
         visitor: Visitor | None = _free_check_allowed(request, response, limits, usage, form=True)
     else:
         visitor = None
-        _plan_check_allowed(plan, usage, limits)
+        _plan_check_allowed(plan, usage)
     who = visitor.hash if visitor else None
     try:
         questions = classify_form(form, pack, llm, ModelSettings())
@@ -475,8 +457,6 @@ def check_form(
     if plan:
         title = state.inspection.facts.title.value if state.inspection.facts.title else None
         plan.record(f"{state.id}-form", f"{title or 'Untitled posting'}: application form", status.value, state.workspace_id)
-        if meter is not None:
-            background.add_task(report_extra_checks_later, meter, plan.customer_id)
     usage.record(
         "form", check_id=state.id, visitor=who, status=status.value, duration_ms=elapsed_ms(started),
         usd=_spent(llm), count=len(questions), plan=paid,
@@ -633,14 +613,14 @@ def send_feedback(body: FeedbackIn, session: SessionDep, store: StoreDep) -> Mes
 
 logger = logging.getLogger(__name__)
 
-INTERESTS = {"starter": "Starter plan", "agency": "Agency plan", "custom": "Custom setup", "other": "Something else"}
+INTERESTS = {"custom": "Custom setup", "other": "Something else"}
 
 
 class ContactIn(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     email: EmailStr = Field(max_length=255)
     company: str | None = Field(default=None, max_length=255)
-    interest: Literal["starter", "agency", "custom", "other"]
+    interest: Literal["custom", "other"]
     message: str = Field(min_length=1, max_length=2000)
     check_id: str | None = Field(default=None, max_length=64)
 

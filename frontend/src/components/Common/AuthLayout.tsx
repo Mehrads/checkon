@@ -10,12 +10,12 @@ interface AuthLayoutProps {
 }
 
 const INCLUDED = [
-  "Your checks for the month, on checkon.ca",
   "The date, job title and result of every check",
-  "Reports on your job board, kept in one place",
+  "A company profile for each client, so checks start from its answers",
+  "Careers page audits, and an archive of the postings you approve",
 ]
 
-/** Log-in, password and welcome pages: the brand panel on wide screens, the form beside it. */
+/** Log-in, sign-up and password pages: the brand panel on wide screens, the form beside it. */
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="grid min-h-svh bg-background lg:grid-cols-[1fr_1.1fr]">

@@ -16,10 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useRefreshAccount } from "@/hooks/useAccount"
 import { useRunAudit } from "@/hooks/useAudits"
-import { useRefreshBilling } from "@/hooks/useBilling"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
-import { formatDay } from "../Billing/UsageMeter"
+import { formatDay } from "@/lib/utils"
 import { group, SOURCE_NAME, shortAddress, summaryLine } from "./summary"
 
 // Audits started from this page load, so React's double effects in development don't start one twice
@@ -81,7 +81,7 @@ function Issues({ posting }: { posting: AuditPostingPublic }) {
 }
 
 /** The audit's postings with their results, checked from this page; a summary line to share. `run`: start checking
- * the postings still waiting as soon as the page opens (right after the customer picked them). */
+ * the postings still waiting as soon as the page opens (right after the user picked them). */
 export function AuditReport({
   audit,
   run,
@@ -89,7 +89,7 @@ export function AuditReport({
   audit: AuditPublic
   run: boolean
 }) {
-  const refresh = useRefreshBilling()
+  const refresh = useRefreshAccount()
   const runner = useRunAudit(audit.id, refresh)
   const [copied, copy] = useCopyToClipboard()
   const waiting = audit.postings.filter((p) => p.status === "queued")

@@ -92,6 +92,7 @@ jobs:
       MAILPIT_HOST: http://localhost:8025
       PLAYWRIGHT_BASE_URL: http://localhost:8000
       EXTENSION_IDS: lfepfedddcabkigmmhbhacdllgljpdbe # the unpacked extension's fixed ID
+      SIGNUP_OPEN: "true" # so the sign-up flow spec runs
     steps:
       - uses: actions/checkout@v7
         with:

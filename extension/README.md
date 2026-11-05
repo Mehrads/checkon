@@ -1,32 +1,37 @@
 # CheckON browser extension
 
-A side panel for Chrome and Edge that checks a job posting where it's written: it reads the posting from the page, runs the same free check as checkon.ca, and writes the fixes you approve back into the job form.
+A side panel for Chrome and Edge that checks a job posting where it's written: it reads the posting from the page, runs the same check as the CheckON website, and writes the fixes you approve back into the job form.
 
-It is a thin client. Rules, prompts and rule data stay on the server, and the extension only calls the check API on checkon.ca. Without signing in it shares the website's limit: one free check a week per browser and IP address, no sign-up.
+It is a thin client. Rules, prompts and rule data stay on the server, and the extension only calls the check API of the CheckON server it was built for. Without signing in it shares the website's free check: the server's weekly limit per browser and IP address, no sign-up.
 
-Paying customers can **Log in** in the panel with their CheckON email, password and the emailed code, like on the website. Their checks then count against their plan (the panel shows "12 of 50 checks this period"), and **Log out** goes back to the free check. The sign-in token is kept in the extension's own storage (`chrome.storage.local`) until it expires after 8 days or they log out.
+Anyone with an account on that server can **Log in** in the panel with their email, password and the emailed code, like on the website. Their checks are then saved to their account and start from their company profile, with the client switcher when the account has several workspaces. The panel shows the account's checks for the last 30 days ("12 checks in the last 30 days", or "12 of 50…" when the server sets `ACCOUNT_CHECKS_PER_30_DAYS`), and **Log out** goes back to the free check. The sign-in token is kept in the extension's own storage (`chrome.storage.local`) until it expires after 8 days or they log out.
 
-## Build
+## Build it for your server
 
-From the repository root:
+The server is fixed at build time. From the repository root:
 
 ```bash
-bun run --filter extension build
+VITE_API_URL=https://checkon.example.org bun run --filter extension build
 ```
 
-That builds the Chrome Web Store version into `extension/dist`. Two variants:
+| Variable | Default | What it sets |
+| --- | --- | --- |
+| `VITE_API_URL` | `http://localhost:8000` | The CheckON API the panel calls, and the one host the extension may reach (`host_permissions`) |
+| `VITE_SITE_URL` | `VITE_API_URL` | The website the panel links to: password help, the company profile, the archive, privacy. Set it only if the website isn't served by the API, as it is by default |
+
+The server only answers extensions it knows: add the extension's ID to the server's `EXTENSION_IDS` (a comma-separated list), or its checks get "Requests must come from the checker's own page".
 
 | Command | What it builds |
 | --- | --- |
-| `bun run --filter extension build:unpacked` | The same build with a fixed ID, `lfepfedddcabkigmmhbhacdllgljpdbe`, for loading unpacked (the API only accepts allowed extension IDs) |
-| `VITE_API_URL=http://localhost:8000 bun run --filter extension build:unpacked` | Talks to a local backend instead of checkon.ca |
-| `bun run --filter extension package` | The store build, zipped as `extension/checkon-extension.zip` |
+| `bun run --filter extension build` | The extension in `extension/dist`; Chrome gives it an ID when you load or publish it |
+| `bun run --filter extension build:unpacked` | The same build with a fixed ID, `lfepfedddcabkigmmhbhacdllgljpdbe`, for loading unpacked: put that ID in `EXTENSION_IDS` |
+| `bun run --filter extension package` | The build, zipped as `extension/checkon-extension.zip`, for the Chrome Web Store or Edge Add-ons |
 
 The unpacked ID comes from `unpacked-public-key.txt`. Only the public half of that key exists; it just pins the ID.
 
 ## Try it in Chrome
 
-1. Run `bun run --filter extension build:unpacked`.
+1. Run `bun run --filter extension build:unpacked` (with `VITE_API_URL` set, unless your server is the local one on `:8000`).
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `extension/dist`.
 3. Pin CheckON from the puzzle-piece menu.
 4. Open a job form, or any page with a posting, and click the CheckON icon. The side panel reads the posting: the selected text first, then the job description field, then the page.
@@ -65,8 +70,8 @@ From the repository root:
 | `bun run --filter extension e2e:form` | **Read form** on the application form: on its own tab, in a frame, and under the posting | None; two with `CHECK=1` |
 | `bun run --filter extension e2e:full` | A real check signed out: answers the AI and vacancy questions, applies the fixes and inserts them | One free check per mode |
 | `bun run --filter extension e2e:onpage` | The same check reviewed on the page: Accept all on the page writes the fixes into the form, and the panel says what's left to fill in | One free check per mode |
-| `bun run --filter extension e2e:signed` | Log in with the emailed code, the plan meter, the workspace switcher, a check with the client's profile, a pay range, insert, log out | One plan check |
-| `bun run --filter extension e2e` | smoke, tabs, form and signed: what CI runs | One plan check (none in CI) |
+| `bun run --filter extension e2e:signed` | Log in with the emailed code, the account's usage line, the workspace switcher, a check with the client's profile, a pay range, insert, log out | One account check |
+| `bun run --filter extension e2e` | smoke, tabs, form and signed: what CI runs | One account check (none in CI) |
 
 `bun run --filter extension e2e full:rich,tinymce` runs suites with the modes you pick. `HEADFUL=1` shows the browser.
 
@@ -76,11 +81,11 @@ The local stack is the one in the main README (the API on `:8000`) plus Mailpit 
 - `ANTHROPIC_API_KEY` for the steps that run a check. Without it, or with `E2E_CHECKS=0`, `signed` skips them. That's how CI runs it.
 - `FREE_CHECKS_PER_WEEK` above 1 to run `full` more than once a week.
 
-`signed` makes a user of its own each run: the private user API creates it, `uv run python -m app.test_account` (in `backend/`, on the database in `.env`) gives it a complimentary Agency plan, and it gets a "Harbour Foods" client workspace that uses AI in hiring.
+`signed` makes a user of its own each run: the private user API creates it, and it gets a "Harbour Foods" client workspace that uses AI in hiring.
 
-### Against checkon.ca
+### Against a deployed server
 
-Only when you mean to: `E2E_API_URL=https://checkon.ca bun run --filter extension e2e:full`. Each check there uses this IP's free check for the week, and the next one is refused until the week is up. `smoke`, `tabs` and `form` don't call the API. `signed` refuses to run there, since it would sign in on production.
+Only when you mean to: `E2E_API_URL=https://checkon.example.org bun run --filter extension e2e:full`. Each check there uses this IP's free check for the week, and the next one is refused until the week is up. `smoke`, `tabs` and `form` don't call the API. `signed` refuses to run there, since it would sign in on production.
 
 Puppeteer rather than the website's Playwright setup: Playwright can load an unpacked extension but can't press its toolbar button, and the tests need that click for Chrome's `activeTab` grant. `puppeteer-core` and `@puppeteer/browsers` are pinned, and so is the Chrome for Testing build in `e2e/lib.mjs`; update them together. The plain `puppeteer` package would download Chrome on every `bun install`, including the production image's.
 
@@ -93,13 +98,13 @@ The Chrome Web Store asks why each permission is needed:
 | `sidePanel` | The check runs in the browser's side panel |
 | `activeTab`, `scripting` | Read the posting, or the application form's questions, from the current tab, highlight the problems in it, and write the fixes you accept back into the job form. Only after you click the CheckON icon or menu item, and only in that tab |
 | `contextMenus` | The right-click "Check with CheckON" item |
-| `storage` | Passes the right-click request to the side panel (session storage, cleared when the browser closes), and keeps a paying customer signed in (local storage, until they log out) |
-| `https://checkon.ca/*` | The check runs on CheckON's API |
+| `storage` | Passes the right-click request to the side panel (session storage, cleared when the browser closes), and keeps a signed-in user signed in (local storage, until they log out) |
+| Your server, `VITE_API_URL` | The check runs on that CheckON server's API, and nowhere else |
 
 ## Publish
 
-1. Create a Chrome Web Store developer account with your personal Google account: https://chrome.google.com/webstore/devconsole (one-time registration fee).
-2. Run `bun run --filter extension package` and upload `extension/checkon-extension.zip` as a new item.
-3. Fill in the listing from `store-assets/`: `listing.md` has the description, the single purpose and a reason for each permission, alongside three 1280 x 800 screenshots and the 440 x 280 promo tile (the store icon is `public/icons/icon-128.png`). Chrome doesn't let any extension, Claude in Chrome included, script the store's pages, so `bash store-assets/paste-fields.sh` puts each answer on the clipboard in turn for pasting. The privacy policy URL is `https://checkon.ca/privacy`, and the data disclosure is below. The extension sends the posting text you check, and any application form questions you read, to checkon.ca, and, for customers who log in, their email, password and sign-in code to checkon.ca's sign-in. It stores only the sign-in token. In the Web Store's data form that's "Personally identifiable information" (email) and "Authentication information"; neither is sold or used for anything but signing in.
-4. Copy the item's ID from the dashboard and add it to the API's allowed extensions (`EXTENSION_IDS`, see `infra/README.md`). Until then the store version gets "Requests must come from the checker's own page". The Chrome item is `mbpmobhcmimbohoijbbhckhinhggchdp`, submitted for review on 2026-10-29 and already allowed.
-5. Edge: upload the same zip at https://partner.microsoft.com/dashboard/microsoftedge and add its ID too.
+To offer the extension to your own users, publish your build:
+
+1. Build it for your server and run `bun run --filter extension package`, then upload `extension/checkon-extension.zip` as a new item in the Chrome Web Store developer dashboard (https://chrome.google.com/webstore/devconsole) or Edge Add-ons (https://partner.microsoft.com/dashboard/microsoftedge).
+2. `store-assets/` has a listing to start from: `listing.md` has the description, the single purpose and a reason for each permission, alongside three 1280 x 800 screenshots and the 440 x 280 promo tile (the store icon is `public/icons/icon-128.png`). Replace its addresses with your own; `bash store-assets/paste-fields.sh` puts each answer on the clipboard in turn. The privacy policy URL is your site's `/privacy`. The extension sends the posting text you check, and any application form questions you read, to your server, and, for users who log in, their email, password and sign-in code to its sign-in. It stores only the sign-in token. In the store's data form that's "Personally identifiable information" (email) and "Authentication information"; neither is sold or used for anything but signing in.
+3. Copy the item's ID from the dashboard and add it to the server's `EXTENSION_IDS`.

@@ -1,8 +1,7 @@
-"""The archive of approved postings (PRD FR11): a paying customer's record of every posting they applied fixes
-to, for the three years the ESA keeps it after the posting comes down (s. 15 (7.1)). Off until the customer turns
-it on for a workspace; free checks never reach it. A posting is deleted three years after the takedown date the
-customer enters, and kept until they enter one. After a plan ends, the archive stays readable: it can be
-downloaded, marked taken down and deleted, but nothing new goes in.
+"""The archive of approved postings: an account's record of every posting they applied fixes to, for the three
+years the ESA keeps it after the posting comes down (s. 15 (7.1)). Off until the account turns it on for a
+workspace; visitors' free checks never reach it. A posting is deleted three years after the takedown date the user
+enters, and kept until they enter one.
 """
 
 import html
@@ -20,7 +19,7 @@ from fastapi import HTTPException
 from sqlalchemy import ColumnElement, or_
 from sqlmodel import Session, col, delete, select
 
-from app.api.billing import Plan, paid_plan
+from app.api.accounts import account_for
 from app.api.workspaces import label
 from app.core.db import engine
 from app.models import (
@@ -79,12 +78,10 @@ def kept(on: date) -> ColumnElement[bool]:
 
 
 def save_applied(session: Session, check_id: str, workspace_id: uuid.UUID | None, text: str) -> ArchivedPosting | None:
-    """Keep the posting a customer just applied fixes to, if the check counted against a plan that's still
-    active and its workspace's archive is on. Applying again in the same check replaces the text."""
+    """Keep the posting an account just applied fixes to, if the check was a signed-in one and its workspace's
+    archive is on. Applying again in the same check replaces the text."""
     workspace = session.get(Workspace, workspace_id) if workspace_id else None
     if workspace is None or not workspace.archive_postings:
-        return None
-    if paid_plan(session.get(Customer, workspace.customer_id)) is None:
         return None
     # Locked, so two applies at once can't both add a posting for the check
     paid = session.exec(select(PaidCheck).where(PaidCheck.check_id == check_id).with_for_update()).first()
@@ -133,20 +130,9 @@ def purge_soon() -> None:
 # Access
 
 
-def archive_owner(session: Session, user: User) -> tuple[Customer, Plan | None]:
-    """The customer whose archive the user sees, and their plan: None after it ends (read-only)."""
-    customer = session.get(Customer, user.customer_id) if user.customer_id else None
-    if customer is None or customer.plan == "free":
-        raise HTTPException(status_code=403, detail="The archive comes with a paid plan.")
-    return customer, paid_plan(customer)
-
-
-def require_plan(plan: Plan | None) -> None:
-    if plan is None:
-        raise HTTPException(
-            status_code=403,
-            detail="Your plan has ended, so nothing new can be saved. You can still download, mark taken down and delete.",
-        )
+def archive_owner(session: Session, user: User) -> Customer:
+    """The account whose archive the user sees."""
+    return account_for(session, user)
 
 
 def owned_posting(session: Session, customer: Customer, posting_id: uuid.UUID) -> ArchivedPosting:

@@ -1,7 +1,7 @@
-"""Company profiles (PRD FR2) and client workspaces (FR10): the facts a paying customer's checks start from, so
-a check doesn't ask for them or search for the employer's size. Starter has one profile, created empty on first
-use. Agency has a workspace per client, each with its own profile; the plan's checks are shared by all of them.
-Company facts only: the posting text is never stored.
+"""Company profiles and client workspaces: the facts a signed-in account's checks start from, so a check doesn't
+ask for them or search for the employer's size. An account starts with one empty workspace and can add one per
+client (for recruiters and agencies), each with its own profile. Company facts only: the posting text is never
+stored.
 """
 
 import uuid
@@ -10,17 +10,12 @@ from typing import Literal
 from fastapi import HTTPException
 from sqlmodel import Session, col, delete, func, select
 
-from app.api.billing import PlanAccess
+from app.api.accounts import Access
 from app.compliance.models import Context
-from app.models import Audit, Customer, OutreachReport, PaidCheck, User, Workspace
+from app.models import Audit, Customer, PaidCheck, User, Workspace
 
 Wording = Literal["formal", "plain"]
 MAX_WORKSPACES = 100  # open at once, per customer
-
-
-def has_workspaces(access: PlanAccess) -> bool:
-    """Several client workspaces and a switcher: Agency only."""
-    return access.plan.id == "agency"
 
 
 def label(workspace: Workspace) -> str:
@@ -47,12 +42,12 @@ def open_workspaces(session: Session, customer: Customer) -> list[Workspace]:
     return found
 
 
-def current_workspace(session: Session, access: PlanAccess, requested: uuid.UUID | None = None) -> Workspace:
-    """The workspace a check or the profile page uses: on Agency, the one the client asked for, else the one the
-    user last picked; otherwise the first. Starter has no switcher, so it never picks."""
+def current_workspace(session: Session, access: Access, requested: uuid.UUID | None = None) -> Workspace:
+    """The workspace a check or the profile page uses: the one asked for, else the one the user last picked,
+    else the first."""
     workspaces = open_workspaces(session, access.customer)
     by_id = {workspace.id: workspace for workspace in workspaces}
-    if has_workspaces(access) and requested is not None:
+    if requested is not None:
         if requested not in by_id:
             raise HTTPException(status_code=409, detail="That workspace was archived. Pick another one and try again.")
         return by_id[requested]
@@ -74,9 +69,8 @@ def wording(workspace: Workspace | None) -> Wording:
 
 
 def forget_profiles(session: Session, customer_id: uuid.UUID | None) -> None:
-    """When a customer's last user deletes their account, their company profiles, careers page audits and saved
-    outreach reports go too. A paying customer's billing records stay, as the privacy page says; a free account was
-    never billed, so its customer and check history go as well. Call after deleting the user, before committing."""
+    """When an account's last user is deleted, everything the account kept goes too: company profiles, careers
+    page audits, check history and the archive. Call after deleting the user, before committing."""
     if customer_id is None:
         return
     session.flush()
@@ -84,8 +78,7 @@ def forget_profiles(session: Session, customer_id: uuid.UUID | None) -> None:
     if users == 0:
         session.exec(delete(Audit).where(col(Audit.customer_id) == customer_id))
         session.exec(delete(Workspace).where(col(Workspace.customer_id) == customer_id))
-        session.exec(delete(OutreachReport).where(col(OutreachReport.customer_id) == customer_id))
+        session.exec(delete(PaidCheck).where(col(PaidCheck.customer_id) == customer_id))
         customer = session.get(Customer, customer_id)
-        if customer is not None and customer.plan == "free":
-            session.exec(delete(PaidCheck).where(col(PaidCheck.customer_id) == customer_id))
-            session.delete(customer)
+        if customer is not None:
+            session.delete(customer)  # the archive goes with it (ON DELETE CASCADE)

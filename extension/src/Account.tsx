@@ -2,15 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useEffect, useState } from "react"
 
-import { BillingService, LoginService } from "@/client"
-import { UsageMeter } from "@/components/Billing/UsageMeter"
+import { AccountService, LoginService } from "@/client"
+import { usageText } from "@/components/Account/usage"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { SITE } from "./site"
 import { clearToken, saveToken, signedIn } from "./token"
-
-const SITE = new URL(import.meta.env.VITE_API_URL ?? "https://checkon.ca")
-  .origin
 
 function message(error: Error, fallback: string): string {
   if (error instanceof AxiosError) {
@@ -22,18 +20,18 @@ function message(error: Error, fallback: string): string {
   return fallback
 }
 
-/** The customer's sign-in and plan. An expired or revoked sign-in falls back to the free check. */
+/** The user's sign-in and their account's checks. An expired or revoked sign-in falls back to the free check. */
 export function useAccount() {
   const queryClient = useQueryClient()
   const [isSignedIn, setSignedIn] = useState(signedIn)
-  const billing = useQuery({
-    queryKey: ["billing"],
-    queryFn: async () => (await BillingService.readBilling()).data,
+  const account = useQuery({
+    queryKey: ["account"],
+    queryFn: async () => (await AccountService.readAccount()).data,
     enabled: isSignedIn,
     retry: false,
   })
   const failed =
-    billing.error instanceof AxiosError ? billing.error.response?.status : 0
+    account.error instanceof AxiosError ? account.error.response?.status : 0
   useEffect(() => {
     if (failed && [401, 403, 404].includes(failed)) {
       clearToken()
@@ -43,19 +41,19 @@ export function useAccount() {
 
   return {
     isSignedIn,
-    billing: isSignedIn ? billing.data : undefined,
+    usage: isSignedIn ? account.data : undefined,
     signIn: async (token: string) => {
       await saveToken(token)
       setSignedIn(true)
-      queryClient.invalidateQueries({ queryKey: ["billing"] })
+      queryClient.invalidateQueries({ queryKey: ["account"] })
     },
     signOut: async () => {
       await clearToken()
       setSignedIn(false)
-      queryClient.removeQueries({ queryKey: ["billing"] })
+      queryClient.removeQueries({ queryKey: ["account"] })
       queryClient.removeQueries({ queryKey: ["workspaces"] })
     },
-    refresh: () => queryClient.invalidateQueries({ queryKey: ["billing"] }),
+    refresh: () => queryClient.invalidateQueries({ queryKey: ["account"] }),
   }
 }
 
@@ -63,7 +61,7 @@ export type Account = ReturnType<typeof useAccount>
 
 const linkClass = "underline underline-offset-4 hover:text-foreground"
 
-/** One line under the header: log in, or the plan and its checks this period. */
+/** One line under the header: log in, or the account's checks in the last 30 days. */
 export function AccountBar({
   account,
   onLogIn,
@@ -74,59 +72,23 @@ export function AccountBar({
   if (!account.isSignedIn) {
     return (
       <p className="text-xs text-muted-foreground">
-        On a CheckON plan?{" "}
+        Have a CheckON account?{" "}
         <button type="button" onClick={onLogIn} className={linkClass}>
           Log in
         </button>{" "}
-        to use its checks here.
+        to use its checks and company profiles here.
       </p>
     )
   }
-  const { billing } = account
-  const logOut = (
-    <button type="button" onClick={account.signOut} className={linkClass}>
-      Log out
-    </button>
-  )
-  if (!billing) return null
-  if (!billing.plan) {
-    return (
-      <p className="text-xs text-muted-foreground">
-        You're signed in without an active plan, so the free check applies.{" "}
-        <a href={SITE} target="_blank" rel="noreferrer" className={linkClass}>
-          Choose a plan
-        </a>{" "}
-        · {logOut}
-      </p>
-    )
-  }
+  const { usage } = account
+  if (!usage) return null
   return (
-    <section className="space-y-2 rounded-xl border bg-card p-3 shadow-sm">
-      <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-        <span>
-          <span className="font-medium text-foreground">
-            {billing.plan_name}
-          </span>{" "}
-          plan
-          {billing.status === "past_due" && (
-            <span className="text-destructive">
-              {" "}
-              · payment failed, update your card on{" "}
-              <a
-                href={SITE}
-                target="_blank"
-                rel="noreferrer"
-                className={linkClass}
-              >
-                checkon.ca
-              </a>
-            </span>
-          )}
-        </span>
-        {logOut}
-      </div>
-      <UsageMeter billing={billing} className="text-xs [&_p]:text-xs" />
-    </section>
+    <p className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+      <span className="tabular-nums">Signed in · {usageText(usage)}</span>
+      <button type="button" onClick={account.signOut} className={linkClass}>
+        Log out
+      </button>
+    </p>
   )
 }
 
@@ -173,12 +135,12 @@ export function SignIn({
     <section className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
       <div>
         <h2 className="text-sm font-semibold">
-          {challenge ? "Check your email" : "Log in to your plan"}
+          {challenge ? "Check your email" : "Log in to your account"}
         </h2>
         <p className="text-xs text-muted-foreground">
           {challenge
             ? `We sent a 6-digit sign-in code to ${email.trim()}.`
-            : "Your checks here then count toward your plan, like on checkon.ca."}
+            : "Your checks here are then saved to your account, like on the website."}
         </p>
       </div>
       {challenge ? (

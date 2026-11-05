@@ -1,12 +1,10 @@
-// Signed in, against the local stack only: log in (password and the emailed code, from Mailpit), the plan
-// meter, the client workspace switcher, a paid check that uses the workspace's profile, a pay range suggestion
-// confirmed into the posting, insert, the token surviving a reopen, and log out.
+// Signed in, against the local stack only: log in (password and the emailed code, from Mailpit), the account's
+// usage line, the client workspace switcher, a signed-in check that uses the workspace's profile, a pay range
+// suggestion confirmed into the posting, insert, the token surviving a reopen, and log out.
 //
-// Each run makes a user of its own: the private user API (FASTAPI_ENV=development) creates it,
-// `python -m app.test_account` gives it a complimentary Agency plan, and the API adds a "Harbour Foods"
-// client workspace that uses AI in hiring. The check, pay range and insert steps need the API's Claude key:
+// Each run makes a user of its own: the private user API (FASTAPI_ENV=development) creates it, and the API adds
+// a "Harbour Foods" client workspace that uses AI in hiring. Every account gets every feature. The check, pay range and insert steps need the API's Claude key:
 // without ANTHROPIC_API_KEY (as in CI), or with E2E_CHECKS=0, they are skipped.
-import { spawnSync } from "node:child_process"
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import {
@@ -28,6 +26,8 @@ const MAILPIT = (process.env.MAILPIT_HOST ?? "http://localhost:8025").replace(
   "",
 )
 const API = `${API_URL}/api/v1`
+// The account bar once signed in: "Signed in · 3 checks in the last 30 days", or "3 of 50 checks…" with a limit
+const USAGE = /Signed in · \d+ (of \d+ )?checks? in the last 30 days/
 
 /** A variable from the environment, else from the repository's .env (the one the local API reads). */
 function setting(name) {
@@ -85,7 +85,7 @@ async function loginCode(email, skipId) {
   throw new Error(`no sign-in code for ${email} in Mailpit (${MAILPIT})`)
 }
 
-/** A fresh Agency user with a "Harbour Foods" workspace; checks use the user's own company. */
+/** A fresh user with a "Harbour Foods" client workspace; checks use the user's own company. */
 async function makeUser() {
   const email = `extension-e2e-${Math.random().toString(36).slice(2, 10)}@example.com`
   const password = `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
@@ -96,19 +96,6 @@ async function makeUser() {
       `${error.message}\nThe private user API needs FASTAPI_ENV=development on the local API.`,
     )
   })
-  const plan = spawnSync(
-    "uv",
-    ["run", "python", "-m", "app.test_account", email],
-    {
-      cwd: path.join(REPO_DIR, "backend"),
-      encoding: "utf8",
-    },
-  )
-  if (plan.status !== 0)
-    throw new Error(
-      `app.test_account failed (run it with the API's database settings):\n${plan.stderr}`,
-    )
-
   const { challenge } = await api("POST", "/login/password", {
     form: { username: email, password },
   })
@@ -144,7 +131,7 @@ export async function signed(extensionDir) {
   const checks =
     process.env.E2E_CHECKS !== "0" && !!setting("ANTHROPIC_API_KEY")
   const user = await makeUser()
-  log(`test user: ${user.email}, Agency plan, Harbour Foods workspace`)
+  log(`test user: ${user.email}, Harbour Foods workspace`)
   const { browser, extension } = await launch(extensionDir, "checkon-signed-")
   try {
     const page = await browser.newPage()
@@ -184,23 +171,18 @@ export async function signed(extensionDir) {
     await click(panel, "Verify")
     text = await waitForText(
       panel,
-      (t) => /Agency\s+plan/.test(t),
-      "the plan line",
+      (t) => USAGE.test(t),
+      "the usage line",
       15000,
     )
-    const meter =
-      text.match(/\d+ of \d+ checks[^\n]*/)?.[0] ??
-      text
-        .slice(text.indexOf("Agency"), text.indexOf("Agency") + 120)
-        .replace(/\n/g, " | ")
     check(
-      "logged in: Agency plan and meter shown",
-      /Agency\s+plan/.test(text),
-      meter,
+      "logged in: the account's usage shown",
+      USAGE.test(text),
+      text.match(USAGE)?.[0],
     )
     check(
-      "footer says checks count toward the plan",
-      text.includes("Checks count toward your Agency plan"),
+      "footer says checks are saved to the account",
+      text.includes("Checks are saved to your account"),
     )
 
     // 2. Workspaces: switch to Harbour Foods (uses AI in hiring).
@@ -228,7 +210,7 @@ export async function signed(extensionDir) {
       profile,
     )
 
-    if (checks) await paidCheck(panel, page)
+    if (checks) await signedCheck(panel, page)
     else
       log(
         "SKIP the check, pay range and insert: no ANTHROPIC_API_KEY, or E2E_CHECKS=0",
@@ -239,11 +221,11 @@ export async function signed(extensionDir) {
     await again.goto(`chrome-extension://${EXT_ID}/sidepanel.html`)
     text = await waitForText(
       again,
-      (t) => /Agency\s+plan/.test(t) || t.includes("Log in to use its checks"),
+      (t) => USAGE.test(t) || t.includes("Log in to use its checks"),
       "the reopened panel",
       15000,
     )
-    check("token kept across a reopen", /Agency\s+plan/.test(text))
+    check("token kept across a reopen", USAGE.test(text))
     await click(again, "Log out")
     text = await waitForText(
       again,
@@ -260,9 +242,9 @@ export async function signed(extensionDir) {
   }
 }
 
-/** Steps 3 to 5: a paid check, a pay range suggestion confirmed into the fixes, the vacancy answer, insert. */
-async function paidCheck(panel, page) {
-  // 3. A paid check: the profile answers the AI and size questions.
+/** Steps 3 to 5: a signed-in check, a pay range suggestion confirmed into the fixes, the vacancy answer, insert. */
+async function signedCheck(panel, page) {
+  // 3. A signed-in check: the profile answers the AI and size questions.
   const started = Date.now()
   await click(panel, "Check this posting")
   let text = await waitForText(

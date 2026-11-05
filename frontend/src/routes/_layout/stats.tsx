@@ -133,7 +133,7 @@ function requestsTile({ totals }: StatsOut): TileProps {
   return {
     label: "Custom requests",
     value: count.format(totals.custom_requests),
-    detail: `Plus ${totals.plan_enquiries} Starter or Agency enquiries, from ${totals.contact_messages} contact messages`,
+    detail: `Plus ${totals.contact_messages} contact messages`,
     state: met ? "good" : first && weeksLive > 8 ? "warning" : "none",
     stateLabel: met
       ? "On target"
@@ -169,14 +169,13 @@ const COLUMNS: { label: string; value: (week: Week) => string }[] = [
   { label: "Not a posting", value: (w) => String(w.refused) },
   { label: "Fixes applied", value: (w) => String(w.fixes_applied) },
   { label: "Custom requests", value: (w) => String(w.custom_requests) },
-  { label: "Plan enquiries", value: (w) => String(w.plan_enquiries) },
   { label: "Contact", value: (w) => String(w.contact_messages) },
   {
     label: "Feedback up / down",
     value: (w) => `${w.feedback_up} / ${w.feedback_down}`,
   },
   { label: "Model spend", value: (w) => usd.format(Number(w.model_spend_usd)) },
-  { label: "Paid checks", value: (w) => String(w.paid_checks) },
+  { label: "Account checks", value: (w) => String(w.account_checks) },
 ]
 
 function WeeklyTable({ weeks }: { weeks: Week[] }) {
@@ -240,10 +239,10 @@ function StatsContent() {
           : "No checks yet. "}
         {totals.checks} checks from {totals.visitors} visitors,{" "}
         {totals.fixes_applied} with fixes applied,{" "}
-        {usd.format(Number(totals.model_spend_usd))} in model fees. Paid plans:{" "}
-        {totals.customers} paying customers now (target: 3+ by week 10),{" "}
-        {totals.paid_checks} checks,{" "}
-        {usd.format(Number(totals.paid_model_spend_usd))} in model fees.
+        {usd.format(Number(totals.model_spend_usd))} in model fees. Signed-in
+        accounts: {totals.accounts} with a check, {totals.account_checks}{" "}
+        checks, {usd.format(Number(totals.account_model_spend_usd))} in model
+        fees.
       </p>
     </>
   )
@@ -255,8 +254,8 @@ function Stats() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Stats</h1>
         <p className="text-muted-foreground">
-          The free check against the PRD's success metrics, and paid plans.
-          Visits and where they come from are in{" "}
+          The free check against the PRD's success metrics, and signed-in
+          accounts. Visits and where they come from are in{" "}
           <a
             href={UMAMI_URL}
             target="_blank"

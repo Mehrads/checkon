@@ -19,6 +19,24 @@ export type AcceptIn = {
 };
 
 /**
+ * AccountOut
+ */
+export type AccountOut = {
+    /**
+     * Checks Used
+     */
+    checks_used: number;
+    /**
+     * Checks Limit
+     */
+    checks_limit: number | null;
+    /**
+     * Signup Open
+     */
+    signup_open: boolean;
+};
+
+/**
  * Answers
  */
 export type Answers = {
@@ -185,10 +203,6 @@ export type ArchivedPostingPublic = {
      * Documents
      */
     documents: Array<ArchivedFilePublic>;
-    /**
-     * Read Only
-     */
-    read_only: boolean;
 };
 
 /**
@@ -269,10 +283,6 @@ export type ArchivedPostingsPublic = {
      * Workspaces
      */
     workspaces: Array<ArchiveWorkspace>;
-    /**
-     * Read Only
-     */
-    read_only: boolean;
 };
 
 /**
@@ -474,64 +484,6 @@ export type BandsPublic = {
 };
 
 /**
- * BillingOut
- */
-export type BillingOut = {
-    /**
-     * Checkout Enabled
-     */
-    checkout_enabled: boolean;
-    /**
-     * Has Billing
-     */
-    has_billing: boolean;
-    /**
-     * Complimentary
-     */
-    complimentary?: boolean;
-    /**
-     * Plan
-     */
-    plan: 'starter' | 'agency' | 'free' | null;
-    /**
-     * Plan Name
-     */
-    plan_name: string | null;
-    /**
-     * Status
-     */
-    status: string | null;
-    /**
-     * Checks Included
-     */
-    checks_included: number;
-    /**
-     * Checks Used
-     */
-    checks_used: number;
-    /**
-     * Extra Checks
-     */
-    extra_checks: number;
-    /**
-     * Extra Checks Max
-     */
-    extra_checks_max: number;
-    /**
-     * Period Start
-     */
-    period_start: string | null;
-    /**
-     * Period End
-     */
-    period_end: string | null;
-    /**
-     * Cancel At Period End
-     */
-    cancel_at_period_end: boolean;
-};
-
-/**
  * Body_archive-upload_archived_file
  */
 export type Body_archive_upload_archived_file = {
@@ -615,15 +567,51 @@ export type CheckOut = {
 };
 
 /**
- * ChecklistIn
+ * CheckRecordPublic
  */
-export type ChecklistIn = {
+export type CheckRecordPublic = {
     /**
-     * Answers
+     * Id
      */
-    answers: {
-        [key: string]: 'yes' | 'no' | 'unsure';
-    };
+    id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Title
+     */
+    title: string | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Final Status
+     */
+    final_status: string | null;
+    /**
+     * Workspace Id
+     */
+    workspace_id?: string | null;
+    /**
+     * Workspace Name
+     */
+    workspace_name?: string | null;
+};
+
+/**
+ * CheckRecordsPublic
+ */
+export type CheckRecordsPublic = {
+    /**
+     * Data
+     */
+    data: Array<CheckRecordPublic>;
+    /**
+     * Count
+     */
+    count: number;
 };
 
 /**
@@ -670,7 +658,7 @@ export type ContactIn = {
     /**
      * Interest
      */
-    interest: 'starter' | 'agency' | 'custom' | 'other';
+    interest: 'custom' | 'other';
     /**
      * Message
      */
@@ -1065,104 +1053,6 @@ export type Occupation = {
 };
 
 /**
- * OutreachSummary
- */
-export type OutreachSummary = {
-    /**
-     * Token
-     */
-    token: string;
-    /**
-     * Company
-     */
-    company: string;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Created At
-     */
-    created_at: string;
-    /**
-     * Postings
-     */
-    postings: number;
-    /**
-     * To Fix
-     */
-    to_fix: number;
-    /**
-     * Saved At
-     */
-    saved_at: string | null;
-    /**
-     * Views
-     */
-    views: number;
-    /**
-     * First Viewed At
-     */
-    first_viewed_at: string | null;
-    /**
-     * Saved By
-     */
-    saved_by: string | null;
-};
-
-/**
- * PaidCheckPublic
- */
-export type PaidCheckPublic = {
-    /**
-     * Id
-     */
-    id: string;
-    /**
-     * Created At
-     */
-    created_at: string;
-    /**
-     * Title
-     */
-    title: string | null;
-    /**
-     * Status
-     */
-    status: string;
-    /**
-     * Final Status
-     */
-    final_status: string | null;
-    /**
-     * Extra
-     */
-    extra: boolean;
-    /**
-     * Workspace Id
-     */
-    workspace_id?: string | null;
-    /**
-     * Workspace Name
-     */
-    workspace_name?: string | null;
-};
-
-/**
- * PaidChecksPublic
- */
-export type PaidChecksPublic = {
-    /**
-     * Data
-     */
-    data: Array<PaidCheckPublic>;
-    /**
-     * Count
-     */
-    count: number;
-};
-
-/**
  * Patch
  */
 export type Patch = {
@@ -1243,100 +1133,6 @@ export type PayRange = {
 export type PayUnit = 'hour' | 'week' | 'month' | 'year';
 
 /**
- * PlanIn
- */
-export type PlanIn = {
-    /**
-     * Plan
-     */
-    plan: 'starter' | 'agency';
-};
-
-/**
- * PostingIn
- */
-export type PostingIn = {
-    /**
-     * Title
-     */
-    title: string;
-    /**
-     * Location
-     */
-    location?: string | null;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Where
-     */
-    where: 'ontario' | 'canada';
-    /**
-     * Status
-     */
-    status: 'compliant' | 'not_compliant' | 'needs_input' | 'not_applicable' | 'refused' | 'failed';
-    /**
-     * Findings
-     */
-    findings?: Array<ReportFinding>;
-    /**
-     * Form Status
-     */
-    form_status?: 'compliant' | 'not_compliant' | null;
-    /**
-     * Form Findings
-     */
-    form_findings?: Array<ReportFinding>;
-    /**
-     * Note
-     */
-    note?: string | null;
-};
-
-/**
- * PostingOut
- */
-export type PostingOut = {
-    /**
-     * Title
-     */
-    title: string;
-    /**
-     * Location
-     */
-    location: string | null;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Where
-     */
-    where: string;
-    /**
-     * Status
-     */
-    status: string;
-    /**
-     * Findings
-     */
-    findings: Array<ReportFinding>;
-    /**
-     * Form Status
-     */
-    form_status: string | null;
-    /**
-     * Form Findings
-     */
-    form_findings: Array<ReportFinding>;
-    /**
-     * Note
-     */
-    note: string | null;
-};
-
-/**
  * PreviewIn
  */
 export type PreviewIn = {
@@ -1397,11 +1193,7 @@ export type PreviewOut = {
     /**
      * Checks Left
      */
-    checks_left: number;
-    /**
-     * Extra Checks Left
-     */
-    extra_checks_left: number;
+    checks_left: number | null;
 };
 
 /**
@@ -1446,16 +1238,6 @@ export type Question = {
      * Options
      */
     options?: Array<string>;
-};
-
-/**
- * RedirectOut
- */
-export type RedirectOut = {
-    /**
-     * Url
-     */
-    url: string;
 };
 
 /**
@@ -1528,158 +1310,6 @@ export type Report = {
     versions: {
         [key: string]: string;
     };
-};
-
-/**
- * ReportCreated
- */
-export type ReportCreated = {
-    /**
-     * Id
-     */
-    id: string;
-    /**
-     * Token
-     */
-    token: string;
-    /**
-     * Link
-     */
-    link: string;
-};
-
-/**
- * ReportFinding
- */
-export type ReportFinding = {
-    /**
-     * Rule
-     */
-    rule: string;
-    /**
-     * Verdict
-     */
-    verdict: 'fail' | 'warning' | 'needs_input';
-    /**
-     * Message
-     */
-    message: string;
-    /**
-     * Quotes
-     */
-    quotes?: Array<string>;
-};
-
-/**
- * ReportIn
- */
-export type ReportIn = {
-    /**
-     * Company
-     */
-    company: string;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Found
-     */
-    found: number;
-    /**
-     * Outside Ontario
-     */
-    outside_ontario: number;
-    /**
-     * Postings
-     */
-    postings: Array<PostingIn>;
-};
-
-/**
- * ReportOut
- */
-export type ReportOut = {
-    /**
-     * Token
-     */
-    token: string;
-    /**
-     * Company
-     */
-    company: string;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Created At
-     */
-    created_at: string;
-    /**
-     * Found
-     */
-    found: number;
-    /**
-     * Outside Ontario
-     */
-    outside_ontario: number;
-    /**
-     * Postings
-     */
-    postings: Array<PostingOut>;
-    /**
-     * Checklist
-     */
-    checklist: {
-        [key: string]: 'yes' | 'no' | 'unsure';
-    };
-    /**
-     * Saved
-     */
-    saved: boolean;
-    /**
-     * Mine
-     */
-    mine: boolean;
-    /**
-     * Expires On
-     */
-    expires_on: string | null;
-};
-
-/**
- * ReportSummary
- */
-export type ReportSummary = {
-    /**
-     * Token
-     */
-    token: string;
-    /**
-     * Company
-     */
-    company: string;
-    /**
-     * Url
-     */
-    url: string;
-    /**
-     * Created At
-     */
-    created_at: string;
-    /**
-     * Postings
-     */
-    postings: number;
-    /**
-     * To Fix
-     */
-    to_fix: number;
-    /**
-     * Saved At
-     */
-    saved_at: string | null;
 };
 
 /**
@@ -1870,10 +1500,6 @@ export type SignupIn = {
      * Email
      */
     email: string;
-    /**
-     * Report
-     */
-    report?: string | null;
 };
 
 /**
@@ -2073,10 +1699,6 @@ export type Totals = {
      */
     custom_requests: number;
     /**
-     * Plan Enquiries
-     */
-    plan_enquiries: number;
-    /**
      * Contact Messages
      */
     contact_messages: number;
@@ -2089,17 +1711,17 @@ export type Totals = {
      */
     first_check: string | null;
     /**
-     * Customers
+     * Accounts
      */
-    customers: number;
+    accounts: number;
     /**
-     * Paid Checks
+     * Account Checks
      */
-    paid_checks: number;
+    account_checks: number;
     /**
-     * Paid Model Spend Usd
+     * Account Model Spend Usd
      */
-    paid_model_spend_usd: string;
+    account_model_spend_usd: string;
 };
 
 /**
@@ -2296,10 +1918,6 @@ export type Week = {
      */
     custom_requests: number;
     /**
-     * Plan Enquiries
-     */
-    plan_enquiries: number;
-    /**
      * Contact Messages
      */
     contact_messages: number;
@@ -2316,9 +1934,9 @@ export type Week = {
      */
     model_spend_usd: string;
     /**
-     * Paid Checks
+     * Account Checks
      */
-    paid_checks: number;
+    account_checks: number;
 };
 
 /**
@@ -2656,23 +2274,23 @@ export type checksContactResponses = {
 
 export type checksContactResponse = checksContactResponses[keyof checksContactResponses];
 
-export type billingReadBillingData = {
+export type accountReadAccountData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/billing';
+    url: '/api/v1/account';
 };
 
-export type billingReadBillingResponses = {
+export type accountReadAccountResponses = {
     /**
      * Successful Response
      */
-    200: BillingOut;
+    200: AccountOut;
 };
 
-export type billingReadBillingResponse = billingReadBillingResponses[keyof billingReadBillingResponses];
+export type accountReadAccountResponse = accountReadAccountResponses[keyof accountReadAccountResponses];
 
-export type billingReadPaidChecksData = {
+export type accountReadAccountChecksData = {
     body?: never;
     path?: never;
     query?: {
@@ -2689,92 +2307,26 @@ export type billingReadPaidChecksData = {
          */
         workspace_id?: string | null;
     };
-    url: '/api/v1/billing/checks';
+    url: '/api/v1/account/checks';
 };
 
-export type billingReadPaidChecksErrors = {
+export type accountReadAccountChecksErrors = {
     /**
      * Validation Error
      */
     422: HTTPValidationError;
 };
 
-export type billingReadPaidChecksError = billingReadPaidChecksErrors[keyof billingReadPaidChecksErrors];
+export type accountReadAccountChecksError = accountReadAccountChecksErrors[keyof accountReadAccountChecksErrors];
 
-export type billingReadPaidChecksResponses = {
+export type accountReadAccountChecksResponses = {
     /**
      * Successful Response
      */
-    200: PaidChecksPublic;
+    200: CheckRecordsPublic;
 };
 
-export type billingReadPaidChecksResponse = billingReadPaidChecksResponses[keyof billingReadPaidChecksResponses];
-
-export type billingStartCheckoutData = {
-    body: PlanIn;
-    path?: never;
-    query?: never;
-    url: '/api/v1/billing/checkout';
-};
-
-export type billingStartCheckoutErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type billingStartCheckoutError = billingStartCheckoutErrors[keyof billingStartCheckoutErrors];
-
-export type billingStartCheckoutResponses = {
-    /**
-     * Successful Response
-     */
-    200: RedirectOut;
-};
-
-export type billingStartCheckoutResponse = billingStartCheckoutResponses[keyof billingStartCheckoutResponses];
-
-export type billingOpenBillingPortalData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/billing/portal';
-};
-
-export type billingOpenBillingPortalResponses = {
-    /**
-     * Successful Response
-     */
-    200: RedirectOut;
-};
-
-export type billingOpenBillingPortalResponse = billingOpenBillingPortalResponses[keyof billingOpenBillingPortalResponses];
-
-export type billingChangePlanData = {
-    body: PlanIn;
-    path?: never;
-    query?: never;
-    url: '/api/v1/billing/plan';
-};
-
-export type billingChangePlanErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type billingChangePlanError = billingChangePlanErrors[keyof billingChangePlanErrors];
-
-export type billingChangePlanResponses = {
-    /**
-     * Successful Response
-     */
-    200: BillingOut;
-};
-
-export type billingChangePlanResponse = billingChangePlanResponses[keyof billingChangePlanResponses];
+export type accountReadAccountChecksResponse = accountReadAccountChecksResponses[keyof accountReadAccountChecksResponses];
 
 export type workspacesReadWorkspacesData = {
     body?: never;
@@ -3566,181 +3118,6 @@ export type archiveDownloadArchivedFileResponses = {
      */
     200: unknown;
 };
-
-export type reportsReadOutreachReportsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Skip
-         */
-        skip?: number;
-        /**
-         * Limit
-         */
-        limit?: number;
-    };
-    url: '/api/v1/outreach/reports';
-};
-
-export type reportsReadOutreachReportsErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type reportsReadOutreachReportsError = reportsReadOutreachReportsErrors[keyof reportsReadOutreachReportsErrors];
-
-export type reportsReadOutreachReportsResponses = {
-    /**
-     * Response Reports-Read Outreach Reports
-     *
-     * Successful Response
-     */
-    200: Array<OutreachSummary>;
-};
-
-export type reportsReadOutreachReportsResponse = reportsReadOutreachReportsResponses[keyof reportsReadOutreachReportsResponses];
-
-export type reportsCreateReportData = {
-    body: ReportIn;
-    headers?: {
-        /**
-         * Authorization
-         */
-        authorization?: string | null;
-    };
-    path?: never;
-    query?: never;
-    url: '/api/v1/outreach/reports';
-};
-
-export type reportsCreateReportErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type reportsCreateReportError = reportsCreateReportErrors[keyof reportsCreateReportErrors];
-
-export type reportsCreateReportResponses = {
-    /**
-     * Successful Response
-     */
-    200: ReportCreated;
-};
-
-export type reportsCreateReportResponse = reportsCreateReportResponses[keyof reportsCreateReportResponses];
-
-export type reportsReadReportData = {
-    body?: never;
-    path: {
-        /**
-         * Token
-         */
-        token: string;
-    };
-    query?: never;
-    url: '/api/v1/reports/{token}';
-};
-
-export type reportsReadReportErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type reportsReadReportError = reportsReadReportErrors[keyof reportsReadReportErrors];
-
-export type reportsReadReportResponses = {
-    /**
-     * Successful Response
-     */
-    200: ReportOut;
-};
-
-export type reportsReadReportResponse = reportsReadReportResponses[keyof reportsReadReportResponses];
-
-export type reportsAnswerChecklistData = {
-    body: ChecklistIn;
-    path: {
-        /**
-         * Token
-         */
-        token: string;
-    };
-    query?: never;
-    url: '/api/v1/reports/{token}/checklist';
-};
-
-export type reportsAnswerChecklistErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type reportsAnswerChecklistError = reportsAnswerChecklistErrors[keyof reportsAnswerChecklistErrors];
-
-export type reportsAnswerChecklistResponses = {
-    /**
-     * Successful Response
-     */
-    200: ReportOut;
-};
-
-export type reportsAnswerChecklistResponse = reportsAnswerChecklistResponses[keyof reportsAnswerChecklistResponses];
-
-export type reportsSaveReportData = {
-    body?: never;
-    path: {
-        /**
-         * Token
-         */
-        token: string;
-    };
-    query?: never;
-    url: '/api/v1/reports/{token}/save';
-};
-
-export type reportsSaveReportErrors = {
-    /**
-     * Validation Error
-     */
-    422: HTTPValidationError;
-};
-
-export type reportsSaveReportError = reportsSaveReportErrors[keyof reportsSaveReportErrors];
-
-export type reportsSaveReportResponses = {
-    /**
-     * Successful Response
-     */
-    200: ReportOut;
-};
-
-export type reportsSaveReportResponse = reportsSaveReportResponses[keyof reportsSaveReportResponses];
-
-export type reportsReadMyReportsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/reports';
-};
-
-export type reportsReadMyReportsResponses = {
-    /**
-     * Response Reports-Read My Reports
-     *
-     * Successful Response
-     */
-    200: Array<ReportSummary>;
-};
-
-export type reportsReadMyReportsResponse = reportsReadMyReportsResponses[keyof reportsReadMyReportsResponses];
 
 export type signupSignUpData = {
     body: SignupIn;

@@ -56,7 +56,7 @@ def test_weekly_numbers_returning_visitors_and_timing(empty: Session) -> None:
         # Visitor d pasted something that isn't a posting.
         UsageEvent(kind="refused", at=at(8), visitor="d", status="not_a_posting"),
         CustomRequest(created_at=at(8), hr_system="BambooHR", postings_per_month="10-50", wants="ATS", email="hr@example.com"),
-        ContactMessage(created_at=at(1), name="Pat", email="pat@example.com", interest="starter", message="Hi"),
+        ContactMessage(created_at=at(1), name="Pat", email="pat@example.com", interest="other", message="Hi"),
         ContactMessage(created_at=at(9, hour=14), name="Sam", email="sam@example.com", interest="custom", message="ATS"),
         Feedback(created_at=at(7), target_kind="check", target_id="check", rating="up"),
         Feedback(created_at=at(8), target_kind="finding", target_id="ON-CEX-01", rating="looks_wrong"),
@@ -72,13 +72,13 @@ def test_weekly_numbers_returning_visitors_and_timing(empty: Session) -> None:
     assert this_week.start == date(2026, 12, 7) and last_week.start == date(2026, 11, 30)
     assert (this_week.checks, this_week.visitors, this_week.new_visitors) == (2, 2, 1)
     assert (this_week.refused, this_week.limit_hits, this_week.fixes_applied) == (1, 0, 1)
-    assert (this_week.custom_requests, this_week.plan_enquiries, this_week.contact_messages) == (2, 0, 1)
+    assert (this_week.custom_requests, this_week.contact_messages) == (2, 1)
     assert (this_week.feedback_up, this_week.feedback_down) == (1, 1)
     assert this_week.model_spend_usd == Decimal("0.01")
-    assert (last_week.plan_enquiries, last_week.model_spend_usd, last_week.checks) == (1, Decimal("0.02"), 0)
+    assert (last_week.contact_messages, last_week.model_spend_usd, last_week.checks) == (1, Decimal("0.02"), 0)
 
     assert (stats.totals.checks, stats.totals.visitors, stats.totals.fixes_applied) == (5, 3, 1)
-    assert (stats.totals.custom_requests, stats.totals.plan_enquiries, stats.totals.contact_messages) == (2, 1, 2)
+    assert (stats.totals.custom_requests, stats.totals.contact_messages) == (2, 2)
     assert stats.totals.model_spend_usd == Decimal("0.03")
     assert stats.totals.first_check == at(30, 10)
 

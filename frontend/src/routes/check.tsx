@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect } from "react"
-import { PLAN_PRICE } from "@/components/Billing/UsageMeter"
 import { Checker } from "@/components/Check/Checker"
-import { planNote } from "@/components/Check/labels"
-import { ContactProvider } from "@/components/Site/Contact"
+import { accountNote } from "@/components/Check/labels"
 import { JsonLd, ORGANIZATION } from "@/components/Site/JsonLd"
 import {
   ContactSection,
@@ -11,7 +9,7 @@ import {
   ForAgencies,
   HeroIntro,
   HowItWorks,
-  Pricing,
+  OpenSource,
   QUESTIONS,
   SampleHint,
   SiteFooter,
@@ -19,7 +17,7 @@ import {
 } from "@/components/Site/Landing"
 import { SampleAudit } from "@/components/Site/SampleAudit"
 import { SampleReport } from "@/components/Site/SampleReport"
-import { isPaid, useBilling } from "@/hooks/useBilling"
+import { isLoggedIn } from "@/hooks/useAuth"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 import { loadAnalytics } from "@/lib/analytics"
 import { pageHead, SITE } from "@/lib/seo"
@@ -37,7 +35,7 @@ export const Route = createFileRoute("/check")({
     }),
 })
 
-/** What search engines read about CheckON: the organisation, the site, the product and its prices, the FAQ. */
+/** What search engines read about CheckON: the organisation, the site, the product (free), the FAQ. */
 const STRUCTURED = {
   "@graph": [
     ORGANIZATION,
@@ -56,15 +54,8 @@ const STRUCTURED = {
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       publisher: { "@id": `${SITE}/#organization` },
-      offers: [
-        { name: "Free", price: 0 },
-        { name: "Starter", price: Number(PLAN_PRICE.starter.slice(1)) },
-        { name: "Agency", price: Number(PLAN_PRICE.agency.slice(1)) },
-      ].map((offer) => ({
-        "@type": "Offer",
-        ...offer,
-        priceCurrency: "CAD",
-      })),
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      offers: { "@type": "Offer", price: 0, priceCurrency: "CAD" },
     },
     {
       "@type": "FAQPage",
@@ -79,41 +70,36 @@ const STRUCTURED = {
 
 function CheckPage() {
   useEffect(loadAnalytics, [])
-  const { data: billing } = useBilling() // signed in: the plan this check counts toward
-  const { current } = useWorkspaces(isPaid(billing))
+  const signedIn = isLoggedIn() // a signed-in check is saved to the account
+  const { current } = useWorkspaces(signedIn)
   return (
-    <ContactProvider>
-      <div className="site landing-glass relative isolate min-h-svh bg-background text-foreground">
-        <div className="landing-backdrop" aria-hidden="true" />
-        <JsonLd data={STRUCTURED} />
-        <SiteHeader />
-        <main>
-          <Checker
-            intro={<HeroIntro />}
-            hint={<SampleHint />}
-            note={
-              billing?.plan_name
-                ? planNote(
-                    billing.plan_name,
-                    Boolean(current?.archive_postings),
-                  )
-                : undefined
-            }
-          />
-          <div className="landing-panel -mt-6">
-            <SampleReport />
-            <HowItWorks />
-            <SampleAudit />
-            <ForAgencies />
-            <Pricing />
-            <Faq />
-            <ContactSection />
-          </div>
-        </main>
-        <div className="landing-panel mt-3 mb-2 md:mb-6">
-          <SiteFooter />
+    <div className="site landing-glass relative isolate min-h-svh bg-background text-foreground">
+      <div className="landing-backdrop" aria-hidden="true" />
+      <JsonLd data={STRUCTURED} />
+      <SiteHeader />
+      <main>
+        <Checker
+          intro={<HeroIntro />}
+          hint={<SampleHint />}
+          note={
+            signedIn
+              ? accountNote(Boolean(current?.archive_postings))
+              : undefined
+          }
+        />
+        <div className="landing-panel -mt-6">
+          <SampleReport />
+          <HowItWorks />
+          <SampleAudit />
+          <ForAgencies />
+          <OpenSource />
+          <Faq />
+          <ContactSection />
         </div>
+      </main>
+      <div className="landing-panel mt-3 mb-2 md:mb-6">
+        <SiteFooter />
       </div>
-    </ContactProvider>
+    </div>
   )
 }

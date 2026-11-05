@@ -99,7 +99,7 @@ CEX_SAMPLE = [
     # Seen as a false violation on a live posting (2026-10-23): an award for the employer that names Canada.
     ("2026 Best Workplaces for Young Talent and in Canada by Great Place to Work.", {"ok"}),
     ("You will run UK and Irish payroll for our European entities.", {"ok"}),
-    # False violations on real postings (docs/accuracy-and-demand-2026-10.md): licences, clearances and
+    # False violations on real postings (docs/accuracy-2026-10.md): licences, clearances and
     # sentences that name no place.
     ("The successful candidate must be able to work in Canada and obtain clearance under the Canadian Controlled Goods Program (CGP).", {"ok"}),
     ("Completed or actively working towards a Broker (RIBO) Level 2 Licence or equivalent depending on provincial requirements.", {"ok"}),
@@ -185,7 +185,7 @@ LAW_REVIEW_POSTINGS = {
         "- 10 years of nursing leadership experience\n\nThis posting is for an existing vacancy.\n",
         {"ON-APPL-02": "pass", "ON-PAY-01": "not_applicable", "ON-PAY-02": "not_applicable", "ON-CEX-01": "fail"},
     ),
-    # docs/accuracy-and-demand-2026-10.md: a talent pool for a named job is a specific position (Reg. s. 2 (1) (a)).
+    # docs/accuracy-2026-10.md: a talent pool for a named job is a specific position (Reg. s. 2 (1) (a)).
     "talent pool for a named job": (
         "Personal Support Worker - Casual Pool\nHamilton, ON\n\nWe are building a pool of casual Personal Support "
         "Workers for upcoming client needs. There is no existing vacancy at this time; we will contact candidates "

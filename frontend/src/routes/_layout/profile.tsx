@@ -5,9 +5,7 @@ import { ArchiveSetting } from "@/components/Profile/ArchiveSetting"
 import { PayBands } from "@/components/Profile/PayBands"
 import { ProfileForm } from "@/components/Profile/ProfileForm"
 import { Workspaces } from "@/components/Profile/Workspaces"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { isPaid, useBilling } from "@/hooks/useBilling"
 import { useWorkspaces } from "@/hooks/useWorkspace"
 
 export const Route = createFileRoute("/_layout/profile")({
@@ -21,45 +19,30 @@ export const Route = createFileRoute("/_layout/profile")({
   }),
 })
 
-/** The company profile every check starts from (paid plans); on Agency, one per client workspace. */
+/** The company profile every check starts from; with client workspaces, one per client. */
 function Profile() {
-  const { data: billing, isPending } = useBilling()
-  const onPlan = isPaid(billing)
-  const { workspaces, current, canCreate } = useWorkspaces(onPlan)
+  const { workspaces, current, canCreate, clients } = useWorkspaces(true)
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeading title={canCreate ? "Client workspaces" : "Company profile"}>
-        {canCreate
-          ? "A company profile for each client. Checks use the one you pick and share your plan's checks."
+      <PageHeading title={clients ? "Client workspaces" : "Company profile"}>
+        {clients
+          ? "A company profile for each client. Checks use the one you pick."
           : "Each check starts from these facts, so it doesn't ask for them."}
       </PageHeading>
-      {isPending ? (
-        <Skeleton className="h-96 w-full" />
-      ) : !onPlan ? (
-        <section className="rounded-xl border bg-card p-5 shadow-sm sm:p-6">
-          <h2 className="font-display text-2xl font-medium">
-            A company profile comes with a paid plan
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            On Starter or Agency, your checks start from your company's details
-            instead of asking for them.
-          </p>
-          <Button asChild variant="outline" className="mt-4">
-            <Link to="/">See the plans</Link>
-          </Button>
-        </section>
-      ) : !current ? (
+      {!current ? (
         <Skeleton className="h-96 w-full" />
       ) : (
         <>
-          {canCreate && (
-            <div data-dock="Clients">
-              <Workspaces workspaces={workspaces} current={current} />
-            </div>
-          )}
+          <div data-dock={clients ? "Clients" : "Workspaces"}>
+            <Workspaces
+              workspaces={workspaces}
+              current={current}
+              canCreate={canCreate}
+            />
+          </div>
           <div data-dock="Company profile" className="space-y-3">
-            {canCreate && (
+            {clients && (
               <h2 className="font-display text-2xl font-medium tracking-[-0.01em]">
                 Company profile for {current.name}
               </h2>
@@ -70,7 +53,7 @@ function Profile() {
             <ArchiveSetting
               key={current.id}
               profile={current}
-              client={canCreate}
+              client={clients}
             />
           </div>
           <div data-dock="Pay ranges">
@@ -78,8 +61,8 @@ function Profile() {
           </div>
           <p className="text-xs text-muted-foreground">
             {current.archive_postings
-              ? "We store these company facts and pay ranges with your account. This workspace's archive is on: we save the posting when you apply fixes."
-              : "We store these company facts and pay ranges with your account, and never your postings."}{" "}
+              ? "These company facts and pay ranges are stored with your account. This workspace's archive is on: the posting is saved when you apply fixes."
+              : "These company facts and pay ranges are stored with your account, and never your postings."}{" "}
             <Link to="/privacy" className="underline underline-offset-4">
               Privacy
             </Link>

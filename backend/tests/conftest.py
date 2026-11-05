@@ -10,9 +10,7 @@ from app.core.config import settings  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
-def no_real_stripe(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Stripe stays off whatever the local .env holds, so no test reaches Stripe's API (tests that need it
-    set fake values and a fake client)."""
-    for name in ("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_STARTER", "STRIPE_PRICE_AGENCY",
-                 "STRIPE_PRICE_EXTRA_CHECK"):  # fmt: skip
-        monkeypatch.setattr(settings, name, None)
+def default_account_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Accounts as a fresh install has them, whatever the local .env holds: sign-up closed, no check limit."""
+    monkeypatch.setattr(settings, "SIGNUP_OPEN", False)
+    monkeypatch.setattr(settings, "ACCOUNT_CHECKS_PER_30_DAYS", 0)

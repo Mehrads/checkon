@@ -14,6 +14,8 @@ RUN bun install
 COPY ./frontend /app/frontend
 
 ARG VITE_API_URL=
+# The public site's address, for canonical links, the sitemap and robots.txt (frontend/.env has the local default)
+ARG VITE_SITE_URL=
 # Email shown on the contact form, passed by the deploy workflow
 ARG VITE_CONTACT_EMAIL=
 # Umami website id for cookieless visit counts (optional), passed by the deploy workflow

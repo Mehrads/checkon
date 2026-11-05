@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test"
+import { SITE } from "./utils/site"
 
 // The public page's hero, its sample result and the guides, signed out, with the Umami events each call to action
 // and content action sends
@@ -58,7 +59,7 @@ for (const { path, h1 } of GUIDES) {
     ).toMatch(/.{80,}/)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `https://checkon.ca${path}`,
+      `${SITE}${path}`,
     )
     await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
     const data = JSON.parse(
@@ -158,8 +159,11 @@ test("The hero's accuracy link and the agency band are counted", async ({
 
   await page.goBack()
   await expect(page).toHaveURL("/check")
-  await page.getByRole("link", { name: "See the Agency plan" }).click()
-  await expect(page).toHaveURL("/check#pricing")
+  const agencies = page.getByRole("region", {
+    name: "Posting for many clients?",
+  })
+  await agencies.getByRole("link", { name: "Check a posting" }).click()
+  await expect(page).toHaveURL("/check#check")
   await page
     .getByRole("link", { name: "Read the guide for recruiters" })
     .click()
@@ -167,25 +171,24 @@ test("The hero's accuracy link and the agency band are counted", async ({
 
   const sent = await events(page)
   expect(sent).toContainEqual(["hero-accuracy", null])
-  expect(sent).toContainEqual(["agency-plan", null])
+  expect(sent).toContainEqual(["agency-check", null])
   expect(sent).toContainEqual(["agency-guide", null])
 })
 
-test("The hero links to the Chrome extension on a computer, and the click is counted", async ({
+test("The hero links to the Chrome extension's source on a computer, and the click is counted", async ({
   page,
   context,
 }) => {
-  const store =
-    "https://chromewebstore.google.com/detail/checkon-ontario-job-posti/mbpmobhcmimbohoijbbhckhinhggchdp"
-  // The click opens a new tab; it never reaches the real store
-  await context.route(`${store}*`, (route) => route.fulfill({ body: "" }))
+  const source = "https://github.com/Mehrads/checkon/tree/main/extension"
+  // The click opens a new tab; it never reaches GitHub
+  await context.route(`${source}*`, (route) => route.fulfill({ body: "" }))
   await recordEvents(page)
   await open(page, "/check")
-  const link = page.getByRole("link", { name: /free Chrome extension/ })
-  await expect(link).toHaveAttribute("href", store)
+  const link = page.getByRole("link", { name: /Chrome extension/ })
+  await expect(link).toHaveAttribute("href", source)
   const popup = page.waitForEvent("popup")
   await link.click()
-  expect((await popup).url()).toBe(store)
+  expect((await popup).url()).toBe(source)
   expect(await events(page)).toContainEqual(["hero-extension", null])
 
   await page.setViewportSize({ width: 375, height: 812 })
@@ -248,12 +251,12 @@ test("A guide's calls to action are counted", async ({ page }) => {
   await open(page, "/ontario-job-posting-rules-for-recruiters")
   await page
     .getByRole("main")
-    .getByRole("link", { name: "See the Agency plan" })
+    .getByRole("link", { name: "Check a posting free" })
     .click()
-  await expect(page).toHaveURL("/check#pricing")
+  await expect(page).toHaveURL("/check#check")
   expect(await events(page)).toContainEqual([
     "content-cta",
-    { page: "recruiters", cta: "agency-plan" },
+    { page: "recruiters", cta: "check" },
   ])
 
   await open(page, "/accuracy")
@@ -305,14 +308,17 @@ test("The landing page scrolls as a normal page, with the header in view", async
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await open(page, "/check")
-  await page.getByRole("banner").getByRole("link", { name: "Pricing" }).click()
-  await expect(page).toHaveURL("/check#pricing")
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name: "Open source" })
+    .click()
+  await expect(page).toHaveURL("/check#open-source")
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(1000)
   await expect(
     page.getByRole("banner").getByRole("link", { name: "Check a posting" }),
   ).toBeInViewport()
   await expect(
-    page.getByRole("heading", { name: /Start free/ }),
+    page.getByRole("heading", { name: "Free, and yours to run" }),
   ).toBeInViewport()
 })
 

@@ -1,9 +1,9 @@
-"""Careers page audits for paying customers (PRD FR13): enter a careers page or job board address, see its open
-Ontario postings and how many checks they will use, then check them all for the current workspace.
+"""Careers page audits for signed-in accounts: enter a careers page or job board address, see its open Ontario
+postings and how many checks they will use, then check them all for the current workspace.
 
 The browser checks the postings one request at a time (a few at once): Cloud Run gives the app CPU only while a
 request runs, and a closed tab simply leaves the rest unchecked and uncharged. Each posting checked counts against
-the plan like a pasted one. The report keeps each posting's title, place, link and result; the posting text is read
+the account like a pasted one. The report keeps each posting's title, place, link and result; the posting text is read
 from the board when it's checked and held in memory for an hour, as a pasted posting's is, never in the database.
 """
 
@@ -16,17 +16,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Annotated, Any, Literal, cast
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlmodel import Session, col, func, select
 
-from app.api.billing import (
-    PlanAccess,
-    PlanLimits,
-    allowance,
-    paid_access,
-    report_extra_checks_later,
-)
+from app.api.accounts import ACCOUNT, Access, AccountChecks, access_for, checks_left
 from app.api.check_store import CheckState
 from app.api.deps import CurrentUser, SessionDep
 from app.api.free_check import rate_limited, refused, same_origin
@@ -34,7 +28,6 @@ from app.api.routes.checks import (
     CheckOut,
     DateDep,
     LLMDep,
-    MeterDep,
     PackDep,
     SizesDep,
     StoreDep,
@@ -50,7 +43,6 @@ from app.audit.fetch import Blocked, Fetcher, FetchError, RobotsRefused, Unavail
 from app.compliance.inspector import InputRefused, inspect
 from app.compliance.llm import LLMError
 from app.compliance.models import Context, Status, Verdict
-from app.core.config import settings
 from app.models import Audit, AuditPosting, PaidCheck, Workspace, get_datetime_utc
 
 MAX_POSTINGS = 50  # checked in one audit
@@ -131,16 +123,15 @@ def get_fetcher() -> Generator[Fetcher]:
         fetcher.client.close()
 
 
-def get_audit_access(session: SessionDep, user: CurrentUser) -> PlanAccess:
-    access = paid_access(session, user)
-    if access is None:
-        raise HTTPException(status_code=403, detail="Careers page audits come with a paid plan.")
+def get_audit_access(session: SessionDep, user: CurrentUser) -> Access:
+    access = access_for(session, user)
+    assert access is not None  # CurrentUser is signed in
     return access
 
 
 MemoryDep = Annotated[AuditMemory, Depends(get_memory)]
 FetcherDep = Annotated[Fetcher, Depends(get_fetcher)]
-AccessDep = Annotated[PlanAccess, Depends(get_audit_access)]
+AccessDep = Annotated[Access, Depends(get_audit_access)]
 
 
 # The API's shapes
@@ -175,8 +166,7 @@ class PreviewOut(BaseModel):
     more: int  # postings in Ontario or Canada-wide beyond the ones listed
     outside_ontario: int  # postings for work elsewhere, left out
     max_postings: int  # the most one audit checks
-    checks_left: int  # the plan's checks left this period, before extra checks
-    extra_checks_left: int  # extra checks left this period, billed per check
+    checks_left: int | None  # the account's checks left for the last 30 days; None: no limit
 
 
 class StartIn(BaseModel):
@@ -299,19 +289,18 @@ def preview_audit(
     usage: UsageDep,
 ) -> Any:  # fmt: skip
     """The open postings on the board or careers page, for work in Ontario or anywhere in Canada, and the checks
-    left in the plan. Nothing is checked or charged yet."""
+    the account has left. Nothing is checked yet."""
     started = time.monotonic()
     workspace = current_workspace(session, access, body.workspace_id)
     try:
         board = read_board(_address(body.url), fetcher, today)
     except FetchError as error:
-        usage.record("audit_preview", status="failed", duration_ms=elapsed_ms(started), plan=access.plan.id)
+        usage.record("audit_preview", status="failed", duration_ms=elapsed_ms(started), plan=ACCOUNT)
         raise _fetch_failure(error)
     ontario = [p for p in board.postings if p.where == "ontario"] + [p for p in board.postings if p.where == "canada"]
     preview = memory.add_preview(Preview(access.customer.id, workspace.id, _address(body.url), board))
-    current = allowance(session, access.customer, access.plan, get_datetime_utc())
     usage.record(
-        "audit_preview", status=board.source, count=len(ontario), duration_ms=elapsed_ms(started), plan=access.plan.id
+        "audit_preview", status=board.source, count=len(ontario), duration_ms=elapsed_ms(started), plan=ACCOUNT
     )
     return PreviewOut(
         preview_id=preview.id, url=board.url, source=board.source, board_name=board.name, workspace_id=workspace.id,
@@ -319,8 +308,7 @@ def preview_audit(
         postings=[FoundPublic(id=p.id, title=p.title, location=p.location, url=p.url, where=cast(Where, p.where))
                   for p in ontario[:MAX_LISTED]],
         more=max(len(ontario) - MAX_LISTED, 0), outside_ontario=len(board.postings) - len(ontario),
-        max_postings=MAX_POSTINGS, checks_left=max(access.plan.checks - current.used, 0),
-        extra_checks_left=settings.PLAN_EXTRA_CHECKS_MAX - current.extra,
+        max_postings=MAX_POSTINGS, checks_left=checks_left(session, access.customer.id, get_datetime_utc()),
     )  # fmt: skip
 
 
@@ -338,11 +326,10 @@ def start_audit(body: StartIn, session: SessionDep, access: AccessDep, memory: M
     if len(picked) != len(set(body.posting_ids)):
         memory.add_preview(preview)
         raise HTTPException(status_code=422, detail="Some of those postings aren't on this board.")
-    current = allowance(session, access.customer, access.plan, get_datetime_utc())
-    left = access.plan.checks + settings.PLAN_EXTRA_CHECKS_MAX - current.used
-    if len(picked) > left:
+    left = checks_left(session, access.customer.id, get_datetime_utc())
+    if left is not None and len(picked) > left:
         memory.add_preview(preview)
-        raise refused(429, "plan_limit", f"You have {max(left, 0)} checks left this billing period. Pick fewer postings.")
+        raise refused(429, "account_limit", f"You have {left} checks left for the last 30 days. Pick fewer postings.")
     workspace = session.get(Workspace, preview.workspace_id)
     if workspace is None or workspace.customer_id != access.customer.id or workspace.archived_at is not None:
         raise HTTPException(status_code=409, detail="That workspace was archived. Pick another one and try again.")
@@ -376,11 +363,11 @@ def _finish(session: Session, row: AuditPosting, status: str, note: str | None =
 
 @router.post("/{audit_id}/postings/{posting_id}/check", response_model=AuditPostingPublic)
 def check_posting(
-    audit_id: uuid.UUID, posting_id: uuid.UUID, session: SessionDep, access: AccessDep, background: BackgroundTasks,
+    audit_id: uuid.UUID, posting_id: uuid.UUID, session: SessionDep, access: AccessDep,
     memory: MemoryDep, fetcher: FetcherDep, store: StoreDep, llm: LLMDep, pack: PackDep, today: DateDep,
-    sizes: SizesDep, usage: UsageDep, meter: MeterDep,
+    sizes: SizesDep, usage: UsageDep,
 ) -> Any:  # fmt: skip
-    """Check one posting of the audit against the plan: read it from the board, then check it like a pasted posting
+    """Check one posting of the audit for the account: read it from the board, then check it like a pasted posting
     for the audit's workspace. A posting already checked whose full check is still open isn't checked again."""
     started = time.monotonic()
     audit = _own_audit(session, access.customer.id, audit_id)
@@ -403,7 +390,7 @@ def check_posting(
     ).one()  # fmt: skip
     if checking >= CHECKS_AT_ONCE:
         raise refused(429, "busy", "A few postings are being checked. Try this one in a moment.")
-    plan = PlanLimits(session, access)
+    plan = AccountChecks(session, access)
     _plan_check_allowed(plan, usage)
     row.status, row.note, row.checked_at = "checking", None, get_datetime_utc()
     session.add(row)
@@ -426,25 +413,23 @@ def check_posting(
     try:
         inspection = inspect(text, ctx, today, pack, llm, sizes=sizes, employer=employer)
     except InputRefused as error:  # no check used
-        usage.record("refused", status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=plan.plan.id)
+        usage.record("refused", status=error.reason, duration_ms=elapsed_ms(started), usd=_spent(llm), plan=ACCOUNT)
         _finish(session, row, "refused", error.message)
         return _posting(row, store)
     except LLMError:
-        usage.record("failed", duration_ms=elapsed_ms(started), usd=_spent(llm), plan=plan.plan.id)
+        usage.record("failed", duration_ms=elapsed_ms(started), usd=_spent(llm), plan=ACCOUNT)
         _finish(session, row, "failed", "We couldn't check this posting right now. Check it again.")
         return _posting(row, store)
     state = store.add(CheckState(
-        posting_date=today, ctx=inspection.context, inspection=inspection, plan=plan.plan.id,
+        posting_date=today, ctx=inspection.context, inspection=inspection, plan=ACCOUNT,
         workspace_id=workspace.id if workspace else None, wording=wording(workspace), url=row.url,
     ))  # fmt: skip
     report = inspection.report
     title = inspection.facts.title.value if inspection.facts.title else row.title
     plan.record(state.id, title, report.status.value, state.workspace_id)
-    if meter is not None:  # extra checks go to Stripe's meter after the response
-        background.add_task(report_extra_checks_later, meter, plan.customer_id)
     usage.record(
         "check", check_id=state.id, status=report.status.value, duration_ms=elapsed_ms(started), usd=_spent(llm),
-        plan=plan.plan.id,
+        plan=ACCOUNT,
     )  # fmt: skip
     to_act = sorted((r for r in report.results if r.verdict in _ORDER), key=lambda r: _ORDER[r.verdict])
     row.issues = [{"rule": result.rule, "verdict": result.verdict.value} for result in to_act]

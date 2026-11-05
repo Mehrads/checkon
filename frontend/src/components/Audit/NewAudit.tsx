@@ -10,40 +10,29 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { usePreviewAudit, useStartAudit } from "@/hooks/useAudits"
-import { apiMessage } from "@/hooks/useBilling"
+import { apiMessage } from "@/lib/api"
 import { SOURCE_NAME, shortAddress } from "./summary"
 
 function plural(n: number, one: string, many = `${one}s`): string {
   return `${n.toLocaleString()} ${n === 1 ? one : many}`
 }
 
-/** What the picked postings will use: the plan's checks first, then extra checks at $1 each. */
+/** The checks the picked postings will use, and whether the account has that many left when the server limits
+ * them (`checks_left`; null: no limit). */
 function Cost({ found, picked }: { found: PreviewOut; picked: number }) {
-  const included = Math.min(picked, found.checks_left)
-  const extra = picked - included
-  if (picked > found.checks_left + found.extra_checks_left)
+  const left = found.checks_left
+  if (left != null && picked > left)
     return (
       <p className="text-sm text-destructive">
-        You have {plural(found.checks_left + found.extra_checks_left, "check")}{" "}
-        left this billing period, extra checks included. Pick fewer postings.
+        You have {plural(left, "check")} left for the last 30 days. Pick fewer
+        postings.
       </p>
     )
   return (
     <p className="text-sm text-muted-foreground">
       Uses{" "}
       <strong className="text-foreground">{plural(picked, "check")}</strong>
-      {extra > 0 ? (
-        <>
-          : {plural(included, "check")} left in your plan, then{" "}
-          {plural(extra, "extra check")} at $1 each on your next invoice.
-        </>
-      ) : (
-        <>
-          {" "}
-          of the {plural(found.checks_left, "check")} left in your plan this
-          period.
-        </>
-      )}
+      {left == null ? "." : ` of the ${plural(left, "check")} you have left.`}
     </p>
   )
 }
@@ -119,7 +108,7 @@ function Found({
     })
   const where = found.board_name ?? shortAddress(found.url)
   const tooMany = picked.size > found.max_postings
-  const overLimit = picked.size > found.checks_left + found.extra_checks_left
+  const overLimit = found.checks_left != null && picked.size > found.checks_left
   const all = found.postings.length > 0 && picked.size === found.postings.length
   const inOntario = found.postings.filter((p) => p.where === "ontario").length
   const canadaWide = found.postings.length - inOntario

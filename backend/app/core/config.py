@@ -43,10 +43,10 @@ class Settings(BaseSettings):
     def tracing_enabled(self) -> bool:
         return all(key and key != "replace-me" for key in (self.LANGFUSE_PUBLIC_KEY, self.LANGFUSE_SECRET_KEY))
 
-    # Where contact-form messages are emailed (needs the SMTP settings above); they are always saved.
+    # Where contact-form messages are emailed (needs the SMTP settings below); they are always saved.
     CONTACT_EMAIL: EmailStr | None = None
 
-    # Free check limits (04-V1-Scope.md, section 4)
+    # The free check's limits, for visitors who aren't signed in
     FREE_CHECKS_PER_WEEK: int = 1
     FREE_CHECK_DAILY_SPEND_CAP_USD: Decimal = Decimal("5")
     FREE_CHECK_REQUESTS_PER_MINUTE: int = 30
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     TRUSTED_PROXY_HOPS: int = 0
     # Browser extensions allowed to call the free check, by ID, comma-separated (extension/README.md).
     EXTENSION_IDS: str = ""
-    # Our own addresses, comma-separated: they skip the weekly quota so the live check can be tested.
+    # Addresses that skip the weekly quota, comma-separated, so you can test the live check yourself.
     # The rate limit, the origin check and the daily spend cap still apply to them.
     FREE_CHECK_ALLOWLIST_IPS: str = ""
     # The free sample audit on the public site: the first postings of a careers page, findings only, on the same
@@ -66,38 +66,12 @@ class Settings(BaseSettings):
     SAMPLE_AUDITS_PER_WEEK: int = 1
     SAMPLE_AUDIT_POSTINGS: int = 3
 
-    # Paid plans through Stripe Billing (infra/README.md, "Stripe"). Until the key and the three prices are
-    # set, Checkout is off and the pricing page offers the contact form instead.
-    STRIPE_SECRET_KEY: str | None = None
-    STRIPE_WEBHOOK_SECRET: str | None = None
-    STRIPE_PRICE_STARTER: str | None = None
-    STRIPE_PRICE_AGENCY: str | None = None
-    STRIPE_PRICE_EXTRA_CHECK: str | None = None  # the usage-based price on the extra-check meter
-    STRIPE_METER_EVENT: str = "checkon_extra_check"  # the meter's event name
-    STRIPE_AUTOMATIC_TAX: bool = False  # Stripe Tax adds HST; turn on once registered
-    PLAN_CHECKS_STARTER: int = 50
-    PLAN_CHECKS_AGENCY: int = 300
-    # Extra checks a customer can run in one billing period before checks stop until the next one
-    PLAN_EXTRA_CHECKS_MAX: int = 200
-    # A free account (sign-up with an email, no card): its checks in every 30 days from sign-up, and sign-ups
-    # per IP per hour.
-    PLAN_CHECKS_FREE: int = 5
+    # Signed-in accounts (app/api/accounts.py). Whoever runs the server pays the model fees, so sign-up is off
+    # until SIGNUP_OPEN is set (an admin can still add users), and each account can be held to a number of checks
+    # in any 30 days (0: no limit). Sign-ups per IP per hour, when it's open.
+    SIGNUP_OPEN: bool = False
+    ACCOUNT_CHECKS_PER_30_DAYS: int = 0
     SIGNUPS_PER_HOUR: int = 5
-
-    # Outreach reports (app/api/routes/reports.py): the key the outreach workflow sends to save a report on the
-    # site (none: saving is off), and the days a report no account has saved is kept.
-    OUTREACH_API_KEY: str | None = None
-    REPORT_DAYS: int = 90
-
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def billing_enabled(self) -> bool:
-        return bool(
-            self.STRIPE_SECRET_KEY
-            and self.STRIPE_PRICE_STARTER
-            and self.STRIPE_PRICE_AGENCY
-            and self.STRIPE_PRICE_EXTRA_CHECK
-        )
 
     DATABASE_URL: PostgresDsn
 

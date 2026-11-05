@@ -11,7 +11,7 @@ import {
 import { useSwitchWorkspace } from "@/hooks/useWorkspace"
 import { cn } from "@/lib/utils"
 
-/** Agency: pick the client whose company profile checks use. Shared by the website and the extension. */
+/** Pick the client whose company profile checks use. Shared by the website and the extension. */
 export function WorkspaceSwitcher({
   workspaces,
   current,

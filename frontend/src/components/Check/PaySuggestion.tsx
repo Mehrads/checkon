@@ -111,8 +111,8 @@ function SourceItem({ source }: { source: Source }) {
   )
 }
 
-/** "Suggest a pay range" for a paying customer's check whose posting has no pay, or a range that is too wide: a
- * range already within the yearly limit, the market range beside it and every source. The customer confirms or
+/** "Suggest a pay range" for a signed-in user's check whose posting has no pay, or a range that is too wide: a
+ * range already within the yearly limit, the market range beside it and every source. The user confirms or
  * edits it; only then is it saved for the job title and written into the fixes (`onConfirmed`). */
 export function PaySuggestion({
   checkId,

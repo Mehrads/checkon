@@ -1,4 +1,4 @@
-"""Pay range suggestions for a paying customer's posting (PRD FR9, Technical Design §9).
+"""Pay range suggestions for a signed-in account's posting (Technical Design §9).
 
 A suggestion is a range the employer can confirm or edit; it never goes into the posting by itself. Its sources,
 in order:
@@ -33,7 +33,7 @@ from app.pay.jobbank import JobBank, Wage, plain
 # Naming the occupation: Haiku 5.5 with thinking at low effort. With thinking off, a live sample matched
 # "Payroll Specialist" to bookkeepers rather than payroll administrators.
 OCCUPATION_SETTINGS = ModelSettings(max_tokens=3000, effort="low", thinking={"type": "adaptive"})
-# Job sites whose terms forbid scraping, or that republish them (PRD §7, §10): never searched, never shown.
+# Job sites whose terms forbid scraping, or that republish them: never searched, never shown.
 BLOCKED_SITES = (
     "glassdoor.com", "glassdoor.ca", "indeed.com", "indeed.ca", "linkedin.com", "simplyhired.com", "simplyhired.ca",
 )  # fmt: skip

@@ -15,7 +15,7 @@ export interface ArchiveQuery {
   savedTo?: string
 }
 
-/** The customer's archived postings, newest first, for one workspace or all, searched by title and date. */
+/** The account's archived postings, newest first, for one workspace or all, searched by title and date. */
 export function useArchive(query: ArchiveQuery, enabled = true) {
   return useQuery({
     queryKey: ["archive", query],

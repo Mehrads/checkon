@@ -18,14 +18,14 @@ from app.compliance.models import Context, Verdict
 GOLDEN_DIR = Path(__file__).resolve().parents[2] / "evals" / "golden"
 Slice = Literal["real", "synthetic", "out_of_scope", "adversarial"]
 SLICES: tuple[Slice, ...] = ("real", "synthetic", "out_of_scope", "adversarial")
-TARGETS: dict[Slice, int] = {"real": 150, "synthetic": 100, "out_of_scope": 25, "adversarial": 25}  # 04-V1-Scope §3
+TARGETS: dict[Slice, int] = {"real": 150, "synthetic": 100, "out_of_scope": 25, "adversarial": 25}
 RULES = ("ON-APPL-01", "ON-APPL-02", "ON-PAY-01", "ON-PAY-02", "ON-VAC-01", "ON-AI-01", "ON-CEX-01")
 DEFAULT_POSTED = date(2026, 10, 1)
 _ID = re.compile(r"[a-z0-9][a-z0-9-]*")
 
 
 class Source(BaseModel):
-    """Where a real posting was read: a public job board or careers page (PRD §7)."""
+    """Where a real posting was read: a public job board or careers page."""
 
     model_config = ConfigDict(extra="forbid")
 

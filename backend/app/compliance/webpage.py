@@ -1,4 +1,4 @@
-"""The posting text of a fetched web page (PRD FR1, a posting's link).
+"""The posting text of a fetched web page (a posting's link).
 
 Careers pages and ATS job boards mostly publish the posting as JSON-LD `JobPosting` data for search engines;
 that is the posting without the page around it, so it is read first. Otherwise the page's main content is

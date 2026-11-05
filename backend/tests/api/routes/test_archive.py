@@ -1,4 +1,4 @@
-"""The archive of approved postings (PRD FR11) against Postgres, with a scripted LLM (no network): nothing is kept
+"""The archive of approved postings against Postgres, with a scripted LLM (no network): nothing is kept
 until the customer turns the archive on for a workspace, free checks never are, postings are deleted three years
 after the takedown date, and a customer only ever sees their own. Run `docker compose up -d db` and migrate first.
 """
@@ -30,11 +30,11 @@ from app.models import (
     User,
     Workspace,
 )
-from tests.api.routes.test_billing import make_customer, make_user
 from tests.api.routes.test_workspaces import check, customer_headers, llm, save_profile  # noqa: F401
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_api import MemoryLimits
 from tests.compliance.test_inspector import POSTING
+from tests.utils.accounts import make_customer, make_user
 
 API = settings.API_V1_STR
 PDF = b"%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF\n"
@@ -104,7 +104,7 @@ def test_the_archive_is_off_until_turned_on(client: TestClient, db: Session, llm
     assert final["archived"] is None
     assert postings(db, customer_of(db, headers, client)) == []
     listed = client.get(f"{API}/archive/", headers=headers).json()
-    assert (listed["count"], listed["read_only"]) == (0, False)
+    assert listed["count"] == 0
     assert [w["archive_postings"] for w in listed["workspaces"]] == [False]
 
 
@@ -133,17 +133,7 @@ def test_applying_fixes_saves_the_final_posting(client: TestClient, db: Session,
 def test_free_checks_never_store_the_posting(client: TestClient, db: Session, llm: FakeLLM) -> None:  # noqa: F811
     app.dependency_overrides[get_limits] = lambda: MemoryLimits(per_week=10, budget=Decimal(5))
     before = db.exec(select(func.count()).select_from(ArchivedPosting)).one()
-    assert apply_fixes(client, llm)["archived"] is None  # a visitor
-    _, signed_in = make_user(db)  # signed in without a plan: the free check
-    assert apply_fixes(client, llm, signed_in)["archived"] is None
-    lapsed = customer_headers(db)  # a customer with the archive on whose plan then ends: the free check
-    turn_on(client, lapsed)
-    customer = db.get(Customer, customer_of(db, lapsed, client))
-    assert customer is not None
-    customer.subscription_status = "canceled"
-    db.add(customer)
-    db.commit()
-    final = apply_fixes(client, llm, lapsed)
+    final = apply_fixes(client, llm)  # a visitor
     assert (final["archived"], final["workspace_id"]) == (None, None)
     db.expire_all()
     assert db.exec(select(func.count()).select_from(ArchivedPosting)).one() == before
@@ -219,14 +209,14 @@ def test_marking_a_posting_taken_down(client: TestClient, db: Session) -> None:
 
 
 def test_customers_only_see_their_own_archive(client: TestClient, db: Session, llm: FakeLLM) -> None:  # noqa: F811
-    mine = customer_headers(db, plan="agency")
+    mine = customer_headers(db)
     turn_on(client, mine)
     saved = apply_fixes(client, llm, mine)
     posting, workspace = saved["archived"]["id"], saved["workspace_id"]
     upload = client.post(f"{API}/archive/{posting}/files", files={"file": ("form.pdf", PDF, "application/pdf")}, headers=mine)
     document = upload.json()["id"]
 
-    theirs = customer_headers(db, plan="agency")
+    theirs = customer_headers(db)
     turn_on(client, theirs)
     apply_fixes(client, llm, theirs)
     listed = client.get(f"{API}/archive/", headers=theirs).json()
@@ -245,12 +235,10 @@ def test_customers_only_see_their_own_archive(client: TestClient, db: Session, l
     assert client.get(f"{API}/archive/{posting}", headers=mine).json()["text"] == saved["text"]  # unchanged
 
     assert client.get(f"{API}/archive/").status_code == 401
-    _, no_plan = make_user(db)
-    assert client.get(f"{API}/archive/", headers=no_plan).status_code == 403
 
 
-def test_agency_lists_the_archive_by_client(client: TestClient, db: Session, llm: FakeLLM) -> None:  # noqa: F811
-    headers = customer_headers(db, plan="agency")
+def test_the_archive_is_listed_by_client(client: TestClient, db: Session, llm: FakeLLM) -> None:  # noqa: F811
+    headers = customer_headers(db)
     turn_on(client, headers)
     first = apply_fixes(client, llm, headers)
     created = client.post(f"{API}/workspaces/", json={"name": "Maple Grocers"}, headers=headers).json()
@@ -319,27 +307,8 @@ def test_documents_the_posting_links_to(client: TestClient, db: Session) -> None
     assert client.get(f"{API}/archive/{posting.id}", headers=headers).json()["files"] == 4
 
 
-def test_the_archive_is_read_only_after_the_plan_ends(client: TestClient, db: Session) -> None:
-    customer = make_customer(db, status="canceled")
-    _, headers = make_user(db, customer)
-    posting = archived_row(db, customer)
-    url = f"{API}/archive/{posting.id}"
-    listed = client.get(f"{API}/archive/", headers=headers).json()
-    assert listed["read_only"] is True and listed["count"] == 1
-    assert client.get(url, headers=headers).json()["read_only"] is True
-
-    assert client.put(f"{url}/text", json={"text": "New text"}, headers=headers).status_code == 403
-    assert client.patch(url, json={"application_form": "Name"}, headers=headers).status_code == 403
-    files = {"file": ("form.pdf", PDF, "application/pdf")}
-    assert client.post(f"{url}/files", files=files, headers=headers).status_code == 403
-    assert client.get(f"{API}/archive/export", params={"workspace_id": str(posting.workspace_id)}, headers=headers).status_code == 200
-    assert client.patch(url, json={"taken_down_on": today().isoformat()}, headers=headers).status_code == 200
-    assert client.delete(url, headers=headers).status_code == 200
-    assert postings(db, customer.id) == []
-
-
 def test_deleting_the_account_deletes_the_archive(client: TestClient, db: Session) -> None:
-    customer = make_customer(db, cancel=True)  # cancelled, so the account can be deleted
+    customer = make_customer(db)
     user, headers = make_user(db, customer)
     posting_id, customer_id, user_id = archived_row(db, customer).id, customer.id, user.id
     db.add(ArchivedFile(posting_id=posting_id, name="form.pdf", content_type="application/pdf", size=len(PDF), data=PDF))
@@ -348,7 +317,7 @@ def test_deleting_the_account_deletes_the_archive(client: TestClient, db: Sessio
     db.expire_all()
     assert db.get(ArchivedPosting, posting_id) is None
     assert db.exec(select(func.count()).select_from(ArchivedFile).where(col(ArchivedFile.posting_id) == posting_id)).one() == 0
-    assert db.get(Customer, customer_id) is not None  # billing records stay
+    assert db.get(Customer, customer_id) is None  # the account goes with its last user
     assert db.get(User, user_id) is None
 
 

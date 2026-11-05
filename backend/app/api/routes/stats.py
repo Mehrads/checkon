@@ -1,6 +1,6 @@
-"""Usage numbers behind the PRD's success metrics (§2), for superusers only. v1 volumes are small, so the
-numbers are worked out in Python from the raw rows. The free-check metrics count free checks only; paid
-plans have their own counts.
+"""Usage numbers for superusers only. v1 volumes are small, so the
+numbers are worked out in Python from the raw rows. The free-check metrics count visitors' free checks only;
+signed-in accounts have their own counts.
 """
 
 import math
@@ -12,13 +12,11 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlmodel import Session, col, select
+from sqlmodel import Session, func, select
 
-from app.api.billing import active_plan
 from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import (
     ContactMessage,
-    Customer,
     CustomRequest,
     Feedback,
     FreeCheckSpend,
@@ -45,12 +43,11 @@ class Week(BaseModel):
     refused: int  # pasted something that isn't one job posting
     fixes_applied: int  # checks whose fixes were applied
     custom_requests: int  # contact form "Custom setup", plus the older request form
-    plan_enquiries: int  # contact form "Starter" or "Agency"
     contact_messages: int  # every contact form message
     feedback_up: int
     feedback_down: int  # down, or "looks wrong"
     model_spend_usd: Decimal
-    paid_checks: int  # checks that counted against a plan
+    account_checks: int  # signed-in accounts' checks
 
 
 class Returning(BaseModel):
@@ -78,13 +75,12 @@ class Totals(BaseModel):
     visitors: int
     fixes_applied: int
     custom_requests: int
-    plan_enquiries: int
     contact_messages: int
     model_spend_usd: Decimal  # free checks
     first_check: datetime | None
-    customers: int  # with an active plan now
-    paid_checks: int
-    paid_model_spend_usd: Decimal
+    accounts: int  # accounts with a signed-in check
+    account_checks: int
+    account_model_spend_usd: Decimal
 
 
 class StatsOut(BaseModel):
@@ -110,18 +106,13 @@ def _percentile(values: list[float], share: float) -> float | None:
 
 
 def compute_stats(session: Session, now: datetime) -> StatsOut:
-    # Our complimentary test accounts are left out: their checks and the customer itself.
-    tests = set(session.exec(
-        select(PaidCheck.check_id).join(Customer, col(PaidCheck.customer_id) == Customer.id).where(col(Customer.complimentary))
-    ).all())  # fmt: skip
-    every = sorted((e for e in session.exec(select(UsageEvent)).all() if e.check_id not in tests), key=lambda e: e.at)
-    events = [e for e in every if e.plan is None]  # free checks
-    paid = [e for e in every if e.plan is not None]
-    customers = [customer for customer in session.exec(select(Customer)).all() if not customer.complimentary]
+    every = sorted(session.exec(select(UsageEvent)).all(), key=lambda e: e.at)
+    events = [e for e in every if e.plan is None]  # visitors' free checks
+    paid = [e for e in every if e.plan is not None]  # signed-in accounts' checks
+    accounts = session.exec(select(func.count(func.distinct(PaidCheck.customer_id)))).one()
     requests = session.exec(select(CustomRequest.created_at)).all()
     contacts = session.exec(select(ContactMessage.created_at, ContactMessage.interest)).all()
     requests = [*requests, *(created for created, interest in contacts if interest == "custom")]
-    plans = [created for created, interest in contacts if interest in ("starter", "agency")]
     feedback = session.exec(select(Feedback.created_at, Feedback.rating)).all()
     spend = session.exec(select(FreeCheckSpend)).all()
 
@@ -147,12 +138,11 @@ def compute_stats(session: Session, now: datetime) -> StatsOut:
             refused=sum(1 for e in events if e.kind == "refused" and during(e.at)),
             fixes_applied=len({e.check_id for e in events if e.kind == "accept" and during(e.at)}),
             custom_requests=sum(1 for at in requests if during(at)),
-            plan_enquiries=sum(1 for at in plans if during(at)),
             contact_messages=sum(1 for at, _ in contacts if during(at)),
             feedback_up=sum(1 for at, rating in feedback if rating == "up" and during(at)),
             feedback_down=sum(1 for at, rating in feedback if rating != "up" and during(at)),
             model_spend_usd=sum((row.usd for row in spend if during(row.day)), Decimal(0)),
-            paid_checks=sum(1 for e in paid if e.kind == "check" and during(e.at)),
+            account_checks=sum(1 for e in paid if e.kind == "check" and during(e.at)),
         ))  # fmt: skip
 
     visits: dict[str, list[datetime]] = defaultdict(list)
@@ -184,13 +174,12 @@ def compute_stats(session: Session, now: datetime) -> StatsOut:
             visitors=len(first_seen),
             fixes_applied=len({e.check_id for e in events if e.kind == "accept"}),
             custom_requests=len(requests),
-            plan_enquiries=len(plans),
             contact_messages=len(contacts),
             model_spend_usd=sum((row.usd for row in spend), Decimal(0)),
             first_check=checks[0].at if checks else None,
-            customers=sum(1 for customer in customers if active_plan(customer)),
-            paid_checks=sum(1 for e in paid if e.kind == "check"),
-            paid_model_spend_usd=sum((e.usd for e in paid if e.usd is not None), Decimal(0)),
+            accounts=accounts,
+            account_checks=sum(1 for e in paid if e.kind == "check"),
+            account_model_spend_usd=sum((e.usd for e in paid if e.usd is not None), Decimal(0)),
         ),
         weeks=weeks,
         returning=Returning(

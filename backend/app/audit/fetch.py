@@ -27,7 +27,7 @@ import httpx
 
 from app.api.posting_link import is_public
 
-USER_AGENT = "CheckON/1.0 (+https://checkon.ca)"
+USER_AGENT = "CheckON/1.0 (+https://github.com/Mehrads/checkon)"
 ROBOTS_AGENT = "CheckON"  # the name robots.txt rules are matched against
 MAX_BYTES = 16_000_000  # a big job board's JSON; pages are far smaller
 ROBOTS_MAX_BYTES = 500_000  # RFC 9309 asks crawlers to read at least 500 KiB

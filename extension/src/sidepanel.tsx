@@ -8,20 +8,21 @@ import ReactDOM from "react-dom/client"
 
 import { client } from "@/client/client.gen"
 import { Panel } from "./Panel"
+import { API_URL } from "./site"
 import { currentToken, loadToken } from "./token"
 import "./sidepanel.css"
 
 // The same API as the website, so the extension shares its free-check limit (one a week), and a
-// signed-in customer's checks count against their plan.
+// signed-in user's checks are saved to their account.
 client.setConfig({
-  baseURL: import.meta.env.VITE_API_URL ?? "https://checkon.ca",
+  baseURL: API_URL,
   withCredentials: true,
   auth: currentToken,
 })
 
-// The panel stays visible while the customer works in the window's tabs, so "visibilitychange" alone never
-// refetches the plan and the client list: also refetch when they come back to the panel, e.g. after adding a
-// client or turning its archive on at checkon.ca/profile.
+// The panel stays visible while the user works in the window's tabs, so "visibilitychange" alone never
+// refetches the account and the client list: also refetch when they come back to the panel, e.g. after adding a
+// client or turning its archive on in the website's company profile.
 focusManager.setEventListener((handleFocus) => {
   const listener = () => handleFocus()
   window.addEventListener("visibilitychange", listener)

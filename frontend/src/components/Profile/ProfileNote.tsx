@@ -36,7 +36,7 @@ export function profileFacts(
 }
 
 /** "Using your company profile" with its facts, or an invitation to set one up; `edit` is the link. With
- * client workspaces (Agency), the note names the client. */
+ * client workspaces, the note names the client. */
 export function ProfileNote({
   profile,
   edit,

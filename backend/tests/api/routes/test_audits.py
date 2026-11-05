@@ -1,5 +1,6 @@
-"""Careers page audits through the API, against Postgres, with a recorded web and a scripted LLM (no network): paid
-plans only, the postings and checks shown before anything runs, one check per posting counted against the plan,
+"""Careers page audits through the API, against Postgres, with a recorded web and a scripted LLM (no network):
+signed-in accounts only, the postings and checks shown before anything runs, one check per posting counted for the
+account,
 the report kept without the posting text, and the full check open for an hour. Run `docker compose up -d db` and
 migrate first.
 """
@@ -39,12 +40,12 @@ from app.models import (
     Workspace,
     get_datetime_utc,
 )
-from tests.api.routes.test_billing import make_customer, make_user
 from tests.audit.web import Web, boards
 from tests.compliance.fake_llm import FakeLLM
 from tests.compliance.test_api import MemoryLimits, MemoryUsage
 from tests.compliance.test_employer import MemorySizes
 from tests.compliance.test_inspector import POSTING, extraction, labels
+from tests.utils.accounts import make_customer, make_user
 
 API = settings.API_V1_STR
 CAREERS = "https://northwind.example/careers"
@@ -95,8 +96,8 @@ def env() -> Generator[dict[str, Any]]:
         app.dependency_overrides.pop(dependency, None)
 
 
-def headers_for(db: Session, plan: str | None = "starter") -> dict[str, str]:
-    return make_user(db, make_customer(db, plan=plan))[1]
+def headers_for(db: Session) -> dict[str, str]:
+    return make_user(db, make_customer(db))[1]
 
 
 def preview(client: TestClient, headers: dict[str, str], url: str = CAREERS, **body: Any) -> Any:
@@ -118,7 +119,7 @@ def check(client: TestClient, env: dict[str, Any], headers: dict[str, str], audi
 
 
 def paid_checks(client: TestClient, headers: dict[str, str]) -> list[dict[str, Any]]:
-    return client.get(f"{API}/billing/checks", headers=headers).json()["data"]
+    return client.get(f"{API}/account/checks", headers=headers).json()["data"]
 
 
 def test_the_careers_page_reads_as_the_pasted_posting() -> None:
@@ -126,10 +127,8 @@ def test_the_careers_page_reads_as_the_pasted_posting() -> None:
     assert board.postings[0].text == POSTING.strip()
 
 
-def test_audits_come_with_a_paid_plan(client: TestClient, db: Session, env: dict[str, Any]) -> None:
+def test_audits_need_a_signed_in_user(client: TestClient, env: dict[str, Any]) -> None:
     assert preview(client, {}).status_code == 401
-    no_plan = headers_for(db, plan=None)
-    assert preview(client, no_plan).status_code == 403
     assert env["web"].requests == []
 
 
@@ -142,7 +141,7 @@ def test_preview_then_check_each_posting(client: TestClient, db: Session, env: d
         ("Payroll Specialist", "ontario"), ("Payroll Specialist", "ontario"), ("Payroll Lead", "canada"),
     ]  # Ontario first; Calgary left out
     assert (found["source"], found["outside_ontario"], found["more"], found["max_postings"]) == ("page", 1, 0, 50)
-    assert (found["checks_left"], found["extra_checks_left"], found["workspace_name"]) == (50, 200, "Your company")
+    assert (found["checks_left"], found["workspace_name"]) == (None, "Your company")  # no limit by default
     assert env["llm"].calls == [] and paid_checks(client, headers) == []  # nothing checked or charged yet
 
     response = start(client, headers, found)
@@ -168,7 +167,7 @@ def test_preview_then_check_each_posting(client: TestClient, db: Session, env: d
     assert len(paid_checks(client, headers)) == 1
 
     assert check(client, env, headers, audit, 1).json()["status"] == "not_compliant"
-    assert client.get(f"{API}/billing", headers=headers).json()["checks_used"] == 2
+    assert client.get(f"{API}/account", headers=headers).json()["checks_used"] == 2
 
     full = client.get(f"{API}/audits/{audit['id']}/postings/{audit['postings'][0]['id']}", headers=headers)
     assert full.status_code == 200, full.text
@@ -241,12 +240,12 @@ def test_one_posting_at_a_time(client: TestClient, db: Session, env: dict[str, A
 
 
 @pytest.mark.usefixtures("env")
-def test_the_plan_bounds_an_audit(client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_the_account_limit_bounds_an_audit(client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
     headers = headers_for(db)
+    monkeypatch.setattr(settings, "ACCOUNT_CHECKS_PER_30_DAYS", 2)
     found = preview(client, headers).json()
+    assert found["checks_left"] == 2
     ids = [p["id"] for p in found["postings"]]
-    monkeypatch.setattr(settings, "PLAN_CHECKS_STARTER", 1)
-    monkeypatch.setattr(settings, "PLAN_EXTRA_CHECKS_MAX", 1)
     too_many = start(client, headers, found, ids)
     assert too_many.status_code == 429 and "2 checks left" in too_many.json()["detail"]["message"]
     assert start(client, headers, found, ["https://example.com/not-on-this-board"]).status_code == 422
@@ -258,7 +257,7 @@ def test_the_plan_bounds_an_audit(client: TestClient, db: Session, monkeypatch: 
 
 @pytest.mark.usefixtures("env")
 def test_audits_belong_to_their_customer(client: TestClient, db: Session) -> None:
-    headers, other = headers_for(db), headers_for(db, plan="agency")
+    headers, other = headers_for(db), headers_for(db)
     found = preview(client, headers).json()
     assert start(client, other, found).status_code == 404
     audit = start(client, headers, found).json()
@@ -269,8 +268,8 @@ def test_audits_belong_to_their_customer(client: TestClient, db: Session) -> Non
     assert client.get(f"{API}/audits/", headers=other).json()["count"] == 0
 
 
-def test_an_agency_audit_uses_the_picked_client(client: TestClient, db: Session, env: dict[str, Any]) -> None:
-    headers = headers_for(db, plan="agency")
+def test_an_audit_uses_the_picked_client(client: TestClient, db: Session, env: dict[str, Any]) -> None:
+    headers = headers_for(db)
     client.post(f"{API}/workspaces/", json={"name": "Acme Retail"}, headers=headers)
     beta = client.post(f"{API}/workspaces/", json={"name": "Beta Foods"}, headers=headers).json()
     client.patch(f"{API}/workspaces/{beta['id']}", json={"headcount": 40, "uses_ai_in_hiring": True}, headers=headers)
@@ -299,11 +298,12 @@ def test_boards_that_cant_be_read(client: TestClient, db: Session, env: dict[str
 
 @pytest.mark.usefixtures("env")
 def test_deleting_the_last_account_deletes_its_audits(client: TestClient, db: Session) -> None:
-    customer = make_customer(db, cancel=True)
+    customer = make_customer(db)
+    customer_id = customer.id
     _, headers = make_user(db, customer)
     start(client, headers, preview(client, headers).json())
     assert client.delete(f"{API}/users/me", headers=headers).status_code == 200
-    assert db.exec(select(Audit).where(Audit.customer_id == customer.id)).all() == []
+    assert db.exec(select(Audit).where(Audit.customer_id == customer_id)).all() == []
 
 
 @pytest.fixture(autouse=True, scope="module")

@@ -16,8 +16,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { isLoggedIn } from "@/hooks/useAuth"
-import { apiMessage } from "@/hooks/useBilling"
 import { track } from "@/lib/analytics"
+import { apiMessage } from "@/lib/api"
 import { Heading, Kicker } from "./Landing"
 
 function reason(error: unknown): string {
@@ -89,7 +89,7 @@ function Result({ posting }: { posting: SamplePosting }) {
 }
 
 /** The free sample audit: the first few open Ontario postings on a careers page, findings only. A taste of the
- * paid audit, which checks every posting and writes the fixes. */
+ * account's audit, which checks every posting and writes the fixes. */
 export function SampleAudit() {
   const [url, setUrl] = useState("")
   const [sample, setSample] = useState<SampleOut | null>(null)
@@ -177,7 +177,7 @@ export function SampleAudit() {
             week, no sign-up.
           </p>
           <p className="mt-4 text-muted-foreground">
-            On a paid plan, an audit checks every posting on the board and
+            With an account, an audit checks every posting on the board and
             writes the fixes for you to approve.
           </p>
         </div>
@@ -226,12 +226,12 @@ export function SampleAudit() {
             <Alert variant="destructive">
               <AlertDescription>
                 {error}
-                {quota && (
+                {quota && !isLoggedIn() && (
                   <span>
                     {" "}
-                    <a href="#pricing" className="underline underline-offset-4">
-                      See the plans
-                    </a>{" "}
+                    <Link to="/login" className="underline underline-offset-4">
+                      Log in
+                    </Link>{" "}
                     to audit every posting.
                   </span>
                 )}
@@ -265,14 +265,14 @@ export function SampleAudit() {
                 <div className="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-muted-foreground">
                     {rest > 0
-                      ? `${rest} more ${rest === 1 ? "posting wasn't" : "postings weren't"} checked. A paid audit checks them all, with fixes.`
-                      : "A paid audit adds the fixes for each posting."}
+                      ? `${rest} more ${rest === 1 ? "posting wasn't" : "postings weren't"} checked. An account's audit checks them all, with fixes.`
+                      : "An account's audit adds the fixes for each posting."}
                   </p>
                   <Button asChild>
                     {isLoggedIn() ? (
                       <Link to="/audits">Audit them all</Link>
                     ) : (
-                      <a href="#pricing">See the plans</a>
+                      <Link to="/login">Log in to audit them all</Link>
                     )}
                   </Button>
                 </div>

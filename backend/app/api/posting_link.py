@@ -1,7 +1,7 @@
-"""Read a posting from its public link (PRD FR1), safely.
+"""Read a posting from its public link, safely.
 
 The server fetches a page someone else named, so every hop is checked before we connect: http or https on the
-default port only, no user name or password in the link, no LinkedIn, Indeed or Glassdoor (PRD §10), and a host
+default port only, no user name or password in the link, no LinkedIn, Indeed or Glassdoor (their terms forbid it), and a host
 whose every address is public. The connection then goes to the address that was checked, never to a second DNS
 answer, so a host can't switch to a private address between the check and the connection. Redirects are
 followed by hand and checked the same way. The page must be HTML or plain text, arrive within the time limit,
@@ -31,14 +31,14 @@ from app.compliance.webpage import posting_text, workable_text
 MAX_REDIRECTS = 5
 MAX_PAGE_BYTES = 2_000_000
 DEADLINE_SECONDS = 15.0  # the whole fetch, redirects included
-USER_AGENT = "Mozilla/5.0 (compatible; CheckON/1.0; +https://checkon.ca) posting check requested by a user"
+USER_AGENT = "Mozilla/5.0 (compatible; CheckON/1.0; +https://github.com/Mehrads/checkon) posting check requested by a user"
 TYPES = ("text/html", "application/xhtml+xml", "text/plain")
 JSON_TYPES = ("application/json",)
 WORKABLE_JOB = re.compile(r"^/(?P<account>[^/]+)/j/(?P<code>[A-Za-z0-9]+)(?:/apply)?/?$")
 CLOSED_QUERY = {"error": "true", "not_found": "true"}  # Greenhouse and Workable after a closed posting
 DEFAULT_PORTS = {"http": 80, "https": 443}
 
-# PRD §10: we don't read these job sites, directly or through a redirect. SimplyHired is Indeed's.
+# Their terms forbid it: we don't read these job sites, directly or through a redirect. SimplyHired is Indeed's.
 BLOCKED_SITES = re.compile(
     r"(?:^|\.)(?:linkedin|indeed|glassdoor|simplyhired)\.(?:[a-z]{2,3}|co\.[a-z]{2}|com\.[a-z]{2})$|(?:^|\.)lnkd\.in$"
 )

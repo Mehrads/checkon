@@ -3,20 +3,19 @@ project_id            = "your-gcp-project-id"
 github_repository     = "your-github-user/your-repo"
 first_superuser_email = "you@example.com"
 
-# Email: sign-in codes, password resets and contact notices go out through Resend's SMTP, from info@checkon.ca
-# (a Google Workspace mailbox, where replies land). The SMTP password secret holds the Resend API key
-# (infra/README.md, "Email and DNS"). smtp_port defaults to 587 with STARTTLS. Don't use smtp.gmail.com: Gmail
-# refuses logins from Cloud Run.
-contact_email = "info@checkon.ca"
-emails_from   = "info@checkon.ca"
-smtp_user     = "resend"
-smtp_host     = "smtp.resend.com"
+# Email: sign-in codes, password resets and contact notices need SMTP. The SMTP password goes in Secret Manager
+# (infra/README.md). smtp_port defaults to 587 with STARTTLS. Gmail's SMTP refuses logins from Cloud Run; a
+# transactional sender such as Resend (smtp_user "resend", smtp_host "smtp.resend.com") works.
+contact_email = "you@example.com"
+emails_from   = "no-reply@example.com"
+smtp_user     = ""
+smtp_host     = ""
 
 # Leave both empty for the first apply. Setting domain adds the load balancer (infra/README.md, step 5).
 domain     = ""
 public_url = ""
-# domain     = "checkon.ca"
-# public_url = "https://checkon.ca"
+# domain     = "checker.example.com"
+# public_url = "https://checker.example.com"
 
 # Browser extension IDs allowed to call the free check (extension/README.md).
 # extension_ids = ["lfepfedddcabkigmmhbhacdllgljpdbe"]
@@ -24,9 +23,6 @@ public_url = ""
 # Your own public addresses, which skip the weekly free-check quota for testing the live site.
 # free_check_allowlist_ips = ["203.0.113.9"]
 
-# Paid plans: live-mode price ids from the Stripe Dashboard (infra/README.md, "Stripe"). Empty keeps
-# Checkout off, and the pricing page offers the contact form instead.
-# stripe_price_starter     = "price_..."
-# stripe_price_agency      = "price_..."
-# stripe_price_extra_check = "price_..."
-# stripe_automatic_tax     = false # true once registered for GST/HST
+# Accounts: let anyone sign up (you pay for their checks), and cap each account's checks in any 30 days.
+# signup_open                = false
+# account_checks_per_30_days = 0
