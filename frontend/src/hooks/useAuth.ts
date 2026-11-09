@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 
 import {
@@ -27,6 +27,7 @@ const afterLogin = (redirect?: string) =>
 /** `next`: the `redirect` of /login, to go back to after the emailed code. */
 const useAuth = (next?: string) => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { showErrorToast } = useCustomToast()
 
   const { data: user } = useQuery<UserPublic | null, Error>({
@@ -60,6 +61,9 @@ const useAuth = (next?: string) => {
 
   const logout = () => {
     localStorage.removeItem("access_token")
+    // Nothing of this account stays in memory for whoever signs in next
+    queryClient.cancelQueries()
+    queryClient.clear()
     navigate({ to: "/login" })
   }
 

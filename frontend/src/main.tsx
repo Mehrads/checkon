@@ -31,6 +31,9 @@ const handleApiError = (error: Error) => {
   // Only a sign-in that no longer works logs out. Other 403s, such as an admin-only page, are the page's to
   // show.
   if (status === 401 || (status === 403 && data?.detail === BAD_TOKEN)) {
+    // No token: the user just logged out, and this is a request that was still on its way. Logging out has
+    // already gone to /login; a second, full-page trip there would cut off whatever page opens next.
+    if (localStorage.getItem("access_token") === null) return
     localStorage.removeItem("access_token")
     // Log in again, then come back to this page
     const page = window.location.pathname + window.location.search
