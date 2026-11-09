@@ -19,10 +19,11 @@ import { RULES } from "./rules/en"
 import { RULES as RULES_FR } from "./rules/fr"
 import { RULE_IDS } from "./rules/types"
 
-// In-page sections, then the pages about how accurate the check is and what the rules ask
+// In-page sections, then the pages about how accurate the check is and what the rules ask. `wide`: only from
+// 1280px, so the bar fits at 1024 (the sample sits right under the hero, and the hero links to it).
 const NAV = [
   { href: "#how", label: "How it works" },
-  { href: "#sample", label: "Sample result" },
+  { href: "#sample", label: "Sample result", wide: true },
   { href: "#audit", label: "Careers page audit" },
   { href: "#open-source", label: "Open source" },
 ]
@@ -55,7 +56,10 @@ export function SiteHeader() {
             <a
               key={item.href}
               href={item.href}
-              className="transition-colors hover:text-foreground"
+              className={cn(
+                "transition-colors hover:text-foreground",
+                item.wide && "hidden xl:inline",
+              )}
             >
               {item.label}
             </a>
